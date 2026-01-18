@@ -24,14 +24,6 @@ extern "C" fn tui_read_byte() -> Int = "tui_read_byte"
 
 ///|
 #borrow(buf)
-extern "C" fn tui_read_bytes(buf : FixedArray[Byte], max_len : Int) -> Int = "tui_read_bytes"
-
-///|
-#borrow(str)
-extern "C" fn tui_print_raw_ffi(str : Bytes, len : Int) = "tui_print_raw"
-
-///|
-#borrow(buf)
 extern "C" fn tui_write_bytes_ffi(buf : FixedArray[Byte], len : Int) = "tui_write_bytes"
 
 ///|
@@ -413,20 +405,8 @@ fn char_width_code(code : Int) -> Int {
 }
 
 ///|
-/// Get string display width
-fn string_width(s : String) -> Int {
-  let mut width = 0
-  for i = 0; i < s.length(); i = i + 1 {
-    width = width + char_width_code(s[i].to_int())
-  }
-  width
-}
-
-///|
-/// Render text buffer at position with wrapping
-///|
 /// Line info for scrolling
-struct LineInfo {
+priv struct LineInfo {
   start_idx : Int
   chars : Array[Char]
 }
@@ -564,116 +544,10 @@ fn render_inplace_buffer_scroll(
   print_raw(output)
 }
 
-fn render_inplace_buffer(
-  text : String,
-  start_row : Int,
-  start_col : Int,
-  max_width : Int,
-  max_height : Int,
-) -> (Int, Int) {
-  let mut output = ""
-  let mut row = start_row
-  let mut col = start_col
-
-  // Move to start position and clear area
-  for r = 0; r < max_height; r = r + 1 {
-    output = output +
-      "\u001b[" +
-      (start_row + r).to_string() +
-      ";" +
-      start_col.to_string() +
-      "H"
-    for w = 0; w < max_width; w = w + 1 {
-      output = output + " "
-    }
-  }
-  output = output +
-    "\u001b[" +
-    start_row.to_string() +
-    ";" +
-    start_col.to_string() +
-    "H"
-
-  // Render text with wrapping
-  let mut line_width = 0
-  for i = 0; i < text.length(); i = i + 1 {
-    let code = text[i].to_int()
-    let cw = char_width_code(code)
-
-    // Handle newline
-    if code == 10 {
-      // '\n'
-      row = row + 1
-      col = start_col
-      line_width = 0
-      if row < start_row + max_height {
-        output = output +
-          "\u001b[" +
-          row.to_string() +
-          ";" +
-          col.to_string() +
-          "H"
-      }
-      continue
-    }
-
-    // Wrap if needed
-    if line_width + cw > max_width {
-      row = row + 1
-      col = start_col
-      line_width = 0
-      if row < start_row + max_height {
-        output = output +
-          "\u001b[" +
-          row.to_string() +
-          ";" +
-          col.to_string() +
-          "H"
-      }
-    }
-    if row < start_row + max_height {
-      output = output + Int::unsafe_to_char(code).to_string()
-      line_width = line_width + cw
-      col = col + cw
-    }
-  }
-  print_raw(output)
-  (row, col)
-}
-
 ///|
 /// Helper to convert buffer to string
 fn buf_to_string(buf : Array[Char]) -> String {
   buf.iter().map(fn(c) { c.to_string() }).fold(init="", fn(a, b) { a + b })
-}
-
-///|
-/// Calculate cursor position considering newlines and wrapping
-fn calc_cursor_position(
-  text_before : String,
-  start_row : Int,
-  start_col : Int,
-  max_width : Int
-) -> (Int, Int) {
-  let mut row = start_row
-  let mut line_width = 0
-  for i = 0; i < text_before.length(); i = i + 1 {
-    let code = text_before[i].to_int()
-    let cw = char_width_code(code)
-    // Handle newline
-    if code == 10 {
-      row = row + 1
-      line_width = 0
-      continue
-    }
-    // Wrap if needed
-    if line_width + cw > max_width {
-      row = row + 1
-      line_width = 0
-    }
-    line_width = line_width + cw
-  }
-  (row, start_col + line_width)
 }
 
 ///|
