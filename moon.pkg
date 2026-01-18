@@ -11,6 +11,10 @@ import {
 }
 
 options(
+  "readme": "README.md",
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Ink like terminal UI renderer with crater layout engine",
   targets: {
     "io_js.mbt": ["js"],
     "io_native.mbt": ["not", "js"],

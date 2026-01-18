@@ -10,12 +10,15 @@ Terminal UI library for MoonBit with reactive signals integration.
 - Keyboard and mouse input handling
 - Layout powered by mizchi/crater
 
+
+![alt text](screenshot.png)
+
 ## Installation
 
 ```json
 {
   "deps": {
-    "mizchi/tui": "0.1.0"
+    "mizchi/tui": "0.1.1"
   }
 }
 ```
