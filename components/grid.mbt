@@ -18,8 +18,8 @@ pub fn grid(
   max_width? : @types.Dimension = @types.Dimension::Auto,
   max_height? : @types.Dimension = @types.Dimension::Auto,
   // Alignment
-  justify_items? : @style.Alignment = @style.Alignment::Stretch,
-  align_items? : @style.Alignment = @style.Alignment::Stretch,
+  justify_items? : @types.Alignment = @types.Alignment::Stretch,
+  align_items? : @types.Alignment = @types.Alignment::Stretch,
   // Spacing
   padding? : Double = 0.0,
   padding_x? : Double = 0.0,

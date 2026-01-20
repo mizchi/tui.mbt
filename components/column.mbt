@@ -19,8 +19,8 @@ pub fn column(
   flex_shrink? : Double = 1.0,
   flex_basis? : @types.Dimension = @types.Dimension::Auto,
   // Alignment
-  justify? : @style.Alignment = @style.Alignment::FlexStart,
-  align? : @style.Alignment = @style.Alignment::Stretch,
+  justify? : @types.Alignment = @types.Alignment::FlexStart,
+  align? : @types.Alignment = @types.Alignment::Stretch,
   wrap? : Bool = false,
   gap? : Double = 0.0,
   // Spacing
@@ -39,8 +39,8 @@ pub fn column(
   @tui.box(
     children,
     id~,
-    flex_direction=@style.FlexDirection::Column,
-    flex_wrap=if wrap { @style.FlexWrap::Wrap } else { @style.FlexWrap::NoWrap },
+    flex_direction=@types.FlexDirection::Column,
+    flex_wrap=if wrap { @types.FlexWrap::Wrap } else { @types.FlexWrap::NoWrap },
     width~,
     height~,
     min_width~,

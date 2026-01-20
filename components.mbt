@@ -58,11 +58,11 @@ pub fn box(
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
   flex_basis? : @types.Dimension = @types.Dimension::Auto,
-  flex_direction? : @style.FlexDirection = @style.FlexDirection::Row,
-  flex_wrap? : @style.FlexWrap = @style.FlexWrap::NoWrap,
-  justify_content? : @style.Alignment = @style.Alignment::FlexStart,
-  align_items? : @style.Alignment = @style.Alignment::Stretch,
-  align_content? : @style.Alignment = @style.Alignment::Stretch,
+  flex_direction? : @types.FlexDirection = @types.FlexDirection::Row,
+  flex_wrap? : @types.FlexWrap = @types.FlexWrap::NoWrap,
+  justify_content? : @types.Alignment = @types.Alignment::FlexStart,
+  align_items? : @types.Alignment = @types.Alignment::Stretch,
+  align_content? : @types.Alignment = @types.Alignment::Stretch,
   gap? : Double = 0.0,
   padding? : Double = 0.0,
   padding_x? : Double = 0.0,
@@ -95,7 +95,7 @@ pub fn box(
 
   // Build style based on default with overrides
   let style = @style.Style::default()
-  style.display = @style.Display::Flex
+  style.display = @types.Display::Flex
   style.flex_direction = flex_direction
   style.flex_wrap = flex_wrap
   style.justify_content = justify_content

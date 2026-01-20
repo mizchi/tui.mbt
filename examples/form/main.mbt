@@ -66,7 +66,7 @@ fn main {
         // Title
         @c.row(
           [@c.text("Form Demo", fg=@tui.Color::yellow(), bold=true)],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
         // Form fields
@@ -141,7 +141,7 @@ fn main {
               fg=@tui.Color::rgb(100, 100, 100),
             ),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
       ],

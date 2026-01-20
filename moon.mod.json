@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Terminal UI library for MoonBit with reactive signals",
   "deps": {
-    "mizchi/crater": "0.1.5",
+    "mizchi/crater": "0.2.0",
     "mizchi/signals": "0.5.0",
     "moonbitlang/async": "0.16.0"
   },

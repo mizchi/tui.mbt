@@ -49,8 +49,8 @@ fn header() -> @tui.Component {
     ],
     height=@types.Dimension::Length(3.0),
     padding_x=1.0,
-    justify=@style.Alignment::SpaceBetween,
-    align=@style.Alignment::Center,
+    justify=@types.Alignment::SpaceBetween,
+    align=@types.Alignment::Center,
     border=Some(@tui.BorderChars::single()),
     border_color=@tui.Color::cyan(),
     bg=@tui.Color::rgb(20, 20, 40),
@@ -132,7 +132,7 @@ fn stat_card(
     ],
     flex_grow=1.0,
     padding=1.0,
-    align=@style.Alignment::Center,
+    align=@types.Alignment::Center,
     border=Some(@tui.BorderChars::rounded()),
     border_color=color,
   )
@@ -176,7 +176,7 @@ fn activity_item(
       @c.row([@c.colored("●", color), @c.text(text)], gap=1.0),
       @c.colored(time, @tui.Color::rgb(100, 100, 100)),
     ],
-    justify=@style.Alignment::SpaceBetween,
+    justify=@types.Alignment::SpaceBetween,
   )
 }
 
@@ -228,7 +228,7 @@ fn footer() -> @tui.Component {
     ],
     height=@types.Dimension::Length(1.0),
     padding_x=1.0,
-    justify=@style.Alignment::SpaceBetween,
+    justify=@types.Alignment::SpaceBetween,
     bg=@tui.Color::rgb(30, 30, 30),
   )
 }

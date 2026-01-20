@@ -49,7 +49,7 @@ pub(all) struct HitTestResult {
 /// Perform hit test on layout tree
 /// Returns the deepest (most specific) node containing the point
 pub fn hit_test(
-  layout : @node.Layout,
+  layout : @types.Layout,
   mouse_x : Int,
   mouse_y : Int,
   offset_x : Int,
@@ -79,7 +79,7 @@ pub fn hit_test(
 ///|
 /// Hit test from root (convenience function)
 pub fn hit_test_root(
-  layout : @node.Layout,
+  layout : @types.Layout,
   mouse_x : Int,
   mouse_y : Int,
 ) -> HitTestResult? {
@@ -90,7 +90,7 @@ pub fn hit_test_root(
 /// Handle mouse click event
 /// Returns true if a handler was invoked
 pub fn handle_click(
-  layout : @node.Layout,
+  layout : @types.Layout,
   handlers : EventHandlers,
   mouse_x : Int,
   mouse_y : Int,
@@ -112,7 +112,7 @@ pub fn handle_click(
 /// Find layout by ID
 /// Returns the position and size of the component with the given ID
 pub fn find_layout_by_id(
-  layout : @node.Layout,
+  layout : @types.Layout,
   target_id : String,
   offset_x : Int,
   offset_y : Int,
@@ -140,7 +140,7 @@ pub fn find_layout_by_id(
 ///|
 /// Find layout by ID from root
 pub fn find_layout_by_id_root(
-  layout : @node.Layout,
+  layout : @types.Layout,
   target_id : String,
 ) -> HitTestResult? {
   find_layout_by_id(layout, target_id, 0, 0)
@@ -149,7 +149,7 @@ pub fn find_layout_by_id_root(
 ///|
 /// Debug: dump layout tree structure
 pub fn dump_layout(
-  layout : @node.Layout,
+  layout : @types.Layout,
   offset_x : Int,
   offset_y : Int,
   depth : Int,

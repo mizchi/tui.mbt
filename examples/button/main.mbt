@@ -24,13 +24,13 @@ fn main {
         // Title
         @c.row(
           [@c.text("Button Demo", fg=@tui.Color::yellow(), bold=true)],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
         // Message display
         @c.row(
           [@c.text(current_message, fg=@tui.Color::cyan())],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
         ),
         // Count display
         @c.row(
@@ -46,7 +46,7 @@ fn main {
               bold=true,
             ),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
         // Buttons row
@@ -62,7 +62,7 @@ fn main {
             @c.hspace(2.0),
             @c.button("[ + ]", bg=@tui.Color::rgb(40, 80, 40), id="btn-plus"),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
         ),
         // Spacer
         @c.spacer(),
@@ -74,7 +74,7 @@ fn main {
               fg=@tui.Color::rgb(100, 100, 100),
             ),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
       ],

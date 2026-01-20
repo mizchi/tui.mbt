@@ -111,8 +111,8 @@ pub fn padded(
 pub fn center(children : Array[@tui.Component]) -> @tui.Component {
   @tui.box(
     children,
-    justify_content=@style.Alignment::Center,
-    align_items=@style.Alignment::Center,
+    justify_content=@types.Alignment::Center,
+    align_items=@types.Alignment::Center,
   )
 }
 

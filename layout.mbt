@@ -4,12 +4,12 @@
 
 ///|
 /// Create a MeasureFunc for text that uses character width
-pub fn text_measure_func(text : String) -> @node.MeasureFunc {
+pub fn text_measure_func(text : String) -> @types.MeasureFunc {
   {
     func: fn(
       available_width : Double,
       _available_height : Double,
-    ) -> @node.IntrinsicSize {
+    ) -> @types.IntrinsicSize {
       let max_width = available_width.to_int()
       // Calculate min-content (longest word)
       let mut min_width = 0
@@ -80,7 +80,7 @@ pub fn compute_layout(
   node : @node.Node,
   width : Int,
   height : Int,
-) -> @node.Layout {
+) -> @types.Layout {
   let viewport = @types.Size::new(width.to_double(), height.to_double())
   @crater.compute_layout(node, viewport)
 }

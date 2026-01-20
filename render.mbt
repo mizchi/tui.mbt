@@ -77,7 +77,7 @@ pub fn TextContentMap::get(self : TextContentMap, id : String) -> String? {
 /// Render Layout to CharBuffer
 pub fn render_layout(
   buf : CharBuffer,
-  layout : @node.Layout,
+  layout : @types.Layout,
   styles : RenderStyleMap,
   texts : TextContentMap,
   offset_x : Int,
@@ -192,7 +192,7 @@ fn draw_border(
 ///|
 /// Quick render function: Layout -> ANSI string
 pub fn render_to_ansi(
-  layout : @node.Layout,
+  layout : @types.Layout,
   styles : RenderStyleMap,
   texts : TextContentMap,
   width : Int,

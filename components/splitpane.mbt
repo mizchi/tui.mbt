@@ -123,7 +123,7 @@ pub fn hsplit(
       divider_component,
       @tui.box(bottom, height=@types.Dimension::Length(bottom_h.to_double())),
     ],
-    flex_direction=@style.FlexDirection::Column,
+    flex_direction=@types.FlexDirection::Column,
     height=@types.Dimension::Length(total_height.to_double()),
   )
 }
@@ -155,7 +155,7 @@ pub fn vsplit(
       divider_component,
       @tui.box(right, width=@types.Dimension::Length(right_w.to_double())),
     ],
-    flex_direction=@style.FlexDirection::Row,
+    flex_direction=@types.FlexDirection::Row,
     width=@types.Dimension::Length(total_width.to_double()),
   )
 }

@@ -22,7 +22,7 @@ async fn main {
         // Title
         @c.row(
           [@c.text("Counter Demo", fg=@tui.Color::yellow(), bold=true)],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
         // Count display
@@ -41,8 +41,8 @@ async fn main {
             ),
           ],
           flex_grow=1.0,
-          justify=@style.Alignment::Center,
-          align=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
+          align=@types.Alignment::Center,
         ),
         // Buttons row
         @c.row(
@@ -53,7 +53,7 @@ async fn main {
             @c.hspace(2.0),
             @c.button(" + ", min_width=7.0, bg=@tui.Color::rgb(50, 100, 50)),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
         ),
         // Instructions
         @c.row(
@@ -63,7 +63,7 @@ async fn main {
               fg=@tui.Color::rgb(128, 128, 128),
             ),
           ],
-          justify=@style.Alignment::Center,
+          justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
       ],
