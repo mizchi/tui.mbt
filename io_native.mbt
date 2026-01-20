@@ -446,10 +446,7 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
 
 ///|
 /// Find cursor line index and column offset
-fn find_cursor_line(
-  lines : Array[LineInfo],
-  cursor : Int
-) -> (Int, Int) {
+fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
   for line_idx, line in lines {
     let line_end = line.start_idx + line.chars.length()
     if cursor <= line_end {
@@ -479,7 +476,7 @@ fn render_inplace_buffer_scroll(
   start_col : Int,
   max_width : Int,
   max_height : Int,
-  scroll_offset : Int
+  scroll_offset : Int,
 ) -> Unit {
   let lines = wrap_text_to_lines(buf, max_width)
   let mut output = ""
@@ -561,7 +558,7 @@ pub fn start_inplace_input(
   multiline : Bool,
   initial : String,
   on_result : (InputResult) -> Unit,
-  on_lines_change~ : ((Int) -> Int)? = None,
+  on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Ensure raw mode is enabled
   let was_raw = is_raw_mode()
@@ -588,7 +585,9 @@ pub fn start_inplace_input(
   // Helper to render and position cursor with scroll
   fn do_render() {
     let lines = wrap_text_to_lines(buf, width)
-    let (cursor_line_idx, cursor_col_offset) = find_cursor_line(lines, cursor_pos)
+    let (cursor_line_idx, cursor_col_offset) = find_cursor_line(
+      lines, cursor_pos,
+    )
     // Calculate current start row (grows upward)
     let old_height = current_height
     let old_start_row = base_row - old_height + 1
@@ -641,7 +640,9 @@ pub fn start_inplace_input(
       scroll_offset = cursor_line_idx - current_height + 1
     }
     // Render with scroll (at calculated start row)
-    render_inplace_buffer_scroll(buf, start_row, col, width, current_height, scroll_offset)
+    render_inplace_buffer_scroll(
+      buf, start_row, col, width, current_height, scroll_offset,
+    )
     // Position cursor
     let display_row = start_row + cursor_line_idx - scroll_offset
     let display_col = col + cursor_col_offset

@@ -853,7 +853,7 @@ pub fn start_inplace_input(
   multiline : Bool,
   initial : String,
   on_result : (InputResult) -> Unit,
-  on_lines_change~ : ((Int) -> Int)? = None,
+  on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Note: on_lines_change is currently ignored in JS version (uses scroll)
   let _ = on_lines_change

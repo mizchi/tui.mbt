@@ -4,10 +4,10 @@
 ///|
 /// Progress bar style
 pub(all) enum ProgressStyle {
-  Bar        // [████████░░░░] 80%
-  Dots       // ●●●●●●●●○○○○
-  Blocks     // ▓▓▓▓▓▓▓▓░░░░
-  Spinner    // ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏
+  Bar // [████████░░░░] 80%
+  Dots // ●●●●●●●●○○○○
+  Blocks // ▓▓▓▓▓▓▓▓░░░░
+  Spinner // ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏
 }
 
 ///|
@@ -23,7 +23,9 @@ fn get_progress_chars(style : ProgressStyle) -> (String, String) {
 
 ///|
 /// Spinner frames for animation
-let spinner_frames : Array[String] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+let spinner_frames : Array[String] = [
+  "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏",
+]
 
 ///|
 /// Get spinner frame for animation
@@ -40,7 +42,7 @@ pub fn build_progress_bar(
   ratio : Double,
   width : Int,
   style? : ProgressStyle = ProgressStyle::Bar,
-  show_percent? : Bool = true
+  show_percent? : Bool = true,
 ) -> String {
   let clamped = if ratio < 0.0 {
     0.0
@@ -73,7 +75,7 @@ pub fn progress_bar(
   style? : ProgressStyle = ProgressStyle::Bar,
   show_percent? : Bool = true,
   fg? : @tui.Color = @tui.Color::white(),
-  fill_fg? : @tui.Color = @tui.Color::cyan()
+  fill_fg? : @tui.Color = @tui.Color::cyan(),
 ) -> @tui.Component {
   // Build the bar text
   let bar_text = build_progress_bar(ratio, width, style~, show_percent~)
@@ -87,7 +89,7 @@ pub fn progress_bar(
 pub fn spinner(
   tick : Int,
   label? : String = "",
-  fg? : @tui.Color = @tui.Color::cyan()
+  fg? : @tui.Color = @tui.Color::cyan(),
 ) -> @tui.Component {
   let frame = get_spinner_frame(tick)
   if label.length() > 0 {
@@ -102,7 +104,7 @@ pub fn spinner(
 pub fn loading_dots(
   tick : Int,
   label? : String = "Loading",
-  fg? : @tui.Color = @tui.Color::white()
+  fg? : @tui.Color = @tui.Color::white(),
 ) -> @tui.Component {
   let dots = match tick % 4 {
     0 => ""
@@ -117,7 +119,7 @@ pub fn loading_dots(
 /// Simple percentage text
 pub fn percent_text(
   ratio : Double,
-  fg? : @tui.Color = @tui.Color::white()
+  fg? : @tui.Color = @tui.Color::white(),
 ) -> @tui.Component {
   let clamped = if ratio < 0.0 {
     0.0
@@ -135,7 +137,7 @@ pub fn percent_text(
 pub fn fraction_text(
   current : Int,
   total : Int,
-  fg? : @tui.Color = @tui.Color::white()
+  fg? : @tui.Color = @tui.Color::white(),
 ) -> @tui.Component {
   text(current.to_string() + "/" + total.to_string(), fg~)
 }

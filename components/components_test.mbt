@@ -146,7 +146,6 @@ test "scrollable_list: streaming content height consistency" {
 
   // Simulate streaming: content grows from 4 to 6 items
   let heights : Array[Int] = []
-
   for item_count = 4; item_count <= 6; item_count = item_count + 1 {
     let items : Array[@tui.Component] = []
     for i = 0; i < item_count; i = i + 1 {
@@ -170,7 +169,10 @@ test "chat layout: fixed height container rendering" {
   let input_area_height = 6
   let buffer_lines = 1
   let divider_height = 1
-  let message_area_height = total_height - input_area_height - divider_height - buffer_lines
+  let message_area_height = total_height -
+    input_area_height -
+    divider_height -
+    buffer_lines
 
   // Create message items (2 lines per message: role + content)
   fn build_messages(count : Int) -> Array[@tui.Component] {
@@ -221,9 +223,10 @@ test "chat layout: text length affects height" {
   // Long texts - each takes 1 line (but may wrap in real render)
   let long_items : Array[@tui.Component] = []
   for i = 0; i < 11; i = i + 1 {
-    long_items.push(@tui.text("This is a much longer message that might cause issues"))
+    long_items.push(
+      @tui.text("This is a much longer message that might cause issues"),
+    )
   }
-
   scroll_state.offset.set(0)
   let short_visible = scrollable_list(short_items, scroll_state, visible_height)
   scroll_state.offset.set(0)

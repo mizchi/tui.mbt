@@ -60,7 +60,7 @@ pub fn start_edit_inplace(
   height : Int,
   multiline : Bool,
   on_complete : () -> Unit,
-  on_lines_change~ : ((Int) -> Int)? = None,
+  on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Call optional setup callback
   match config.on_edit_start {
@@ -90,7 +90,7 @@ pub fn start_edit_inplace(
       }
       on_complete()
     },
-    on_lines_change=on_lines_change,
+    on_lines_change~,
   )
 }
 

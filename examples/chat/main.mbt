@@ -28,8 +28,8 @@ fn main {
   let is_editing = @signals.signal(false)
   let running = @signals.signal(true)
 
-  // Scroll state using ScrollState component
-  let scroll_state = @c.ScrollState::new()
+  // Item-based scroller for message list
+  let scroller = @c.ItemScroller::new()
 
   // Streaming state using StreamingState component
   let streaming = @c.StreamingState::new()
@@ -56,7 +56,11 @@ fn main {
   // Build streaming message component with fixed height to prevent layout jumps
   fn build_streaming_message() -> @tui.Component {
     let partial = streaming.get_partial()
-    let display = if streaming.is_streaming() { partial + "▌" } else { partial }
+    let display = if streaming.is_streaming() {
+      partial + "▌"
+    } else {
+      partial
+    }
     @c.column(
       [
         @c.text("✦ Assistant", fg=@tui.Color::rgb(255, 150, 100), bold=true),
@@ -68,9 +72,14 @@ fn main {
     )
   }
 
-  // Calculate total lines for scroll
-  fn get_total_lines() -> Int {
-    calc_total_lines(messages.get().length(), streaming.has_content())
+  // Get total item count (messages + streaming if any)
+  fn get_item_count() -> Int {
+    let count = messages.get().length()
+    if streaming.has_content() {
+      count + 1
+    } else {
+      count
+    }
   }
 
   // Build message list components
@@ -86,6 +95,19 @@ fn main {
     items
   }
 
+  // Calculate visible item count based on terminal height
+  // Each message takes roughly 2-3 lines, so we estimate
+  fn get_visible_count() -> Int {
+    let vh = calc_visible_height(height.val)
+    // Estimate: each item takes about 3 lines on average
+    let count = vh / 3
+    if count < 3 {
+      3
+    } else {
+      count
+    }
+  }
+
   // Build the entire UI using crater layout
   fn build_ui() -> @tui.Component {
     let editing = is_editing.get()
@@ -93,20 +115,24 @@ fn main {
     let w = width.val
     let h = height.val
 
-    // Message area - fixed height to fill available space
-    let message_items = build_message_list()
-    let visible_height = calc_visible_height(h)
-    // Disable scroll indicator during streaming to prevent height fluctuation
-    let is_streaming = streaming.is_streaming()
-    let visible_items = @c.scrollable_list(
-      message_items,
-      scroll_state,
-      visible_height,
-      show_indicator=not(is_streaming),
-    )
+    // Message area - use ItemScroller to slice visible items
+    let all_items = build_message_list()
+    let visible_count = get_visible_count()
+    let visible_items = scroller.slice(all_items, visible_count)
 
+    // Add scroll indicator if needed
+    let indicator = scroller.indicator(get_item_count(), visible_count)
+    let display_items : Array[@tui.Component] = []
+    for item in visible_items {
+      display_items.push(item)
+    }
+    match indicator {
+      @c.ScrollIndicator::None => ()
+      _ => display_items.push(@c.scroll_indicator(indicator))
+    }
+    let visible_height = calc_visible_height(h)
     let message_area = @c.column(
-      visible_items,
+      display_items,
       height=@types.Dimension::Length(visible_height.to_double()),
       justify=@types.Alignment::FlexEnd, // Align messages to bottom
     )
@@ -131,8 +157,7 @@ fn main {
       @tui.Color::white()
     }
     let cursor = if editing { "█" } else { "" }
-
-    let status_text = "Enter: send · Alt+Enter: newline · Ctrl+C: quit"
+    let status_text = "Enter: send · ↑↓: scroll · Ctrl+C: quit"
     // Input content box (5 lines)
     let input_content = @tui.text_box(
       " " + display_text + cursor,
@@ -198,10 +223,7 @@ fn main {
     current.push({ role, content })
     messages.set(current)
     // Auto-scroll to bottom
-    scroll_state.auto_scroll_to_bottom(
-      get_total_lines(),
-      calc_visible_height(height.val),
-    )
+    scroller.follow_bottom(get_item_count(), get_visible_count())
   }
 
   // Complete streaming and add to messages
@@ -210,19 +232,15 @@ fn main {
     if text.length() > 0 {
       add_message(Assistant, text)
     }
-    scroll_state.auto_scroll_to_bottom(
-      get_total_lines(),
-      calc_visible_height(height.val),
-    )
+    scroller.follow_bottom(get_item_count(), get_visible_count())
   }
 
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
+    // Force scroll to bottom when starting output
+    scroller.to_bottom(get_item_count(), get_visible_count())
     fn on_tick() {
-      scroll_state.auto_scroll_to_bottom(
-        get_total_lines(),
-        calc_visible_height(height.val),
-      )
+      scroller.follow_bottom(get_item_count(), get_visible_count())
       do_render()
     }
 
@@ -251,11 +269,11 @@ fn main {
   }
 
   // Input handling - mutually recursive
-  letrec restore_tui_and_send : () -> Unit = fn() {
+  letrec restore_tui_and_send: () -> Unit = fn() {
     let raw = input_value.get()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
-      scroll_state.auto_scroll.set(true)
+      scroller.auto_scroll.set(true)
       add_message(User, text)
       input_value.set("")
       let response = "You said: " + text + ". This is a simulated response."
@@ -268,7 +286,7 @@ fn main {
     do_render()
     @tui.start_keypress_listener(handle_key)
   }
-  and start_editing : () -> Unit = fn() {
+  and start_editing: () -> Unit = fn() {
     is_editing.set(true)
     do_render()
 
@@ -277,7 +295,6 @@ fn main {
     let col = 2
     let content_width = width.val - 2
     let content_height = max_input_rows
-
     let signal = input_value
     let config = @c.form_edit_config(
       "Message",
@@ -292,8 +309,9 @@ fn main {
     for r = 0; r < content_height; r = r + 1 {
       @tui.print_raw(ansi_move_to(row + r, col) + " ".repeat(content_width))
     }
-
-    let on_lines_change : (Int) -> Int = fn(line_count) { clamp_input_lines(line_count) }
+    let on_lines_change : (Int) -> Int = fn(line_count) {
+      clamp_input_lines(line_count)
+    }
     @c.start_edit_inplace(
       config,
       signal.get(),
@@ -306,15 +324,15 @@ fn main {
       on_lines_change=Some(on_lines_change),
     )
   }
-  and handle_key : (String) -> Unit = fn(key) {
+  and handle_key: (String) -> Unit = fn(key) {
     if key.length() == 0 {
       return
     }
     let event = @tui.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
-    let vh = calc_visible_height(height.val)
-
+    let total = get_item_count()
+    let visible = get_visible_count()
     match event {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
@@ -331,10 +349,10 @@ fn main {
           @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => should_edit = true
           @tui.KeyEvent::Special(@tui.SpecialKey::Up, _)
           | @tui.KeyEvent::Special(@tui.SpecialKey::PageUp, _) =>
-            ignore(scroll_state.scroll_up(1))
+            ignore(scroller.up(1))
           @tui.KeyEvent::Special(@tui.SpecialKey::Down, _)
           | @tui.KeyEvent::Special(@tui.SpecialKey::PageDown, _) =>
-            ignore(scroll_state.scroll_down(1, get_total_lines(), vh))
+            ignore(scroller.down(1, total, visible))
           _ => need_render = false
         }
       @tui.InputEvent::Mouse(mouse_event) =>
@@ -345,19 +363,17 @@ fn main {
               None => ()
             }
           (@tui.MouseEventType::Press, @tui.MouseButton::ScrollUp) =>
-            ignore(scroll_state.scroll_up(3))
+            ignore(scroller.up(3))
           (@tui.MouseEventType::Press, @tui.MouseButton::ScrollDown) =>
-            ignore(scroll_state.scroll_down(3, get_total_lines(), vh))
+            ignore(scroller.down(3, total, visible))
           _ => need_render = false
         }
       _ => need_render = false
     }
-
     if should_edit {
       start_editing()
       return
     }
-
     if need_render && running.get() {
       do_render()
     }

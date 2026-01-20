@@ -132,6 +132,20 @@ pub(all) enum InputState {
   Disabled
 }
 
+pub(all) struct ItemScroller {
+  offset : @signals.Signal[Int]
+  auto_scroll : @signals.Signal[Bool]
+}
+pub fn ItemScroller::can_scroll_down(Self, Int, Int) -> Bool
+pub fn ItemScroller::can_scroll_up(Self) -> Bool
+pub fn ItemScroller::down(Self, Int, Int, Int) -> Bool
+pub fn ItemScroller::follow_bottom(Self, Int, Int) -> Unit
+pub fn ItemScroller::indicator(Self, Int, Int) -> ScrollIndicator
+pub fn ItemScroller::new() -> Self
+pub fn[T] ItemScroller::slice(Self, Array[T], Int) -> Array[T]
+pub fn ItemScroller::to_bottom(Self, Int, Int) -> Unit
+pub fn ItemScroller::up(Self, Int) -> Bool
+
 pub(all) enum ProgressStyle {
   Bar
   Dots
@@ -145,6 +159,7 @@ pub(all) enum ScrollIndicator {
   Down
   Both
 }
+pub impl Show for ScrollIndicator
 
 pub(all) struct ScrollState {
   offset : @signals.Signal[Int]

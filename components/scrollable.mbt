@@ -18,11 +18,11 @@ pub fn ScrollState::new() -> ScrollState {
 
 ///|
 /// Create scroll state with initial values
-pub fn ScrollState::with_values(offset : Int, auto_scroll : Bool) -> ScrollState {
-  {
-    offset: @signals.signal(offset),
-    auto_scroll: @signals.signal(auto_scroll),
-  }
+pub fn ScrollState::with_values(
+  offset : Int,
+  auto_scroll : Bool,
+) -> ScrollState {
+  { offset: @signals.signal(offset), auto_scroll: @signals.signal(auto_scroll) }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub fn ScrollState::with_values(offset : Int, auto_scroll : Bool) -> ScrollState
 pub fn calc_max_scroll(
   total_lines : Int,
   visible_height : Int,
-  reserve_indicator~ : Bool = true
+  reserve_indicator? : Bool = true,
 ) -> Int {
   let content_height = if reserve_indicator && total_lines > visible_height {
     visible_height - 1
@@ -52,7 +52,7 @@ pub fn calc_max_scroll(
 pub fn ScrollState::is_at_bottom(
   self : ScrollState,
   total_lines : Int,
-  visible_height : Int
+  visible_height : Int,
 ) -> Bool {
   let max = calc_max_scroll(total_lines, visible_height)
   self.offset.get() >= max
@@ -80,7 +80,7 @@ pub fn ScrollState::scroll_down(
   self : ScrollState,
   amount : Int,
   total_lines : Int,
-  visible_height : Int
+  visible_height : Int,
 ) -> Bool {
   let max = calc_max_scroll(total_lines, visible_height)
   let current = self.offset.get()
@@ -102,7 +102,7 @@ pub fn ScrollState::scroll_down(
 pub fn ScrollState::scroll_to_bottom(
   self : ScrollState,
   total_lines : Int,
-  visible_height : Int
+  visible_height : Int,
 ) -> Unit {
   let max = calc_max_scroll(total_lines, visible_height)
   self.offset.set(max)
@@ -115,7 +115,7 @@ pub fn ScrollState::scroll_to_bottom(
 pub fn ScrollState::auto_scroll_to_bottom(
   self : ScrollState,
   total_lines : Int,
-  visible_height : Int
+  visible_height : Int,
 ) -> Unit {
   if self.auto_scroll.get() {
     let max = calc_max_scroll(total_lines, visible_height)
@@ -137,14 +137,14 @@ pub(all) enum ScrollIndicator {
   Up
   Down
   Both
-}
+} derive(Show)
 
 ///|
 /// Get scroll indicator based on current position
 pub fn ScrollState::get_indicator(
   self : ScrollState,
   total_lines : Int,
-  visible_height : Int
+  visible_height : Int,
 ) -> ScrollIndicator {
   let max = calc_max_scroll(total_lines, visible_height)
   if max == 0 {
@@ -176,7 +176,7 @@ pub fn scroll_indicator_text(indicator : ScrollIndicator) -> String {
 /// Scroll indicator component
 pub fn scroll_indicator(
   indicator : ScrollIndicator,
-  fg? : @tui.Color = @tui.Color::rgb(80, 80, 80)
+  fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
 ) -> @tui.Component {
   text(scroll_indicator_text(indicator), fg~)
 }
@@ -188,7 +188,7 @@ pub fn[T] apply_scroll(
   items : Array[T],
   offset : Int,
   visible_height : Int,
-  reserve_indicator~ : Bool = true
+  reserve_indicator? : Bool = true,
 ) -> Array[T] {
   let total = items.length()
   let has_scroll = total > visible_height
@@ -219,7 +219,7 @@ pub fn scrollable_list(
   state : ScrollState,
   visible_height : Int,
   show_indicator? : Bool = true,
-  indicator_fg? : @tui.Color = @tui.Color::rgb(80, 80, 80)
+  indicator_fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
 ) -> Array[@tui.Component] {
   let total = items.length()
   let offset = state.offset.get()

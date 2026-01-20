@@ -48,7 +48,7 @@ pub fn StreamingState::get_partial(self : StreamingState) -> String {
 /// Get the partial text with cursor
 pub fn StreamingState::get_partial_with_cursor(
   self : StreamingState,
-  cursor? : String = "▌"
+  cursor? : String = "▌",
 ) -> String {
   self.get_partial() + cursor
 }
@@ -80,7 +80,7 @@ pub fn StreamingState::start(
   text : String,
   interval_ms : Int,
   on_tick : () -> Unit,
-  on_complete : () -> Unit
+  on_complete : () -> Unit,
 ) -> Bool {
   // Don't start if already streaming
   if self.ticker_id.val != 0 {
@@ -148,6 +148,8 @@ pub fn StreamingState::complete(self : StreamingState) -> Unit {
 }
 
 // Helper function to get substring by iterating characters
+
+///|
 fn get_substring(s : String, start : Int, end : Int) -> String {
   let sb = StringBuilder::new()
   let mut idx = 0

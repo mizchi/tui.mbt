@@ -5,15 +5,15 @@
 /// Split direction
 pub(all) enum SplitDirection {
   Horizontal // Top and bottom
-  Vertical   // Left and right
+  Vertical // Left and right
 }
 
 ///|
 /// Split size specification
 pub(all) enum SplitSize {
-  Fixed(Double)      // Fixed size in characters/rows
-  Percent(Double)    // Percentage of total (0.0 to 1.0)
-  Flex(Double)       // Flex grow factor
+  Fixed(Double) // Fixed size in characters/rows
+  Percent(Double) // Percentage of total (0.0 to 1.0)
+  Flex(Double) // Flex grow factor
 }
 
 ///|
@@ -23,7 +23,7 @@ pub fn calc_split_sizes(
   total : Int,
   first : SplitSize,
   second : SplitSize,
-  divider_size~ : Int = 1
+  divider_size? : Int = 1,
 ) -> (Int, Int) {
   let available = total - divider_size
   if available <= 0 {
@@ -104,8 +104,8 @@ pub fn hsplit(
   total_height : Int,
   top_size : SplitSize,
   bottom_size : SplitSize,
-  divider? : Option[@tui.Component] = None,
-  divider_size? : Int = 1
+  divider? : @tui.Component? = None,
+  divider_size? : Int = 1,
 ) -> @tui.Component {
   let (top_h, bottom_h) = calc_split_sizes(
     total_height,
@@ -136,8 +136,8 @@ pub fn vsplit(
   total_width : Int,
   left_size : SplitSize,
   right_size : SplitSize,
-  divider? : Option[@tui.Component] = None,
-  divider_size? : Int = 1
+  divider? : @tui.Component? = None,
+  divider_size? : Int = 1,
 ) -> @tui.Component {
   let (left_w, right_w) = calc_split_sizes(
     total_width,
@@ -167,7 +167,7 @@ pub fn hsplit_fixed_bottom(
   bottom : Array[@tui.Component],
   total_height : Int,
   bottom_height : Int,
-  divider? : Option[@tui.Component] = None
+  divider? : @tui.Component? = None,
 ) -> @tui.Component {
   hsplit(
     top,
@@ -186,7 +186,7 @@ pub fn hsplit_fixed_top(
   bottom : Array[@tui.Component],
   total_height : Int,
   top_height : Int,
-  divider? : Option[@tui.Component] = None
+  divider? : @tui.Component? = None,
 ) -> @tui.Component {
   hsplit(
     top,
@@ -205,7 +205,7 @@ pub fn vsplit_fixed_left(
   right : Array[@tui.Component],
   total_width : Int,
   left_width : Int,
-  divider? : Option[@tui.Component] = None
+  divider? : @tui.Component? = None,
 ) -> @tui.Component {
   vsplit(
     left,
@@ -224,7 +224,7 @@ pub fn vsplit_fixed_right(
   right : Array[@tui.Component],
   total_width : Int,
   right_width : Int,
-  divider? : Option[@tui.Component] = None
+  divider? : @tui.Component? = None,
 ) -> @tui.Component {
   vsplit(
     left,
