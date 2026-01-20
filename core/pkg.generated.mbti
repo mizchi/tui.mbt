@@ -1,0 +1,96 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/core"
+
+import(
+  "mizchi/crater/layout/node"
+  "mizchi/crater/types"
+)
+
+// Values
+pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color) -> Component
+
+pub fn char_display_width(Char) -> Int
+
+pub fn spacer(flex_grow? : Double) -> Component
+
+pub fn string_display_width(String) -> Int
+
+pub fn styled_text(String, fg? : Color, bg? : Color, bold? : Bool, underline? : Bool) -> Component
+
+pub fn text(String, fg? : Color, bg? : Color, bold? : Bool, underline? : Bool) -> Component
+
+pub fn text_box(String, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, bold? : Bool, underline? : Bool) -> Component
+
+pub fn text_measure_func(String) -> @types.MeasureFunc
+
+// Errors
+
+// Types and methods
+pub(all) struct BorderChars {
+  top_left : Char
+  top_right : Char
+  bottom_left : Char
+  bottom_right : Char
+  horizontal : Char
+  vertical : Char
+}
+pub fn BorderChars::ascii() -> Self
+pub fn BorderChars::double() -> Self
+pub fn BorderChars::rounded() -> Self
+pub fn BorderChars::single() -> Self
+
+pub(all) struct Color {
+  r : Int
+  g : Int
+  b : Int
+  a : Double
+}
+pub fn Color::black() -> Self
+pub fn Color::blue() -> Self
+pub fn Color::cyan() -> Self
+pub fn Color::from_crater(@types.Color) -> Self
+pub fn Color::green() -> Self
+pub fn Color::is_transparent(Self) -> Bool
+pub fn Color::magenta() -> Self
+pub fn Color::red() -> Self
+pub fn Color::rgb(Int, Int, Int) -> Self
+pub fn Color::rgba(Int, Int, Int, Double) -> Self
+pub fn Color::transparent() -> Self
+pub fn Color::white() -> Self
+pub fn Color::yellow() -> Self
+pub impl Eq for Color
+
+pub struct Component {
+  node : @node.Node
+  styles : RenderStyleMap
+  texts : TextContentMap
+}
+
+pub(all) struct RenderStyle {
+  fg : Color
+  bg : Color
+  bold : Bool
+  underline : Bool
+  border : BorderChars?
+  border_fg : Color
+}
+pub fn RenderStyle::default() -> Self
+
+pub struct RenderStyleMap(Map[String, RenderStyle])
+pub fn RenderStyleMap::get(Self, String) -> RenderStyle
+#deprecated
+pub fn RenderStyleMap::inner(Self) -> Map[String, RenderStyle]
+pub fn RenderStyleMap::new() -> Self
+pub fn RenderStyleMap::set(Self, String, RenderStyle) -> Unit
+
+pub struct TextContentMap(Map[String, String])
+pub fn TextContentMap::get(Self, String) -> String?
+#deprecated
+pub fn TextContentMap::inner(Self) -> Map[String, String]
+pub fn TextContentMap::new() -> Self
+pub fn TextContentMap::set(Self, String, String) -> Unit
+
+// Type aliases
+
+// Traits
+

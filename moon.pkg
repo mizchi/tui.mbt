@@ -1,6 +1,9 @@
 import {
   "mizchi/tui/core",
   "mizchi/tui/events",
+  "mizchi/tui/io",
+  "mizchi/tui/render",
+  "mizchi/tui/components",
 }
 
 options(

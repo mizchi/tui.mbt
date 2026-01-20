@@ -4,77 +4,89 @@ package "mizchi/tui/components"
 import(
   "mizchi/crater/types"
   "mizchi/signals"
-  "mizchi/tui"
+  "mizchi/tui/core"
+  "mizchi/tui/events"
+  "mizchi/tui/render"
 )
 
 // Values
+pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
+
 pub fn[T] apply_scroll(Array[T], Int, Int, reserve_indicator? : Bool) -> Array[T]
 
-pub fn bold(String) -> @tui.Component
+pub fn backdrop(bg? : @core.Color) -> @core.Component
 
-pub fn bordered(Array[@tui.Component], style? : @tui.BorderChars, color? : @tui.Color) -> @tui.Component
+pub fn bold(String) -> @core.Component
+
+pub fn bordered(Array[@core.Component], style? : @core.BorderChars, color? : @core.Color) -> @core.Component
 
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
 
-pub fn button(String, id? : String, state? : ButtonState, fg? : @tui.Color, bg? : @tui.Color, hover_bg? : @tui.Color, pressed_bg? : @tui.Color, disabled_fg? : @tui.Color, border_color? : @tui.Color, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+pub fn button(String, id? : String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
 
 pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int, Int)
 
-pub fn center(Array[@tui.Component]) -> @tui.Component
+pub fn center(Array[@core.Component]) -> @core.Component
 
-pub fn colored(String, @tui.Color) -> @tui.Component
+pub fn colored(String, @core.Color) -> @core.Component
 
-pub fn column(Array[@tui.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
+
+pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
 pub fn count_lines(String) -> Int
 
-pub fn fill(Array[@tui.Component]) -> @tui.Component
+pub fn fill(Array[@core.Component]) -> @core.Component
 
-pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?) -> EditConfig
+pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?, on_force_quit? : (() -> Unit)?) -> EditConfig
 
-pub fn fraction_text(Int, Int, fg? : @tui.Color) -> @tui.Component
+pub fn fraction_text(Int, Int, fg? : @core.Color) -> @core.Component
 
 pub fn get_spinner_frame(Int) -> String
 
-pub fn grid(Array[@tui.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+pub fn grid(Array[@core.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
 
-pub fn hdivider(char? : Char, fg? : @tui.Color) -> @tui.Component
+pub fn hdivider(char? : Char, fg? : @core.Color) -> @core.Component
 
-pub fn hspace(Double) -> @tui.Component
+pub fn hspace(Double) -> @core.Component
 
-pub fn hsplit(Array[@tui.Component], Array[@tui.Component], Int, SplitSize, SplitSize, divider? : @tui.Component?, divider_size? : Int) -> @tui.Component
+pub fn hsplit(Array[@core.Component], Array[@core.Component], Int, SplitSize, SplitSize, divider? : @core.Component?, divider_size? : Int) -> @core.Component
 
-pub fn hsplit_fixed_bottom(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+pub fn hsplit_fixed_bottom(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
-pub fn hsplit_fixed_top(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+pub fn hsplit_fixed_top(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
-pub fn icon_button(String, state? : ButtonState, fg? : @tui.Color, bg? : @tui.Color, hover_bg? : @tui.Color, pressed_bg? : @tui.Color) -> @tui.Component
+pub fn icon_button(String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color) -> @core.Component
 
-pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, focus_border_color? : @tui.Color, edit_border_color? : @tui.Color, disabled_fg? : @tui.Color, disabled_bg? : @tui.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, underline? : Bool) -> @tui.Component
+pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
 
-pub fn loading_dots(Int, label? : String, fg? : @tui.Color) -> @tui.Component
+pub fn loading_dots(Int, label? : String, fg? : @core.Color) -> @core.Component
 
-pub fn padded(Array[@tui.Component], padding? : Double) -> @tui.Component
+pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub fn percent_text(Double, fg? : @tui.Color) -> @tui.Component
+pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double, backdrop_bg? : @core.Color, container_width? : @types.Dimension, container_height? : @types.Dimension) -> @core.Component
 
-pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, fg? : @tui.Color, fill_fg? : @tui.Color) -> @tui.Component
+pub fn padded(Array[@core.Component], padding? : Double) -> @core.Component
 
-pub fn row(Array[@tui.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+pub fn percent_text(Double, fg? : @core.Color) -> @core.Component
 
-pub fn scroll_indicator(ScrollIndicator, fg? : @tui.Color) -> @tui.Component
+pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, fg? : @core.Color, fill_fg? : @core.Color) -> @core.Component
+
+pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
+
+pub fn scroll_indicator(ScrollIndicator, fg? : @core.Color) -> @core.Component
 
 pub fn scroll_indicator_text(ScrollIndicator) -> String
 
-pub fn scrollable_list(Array[@tui.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @tui.Color) -> Array[@tui.Component]
+pub fn scrollable_list(Array[@core.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @core.Color) -> Array[@core.Component]
 
-pub fn spacer(flex_grow? : Double) -> @tui.Component
+pub fn spacer(flex_grow? : Double) -> @core.Component
 
-pub fn spinner(Int, label? : String, fg? : @tui.Color) -> @tui.Component
+pub fn spinner(Int, label? : String, fg? : @core.Color) -> @core.Component
 
 pub fn split_lines(String) -> Array[String]
 
@@ -82,25 +94,51 @@ pub fn start_edit(EditConfig, String, () -> Unit) -> Unit
 
 pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
 
-pub fn text(String, fg? : @tui.Color, bg? : @tui.Color, bold? : Bool, underline? : Bool) -> @tui.Component
+pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underline? : Bool) -> @core.Component
 
-pub fn text_button(String, state? : ButtonState, fg? : @tui.Color, hover_fg? : @tui.Color, pressed_fg? : @tui.Color, disabled_fg? : @tui.Color, underline? : Bool) -> @tui.Component
+pub fn text_button(String, state? : ButtonState, fg? : @core.Color, hover_fg? : @core.Color, pressed_fg? : @core.Color, disabled_fg? : @core.Color, underline? : Bool) -> @core.Component
 
-pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, focus_border_color? : @tui.Color, edit_border_color? : @tui.Color, disabled_fg? : @tui.Color, disabled_bg? : @tui.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub fn vdivider(char? : Char, fg? : @tui.Color) -> @tui.Component
+pub fn vdivider(char? : Char, fg? : @core.Color) -> @core.Component
 
-pub fn vspace(Double) -> @tui.Component
+pub fn vspace(Double) -> @core.Component
 
-pub fn vsplit(Array[@tui.Component], Array[@tui.Component], Int, SplitSize, SplitSize, divider? : @tui.Component?, divider_size? : Int) -> @tui.Component
+pub fn vsplit(Array[@core.Component], Array[@core.Component], Int, SplitSize, SplitSize, divider? : @core.Component?, divider_size? : Int) -> @core.Component
 
-pub fn vsplit_fixed_left(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+pub fn vsplit_fixed_left(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
-pub fn vsplit_fixed_right(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+pub fn vsplit_fixed_right(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
+
+pub fn with_modal(@core.Component, @core.Component, Bool) -> @core.Component
 
 // Errors
 
 // Types and methods
+pub(all) struct ActionItem {
+  key : Char
+  label : String
+  handler : () -> Unit
+}
+pub fn ActionItem::new(Char, String, () -> Unit) -> Self
+
+pub(all) struct ActionMenu {
+  modal : ModalState
+  title : String
+  actions : Array[ActionItem]
+  toggle_key : Char?
+  on_close : () -> Unit
+}
+pub fn ActionMenu::build(Self, Int, Int) -> @core.Component
+pub fn ActionMenu::close(Self) -> Unit
+pub fn ActionMenu::handle_escape(Self) -> Bool
+pub fn ActionMenu::handle_event(Self, @render.App, @events.InputEvent) -> MenuKeyResult
+pub fn ActionMenu::handle_key(Self, Char) -> Bool
+pub fn ActionMenu::is_open(Self) -> Bool
+pub fn ActionMenu::new(String, Array[ActionItem], toggle_key? : Char?, on_close? : () -> Unit) -> Self
+pub fn ActionMenu::open(Self) -> Unit
+pub fn ActionMenu::open_with_app(Self, @render.App) -> Unit
+
 pub(all) enum ButtonState {
   Normal
   Hover
@@ -113,6 +151,7 @@ pub(all) struct EditConfig {
   on_change : (String) -> Unit
   on_edit_start : (() -> Unit)?
   on_edit_end : (() -> Unit)?
+  on_force_quit : (() -> Unit)?
 }
 
 pub(all) struct EditContext {
@@ -145,6 +184,21 @@ pub fn ItemScroller::new() -> Self
 pub fn[T] ItemScroller::slice(Self, Array[T], Int) -> Array[T]
 pub fn ItemScroller::to_bottom(Self, Int, Int) -> Unit
 pub fn ItemScroller::up(Self, Int) -> Bool
+
+pub(all) enum MenuKeyResult {
+  Handled
+  NotHandled
+  Closed
+}
+
+pub(all) struct ModalState {
+  is_open : @signals.Signal[Bool]
+}
+pub fn ModalState::close(Self) -> Unit
+pub fn ModalState::get_is_open(Self) -> Bool
+pub fn ModalState::new(initial_open? : Bool) -> Self
+pub fn ModalState::open(Self) -> Unit
+pub fn ModalState::toggle(Self) -> Unit
 
 pub(all) enum ProgressStyle {
   Bar

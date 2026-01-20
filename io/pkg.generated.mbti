@@ -1,0 +1,73 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/io"
+
+import(
+  "moonbitlang/async/js_async"
+)
+
+// Values
+pub fn abort_input_session() -> Unit
+
+pub fn cleanup_stdin() -> Unit
+
+pub fn debug_stderr(String) -> Unit
+
+pub fn debug_stdin_state(String) -> Unit
+
+pub fn enable_raw_mode() -> Unit
+
+pub fn get_terminal_size() -> (Int, Int)
+
+pub fn is_raw_mode() -> Bool
+
+pub fn is_tty() -> Bool
+
+pub fn keep_alive_nonblocking(Int) -> Unit
+
+pub fn poll_keypress() -> Bool
+
+pub fn print_raw(String) -> Unit
+
+pub async fn read_key() -> String
+
+pub async fn sleep(Int) -> Unit
+
+pub fn start_inline_input(String, String, Int, Int, Int, Int, (InputResult) -> Unit) -> Unit
+
+pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit) -> Unit
+
+pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+
+pub async fn start_input_session(Int, Int, String) -> InputResult
+
+pub fn start_input_session_cb(String, (InputResult) -> Unit) -> Unit
+
+pub fn start_input_session_promise(String) -> @js_async.Promise[InputResult]
+
+pub fn start_keypress_listener((String) -> Unit) -> Unit
+
+pub fn start_render_ticker(Int, () -> Unit) -> Int
+
+pub fn start_resize_listener((Int, Int) -> Unit) -> Unit
+
+pub fn stop_keypress_listener() -> Unit
+
+pub fn stop_render_ticker(Int) -> Unit
+
+pub fn stop_resize_listener() -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum InputResult {
+  Confirmed(String)
+  Cancelled
+  TabNext(String)
+  TabPrev(String)
+  ForceQuit
+}
+
+// Type aliases
+
+// Traits
+

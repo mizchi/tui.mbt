@@ -1,0 +1,160 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/events"
+
+import(
+  "mizchi/crater/types"
+)
+
+// Values
+pub fn dump_layout(@types.Layout, Int, Int, Int) -> String
+
+pub fn find_layout_by_id(@types.Layout, String, Int, Int) -> HitTestResult?
+
+pub fn find_layout_by_id_root(@types.Layout, String) -> HitTestResult?
+
+pub fn handle_click(@types.Layout, EventHandlers, Int, Int) -> Bool
+
+pub fn hit_test(@types.Layout, Int, Int, Int, Int) -> HitTestResult?
+
+pub fn hit_test_root(@types.Layout, Int, Int) -> HitTestResult?
+
+pub fn key_is_char(KeyEvent, Char) -> Bool
+
+pub fn key_is_ctrl_c(KeyEvent) -> Bool
+
+pub fn key_is_ctrl_q(KeyEvent) -> Bool
+
+pub fn key_is_special(KeyEvent, SpecialKey) -> Bool
+
+pub fn parse_input(String) -> InputEvent
+
+// Errors
+
+// Types and methods
+pub struct ClickHandler(() -> Unit)
+#deprecated
+pub fn ClickHandler::inner(Self) -> () -> Unit
+pub fn ClickHandler::new(() -> Unit) -> Self
+
+pub struct EventHandlers {
+  click_handlers : Map[String, ClickHandler]
+}
+pub fn EventHandlers::get_click(Self, String) -> ClickHandler?
+pub fn EventHandlers::new() -> Self
+pub fn EventHandlers::on_click(Self, String, ClickHandler) -> Unit
+
+pub struct FocusManager {
+  mut focus : FocusState
+  mut mode : InputMode
+  focusable_ids : Array[String]
+}
+pub fn FocusManager::blur(Self) -> Unit
+pub fn FocusManager::focus(Self, String) -> Unit
+pub fn FocusManager::focus_next(Self) -> Unit
+pub fn FocusManager::focus_prev(Self) -> Unit
+pub fn FocusManager::focusable_count(Self) -> Int
+pub fn FocusManager::get_focused(Self) -> String?
+pub fn FocusManager::get_mode(Self) -> InputMode
+pub fn FocusManager::is_editing(Self) -> Bool
+pub fn FocusManager::is_focused(Self, String) -> Bool
+pub fn FocusManager::new() -> Self
+pub fn FocusManager::register(Self, String) -> Unit
+pub fn FocusManager::start_editing(Self) -> Unit
+pub fn FocusManager::stop_editing(Self) -> Unit
+pub fn FocusManager::unregister(Self, String) -> Unit
+
+pub(all) enum FocusState {
+  None
+  Focused(String)
+}
+
+pub(all) struct HitTestResult {
+  id : String
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+
+pub(all) enum InputEvent {
+  Key(KeyEvent)
+  Mouse(MouseEvent)
+  Resize(Int, Int)
+  Unknown(String)
+}
+pub impl Show for InputEvent
+
+pub(all) enum InputMode {
+  Normal
+  Editing
+}
+
+pub(all) enum KeyEvent {
+  Char(Char, KeyModifier)
+  Special(SpecialKey, KeyModifier)
+}
+pub impl Show for KeyEvent
+
+pub(all) enum KeyModifier {
+  None
+  Shift
+  Ctrl
+  Alt
+  CtrlShift
+  CtrlAlt
+  ShiftAlt
+  CtrlShiftAlt
+}
+pub impl Show for KeyModifier
+
+pub(all) enum MouseButton {
+  Left
+  Middle
+  Right
+  ScrollUp
+  ScrollDown
+  None
+}
+pub impl Show for MouseButton
+
+pub(all) struct MouseEvent {
+  button : MouseButton
+  event_type : MouseEventType
+  x : Int
+  y : Int
+  modifier : KeyModifier
+}
+pub impl Show for MouseEvent
+
+pub(all) enum MouseEventType {
+  Press
+  Release
+  Move
+  Drag
+}
+pub impl Show for MouseEventType
+
+pub(all) enum SpecialKey {
+  Up
+  Down
+  Left
+  Right
+  Home
+  End
+  PageUp
+  PageDown
+  Insert
+  Delete
+  Tab
+  BackTab
+  Backspace
+  Enter
+  Escape
+  F(Int)
+}
+pub impl Show for SpecialKey
+
+// Type aliases
+
+// Traits
+

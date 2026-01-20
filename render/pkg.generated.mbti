@@ -1,0 +1,131 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/render"
+
+import(
+  "mizchi/crater/layout/node"
+  "mizchi/crater/types"
+  "mizchi/tui/core"
+  "mizchi/tui/events"
+)
+
+// Values
+pub fn ansi_bg_256(Int) -> String
+
+pub fn ansi_bg_color(@core.Color) -> String
+
+pub fn ansi_bg_reset() -> String
+
+pub fn ansi_bold() -> String
+
+pub fn ansi_clear_line() -> String
+
+pub fn ansi_clear_screen() -> String
+
+pub fn ansi_enter_alt_screen() -> String
+
+pub fn ansi_fg_256(Int) -> String
+
+pub fn ansi_fg_color(@core.Color) -> String
+
+pub fn ansi_full_reset() -> String
+
+pub fn ansi_hide_cursor() -> String
+
+pub fn ansi_leave_alt_screen() -> String
+
+pub fn ansi_move_to(Int, Int) -> String
+
+pub fn ansi_reset() -> String
+
+pub fn ansi_reset_attrs() -> String
+
+pub fn ansi_reverse() -> String
+
+pub fn ansi_show_cursor() -> String
+
+pub fn ansi_underline() -> String
+
+pub fn buffer_diff_to_ansi(CharBuffer, CharBuffer) -> String
+
+pub fn buffer_to_ansi(CharBuffer) -> String
+
+pub fn color_to_256(@core.Color) -> Int
+
+pub fn compute_layout(@node.Node, Int, Int) -> @types.Layout
+
+pub fn disable_mouse() -> String
+
+pub fn enable_mouse() -> String
+
+pub fn render_layout(CharBuffer, @types.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> Unit
+
+pub fn render_once(Int, Int, @core.Component) -> String
+
+pub fn render_to_ansi(@types.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> String
+
+pub fn rgb_to_256(Int, Int, Int) -> Int
+
+pub fn run_app(Int, Int, () -> @core.Component, (String) -> Unit) -> () -> Unit
+
+// Errors
+
+// Types and methods
+pub struct App {
+  width : Int
+  height : Int
+  mut prev_buffer : CharBuffer?
+  mut last_layout : @types.Layout?
+  handlers : @events.EventHandlers
+}
+pub fn App::clear_prev_buffer(Self) -> Unit
+pub fn App::create_render_effect(Self, () -> @core.Component, (String) -> Unit) -> () -> Unit
+pub fn App::find_by_id(Self, String) -> @events.HitTestResult?
+pub fn App::handle_mouse(Self, @events.MouseEvent) -> Bool
+pub fn App::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn App::init_terminal() -> String
+pub fn App::new(Int, Int) -> Self
+pub fn App::on_click(Self, String, () -> Unit) -> Unit
+pub fn App::render(Self, @core.Component) -> String
+pub fn App::render_frame(Self, @core.Component) -> String
+pub fn App::restore_terminal() -> String
+
+pub struct CharBuffer {
+  width : Int
+  height : Int
+  cells : Array[CharCell]
+}
+pub fn CharBuffer::clear(Self) -> Unit
+pub fn CharBuffer::clone(Self) -> Self
+pub fn CharBuffer::fill_bg(Self, Int, Int, Int, Int, @core.Color) -> Unit
+pub fn CharBuffer::fill_rect(Self, Int, Int, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::get_cell(Self, Int, Int) -> CharCell
+pub fn CharBuffer::new(Int, Int) -> Self
+pub fn CharBuffer::set_cell(Self, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::write_text(Self, Int, Int, String, TextStyle, Int) -> Int
+pub fn CharBuffer::write_text_wrapped(Self, Int, Int, String, TextStyle, Int, Int) -> Int
+
+pub(all) struct CharCell {
+  char : Char
+  fg : @core.Color
+  bg : @core.Color
+  bold : Bool
+  underline : Bool
+  reverse : Bool
+}
+pub fn CharCell::default() -> Self
+pub fn CharCell::from_char(Char) -> Self
+pub fn CharCell::styled(Char, @core.Color, @core.Color) -> Self
+pub impl Eq for CharCell
+
+pub(all) struct TextStyle {
+  fg : @core.Color
+  bg : @core.Color
+  bold : Bool
+  underline : Bool
+}
+pub fn TextStyle::default() -> Self
+
+// Type aliases
+
+// Traits
+
