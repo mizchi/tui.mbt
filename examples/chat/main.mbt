@@ -28,6 +28,9 @@ fn main {
   let is_editing = @signals.signal(false)
   let running = @signals.signal(true)
 
+  // Modal state for action menu (like a filer)
+  let action_modal = @c.ModalState::new()
+
   // Forward reference for start_editing (set later in letrec)
   let start_editing_ref : Ref[() -> Unit] = { val: fn() { () } }
 
@@ -160,7 +163,7 @@ fn main {
       @tui.Color::white()
     }
     let cursor = if editing { "█" } else { "" }
-    let status_text = "Enter: send · ↑↓: scroll · Ctrl+C: quit"
+    let status_text = "Enter: send · ↑↓: scroll · F: actions · Ctrl+C: quit"
     // Input content box (5 lines)
     let input_content = @tui.text_box(
       " " + display_text + cursor,
@@ -182,11 +185,36 @@ fn main {
     )
 
     // Main layout - vertical split
-    @c.column(
+    let base_ui = @c.column(
       [message_area, divider, buffer, input_area],
       width=@types.Dimension::Length(w.to_double()),
       height=@types.Dimension::Length(h.to_double()),
     )
+
+    // When modal is open, render modal full-screen instead of base UI
+    if action_modal.get_is_open() {
+      let modal_content = @c.column(
+        [
+          @c.text("Actions", fg=@tui.Color::cyan(), bold=true),
+          @tui.spacer(flex_grow=0.5),
+          @c.text("[1] Clear messages"),
+          @c.text("[2] Export chat"),
+          @c.text("[3] Settings"),
+          @tui.spacer(flex_grow=1.0),
+          @c.text("[Esc/F] Close", fg=@tui.Color::rgb(100, 100, 100)),
+        ],
+        gap=0.0,
+        min_width=@types.Dimension::Length(25.0),
+      )
+      // Full-screen modal (replaces base UI when open)
+      @c.modal_with_backdrop(
+        modal_content,
+        container_width=@types.Dimension::Length(w.to_double()),
+        container_height=@types.Dimension::Length(h.to_double()),
+      )
+    } else {
+      base_ui
+    }
   }
 
   // Render helper
@@ -340,6 +368,48 @@ fn main {
     let mut should_edit = false
     let total = get_item_count()
     let visible = get_visible_count()
+
+    // Handle modal keys when modal is open
+    if action_modal.get_is_open() {
+      match event {
+        @tui.InputEvent::Key(key_event) =>
+          match key_event {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _)
+            | @tui.KeyEvent::Char('f', _)
+            | @tui.KeyEvent::Char('F', _) => {
+              action_modal.close()
+              app.val.clear_prev_buffer()
+            }
+            @tui.KeyEvent::Char('1', _) => {
+              // Clear messages
+              messages.set([])
+              streaming.clear()
+              scroller.offset.set(0)
+              scroller.auto_scroll.set(true)
+              action_modal.close()
+              app.val.clear_prev_buffer()
+            }
+            @tui.KeyEvent::Char('2', _) => {
+              // Export chat (placeholder - just close modal)
+              action_modal.close()
+              app.val.clear_prev_buffer()
+            }
+            @tui.KeyEvent::Char('3', _) => {
+              // Settings (placeholder - just close modal)
+              action_modal.close()
+              app.val.clear_prev_buffer()
+            }
+            _ => need_render = false
+          }
+        _ => need_render = false
+      }
+      if need_render && running.get() {
+        do_render()
+      }
+      return
+    }
+
+    // Normal mode key handling
     match event {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
@@ -350,6 +420,12 @@ fn main {
           @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
             do_quit()
             return
+          }
+          @tui.KeyEvent::Char('f', @tui.KeyModifier::None)
+          | @tui.KeyEvent::Char('F', @tui.KeyModifier::None) => {
+            // Open action modal - clear buffer for full redraw
+            action_modal.open()
+            app.val.clear_prev_buffer()
           }
           @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
             should_edit = true
@@ -381,11 +457,16 @@ fn main {
       // Extract initial character if it was a character input
       match event {
         @tui.InputEvent::Key(@tui.KeyEvent::Char(ch, @tui.KeyModifier::None)) =>
-          input_value.set(ch.to_string())
+          // Don't start editing with 'f'/'F' as it opens modal
+          if ch != 'f' && ch != 'F' {
+            input_value.set(ch.to_string())
+          }
         _ => ()
       }
-      // Start editing (streaming continues in background)
-      start_editing()
+      // Start editing (streaming continues in background) - but not if we just opened modal
+      if not(action_modal.get_is_open()) {
+        start_editing()
+      }
       return
     }
     if need_render && running.get() {
