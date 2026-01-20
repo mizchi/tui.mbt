@@ -166,7 +166,6 @@ test "scrollable_list: streaming content height consistency" {
 ///|
 /// Test chat-like layout rendering with fixed height container
 test "chat layout: fixed height container rendering" {
-  let width = 40
   let total_height = 20
   let input_area_height = 6
   let buffer_lines = 1

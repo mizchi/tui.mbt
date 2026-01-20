@@ -37,10 +37,6 @@ fn main {
   // Create the app (mutable for resize support)
   let app : Ref[@tui.App] = { val: @tui.App::new(width.val, height.val) }
 
-  // Fixed layout dimensions
-  let max_input_rows = 5
-  let input_area_height = max_input_rows + 1 // input lines + status line
-
   // Build a single message component
   fn build_message(msg : Message) -> @tui.Component {
     let (icon, role_name, color) = match msg.role {
@@ -58,7 +54,6 @@ fn main {
   }
 
   // Build streaming message component with fixed height to prevent layout jumps
-  let streaming_message_height = 4 // Fixed height for streaming message
   fn build_streaming_message() -> @tui.Component {
     let partial = streaming.get_partial()
     let display = if streaming.is_streaming() { partial + "▌" } else { partial }
@@ -75,12 +70,7 @@ fn main {
 
   // Calculate total lines for scroll
   fn get_total_lines() -> Int {
-    let msgs = messages.get()
-    let mut total = msgs.length() * 2 // role + content per message
-    if streaming.has_content() {
-      total = total + 2
-    }
-    total
+    calc_total_lines(messages.get().length(), streaming.has_content())
   }
 
   // Build message list components
@@ -105,8 +95,7 @@ fn main {
 
     // Message area - fixed height to fill available space
     let message_items = build_message_list()
-    let buffer_lines = 1 // Buffer line between divider and input
-    let visible_height = h - input_area_height - 1 - buffer_lines // -1 for divider
+    let visible_height = calc_visible_height(h)
     // Disable scroll indicator during streaming to prevent height fluctuation
     let is_streaming = streaming.is_streaming()
     let visible_items = @c.scrollable_list(
@@ -177,19 +166,18 @@ fn main {
     let editing = is_editing.get()
     // Save cursor position before rendering if editing
     if editing {
-      @tui.print_raw("\u001b[s") // Save cursor position
+      @tui.print_raw(ansi_save_cursor())
     }
     let ui = build_ui()
     let output = app.val.render_frame(ui)
     @tui.print_raw(output)
     if editing {
       // Restore cursor position and show cursor
-      @tui.print_raw("\u001b[u") // Restore cursor position
+      @tui.print_raw(ansi_restore_cursor())
       @tui.print_raw(@tui.ansi_show_cursor())
     } else {
       // Keep cursor in input area when not editing
-      let input_row = height.val - input_area_height + 1
-      @tui.print_raw("\u001b[" + input_row.to_string() + ";1H")
+      @tui.print_raw(ansi_move_to(calc_input_row(height.val), 1))
     }
   }
 
@@ -210,8 +198,10 @@ fn main {
     current.push({ role, content })
     messages.set(current)
     // Auto-scroll to bottom
-    let visible_height = height.val - input_area_height - 1
-    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
+    scroll_state.auto_scroll_to_bottom(
+      get_total_lines(),
+      calc_visible_height(height.val),
+    )
   }
 
   // Complete streaming and add to messages
@@ -220,15 +210,19 @@ fn main {
     if text.length() > 0 {
       add_message(Assistant, text)
     }
-    let visible_height = height.val - input_area_height - 1
-    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
+    scroll_state.auto_scroll_to_bottom(
+      get_total_lines(),
+      calc_visible_height(height.val),
+    )
   }
 
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
     fn on_tick() {
-      let visible_height = height.val - input_area_height - 1
-      scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
+      scroll_state.auto_scroll_to_bottom(
+        get_total_lines(),
+        calc_visible_height(height.val),
+      )
       do_render()
     }
 
@@ -279,9 +273,7 @@ fn main {
     do_render()
 
     // Calculate input area position from layout
-    // Layout: message_area | divider (1 row) | buffer (1 row) | input_area
-    // Input area starts at row: height - input_area_height + 1
-    let row = height.val - input_area_height + 1 // First row of input area (buffer above)
+    let row = calc_input_row(height.val)
     let col = 2
     let content_width = width.val - 2
     let content_height = max_input_rows
@@ -298,27 +290,10 @@ fn main {
 
     // Clear content area
     for r = 0; r < content_height; r = r + 1 {
-      @tui.print_raw(
-        "\u001b[" +
-        (row + r).to_string() +
-        ";" +
-        col.to_string() +
-        "H" +
-        " ".repeat(content_width),
-      )
+      @tui.print_raw(ansi_move_to(row + r, col) + " ".repeat(content_width))
     }
 
-    let on_lines_change : (Int) -> Int = fn(line_count) {
-      let min_h = 1
-      let max_h = max_input_rows
-      if line_count < min_h {
-        min_h
-      } else if line_count > max_h {
-        max_h
-      } else {
-        line_count
-      }
-    }
+    let on_lines_change : (Int) -> Int = fn(line_count) { clamp_input_lines(line_count) }
     @c.start_edit_inplace(
       config,
       signal.get(),
@@ -338,7 +313,7 @@ fn main {
     let event = @tui.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
-    let visible_height = height.val - input_area_height - 1
+    let vh = calc_visible_height(height.val)
 
     match event {
       @tui.InputEvent::Key(key_event) =>
@@ -359,9 +334,7 @@ fn main {
             ignore(scroll_state.scroll_up(1))
           @tui.KeyEvent::Special(@tui.SpecialKey::Down, _)
           | @tui.KeyEvent::Special(@tui.SpecialKey::PageDown, _) =>
-            ignore(
-              scroll_state.scroll_down(1, get_total_lines(), visible_height),
-            )
+            ignore(scroll_state.scroll_down(1, get_total_lines(), vh))
           _ => need_render = false
         }
       @tui.InputEvent::Mouse(mouse_event) =>
@@ -374,9 +347,7 @@ fn main {
           (@tui.MouseEventType::Press, @tui.MouseButton::ScrollUp) =>
             ignore(scroll_state.scroll_up(3))
           (@tui.MouseEventType::Press, @tui.MouseButton::ScrollDown) =>
-            ignore(
-              scroll_state.scroll_down(3, get_total_lines(), visible_height),
-            )
+            ignore(scroll_state.scroll_down(3, get_total_lines(), vh))
           _ => need_render = false
         }
       _ => need_render = false
