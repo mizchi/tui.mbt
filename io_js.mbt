@@ -1128,3 +1128,47 @@ pub fn poll_keypress() -> Bool {
   // JS uses event-driven model, not polling
   false
 }
+
+// --- Resize Event Listener ---
+
+///|
+/// Start a resize listener (event-driven)
+/// Callback receives (width, height) when terminal is resized
+extern "js" fn js_start_resize_listener(callback : (Int, Int) -> Unit) =
+  #| async (callback) => {
+  #|   const { stdout } = await import('node:process');
+  #|
+  #|   const onResize = () => {
+  #|     const cols = stdout.columns || 80;
+  #|     const rows = stdout.rows || 24;
+  #|     callback(cols, rows);
+  #|   };
+  #|
+  #|   stdout.__resizeHandler = onResize;
+  #|   stdout.on('resize', onResize);
+  #| }
+
+///|
+/// Stop the resize listener
+extern "js" fn js_stop_resize_listener() =
+  #| async () => {
+  #|   const { stdout } = await import('node:process');
+  #|
+  #|   if (stdout.__resizeHandler) {
+  #|     stdout.removeListener('resize', stdout.__resizeHandler);
+  #|     delete stdout.__resizeHandler;
+  #|   }
+  #| }
+
+///|
+/// Start listening for terminal resize events
+/// Callback receives (width, height) when terminal is resized
+pub fn start_resize_listener(callback : (Int, Int) -> Unit) -> Unit {
+  js_start_resize_listener(callback)
+}
+
+///|
+/// Stop listening for resize events
+pub fn stop_resize_listener() -> Unit {
+  js_stop_resize_listener()
+}

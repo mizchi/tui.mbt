@@ -1,5 +1,5 @@
 ///|
-/// Chat example - Claude Code-like chat UI
+/// Chat example - Claude Code-like chat UI using crater layout
 /// Top area shows scrollable message log, bottom has input field
 
 ///|
@@ -17,10 +17,10 @@ struct Message {
 
 ///|
 fn main {
-  // Get terminal size
+  // Get terminal size (mutable for resize support)
   let (cols, rows) = @tui.get_terminal_size()
-  let width = cols
-  let height = rows
+  let width : Ref[Int] = { val: cols }
+  let height : Ref[Int] = { val: rows }
 
   // Create reactive state
   let messages : @signals.Signal[Array[Message]] = @signals.signal([])
@@ -34,404 +34,256 @@ fn main {
   // Streaming state using StreamingState component
   let streaming = @c.StreamingState::new()
 
-  // Create the app
-  let app = @tui.App::new(width, height)
+  // Create the app (mutable for resize support)
+  let app : Ref[@tui.App] = { val: @tui.App::new(width.val, height.val) }
 
-  // Calculate actual input rows based on content (no limit)
-  fn calc_actual_rows(text : String, max_width : Int) -> Int {
-    if text.length() == 0 {
-      return 1
+  // Fixed layout dimensions
+  let max_input_rows = 5
+  let input_area_height = max_input_rows + 1 // input lines + status line
+
+  // Build a single message component
+  fn build_message(msg : Message) -> @tui.Component {
+    let (icon, role_name, color) = match msg.role {
+      User => ("◆", "You", @tui.Color::cyan())
+      Assistant => ("✦", "Assistant", @tui.Color::rgb(255, 150, 100))
     }
-    // Count newlines and wrapped lines
-    let mut rows = 1
-    let mut col = 0
-    for c in text {
-      if c == '\n' {
-        rows = rows + 1
-        col = 0
-      } else {
-        col = col + 1
-        if col >= max_width {
-          rows = rows + 1
-          col = 0
-        }
-      }
-    }
-    rows
+    @c.column(
+      [
+        @c.text(icon + " " + role_name, fg=color, bold=true),
+        @c.text("   " + msg.content, fg=@tui.Color::rgb(220, 220, 220)),
+      ],
+      gap=0.0,
+      width=@types.Dimension::Length(width.val.to_double()),
+    )
   }
 
-  // Count lines in a string (including line wrapping)
-  fn count_content_lines(text : String) -> Int {
-    if text.length() == 0 {
-      return 1
-    }
-    let mut lines = 1
-    for c in text {
-      if c == '\n' {
-        lines = lines + 1
-      }
-    }
-    lines
+  // Build streaming message component with fixed height to prevent layout jumps
+  let streaming_message_height = 4 // Fixed height for streaming message
+  fn build_streaming_message() -> @tui.Component {
+    let partial = streaming.get_partial()
+    let display = if streaming.is_streaming() { partial + "▌" } else { partial }
+    @c.column(
+      [
+        @c.text("✦ Assistant", fg=@tui.Color::rgb(255, 150, 100), bold=true),
+        @c.text("   " + display, fg=@tui.Color::rgb(220, 220, 220)),
+      ],
+      gap=0.0,
+      width=@types.Dimension::Length(width.val.to_double()),
+      height=@types.Dimension::Length(streaming_message_height.to_double()),
+    )
   }
 
-  // Get total message lines (role + content lines + spacer per message)
+  // Calculate total lines for scroll
   fn get_total_lines() -> Int {
     let msgs = messages.get()
-    let mut total = 0
-    for msg in msgs {
-      total = total + 1 // role line
-      total = total + count_content_lines(msg.content) // content lines
-      total = total + 1 // spacer
-    }
-    // Add streaming message if in progress
-    if streaming.is_streaming() {
-      let partial = streaming.get_partial()
-      total = total + 1 // role
-      total = total + count_content_lines(partial) // partial content
-      total = total + 1 // spacer
+    let mut total = msgs.length() * 2 // role + content per message
+    if streaming.has_content() {
+      total = total + 2
     }
     total
   }
 
-  // Fixed layout dimensions
-  let max_input_rows = 5
-  let fixed_input_height = max_input_rows + 4
-  let fixed_message_height = height - fixed_input_height - 1 // -1 for divider
-  let visible_message_lines = fixed_message_height - 2 // -2 for padding
-
-  // Add a message
-  fn add_message(role : MessageRole, content : String) -> Unit {
-    let current = messages.get()
-    current.push({ role, content })
-    messages.set(current)
-    // Auto-scroll to bottom using ScrollState
-    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_message_lines)
+  // Build message list components
+  fn build_message_list() -> Array[@tui.Component] {
+    let msgs = messages.get()
+    let items : Array[@tui.Component] = []
+    for msg in msgs {
+      items.push(build_message(msg))
+    }
+    if streaming.has_content() {
+      items.push(build_streaming_message())
+    }
+    items
   }
 
-  // Render helper with synchronized output to prevent flickering
-  // Uses direct ANSI output for consistent coordinates with render_message_area()
-  fn do_render() -> Unit {
-    let visible_height = fixed_message_height - 2 // -2 for padding
-    let msgs = messages.get()
-
-    // Build flat list of line data for messages
-    let all_lines : Array[(Int, String, String)] = []
-
-    for msg in msgs {
-      let (icon, color_code) = match msg.role {
-        User => ("◆", "\u001b[36m") // cyan
-        Assistant => ("✦", "\u001b[38;2;255;150;100m") // coral
-      }
-      let role_name = match msg.role {
-        User => "You"
-        Assistant => "Assistant"
-      }
-      all_lines.push((0, icon + " " + role_name, color_code))
-      let content_lines = @c.split_lines(msg.content)
-      for line in content_lines {
-        all_lines.push((1, line, "\u001b[38;2;220;220;220m"))
-      }
-      all_lines.push((2, "", ""))
-    }
-
-    // Add streaming message if in progress
-    if streaming.has_content() {
-      all_lines.push((0, "✦ Assistant", "\u001b[38;2;255;150;100m"))
-      let partial = streaming.get_partial()
-      let partial_lines = @c.split_lines(partial)
-      for i, line in partial_lines {
-        let display = if i == partial_lines.length() - 1 && streaming.is_streaming() {
-          line + "▌"
-        } else {
-          line
-        }
-        all_lines.push((1, display, "\u001b[38;2;220;220;220m"))
-      }
-      all_lines.push((2, "", ""))
-    }
-
-    // Same logic as render_messages()
-    let total = all_lines.length()
-    let has_scroll = total > visible_height
-    let content_height = if has_scroll { visible_height - 1 } else { visible_height }
-    let offset = scroll_state.offset.get()
-
-    // Start synchronized output
-    @tui.print_raw("\u001b[?2026h")
-    // Clear screen and move to home
-    @tui.print_raw("\u001b[2J\u001b[H")
-
-    // Row 1: padding (empty)
-    @tui.print_raw("\u001b[1;1H\u001b[2K")
-
-    // Rows 2 to fixed_message_height-1: message content
-    let mut added = 0
-    for i = 0; i < visible_height; i = i + 1 {
-      let row = i + 2
-      @tui.print_raw("\u001b[" + row.to_string() + ";1H\u001b[2K")
-
-      if added < content_height {
-        let line_idx = offset + added
-        if line_idx < all_lines.length() {
-          let (line_type, text, color_code) = all_lines[line_idx]
-          match line_type {
-            0 => @tui.print_raw(" " + color_code + "\u001b[1m" + text + "\u001b[0m")
-            1 => @tui.print_raw("   " + color_code + text + "\u001b[0m")
-            _ => ()
-          }
-        }
-        added = added + 1
-      } else if has_scroll && added == content_height {
-        // Scroll indicator using ScrollState helper
-        let indicator = scroll_state.get_indicator(total, visible_height)
-        let text = @c.scroll_indicator_text(indicator)
-        @tui.print_raw("\u001b[38;2;80;80;80m" + text + "\u001b[0m")
-        added = added + 1
-      }
-    }
-
-    // Row fixed_message_height: padding (empty)
-    @tui.print_raw("\u001b[" + fixed_message_height.to_string() + ";1H\u001b[2K")
-
-    // Row fixed_message_height+1: divider
-    let divider_row = fixed_message_height + 1
+  // Build the entire UI using crater layout
+  fn build_ui() -> @tui.Component {
     let editing = is_editing.get()
-    let divider_color = if editing { "\u001b[38;2;100;150;255m" } else { "\u001b[38;2;60;60;60m" }
-    @tui.print_raw("\u001b[" + divider_row.to_string() + ";1H\u001b[2K")
-    @tui.print_raw(divider_color + "─".repeat(width) + "\u001b[0m")
-
-    // Input area starts at row fixed_message_height+2
-    let input_start_row = fixed_message_height + 2
     let input_text = input_value.get()
+    let w = width.val
+    let h = height.val
+
+    // Message area - fixed height to fill available space
+    let message_items = build_message_list()
+    let buffer_lines = 1 // Buffer line between divider and input
+    let visible_height = h - input_area_height - 1 - buffer_lines // -1 for divider
+    // Disable scroll indicator during streaming to prevent height fluctuation
+    let is_streaming = streaming.is_streaming()
+    let visible_items = @c.scrollable_list(
+      message_items,
+      scroll_state,
+      visible_height,
+      show_indicator=not(is_streaming),
+    )
+
+    let message_area = @c.column(
+      visible_items,
+      height=@types.Dimension::Length(visible_height.to_double()),
+      justify=@types.Alignment::FlexEnd, // Align messages to bottom
+    )
+
+    // Divider - simple text line instead of hdivider (which uses border)
+    let divider_color = if editing {
+      @tui.Color::rgb(100, 150, 255)
+    } else {
+      @tui.Color::rgb(60, 60, 60)
+    }
+    let divider = @c.text("─".repeat(w), fg=divider_color)
+
+    // Input area - fixed height
     let display_text = if input_text.length() == 0 && not(editing) {
       "Type a message... (press Enter to start)"
     } else {
       input_text
     }
-    let cursor = if editing { "█" } else { "" }
     let input_color = if input_text.length() == 0 && not(editing) {
-      "\u001b[38;2;100;100;100m"
+      @tui.Color::rgb(100, 100, 100)
     } else {
-      "\u001b[37m"
+      @tui.Color::white()
     }
+    let cursor = if editing { "█" } else { "" }
 
-    // Row input_start_row: padding
-    @tui.print_raw("\u001b[" + input_start_row.to_string() + ";1H\u001b[2K")
+    let status_text = "Enter: send · Alt+Enter: newline · Ctrl+C: quit"
+    // Input content box (5 lines)
+    let input_content = @tui.text_box(
+      " " + display_text + cursor,
+      fg=input_color,
+      height=@types.Dimension::Length(max_input_rows.to_double()),
+    )
+    let input_area = @c.column(
+      [
+        input_content,
+        @c.text(" " + status_text, fg=@tui.Color::rgb(80, 80, 80)),
+      ],
+      height=@types.Dimension::Length(input_area_height.to_double()),
+    )
 
-    // Rows for input content (max_input_rows)
-    let input_lines = @c.split_lines(display_text)
-    for i = 0; i < max_input_rows; i = i + 1 {
-      let row = input_start_row + 1 + i
-      @tui.print_raw("\u001b[" + row.to_string() + ";1H\u001b[2K")
-      if i < input_lines.length() {
-        let line = input_lines[i]
-        let text = if i == input_lines.length() - 1 { line + cursor } else { line }
-        @tui.print_raw(" " + input_color + text + "\u001b[0m")
-      }
-    }
+    // Buffer line to prevent layout interference
+    let buffer = @c.column(
+      [],
+      height=@types.Dimension::Length(buffer_lines.to_double()),
+    )
 
-    // Status bar
-    let status_row = input_start_row + 1 + max_input_rows
-    let input_width = width - 4
-    let actual_rows = calc_actual_rows(input_value.get(), input_width)
-    let line_info = actual_rows.to_string() + "/" + max_input_rows.to_string() + " lines"
-    let status_text = line_info + " · Enter: send · Alt+Enter: newline · Ctrl+C: quit"
-    @tui.print_raw("\u001b[" + status_row.to_string() + ";1H\u001b[2K")
-    // Right align status
-    let status_col = width - status_text.length()
-    if status_col > 0 {
-      @tui.print_raw("\u001b[" + status_row.to_string() + ";" + status_col.to_string() + "H")
-    }
-    @tui.print_raw("\u001b[38;2;80;80;80m" + status_text + "\u001b[0m")
-
-    // End synchronized output
-    @tui.print_raw("\u001b[?2026l")
+    // Main layout - vertical split
+    @c.column(
+      [message_area, divider, buffer, input_area],
+      width=@types.Dimension::Length(w.to_double()),
+      height=@types.Dimension::Length(h.to_double()),
+    )
   }
 
-  // Render only message area (preserves input box during editing)
-  fn render_message_area() -> Unit {
-    // Use same dimensions as render_messages()
-    let visible_height = fixed_message_height - 2 // -2 for padding
-    let msgs = messages.get()
-
-    // Build flat list of line data: (type, text, color_code)
-    // type: 0=role, 1=content, 2=spacer
-    let all_lines : Array[(Int, String, String)] = []
-
-    for msg in msgs {
-      let (icon, color_code) = match msg.role {
-        User => ("◆", "\u001b[36m") // cyan
-        Assistant => ("✦", "\u001b[38;2;255;150;100m") // coral
-      }
-      let role_name = match msg.role {
-        User => "You"
-        Assistant => "Assistant"
-      }
-      // Role line
-      all_lines.push((0, icon + " " + role_name, color_code))
-      // Content lines (split by newlines)
-      let content_lines = @c.split_lines(msg.content)
-      for line in content_lines {
-        all_lines.push((1, line, "\u001b[38;2;220;220;220m"))
-      }
-      // Spacer
-      all_lines.push((2, "", ""))
+  // Render helper
+  fn do_render() -> Unit {
+    let editing = is_editing.get()
+    // Save cursor position before rendering if editing
+    if editing {
+      @tui.print_raw("\u001b[s") // Save cursor position
     }
-
-    // Add streaming message if in progress
-    if streaming.has_content() {
-      // Role line
-      all_lines.push((0, "✦ Assistant", "\u001b[38;2;255;150;100m"))
-      // Partial content lines
-      let partial = streaming.get_partial()
-      let partial_lines = @c.split_lines(partial)
-      for i, line in partial_lines {
-        let display = if i == partial_lines.length() - 1 && streaming.is_streaming() {
-          line + "▌" // cursor on last line
-        } else {
-          line
-        }
-        all_lines.push((1, display, "\u001b[38;2;220;220;220m"))
-      }
-      // Spacer
-      all_lines.push((2, "", ""))
+    let ui = build_ui()
+    let output = app.val.render_frame(ui)
+    @tui.print_raw(output)
+    if editing {
+      // Restore cursor position and show cursor
+      @tui.print_raw("\u001b[u") // Restore cursor position
+      @tui.print_raw(@tui.ansi_show_cursor())
+    } else {
+      // Keep cursor in input area when not editing
+      let input_row = height.val - input_area_height + 1
+      @tui.print_raw("\u001b[" + input_row.to_string() + ";1H")
     }
-
-    // Same logic as render_messages(): reserve 1 line for scroll indicator
-    let total = all_lines.length()
-    let has_scroll = total > visible_height
-    let content_height = if has_scroll { visible_height - 1 } else { visible_height }
-    let offset = scroll_state.offset.get()
-
-    // Start synchronized output
-    @tui.print_raw("\u001b[?2026h")
-    // Save cursor position
-    @tui.print_raw("\u001b[s")
-
-    // Clear and redraw message area only (row 2 to row fixed_message_height-1)
-    let mut added = 0
-    for i = 0; i < visible_height; i = i + 1 {
-      let row = i + 2 // Start from row 2 (after padding)
-      // Move to row and clear it
-      @tui.print_raw("\u001b[" + row.to_string() + ";1H\u001b[2K")
-
-      if added < content_height {
-        let line_idx = offset + added
-        if line_idx < all_lines.length() {
-          let (line_type, text, color_code) = all_lines[line_idx]
-          match line_type {
-            0 => {
-              // Role line (bold)
-              @tui.print_raw(" " + color_code + "\u001b[1m" + text + "\u001b[0m")
-            }
-            1 => {
-              // Content line (with indent)
-              @tui.print_raw("   " + color_code + text + "\u001b[0m")
-            }
-            _ => () // Spacer - leave empty
-          }
-        }
-        added = added + 1
-      } else if has_scroll && added == content_height {
-        // Scroll indicator line using ScrollState helper
-        let indicator = scroll_state.get_indicator(total, visible_height)
-        let text = @c.scroll_indicator_text(indicator)
-        @tui.print_raw("\u001b[38;2;80;80;80m" + text + "\u001b[0m")
-        added = added + 1
-      }
-    }
-
-    // Restore cursor position
-    @tui.print_raw("\u001b[u")
-    // End synchronized output
-    @tui.print_raw("\u001b[?2026l")
   }
 
   // Quit helper
   fn do_quit() -> Unit {
     running.set(false)
     @tui.stop_keypress_listener()
+    @tui.stop_resize_listener()
     @tui.print_raw(@tui.disable_mouse())
     @tui.cleanup_stdin()
     @tui.print_raw(@tui.App::restore_terminal())
     println("Goodbye!")
   }
 
+  // Add a message
+  fn add_message(role : MessageRole, content : String) -> Unit {
+    let current = messages.get()
+    current.push({ role, content })
+    messages.set(current)
+    // Auto-scroll to bottom
+    let visible_height = height.val - input_area_height - 1
+    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
+  }
+
   // Complete streaming and add to messages
   fn finish_streaming() -> Unit {
-    let text = streaming.take() // Get text and clear state
+    let text = streaming.take()
     if text.length() > 0 {
       add_message(Assistant, text)
     }
-    // Auto-scroll to bottom using ScrollState
-    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_message_lines)
+    let visible_height = height.val - input_area_height - 1
+    scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
   }
 
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
-    // Callbacks for streaming
     fn on_tick() {
-      // Auto-scroll to bottom using ScrollState
-      scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_message_lines)
-      // Use partial render during editing to preserve input box
-      if is_editing.get() {
-        render_message_area()
-      } else {
-        do_render()
-      }
+      let visible_height = height.val - input_area_height - 1
+      scroll_state.auto_scroll_to_bottom(get_total_lines(), visible_height)
+      do_render()
     }
 
     fn on_complete() {
       finish_streaming()
-      // Use partial render during editing
-      if is_editing.get() {
-        render_message_area()
-      } else {
-        do_render()
-      }
+      do_render()
     }
 
-    // Start streaming (200ms interval = 5 chars/sec)
     let started = streaming.start(response, 200, on_tick, on_complete)
-    // If not started (already streaming or native mode fallback)
     if not(started) || streaming.ticker_id.val == 0 {
-      // Fallback: add message immediately
       streaming.clear()
       add_message(Assistant, response)
     }
     do_render()
   }
 
-  // Mutually recursive functions: restore_tui_and_send <-> start_editing <-> handle_key
+  // Handle resize event
+  fn handle_resize(new_width : Int, new_height : Int) -> Unit {
+    width.val = new_width
+    height.val = new_height
+    // Recreate app with new dimensions
+    app.val = @tui.App::new(new_width, new_height)
+    // Clear screen and re-render
+    @tui.print_raw(@tui.ansi_clear_screen())
+    do_render()
+  }
+
+  // Input handling - mutually recursive
   letrec restore_tui_and_send : () -> Unit = fn() {
     let raw = input_value.get()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
-      // Re-enable auto-scroll when sending a message
       scroll_state.auto_scroll.set(true)
       add_message(User, text)
       input_value.set("")
-      // Start streaming assistant response
       let response = "You said: " + text + ". This is a simulated response."
       start_streaming(response)
     }
     is_editing.set(false)
     @tui.print_raw(@tui.ansi_full_reset())
     @tui.print_raw(@tui.enable_mouse())
-    app.clear_prev_buffer()
+    app.val.clear_prev_buffer()
     do_render()
     @tui.start_keypress_listener(handle_key)
   }
   and start_editing : () -> Unit = fn() {
     is_editing.set(true)
-    // Clear and re-render completely before entering edit mode
     do_render()
 
-    // Calculate input area coordinates directly (same as do_render)
-    let input_start_row = fixed_message_height + 2
-    let row = input_start_row + 1 // After padding row
-    let col = 2 // After left padding
-    let content_width = width - 2
+    // Calculate input area position from layout
+    // Layout: message_area | divider (1 row) | buffer (1 row) | input_area
+    // Input area starts at row: height - input_area_height + 1
+    let row = height.val - input_area_height + 1 // First row of input area (buffer above)
+    let col = 2
+    let content_width = width.val - 2
     let content_height = max_input_rows
 
     let signal = input_value
@@ -444,7 +296,7 @@ fn main {
       }),
     )
 
-    // Clear the content area
+    // Clear content area
     for r = 0; r < content_height; r = r + 1 {
       @tui.print_raw(
         "\u001b[" +
@@ -455,7 +307,7 @@ fn main {
         " ".repeat(content_width),
       )
     }
-    // Callback to dynamically resize based on line count
+
     let on_lines_change : (Int) -> Int = fn(line_count) {
       let min_h = 1
       let max_h = max_input_rows
@@ -474,7 +326,7 @@ fn main {
       col,
       content_width,
       content_height,
-      true, // multiline
+      true,
       restore_tui_and_send,
       on_lines_change=Some(on_lines_change),
     )
@@ -486,40 +338,36 @@ fn main {
     let event = @tui.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
+    let visible_height = height.val - input_area_height - 1
+
     match event {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
-          // Ctrl+C - quit
           @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
             do_quit()
             return
           }
-          // Escape - quit
           @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
             do_quit()
             return
           }
-          // Enter - start editing or send
           @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
             should_edit = true
-          // Any printable character - start editing
           @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => should_edit = true
-          // Scroll up
           @tui.KeyEvent::Special(@tui.SpecialKey::Up, _)
           | @tui.KeyEvent::Special(@tui.SpecialKey::PageUp, _) =>
             ignore(scroll_state.scroll_up(1))
-          // Scroll down
           @tui.KeyEvent::Special(@tui.SpecialKey::Down, _)
           | @tui.KeyEvent::Special(@tui.SpecialKey::PageDown, _) =>
             ignore(
-              scroll_state.scroll_down(1, get_total_lines(), visible_message_lines),
+              scroll_state.scroll_down(1, get_total_lines(), visible_height),
             )
           _ => need_render = false
         }
       @tui.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
           (@tui.MouseEventType::Press, @tui.MouseButton::Left) =>
-            match app.hit_test(mouse_event.x, mouse_event.y) {
+            match app.val.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) => if hit.id == "chat-input" { should_edit = true }
               None => ()
             }
@@ -527,20 +375,18 @@ fn main {
             ignore(scroll_state.scroll_up(3))
           (@tui.MouseEventType::Press, @tui.MouseButton::ScrollDown) =>
             ignore(
-              scroll_state.scroll_down(3, get_total_lines(), visible_message_lines),
+              scroll_state.scroll_down(3, get_total_lines(), visible_height),
             )
           _ => need_render = false
         }
       _ => need_render = false
     }
 
-    // Start editing if requested
     if should_edit {
       start_editing()
       return
     }
 
-    // Re-render if needed
     if need_render && running.get() {
       do_render()
     }
@@ -549,6 +395,9 @@ fn main {
   // Initialize terminal
   @tui.print_raw(@tui.App::init_terminal())
   @tui.print_raw(@tui.enable_mouse())
+
+  // Start resize listener
+  @tui.start_resize_listener(handle_resize)
 
   // Initial render
   do_render()

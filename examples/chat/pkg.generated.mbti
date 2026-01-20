@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/crater-tui/examples/chat"
+package "mizchi/tui/examples/chat"
 
 // Values
 
@@ -9,6 +9,7 @@ package "mizchi/crater-tui/examples/chat"
 type Message
 
 type MessageRole
+pub impl Eq for MessageRole
 
 // Type aliases
 

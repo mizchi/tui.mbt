@@ -1,0 +1,202 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/components"
+
+import(
+  "mizchi/crater/types"
+  "mizchi/signals"
+  "mizchi/tui"
+)
+
+// Values
+pub fn[T] apply_scroll(Array[T], Int, Int, reserve_indicator? : Bool) -> Array[T]
+
+pub fn bold(String) -> @tui.Component
+
+pub fn bordered(Array[@tui.Component], style? : @tui.BorderChars, color? : @tui.Color) -> @tui.Component
+
+pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
+
+pub fn button(String, id? : String, state? : ButtonState, fg? : @tui.Color, bg? : @tui.Color, hover_bg? : @tui.Color, pressed_bg? : @tui.Color, disabled_fg? : @tui.Color, border_color? : @tui.Color, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+
+pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
+
+pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int, Int)
+
+pub fn center(Array[@tui.Component]) -> @tui.Component
+
+pub fn colored(String, @tui.Color) -> @tui.Component
+
+pub fn column(Array[@tui.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+
+pub fn count_lines(String) -> Int
+
+pub fn fill(Array[@tui.Component]) -> @tui.Component
+
+pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?) -> EditConfig
+
+pub fn fraction_text(Int, Int, fg? : @tui.Color) -> @tui.Component
+
+pub fn get_spinner_frame(Int) -> String
+
+pub fn grid(Array[@tui.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+
+pub fn hdivider(char? : Char, fg? : @tui.Color) -> @tui.Component
+
+pub fn hspace(Double) -> @tui.Component
+
+pub fn hsplit(Array[@tui.Component], Array[@tui.Component], Int, SplitSize, SplitSize, divider? : @tui.Component?, divider_size? : Int) -> @tui.Component
+
+pub fn hsplit_fixed_bottom(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+
+pub fn hsplit_fixed_top(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+
+pub fn icon_button(String, state? : ButtonState, fg? : @tui.Color, bg? : @tui.Color, hover_bg? : @tui.Color, pressed_bg? : @tui.Color) -> @tui.Component
+
+pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, focus_border_color? : @tui.Color, edit_border_color? : @tui.Color, disabled_fg? : @tui.Color, disabled_bg? : @tui.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+
+pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, underline? : Bool) -> @tui.Component
+
+pub fn loading_dots(Int, label? : String, fg? : @tui.Color) -> @tui.Component
+
+pub fn padded(Array[@tui.Component], padding? : Double) -> @tui.Component
+
+pub fn percent_text(Double, fg? : @tui.Color) -> @tui.Component
+
+pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, fg? : @tui.Color, fill_fg? : @tui.Color) -> @tui.Component
+
+pub fn row(Array[@tui.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @tui.BorderChars?, border_color? : @tui.Color, bg? : @tui.Color, fg? : @tui.Color) -> @tui.Component
+
+pub fn scroll_indicator(ScrollIndicator, fg? : @tui.Color) -> @tui.Component
+
+pub fn scroll_indicator_text(ScrollIndicator) -> String
+
+pub fn scrollable_list(Array[@tui.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @tui.Color) -> Array[@tui.Component]
+
+pub fn spacer(flex_grow? : Double) -> @tui.Component
+
+pub fn spinner(Int, label? : String, fg? : @tui.Color) -> @tui.Component
+
+pub fn split_lines(String) -> Array[String]
+
+pub fn start_edit(EditConfig, String, () -> Unit) -> Unit
+
+pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+
+pub fn text(String, fg? : @tui.Color, bg? : @tui.Color, bold? : Bool, underline? : Bool) -> @tui.Component
+
+pub fn text_button(String, state? : ButtonState, fg? : @tui.Color, hover_fg? : @tui.Color, pressed_fg? : @tui.Color, disabled_fg? : @tui.Color, underline? : Bool) -> @tui.Component
+
+pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @tui.Color, bg? : @tui.Color, placeholder_fg? : @tui.Color, focus_border_color? : @tui.Color, edit_border_color? : @tui.Color, disabled_fg? : @tui.Color, disabled_bg? : @tui.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @tui.Component
+
+pub fn vdivider(char? : Char, fg? : @tui.Color) -> @tui.Component
+
+pub fn vspace(Double) -> @tui.Component
+
+pub fn vsplit(Array[@tui.Component], Array[@tui.Component], Int, SplitSize, SplitSize, divider? : @tui.Component?, divider_size? : Int) -> @tui.Component
+
+pub fn vsplit_fixed_left(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+
+pub fn vsplit_fixed_right(Array[@tui.Component], Array[@tui.Component], Int, Int, divider? : @tui.Component?) -> @tui.Component
+
+// Errors
+
+// Types and methods
+pub(all) enum ButtonState {
+  Normal
+  Hover
+  Pressed
+  Disabled
+}
+
+pub(all) struct EditConfig {
+  field_name : String
+  on_change : (String) -> Unit
+  on_edit_start : (() -> Unit)?
+  on_edit_end : (() -> Unit)?
+}
+
+pub(all) struct EditContext {
+  focused_id : @signals.Signal[String]
+  configs : Map[String, EditConfig]
+  restore_tui : () -> Unit
+}
+pub fn EditContext::edit(Self, String, String) -> Bool
+pub fn EditContext::edit_focused(Self) -> Bool
+pub fn EditContext::new(@signals.Signal[String], () -> Unit) -> Self
+pub fn EditContext::register(Self, String, EditConfig) -> Unit
+
+pub(all) enum InputState {
+  Idle
+  Focused
+  Editing
+  Disabled
+}
+
+pub(all) enum ProgressStyle {
+  Bar
+  Dots
+  Blocks
+  Spinner
+}
+
+pub(all) enum ScrollIndicator {
+  None
+  Up
+  Down
+  Both
+}
+
+pub(all) struct ScrollState {
+  offset : @signals.Signal[Int]
+  auto_scroll : @signals.Signal[Bool]
+}
+pub fn ScrollState::auto_scroll_to_bottom(Self, Int, Int) -> Unit
+pub fn ScrollState::get_indicator(Self, Int, Int) -> ScrollIndicator
+pub fn ScrollState::is_at_bottom(Self, Int, Int) -> Bool
+pub fn ScrollState::new() -> Self
+pub fn ScrollState::reset(Self) -> Unit
+pub fn ScrollState::scroll_down(Self, Int, Int, Int) -> Bool
+pub fn ScrollState::scroll_to_bottom(Self, Int, Int) -> Unit
+pub fn ScrollState::scroll_up(Self, Int) -> Bool
+pub fn ScrollState::with_values(Int, Bool) -> Self
+
+pub(all) enum SplitDirection {
+  Horizontal
+  Vertical
+}
+
+pub(all) enum SplitSize {
+  Fixed(Double)
+  Percent(Double)
+  Flex(Double)
+}
+
+pub(all) struct StreamingState {
+  full_text : @signals.Signal[String]
+  position : @signals.Signal[Int]
+  ticker_id : Ref[Int]
+}
+pub fn StreamingState::clear(Self) -> Unit
+pub fn StreamingState::complete(Self) -> Unit
+pub fn StreamingState::get_partial(Self) -> String
+pub fn StreamingState::get_partial_with_cursor(Self, cursor? : String) -> String
+pub fn StreamingState::get_progress(Self) -> (Int, Int)
+pub fn StreamingState::get_progress_ratio(Self) -> Double
+pub fn StreamingState::has_content(Self) -> Bool
+pub fn StreamingState::is_streaming(Self) -> Bool
+pub fn StreamingState::new() -> Self
+pub fn StreamingState::start(Self, String, Int, () -> Unit, () -> Unit) -> Bool
+pub fn StreamingState::stop(Self) -> Unit
+pub fn StreamingState::take(Self) -> String
+
+pub(all) enum TextareaState {
+  Idle
+  Focused
+  Editing
+  Disabled
+}
+
+// Type aliases
+
+// Traits
+
