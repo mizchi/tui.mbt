@@ -1,6 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui"
 
+import(
+  "mizchi/tui/components"
+  "mizchi/tui/core"
+  "mizchi/tui/events"
+  "mizchi/tui/io"
+  "mizchi/tui/render"
+)
+
 // Values
 
 // Errors
@@ -8,6 +16,69 @@ package "mizchi/tui"
 // Types and methods
 
 // Type aliases
+pub using @components {type ActionMenu}
+
+pub using @render {type App}
+
+pub using @core {type BorderChars}
+
+pub using @components {type ButtonState}
+
+pub using @render {type CharBuffer}
+
+pub using @render {type CharCell}
+
+pub using @core {type Color}
+
+pub using @core {type Component}
+
+pub using @components {type EditConfig}
+
+pub using @events {type EventHandlers}
+
+pub using @events {type FocusManager}
+
+pub using @events {type FocusState}
+
+pub using @events {type HitTestResult}
+
+pub using @events {type InputEvent}
+
+pub using @events {type InputMode}
+
+pub using @io {type InputResult}
+
+pub using @components {type InputState}
+
+pub using @components {type ItemScroller}
+
+pub using @events {type KeyEvent}
+
+pub using @events {type KeyModifier}
+
+pub using @components {type ModalState}
+
+pub using @events {type MouseButton}
+
+pub using @events {type MouseEvent}
+
+pub using @events {type MouseEventType}
+
+pub using @components {type ProgressStyle}
+
+pub using @core {type RenderStyleMap}
+
+pub using @components {type ScrollState}
+
+pub using @events {type SpecialKey}
+
+pub using @components {type StreamingState}
+
+pub using @core {type TextContentMap}
+
+pub using @render {type TextStyle}
+
+pub using @components {type TextareaState}
 
 // Traits
 

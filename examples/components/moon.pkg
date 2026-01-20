@@ -1,0 +1,14 @@
+import {
+  "mizchi/tui" as @tui,
+  "mizchi/tui/render" as @render,
+  "mizchi/tui/core" as @core,
+  "mizchi/tui/events" as @events,
+  "mizchi/tui/io" as @io,
+  "mizchi/tui/components" as @c,
+  "mizchi/crater/types",
+  "mizchi/signals",
+}
+
+options(
+  "is-main": true,
+)

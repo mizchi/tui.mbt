@@ -10,9 +10,15 @@ import(
 )
 
 // Values
+pub fn accordion(Array[AccordionItem], id? : String, header_fg? : @core.Color, header_bg? : @core.Color, content_bg? : @core.Color, border_color? : @core.Color, expanded_icon? : String, collapsed_icon? : String, header_padding_x? : Double, header_padding_y? : Double, content_padding? : Double, gap? : Double) -> @core.Component
+
+pub fn accordion_header(String, Bool, id? : String, fg? : @core.Color, bg? : @core.Color, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double) -> @core.Component
+
 pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
 pub fn[T] apply_scroll(Array[T], Int, Int, reserve_indicator? : Bool) -> Array[T]
+
+pub fn autocomplete(Array[ComboboxOption], String, id? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_visible? : Int) -> @core.Component
 
 pub fn backdrop(bg? : @core.Color) -> @core.Component
 
@@ -30,11 +36,17 @@ pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int,
 
 pub fn center(Array[@core.Component]) -> @core.Component
 
+pub fn checkbox(Bool, fg? : @core.Color, checked_fg? : @core.Color, checked_icon? : String, unchecked_icon? : String) -> @core.Component
+
 pub fn colored(String, @core.Color) -> @core.Component
 
 pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
 
+pub fn combobox(Array[ComboboxOption], String, id? : String, state? : ComboboxState, filter? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, focus_border_color? : @core.Color, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
+
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
+
+pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, min_width? : Double) -> @core.Component
 
 pub fn count_lines(String) -> Int
 
@@ -64,17 +76,49 @@ pub fn input(String, id? : String, placeholder? : String, state? : InputState, f
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
 
+pub fn labeled_checkbox(String, Bool, id? : String, label_position? : LabelPosition, fg? : @core.Color, checked_fg? : @core.Color, gap? : Double) -> @core.Component
+
+pub fn labeled_switch(String, Bool, id? : String, state? : SwitchState, label_position? : LabelPosition, label_fg? : @core.Color, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, gap? : Double) -> @core.Component
+
+pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, focused_border? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+
+pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientation? : ListboxOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, focused_border? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+
+pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
+
 pub fn loading_dots(Int, label? : String, fg? : @core.Color) -> @core.Component
+
+pub fn menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color, separator_fg? : @core.Color, min_width? : Double) -> @core.Component
+
+pub fn menu_checkbox(String, String, Bool, disabled? : Bool) -> MenuItem
+
+pub fn menu_item(String, String, disabled? : Bool) -> MenuItem
+
+pub fn menu_radio(String, String, Bool, disabled? : Bool) -> MenuItem
+
+pub fn menu_separator() -> MenuItem
+
+pub fn menu_submenu(String, String, Array[MenuItem], disabled? : Bool) -> MenuItem
+
+pub fn menubar(Array[MenubarItem], MenubarState, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, hover_bg? : @core.Color, disabled_fg? : @core.Color, separator_fg? : @core.Color, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
 
 pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double, backdrop_bg? : @core.Color, container_width? : @types.Dimension, container_height? : @types.Dimension) -> @core.Component
+
+pub fn option_list(Array[ListboxOption], Array[String], focused_id? : String, multiselectable? : Bool, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color) -> @core.Component
 
 pub fn padded(Array[@core.Component], padding? : Double) -> @core.Component
 
 pub fn percent_text(Double, fg? : @core.Color) -> @core.Component
 
 pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, fg? : @core.Color, fill_fg? : @core.Color) -> @core.Component
+
+pub fn radio(String, Bool, id? : String, fg? : @core.Color, selected_fg? : @core.Color, selected_icon? : String, unselected_icon? : String, gap? : Double) -> @core.Component
+
+pub fn radiogroup(Array[RadioOption], String, id? : String, orientation? : RadioOrientation, fg? : @core.Color, selected_fg? : @core.Color, selected_icon? : String, unselected_icon? : String, gap? : Double, item_gap? : Double) -> @core.Component
+
+pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
 
 pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
 
@@ -84,15 +128,29 @@ pub fn scroll_indicator_text(ScrollIndicator) -> String
 
 pub fn scrollable_list(Array[@core.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @core.Color) -> Array[@core.Component]
 
+pub fn select(Array[ComboboxOption], String, id? : String, open? : Bool, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_visible? : Int) -> @core.Component
+
+pub fn selectable_list(Array[(String, String)], String, focused_id? : String, fg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color) -> @core.Component
+
 pub fn spacer(flex_grow? : Double) -> @core.Component
 
 pub fn spinner(Int, label? : String, fg? : @core.Color) -> @core.Component
 
 pub fn split_lines(String) -> Array[String]
 
+pub fn splitter_handle(SplitterOrientation, focused? : Bool, id? : String, fg? : @core.Color, bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color) -> @core.Component
+
 pub fn start_edit(EditConfig, String, () -> Unit) -> Unit
 
 pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+
+pub fn switch(Bool, id? : String, state? : SwitchState, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, track_on? : String, track_off? : String) -> @core.Component
+
+pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, orientation? : TabOrientation) -> @core.Component
+
+pub fn tab_panel(@core.Component, id? : String, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
+
+pub fn tabs(Array[TabItem], String, id? : String, orientation? : TabOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, gap? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underline? : Bool) -> @core.Component
 
@@ -110,11 +168,20 @@ pub fn vsplit_fixed_left(Array[@core.Component], Array[@core.Component], Int, In
 
 pub fn vsplit_fixed_right(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
+pub fn window_splitter(@core.Component, @core.Component, SplitterState, orientation? : SplitterOrientation, id? : String, min? : Int, max? : Int, divider_fg? : @core.Color, divider_bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color, total_size? : Int) -> @core.Component
+
 pub fn with_modal(@core.Component, @core.Component, Bool) -> @core.Component
 
 // Errors
 
 // Types and methods
+pub(all) struct AccordionItem {
+  id : String
+  title : String
+  content : @core.Component
+  expanded : Bool
+}
+
 pub(all) struct ActionItem {
   key : Char
   label : String
@@ -143,6 +210,19 @@ pub(all) enum ButtonState {
   Normal
   Hover
   Pressed
+  Disabled
+}
+
+pub(all) struct ComboboxOption {
+  id : String
+  label : String
+}
+pub impl Eq for ComboboxOption
+
+pub(all) enum ComboboxState {
+  Closed
+  Open
+  Editing
   Disabled
 }
 
@@ -185,11 +265,63 @@ pub fn[T] ItemScroller::slice(Self, Array[T], Int) -> Array[T]
 pub fn ItemScroller::to_bottom(Self, Int, Int) -> Unit
 pub fn ItemScroller::up(Self, Int) -> Bool
 
+pub(all) enum LabelPosition {
+  Left
+  Right
+}
+
+pub(all) struct ListboxOption {
+  id : String
+  label : String
+  disabled : Bool
+}
+pub impl Eq for ListboxOption
+
+pub(all) enum ListboxOrientation {
+  Vertical
+  Horizontal
+}
+
+pub(all) struct ListboxState {
+  focused_id : String
+  selected_ids : Array[String]
+  anchor_id : String
+}
+pub fn ListboxState::new(initial_selected? : Array[String]) -> Self
+
+pub(all) struct MenuItem {
+  id : String
+  label : String
+  item_type : MenuItemType
+  disabled : Bool
+}
+
+pub(all) enum MenuItemType {
+  Action
+  Checkbox(Bool)
+  Radio(Bool)
+  Separator
+  Submenu(Array[MenuItem])
+}
+
 pub(all) enum MenuKeyResult {
   Handled
   NotHandled
   Closed
 }
+
+pub(all) struct MenubarItem {
+  id : String
+  label : String
+  items : Array[MenuItem]
+}
+
+pub(all) struct MenubarState {
+  open_menu_id : String
+  focused_item_id : String
+  open_submenu_path : Array[String]
+}
+pub fn MenubarState::new() -> Self
 
 pub(all) struct ModalState {
   is_open : @signals.Signal[Bool]
@@ -205,6 +337,17 @@ pub(all) enum ProgressStyle {
   Dots
   Blocks
   Spinner
+}
+
+pub(all) struct RadioOption {
+  id : String
+  label : String
+}
+pub impl Eq for RadioOption
+
+pub(all) enum RadioOrientation {
+  Horizontal
+  Vertical
 }
 
 pub(all) enum ScrollIndicator {
@@ -240,6 +383,19 @@ pub(all) enum SplitSize {
   Flex(Double)
 }
 
+pub(all) enum SplitterOrientation {
+  Horizontal
+  Vertical
+}
+
+pub(all) struct SplitterState {
+  position : Int
+  collapsed : Bool
+  prev_position : Int
+  focused : Bool
+}
+pub fn SplitterState::new(initial_position? : Int, collapsed? : Bool) -> Self
+
 pub(all) struct StreamingState {
   full_text : @signals.Signal[String]
   position : @signals.Signal[Int]
@@ -258,6 +414,23 @@ pub fn StreamingState::start(Self, String, Int, () -> Unit, () -> Unit) -> Bool
 pub fn StreamingState::stop(Self) -> Unit
 pub fn StreamingState::take(Self) -> String
 pub fn StreamingState::take_partial(Self) -> String
+
+pub(all) enum SwitchState {
+  Off
+  On
+  Disabled
+}
+
+pub(all) struct TabItem {
+  label : String
+  id : String
+}
+pub impl Eq for TabItem
+
+pub(all) enum TabOrientation {
+  Horizontal
+  Vertical
+}
 
 pub(all) enum TextareaState {
   Idle

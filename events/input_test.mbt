@@ -181,8 +181,14 @@ test "parse_input: Function keys" {
 
 ///|
 test "parse_input: Page Up/Down" {
-  inspect(@events.parse_input("\u001b[5~"), content="Key(Special(PageUp, None))")
-  inspect(@events.parse_input("\u001b[6~"), content="Key(Special(PageDown, None))")
+  inspect(
+    @events.parse_input("\u001b[5~"),
+    content="Key(Special(PageUp, None))",
+  )
+  inspect(
+    @events.parse_input("\u001b[6~"),
+    content="Key(Special(PageDown, None))",
+  )
 }
 
 ///|

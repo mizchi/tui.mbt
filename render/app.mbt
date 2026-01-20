@@ -107,7 +107,11 @@ pub fn run_app(
 
 ///|
 /// Simple render function for one-shot rendering (no reactivity)
-pub fn render_once(width : Int, height : Int, component : @core.Component) -> String {
+pub fn render_once(
+  width : Int,
+  height : Int,
+  component : @core.Component,
+) -> String {
   let app = App::new(width, height)
   app.render(component)
 }

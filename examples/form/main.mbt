@@ -304,8 +304,10 @@ fn main {
               need_render = false
             }
           // Tab - next focus
-          @events.KeyEvent::Special(@events.SpecialKey::Tab, @events.KeyModifier::None) =>
-            focus_next()
+          @events.KeyEvent::Special(
+            @events.SpecialKey::Tab,
+            @events.KeyModifier::None
+          ) => focus_next()
           // Shift+Tab or BackTab - previous focus
           @events.KeyEvent::Special(
             @events.SpecialKey::Tab

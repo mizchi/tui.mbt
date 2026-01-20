@@ -341,9 +341,7 @@ fn main {
         @io.stop_keypress_listener()
         @io.print_raw(@render.disable_mouse())
       }),
-      on_force_quit=Some(fn() {
-        do_quit()
-      }),
+      on_force_quit=Some(fn() { do_quit() }),
     )
 
     // Clear content area
@@ -404,7 +402,8 @@ fn main {
             action_menu.open_with_app(app.val)
           @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
             should_edit = true
-          @events.KeyEvent::Char(_, @events.KeyModifier::None) => should_edit = true
+          @events.KeyEvent::Char(_, @events.KeyModifier::None) =>
+            should_edit = true
           @events.KeyEvent::Special(@events.SpecialKey::Up, _)
           | @events.KeyEvent::Special(@events.SpecialKey::PageUp, _) =>
             ignore(scroller.up(1))
@@ -431,7 +430,9 @@ fn main {
     if should_edit {
       // Extract initial character if it was a character input
       match event {
-        @events.InputEvent::Key(@events.KeyEvent::Char(ch, @events.KeyModifier::None)) =>
+        @events.InputEvent::Key(
+          @events.KeyEvent::Char(ch, @events.KeyModifier::None)
+        ) =>
           // Don't start editing with 'f'/'F' as it opens modal
           if ch != 'f' && ch != 'F' {
             input_value.set(ch.to_string())

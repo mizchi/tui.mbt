@@ -97,9 +97,12 @@ async fn main {
       @events.InputEvent::Key(key_event) =>
         match key_event {
           // Quit on 'q' or Ctrl+C or Escape
-          @events.KeyEvent::Char('q', @events.KeyModifier::None) => running = false
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => running = false
-          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => running = false
+          @events.KeyEvent::Char('q', @events.KeyModifier::None) =>
+            running = false
+          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) =>
+            running = false
+          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) =>
+            running = false
           // Increment
           @events.KeyEvent::Char('+', _) => count.set(count.get() + 1)
           @events.KeyEvent::Char('=', _) => count.set(count.get() + 1)

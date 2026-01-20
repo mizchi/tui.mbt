@@ -27,7 +27,11 @@ pub fn CharCell::from_char(c : Char) -> CharCell {
 }
 
 ///|
-pub fn CharCell::styled(c : Char, fg : @core.Color, bg : @core.Color) -> CharCell {
+pub fn CharCell::styled(
+  c : Char,
+  fg : @core.Color,
+  bg : @core.Color,
+) -> CharCell {
   { ..CharCell::default(), char: c, fg, bg }
 }
 

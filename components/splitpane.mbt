@@ -235,3 +235,234 @@ pub fn vsplit_fixed_right(
     divider~,
   )
 }
+
+// ============================================
+// Window Splitter - Interactive resizable splitter
+// ============================================
+
+///|
+/// Splitter state
+pub(all) struct SplitterState {
+  position : Int // percentage 0-100
+  collapsed : Bool
+  prev_position : Int // position before collapse
+  focused : Bool
+}
+
+///|
+/// Create initial splitter state
+pub fn SplitterState::new(
+  initial_position? : Int = 50,
+  collapsed? : Bool = false,
+) -> SplitterState {
+  {
+    position: initial_position,
+    collapsed,
+    prev_position: initial_position,
+    focused: false,
+  }
+}
+
+///|
+/// Splitter orientation
+pub(all) enum SplitterOrientation {
+  Horizontal // Left | Right (vertical divider line)
+  Vertical // Top | Bottom (horizontal divider line)
+}
+
+///|
+/// Create a window splitter with draggable divider
+pub fn window_splitter(
+  primary : @core.Component,
+  secondary : @core.Component,
+  state : SplitterState,
+  orientation? : SplitterOrientation = SplitterOrientation::Horizontal,
+  id? : String = "",
+  // Constraints
+  min? : Int = 10,
+  max? : Int = 90,
+  // Style
+  divider_fg? : @core.Color = @core.Color::white(),
+  divider_bg? : @core.Color = @core.Color::rgb(60, 60, 80),
+  focused_fg? : @core.Color = @core.Color::cyan(),
+  focused_bg? : @core.Color = @core.Color::rgb(40, 80, 100),
+  // Size (total container size)
+  total_size? : Int = 80,
+  divider_width? : Double = 1.0,
+) -> @core.Component {
+  // Calculate actual position (handle collapsed state)
+  let actual_position = if state.collapsed { 0 } else { state.position }
+
+  // Determine divider appearance
+  let (div_fg, div_bg) = if state.focused {
+    (focused_fg, focused_bg)
+  } else {
+    (divider_fg, divider_bg)
+  }
+
+  // Build divider with grab handle
+  let divider_component = match orientation {
+    SplitterOrientation::Horizontal => {
+      // Vertical line divider with grip
+      let grip = if state.focused { "┃" } else { "│" }
+      let handle = column(
+        [text(grip, fg=div_fg)],
+        id=id + "-divider",
+        width=@types.Dimension::Length(divider_width),
+        height=@types.Dimension::Percent(1.0),
+        bg=div_bg,
+        justify=@types.Alignment::Center,
+        align=@types.Alignment::Center,
+      )
+      handle
+    }
+    SplitterOrientation::Vertical => {
+      // Horizontal line divider with grip
+      let grip = if state.focused { "━" } else { "─" }
+      let handle = row(
+        [text(grip.repeat(3), fg=div_fg)],
+        id=id + "-divider",
+        height=@types.Dimension::Length(divider_width),
+        width=@types.Dimension::Percent(1.0),
+        bg=div_bg,
+        justify=@types.Alignment::Center,
+        align=@types.Alignment::Center,
+      )
+      handle
+    }
+  }
+
+  // Calculate sizes based on position
+  let actual_divider_width = divider_width
+  let available = total_size.to_double() - actual_divider_width
+  let primary_size = if state.collapsed {
+    0.0
+  } else {
+    actual_position.clamp(min~, max~).to_double() /
+    100.0 *
+    available
+  }
+  let secondary_size = available - primary_size
+  match orientation {
+    SplitterOrientation::Horizontal =>
+      // Left | Right
+      row(
+        [
+          column(
+            [primary],
+            width=@types.Dimension::Length(primary_size),
+            height=@types.Dimension::Percent(1.0),
+          ),
+          divider_component,
+          column(
+            [secondary],
+            width=@types.Dimension::Length(secondary_size),
+            height=@types.Dimension::Percent(1.0),
+          ),
+        ],
+        id~,
+        width=@types.Dimension::Length(total_size.to_double()),
+      )
+    SplitterOrientation::Vertical =>
+      // Top | Bottom
+      column(
+        [
+          row(
+            [primary],
+            height=@types.Dimension::Length(primary_size),
+            width=@types.Dimension::Percent(1.0),
+          ),
+          divider_component,
+          row(
+            [secondary],
+            height=@types.Dimension::Length(secondary_size),
+            width=@types.Dimension::Percent(1.0),
+          ),
+        ],
+        id~,
+        height=@types.Dimension::Length(total_size.to_double()),
+      )
+  }
+}
+
+///|
+/// Interactive divider handle (standalone)
+pub fn splitter_handle(
+  orientation : SplitterOrientation,
+  focused? : Bool = false,
+  id? : String = "",
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::rgb(60, 60, 80),
+  focused_fg? : @core.Color = @core.Color::cyan(),
+  focused_bg? : @core.Color = @core.Color::rgb(40, 80, 100),
+) -> @core.Component {
+  let (actual_fg, actual_bg) = if focused {
+    (focused_fg, focused_bg)
+  } else {
+    (fg, bg)
+  }
+  match orientation {
+    SplitterOrientation::Horizontal => {
+      let grip = if focused { "┃" } else { "│" }
+      column(
+        [text(grip, fg=actual_fg)],
+        id~,
+        width=@types.Dimension::Length(1.0),
+        bg=actual_bg,
+        justify=@types.Alignment::Center,
+      )
+    }
+    SplitterOrientation::Vertical => {
+      let grip = if focused { "━━━" } else { "───" }
+      row(
+        [text(grip, fg=actual_fg)],
+        id~,
+        height=@types.Dimension::Length(1.0),
+        bg=actual_bg,
+        justify=@types.Alignment::Center,
+      )
+    }
+  }
+}
+
+///|
+/// Resizable pane with visible position indicator
+pub fn resizable_pane(
+  primary : @core.Component,
+  secondary : @core.Component,
+  position : Int, // percentage 0-100
+  orientation? : SplitterOrientation = SplitterOrientation::Horizontal,
+  id? : String = "",
+  focused? : Bool = false,
+  show_position? : Bool = false,
+  total_size? : Int = 80,
+) -> @core.Component {
+  let state = SplitterState::{
+    position,
+    collapsed: false,
+    prev_position: position,
+    focused,
+  }
+  let splitter = window_splitter(
+    primary,
+    secondary,
+    state,
+    orientation~,
+    id~,
+    total_size~,
+  )
+  if show_position {
+    let indicator = text(
+      " " + position.to_string() + "% ",
+      fg=@core.Color::rgb(150, 150, 150),
+    )
+    match orientation {
+      SplitterOrientation::Horizontal =>
+        column([indicator, splitter], id=id + "-container")
+      SplitterOrientation::Vertical =>
+        row([splitter, indicator], id=id + "-container")
+    }
+  } else {
+    splitter
+  }
+}
