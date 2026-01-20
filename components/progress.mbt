@@ -74,9 +74,9 @@ pub fn progress_bar(
   width : Int,
   style? : ProgressStyle = ProgressStyle::Bar,
   show_percent? : Bool = true,
-  fg? : @tui.Color = @tui.Color::white(),
-  fill_fg? : @tui.Color = @tui.Color::cyan(),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::white(),
+  fill_fg? : @core.Color = @core.Color::cyan(),
+) -> @core.Component {
   // Build the bar text
   let bar_text = build_progress_bar(ratio, width, style~, show_percent~)
   // For now, return as single styled text
@@ -89,8 +89,8 @@ pub fn progress_bar(
 pub fn spinner(
   tick : Int,
   label? : String = "",
-  fg? : @tui.Color = @tui.Color::cyan(),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::cyan(),
+) -> @core.Component {
   let frame = get_spinner_frame(tick)
   if label.length() > 0 {
     row([text(frame + " ", fg~), text(label)])
@@ -104,8 +104,8 @@ pub fn spinner(
 pub fn loading_dots(
   tick : Int,
   label? : String = "Loading",
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
   let dots = match tick % 4 {
     0 => ""
     1 => "."
@@ -119,8 +119,8 @@ pub fn loading_dots(
 /// Simple percentage text
 pub fn percent_text(
   ratio : Double,
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
   let clamped = if ratio < 0.0 {
     0.0
   } else if ratio > 1.0 {
@@ -137,7 +137,7 @@ pub fn percent_text(
 pub fn fraction_text(
   current : Int,
   total : Int,
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
   text(current.to_string() + "/" + total.to_string(), fg~)
 }

@@ -27,21 +27,21 @@ test "input: cursor when editing" {
 ///|
 test "textarea: creates component with value" {
   let comp = textarea("line1", id="test-textarea")
-  let output = @tui.render_once(80, 24, comp)
+  let output = @render.render_once(80, 24, comp)
   assert_true(output.contains("line1"))
 }
 
 ///|
 test "textarea: placeholder shown when value is empty" {
   let comp = textarea("", placeholder="Enter message")
-  let output = @tui.render_once(80, 24, comp)
+  let output = @render.render_once(80, 24, comp)
   assert_true(output.contains("Enter message"))
 }
 
 ///|
 test "button: creates component with text" {
   let comp = button("Click me", id="test-btn")
-  let output = @tui.render_once(80, 24, comp)
+  let output = @render.render_once(80, 24, comp)
   assert_true(output.contains("Click me"))
 }
 
@@ -58,21 +58,21 @@ test "button: different states" {
 
 ///|
 test "row: creates horizontal container" {
-  let r = row([@tui.text("A"), @tui.text("B")])
+  let r = row([@core.text("A"), @core.text("B")])
   // Row should have 2 children
   inspect(r.node.children.length(), content="2")
 }
 
 ///|
 test "column: creates vertical container" {
-  let c = column([@tui.text("A"), @tui.text("B")])
+  let c = column([@core.text("A"), @core.text("B")])
   // Column should have 2 children
   inspect(c.node.children.length(), content="2")
 }
 
 ///|
 test "text: creates text component" {
-  let t = @tui.text("Hello")
+  let t = @core.text("Hello")
   // Text should have content
   inspect(t.texts.get(t.node.id), content="Some(\"Hello\")")
 }
@@ -107,15 +107,15 @@ test "scrollable_list: height stability at scroll threshold" {
   let visible_height = 10
 
   // Create items just below scroll threshold
-  let items_below : Array[@tui.Component] = []
+  let items_below : Array[@core.Component] = []
   for i = 0; i < 10; i = i + 1 {
-    items_below.push(@tui.text("Item " + i.to_string()))
+    items_below.push(@core.text("Item " + i.to_string()))
   }
 
   // Create items just above scroll threshold
-  let items_above : Array[@tui.Component] = []
+  let items_above : Array[@core.Component] = []
   for i = 0; i < 11; i = i + 1 {
-    items_above.push(@tui.text("Item " + i.to_string()))
+    items_above.push(@core.text("Item " + i.to_string()))
   }
 
   // Get visible items for both cases
@@ -147,9 +147,9 @@ test "scrollable_list: streaming content height consistency" {
   // Simulate streaming: content grows from 4 to 6 items
   let heights : Array[Int] = []
   for item_count = 4; item_count <= 6; item_count = item_count + 1 {
-    let items : Array[@tui.Component] = []
+    let items : Array[@core.Component] = []
     for i = 0; i < item_count; i = i + 1 {
-      items.push(@tui.text("Message " + i.to_string()))
+      items.push(@core.text("Message " + i.to_string()))
     }
     scroll_state.offset.set(0)
     let visible = scrollable_list(items, scroll_state, visible_height)
@@ -175,13 +175,13 @@ test "chat layout: fixed height container rendering" {
     buffer_lines
 
   // Create message items (2 lines per message: role + content)
-  fn build_messages(count : Int) -> Array[@tui.Component] {
-    let items : Array[@tui.Component] = []
+  fn build_messages(count : Int) -> Array[@core.Component] {
+    let items : Array[@core.Component] = []
     for i = 0; i < count; i = i + 1 {
       items.push(
         column(
           [
-            text("User", fg=@tui.Color::cyan()),
+            text("User", fg=@core.Color::cyan()),
             text("  Message " + i.to_string()),
           ],
           gap=0.0,
@@ -215,16 +215,16 @@ test "chat layout: text length affects height" {
   let visible_height = 10
 
   // Short texts - each takes 1 line
-  let short_items : Array[@tui.Component] = []
+  let short_items : Array[@core.Component] = []
   for i = 0; i < 11; i = i + 1 {
-    short_items.push(@tui.text("Hi"))
+    short_items.push(@core.text("Hi"))
   }
 
   // Long texts - each takes 1 line (but may wrap in real render)
-  let long_items : Array[@tui.Component] = []
+  let long_items : Array[@core.Component] = []
   for i = 0; i < 11; i = i + 1 {
     long_items.push(
-      @tui.text("This is a much longer message that might cause issues"),
+      @core.text("This is a much longer message that might cause issues"),
     )
   }
   scroll_state.offset.set(0)
@@ -311,8 +311,8 @@ test "a11y: textarea editing state shows cursor" {
   let idle = textarea("content", state=TextareaState::Idle)
   let editing = textarea("content", state=TextareaState::Editing)
   // Editing state should show cursor
-  let idle_output = @tui.render_once(80, 24, idle)
-  let editing_output = @tui.render_once(80, 24, editing)
+  let idle_output = @render.render_once(80, 24, idle)
+  let editing_output = @render.render_once(80, 24, editing)
   inspect(idle_output.contains("content_"), content="false")
   inspect(editing_output.contains("content_"), content="true")
 }
@@ -324,10 +324,10 @@ test "chat layout: streaming text height variation" {
   let width = 40
 
   // Build a message component similar to chat example
-  fn build_message_component(content : String) -> @tui.Component {
+  fn build_message_component(content : String) -> @core.Component {
     column(
       [
-        text("✦ Assistant", fg=@tui.Color::rgb(255, 150, 100)),
+        text("✦ Assistant", fg=@core.Color::rgb(255, 150, 100)),
         text("   " + content),
       ],
       gap=0.0,
@@ -350,7 +350,7 @@ test "chat layout: streaming text height variation" {
   for t in texts {
     let comp = build_message_component(t)
     // Compute layout to get actual height
-    let layout = @tui.compute_layout(comp.node, width, 100)
+    let layout = @render.compute_layout(comp.node, width, 100)
     let height = layout.height.to_int()
     let label = if t.length() > 10 { t[:10].to_string() } else { t }
     results.push((label, height))

@@ -31,11 +31,11 @@ pub fn start_edit(
   }
 
   // Start cooked mode input
-  @tui.start_inline_input_cooked(config.field_name, current_value, fn(result) {
+  @io.start_inline_input_cooked(config.field_name, current_value, fn(result) {
     match result {
-      @tui.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
-      @tui.InputResult::Cancelled => ()
-      @tui.InputResult::ForceQuit => {
+      @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
+      @io.InputResult::Cancelled => ()
+      @io.InputResult::ForceQuit => {
         // Call force quit handler if provided
         match config.on_force_quit {
           Some(f) => f()
@@ -80,7 +80,7 @@ pub fn start_edit_inplace(
   }
 
   // Start inplace input
-  @tui.start_inplace_input(
+  @io.start_inplace_input(
     row,
     col,
     width,
@@ -89,9 +89,9 @@ pub fn start_edit_inplace(
     current_value,
     fn(result) {
       match result {
-        @tui.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
-        @tui.InputResult::Cancelled => ()
-        @tui.InputResult::ForceQuit => {
+        @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
+        @io.InputResult::Cancelled => ()
+        @io.InputResult::ForceQuit => {
           // Call force quit handler if provided
           match config.on_force_quit {
             Some(f) => f()

@@ -105,17 +105,17 @@ pub fn rgb_to_256(r : Int, g : Int, b : Int) -> Int {
 }
 
 ///|
-pub fn color_to_256(color : Color) -> Int {
+pub fn color_to_256(color : @core.Color) -> Int {
   rgb_to_256(color.r, color.g, color.b)
 }
 
 ///|
-pub fn ansi_fg_color(color : Color) -> String {
+pub fn ansi_fg_color(color : @core.Color) -> String {
   ansi_fg_256(color_to_256(color))
 }
 
 ///|
-pub fn ansi_bg_color(color : Color) -> String {
+pub fn ansi_bg_color(color : @core.Color) -> String {
   ansi_bg_256(color_to_256(color))
 }
 

@@ -41,9 +41,9 @@ pub fn ModalState::get_is_open(self : ModalState) -> Bool {
 /// Create a backdrop overlay that fills the available space
 /// Used as a semi-transparent background behind modals
 pub fn backdrop(
-  bg? : @tui.Color = @tui.Color::rgba(0, 0, 0, 128),
-) -> @tui.Component {
-  @tui.box(
+  bg? : @core.Color = @core.Color::rgba(0, 0, 0, 128),
+) -> @core.Component {
+  @core.box(
     [],
     width=@types.Dimension::Percent(100.0),
     height=@types.Dimension::Percent(100.0),
@@ -55,7 +55,7 @@ pub fn backdrop(
 /// Create a modal container that centers its content
 /// The modal takes full screen and centers the content within it
 pub fn modal(
-  content : @tui.Component,
+  content : @core.Component,
   // ID
   id? : String = "",
   // Size constraints for the modal box
@@ -66,17 +66,17 @@ pub fn modal(
   max_width? : @types.Dimension = @types.Dimension::Percent(80.0),
   max_height? : @types.Dimension = @types.Dimension::Percent(80.0),
   // Style
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  fg? : @tui.Color = @tui.Color::white(),
-  border? : @tui.BorderChars? = Some(@tui.BorderChars::rounded()),
-  border_color? : @tui.Color = @tui.Color::cyan(),
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  fg? : @core.Color = @core.Color::white(),
+  border? : @core.BorderChars? = Some(@core.BorderChars::rounded()),
+  border_color? : @core.Color = @core.Color::cyan(),
   // Padding inside the modal box
   padding? : Double = 1.0,
   padding_x? : Double = 2.0,
   padding_y? : Double = 1.0,
-) -> @tui.Component {
+) -> @core.Component {
   // Modal box with content
-  let modal_box = @tui.box(
+  let modal_box = @core.box(
     [content],
     id~,
     width~,
@@ -95,7 +95,7 @@ pub fn modal(
   )
 
   // Full-screen container that centers the modal
-  @tui.box(
+  @core.box(
     [modal_box],
     width=@types.Dimension::Percent(100.0),
     height=@types.Dimension::Percent(100.0),
@@ -108,7 +108,7 @@ pub fn modal(
 /// Create a modal with backdrop overlay
 /// This is the most common usage - a semi-transparent backdrop with centered modal
 pub fn modal_with_backdrop(
-  content : @tui.Component,
+  content : @core.Component,
   // ID
   id? : String = "",
   // Size constraints for the modal box
@@ -119,21 +119,21 @@ pub fn modal_with_backdrop(
   max_width? : @types.Dimension = @types.Dimension::Percent(80.0),
   max_height? : @types.Dimension = @types.Dimension::Percent(80.0),
   // Modal style
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  fg? : @tui.Color = @tui.Color::white(),
-  border? : @tui.BorderChars? = Some(@tui.BorderChars::rounded()),
-  border_color? : @tui.Color = @tui.Color::cyan(),
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  fg? : @core.Color = @core.Color::white(),
+  border? : @core.BorderChars? = Some(@core.BorderChars::rounded()),
+  border_color? : @core.Color = @core.Color::cyan(),
   padding? : Double = 1.0,
   padding_x? : Double = 2.0,
   padding_y? : Double = 1.0,
   // Backdrop style
-  backdrop_bg? : @tui.Color = @tui.Color::rgba(0, 0, 0, 128),
+  backdrop_bg? : @core.Color = @core.Color::rgba(0, 0, 0, 128),
   // Container size (for full-screen modal, pass terminal dimensions)
   container_width? : @types.Dimension = @types.Dimension::Percent(100.0),
   container_height? : @types.Dimension = @types.Dimension::Percent(100.0),
-) -> @tui.Component {
+) -> @core.Component {
   // Modal box with content
-  let modal_box = @tui.box(
+  let modal_box = @core.box(
     [content],
     id~,
     width~,
@@ -152,7 +152,7 @@ pub fn modal_with_backdrop(
   )
 
   // Full-screen container with backdrop color that centers the modal
-  @tui.box(
+  @core.box(
     [modal_box],
     width=container_width,
     height=container_height,
@@ -166,13 +166,13 @@ pub fn modal_with_backdrop(
 /// Helper to conditionally render a modal overlay on top of base content
 /// Returns the base content with modal overlaid if modal is open
 pub fn with_modal(
-  base : @tui.Component,
-  modal_content : @tui.Component,
+  base : @core.Component,
+  modal_content : @core.Component,
   is_open : Bool,
-) -> @tui.Component {
+) -> @core.Component {
   if is_open {
     // Stack base and modal - modal renders on top
-    @tui.box(
+    @core.box(
       [base, modal_content],
       width=@types.Dimension::Percent(100.0),
       height=@types.Dimension::Percent(100.0),
@@ -190,22 +190,22 @@ pub fn confirm_dialog(
   confirm_label? : String = "OK",
   cancel_label? : String = "Cancel",
   // Style
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  border_color? : @tui.Color = @tui.Color::cyan(),
-) -> @tui.Component {
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  border_color? : @core.Color = @core.Color::cyan(),
+) -> @core.Component {
   let content = column(
     [
       // Title
-      text(title, fg=@tui.Color::cyan(), bold=true),
+      text(title, fg=@core.Color::cyan(), bold=true),
       // Message
-      @tui.spacer(flex_grow=0.5),
+      @core.spacer(flex_grow=0.5),
       text(message),
-      @tui.spacer(flex_grow=1.0),
+      @core.spacer(flex_grow=1.0),
       // Buttons row
       row(
         [
           button(cancel_label, id="modal-cancel"),
-          @tui.spacer(flex_grow=1.0),
+          @core.spacer(flex_grow=1.0),
           button(confirm_label, id="modal-confirm"),
         ],
         gap=2.0,
@@ -224,17 +224,17 @@ pub fn alert_dialog(
   title? : String = "Alert",
   button_label? : String = "OK",
   // Style
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  border_color? : @tui.Color = @tui.Color::yellow(),
-) -> @tui.Component {
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  border_color? : @core.Color = @core.Color::yellow(),
+) -> @core.Component {
   let content = column(
     [
       // Title
-      text(title, fg=@tui.Color::yellow(), bold=true),
+      text(title, fg=@core.Color::yellow(), bold=true),
       // Message
-      @tui.spacer(flex_grow=0.5),
+      @core.spacer(flex_grow=0.5),
       text(message),
-      @tui.spacer(flex_grow=1.0),
+      @core.spacer(flex_grow=1.0),
       // Button centered
       row(
         [button(button_label, id="modal-ok")],

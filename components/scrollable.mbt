@@ -176,8 +176,8 @@ pub fn scroll_indicator_text(indicator : ScrollIndicator) -> String {
 /// Scroll indicator component
 pub fn scroll_indicator(
   indicator : ScrollIndicator,
-  fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+) -> @core.Component {
   text(scroll_indicator_text(indicator), fg~)
 }
 
@@ -215,12 +215,12 @@ pub fn[T] apply_scroll(
 /// visible_height: number of visible lines
 /// show_indicator: whether to show scroll indicator
 pub fn scrollable_list(
-  items : Array[@tui.Component],
+  items : Array[@core.Component],
   state : ScrollState,
   visible_height : Int,
   show_indicator? : Bool = true,
-  indicator_fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
-) -> Array[@tui.Component] {
+  indicator_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+) -> Array[@core.Component] {
   let total = items.length()
   let offset = state.offset.get()
   let visible = apply_scroll(items, offset, visible_height)

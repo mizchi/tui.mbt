@@ -102,7 +102,7 @@ pub fn StreamingState::start(
     }
   }
 
-  let ticker_id = @tui.start_render_ticker(interval_ms, tick)
+  let ticker_id = @io.start_render_ticker(interval_ms, tick)
   self.ticker_id.val = ticker_id
   // If ticker_id is 0, native mode doesn't support tickers
   // Complete immediately in this case
@@ -117,7 +117,7 @@ pub fn StreamingState::start(
 /// Stop streaming and clear the ticker
 pub fn StreamingState::stop(self : StreamingState) -> Unit {
   if self.ticker_id.val != 0 {
-    @tui.stop_render_ticker(self.ticker_id.val)
+    @io.stop_render_ticker(self.ticker_id.val)
     self.ticker_id.val = 0
   }
 }

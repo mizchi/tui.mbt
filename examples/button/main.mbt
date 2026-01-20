@@ -3,7 +3,7 @@
 
 ///|
 fn main {
-  let (cols, rows) = @tui.get_terminal_size()
+  let (cols, rows) = @io.get_terminal_size()
   let width = cols
   let height = rows
 
@@ -13,23 +13,23 @@ fn main {
   let running = @signals.signal(true)
 
   // Create the app
-  let app = @tui.App::new(width, height)
+  let app = @render.App::new(width, height)
 
   // Render function
-  fn render_ui() -> @tui.Component {
+  fn render_ui() -> @core.Component {
     let current_count = count.get()
     let current_message = message.get()
     @c.column(
       [
         // Title
         @c.row(
-          [@c.text("Button Demo", fg=@tui.Color::yellow(), bold=true)],
+          [@c.text("Button Demo", fg=@core.Color::yellow(), bold=true)],
           justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
         // Message display
         @c.row(
-          [@c.text(current_message, fg=@tui.Color::cyan())],
+          [@c.text(current_message, fg=@core.Color::cyan())],
           justify=@types.Alignment::Center,
         ),
         // Count display
@@ -39,9 +39,9 @@ fn main {
             @c.text(
               current_count.to_string(),
               fg=if current_count >= 0 {
-                @tui.Color::green()
+                @core.Color::green()
               } else {
-                @tui.Color::red()
+                @core.Color::red()
               },
               bold=true,
             ),
@@ -52,15 +52,15 @@ fn main {
         // Buttons row
         @c.row(
           [
-            @c.button("[ - ]", bg=@tui.Color::rgb(80, 40, 40), id="btn-minus"),
+            @c.button("[ - ]", bg=@core.Color::rgb(80, 40, 40), id="btn-minus"),
             @c.hspace(2.0),
             @c.button(
               "[ Reset ]",
-              bg=@tui.Color::rgb(60, 60, 60),
+              bg=@core.Color::rgb(60, 60, 60),
               id="btn-reset",
             ),
             @c.hspace(2.0),
-            @c.button("[ + ]", bg=@tui.Color::rgb(40, 80, 40), id="btn-plus"),
+            @c.button("[ + ]", bg=@core.Color::rgb(40, 80, 40), id="btn-plus"),
           ],
           justify=@types.Alignment::Center,
         ),
@@ -71,7 +71,7 @@ fn main {
           [
             @c.text(
               "Click buttons or use: +/- keys | r: reset | q: quit",
-              fg=@tui.Color::rgb(100, 100, 100),
+              fg=@core.Color::rgb(100, 100, 100),
             ),
           ],
           justify=@types.Alignment::Center,
@@ -81,23 +81,23 @@ fn main {
       width=@types.Dimension::Length(width.to_double()),
       height=@types.Dimension::Length(height.to_double()),
       padding=1.0,
-      border=Some(@tui.BorderChars::rounded()),
-      border_color=@tui.Color::cyan(),
+      border=Some(@core.BorderChars::rounded()),
+      border_color=@core.Color::cyan(),
     )
   }
 
   // Render helper
   fn do_render() -> Unit {
-    @tui.print_raw(app.render_frame(render_ui()))
+    @io.print_raw(app.render_frame(render_ui()))
   }
 
   // Quit helper
   fn do_quit() -> Unit {
     running.set(false)
-    @tui.stop_keypress_listener()
-    @tui.print_raw(@tui.disable_mouse())
-    @tui.cleanup_stdin()
-    @tui.print_raw(@tui.App::restore_terminal())
+    @io.stop_keypress_listener()
+    @io.print_raw(@render.disable_mouse())
+    @io.cleanup_stdin()
+    @io.print_raw(@render.App::restore_terminal())
     println("Goodbye! Final count: " + count.get().to_string())
   }
 
@@ -106,7 +106,7 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @tui.parse_input(key)
+    let event = @events.parse_input(key)
     let mut need_render = true
     match event {
       @events.InputEvent::Key(key_event) =>
@@ -175,12 +175,12 @@ fn main {
   }
 
   // Initialize terminal
-  @tui.print_raw(@tui.App::init_terminal())
-  @tui.print_raw(@tui.enable_mouse())
+  @io.print_raw(@render.App::init_terminal())
+  @io.print_raw(@render.enable_mouse())
 
   // Initial render
   do_render()
 
   // Start event-driven keypress listener
-  @tui.start_keypress_listener(handle_key)
+  @io.start_keypress_listener(handle_key)
 }

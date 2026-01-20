@@ -5,7 +5,7 @@
 ///|
 fn main {
   // Get terminal size
-  let (cols, rows) = @tui.get_terminal_size()
+  let (cols, rows) = @io.get_terminal_size()
   let width = cols
   let height = rows
 
@@ -23,7 +23,7 @@ fn main {
   ]
 
   // Create the app
-  let app = @tui.App::new(width, height)
+  let app = @render.App::new(width, height)
 
   // Field configurations for editing
   let field_configs : Map[String, (String, @signals.Signal[String])] = {
@@ -60,12 +60,12 @@ fn main {
   }
 
   // Render function
-  fn render_ui() -> @tui.Component {
+  fn render_ui() -> @core.Component {
     @c.column(
       [
         // Title
         @c.row(
-          [@c.text("Form Demo", fg=@tui.Color::yellow(), bold=true)],
+          [@c.text("Form Demo", fg=@core.Color::yellow(), bold=true)],
           justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
@@ -138,7 +138,7 @@ fn main {
           [
             @c.text(
               "Tab: next | Enter: edit/confirm | Shift+Enter/Ctrl+D: newline | Esc: cancel",
-              fg=@tui.Color::rgb(100, 100, 100),
+              fg=@core.Color::rgb(100, 100, 100),
             ),
           ],
           justify=@types.Alignment::Center,
@@ -148,8 +148,8 @@ fn main {
       width=@types.Dimension::Length(width.to_double()),
       height=@types.Dimension::Length(height.to_double()),
       padding=1.0,
-      border=Some(@tui.BorderChars::rounded()),
-      border_color=@tui.Color::cyan(),
+      border=Some(@core.BorderChars::rounded()),
+      border_color=@core.Color::cyan(),
     )
   }
 
@@ -188,26 +188,26 @@ fn main {
 
   // Render helper
   fn do_render() -> Unit {
-    @tui.print_raw(app.render_frame(render_ui()))
+    @io.print_raw(app.render_frame(render_ui()))
   }
 
   // Handle quit
   fn do_quit() -> Unit {
     running.set(false)
-    @tui.stop_keypress_listener()
-    @tui.print_raw(@tui.disable_mouse())
-    @tui.cleanup_stdin()
-    @tui.print_raw(@tui.App::restore_terminal())
+    @io.stop_keypress_listener()
+    @io.print_raw(@render.disable_mouse())
+    @io.cleanup_stdin()
+    @io.print_raw(@render.App::restore_terminal())
     println("Cancelled.")
   }
 
   // Handle submit
   fn do_submit() -> Unit {
     running.set(false)
-    @tui.stop_keypress_listener()
-    @tui.print_raw(@tui.disable_mouse())
-    @tui.cleanup_stdin()
-    @tui.print_raw(@tui.App::restore_terminal())
+    @io.stop_keypress_listener()
+    @io.print_raw(@render.disable_mouse())
+    @io.cleanup_stdin()
+    @io.print_raw(@render.App::restore_terminal())
     println("Form submitted!")
     println("Name: " + name.get())
     println("Email: " + email.get())
@@ -216,11 +216,11 @@ fn main {
 
   // Mutually recursive functions: restore_tui <-> start_editing <-> handle_key
   letrec restore_tui: () -> Unit = fn() {
-    @tui.print_raw(@tui.ansi_full_reset())
-    @tui.print_raw(@tui.enable_mouse())
+    @io.print_raw(@render.ansi_full_reset())
+    @io.print_raw(@render.enable_mouse())
     app.clear_prev_buffer()
     do_render()
-    @tui.start_keypress_listener(handle_key)
+    @io.start_keypress_listener(handle_key)
   }
   and start_editing: (String) -> Unit = fn(id) {
     match field_configs.get(id) {
@@ -232,8 +232,8 @@ fn main {
               field_name,
               signal,
               on_edit_start=Some(fn() {
-                @tui.stop_keypress_listener()
-                @tui.print_raw(@tui.disable_mouse())
+                @io.stop_keypress_listener()
+                @io.print_raw(@render.disable_mouse())
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
@@ -263,8 +263,8 @@ fn main {
               field_name,
               signal,
               on_edit_start=Some(fn() {
-                @tui.stop_keypress_listener()
-                @tui.print_raw(@tui.disable_mouse())
+                @io.stop_keypress_listener()
+                @io.print_raw(@render.disable_mouse())
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
@@ -278,7 +278,7 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @tui.parse_input(key)
+    let event = @events.parse_input(key)
     let mut need_render = true
     let mut start_edit_id = ""
     match event {
@@ -287,19 +287,19 @@ fn main {
           // Ctrl+C - always quit
           @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
             running.set(false)
-            @tui.stop_keypress_listener()
-            @tui.print_raw(@tui.disable_mouse())
-            @tui.cleanup_stdin()
-            @tui.print_raw(@tui.App::restore_terminal())
+            @io.stop_keypress_listener()
+            @io.print_raw(@render.disable_mouse())
+            @io.cleanup_stdin()
+            @io.print_raw(@render.App::restore_terminal())
           }
           // q to quit when not focused on input
           @events.KeyEvent::Char('q', @events.KeyModifier::None) =>
             if not(input_ids.contains(focused_id.get())) {
               running.set(false)
-              @tui.stop_keypress_listener()
-              @tui.print_raw(@tui.disable_mouse())
-              @tui.cleanup_stdin()
-              @tui.print_raw(@tui.App::restore_terminal())
+              @io.stop_keypress_listener()
+              @io.print_raw(@render.disable_mouse())
+              @io.cleanup_stdin()
+              @io.print_raw(@render.App::restore_terminal())
             } else {
               need_render = false
             }
@@ -368,12 +368,12 @@ fn main {
   }
 
   // Initialize terminal
-  @tui.print_raw(@tui.App::init_terminal())
-  @tui.print_raw(@tui.enable_mouse())
+  @io.print_raw(@render.App::init_terminal())
+  @io.print_raw(@render.enable_mouse())
 
   // Initial render
   do_render()
 
   // Start event-driven keypress listener
-  @tui.start_keypress_listener(handle_key)
+  @io.start_keypress_listener(handle_key)
 }

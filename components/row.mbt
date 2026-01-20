@@ -4,7 +4,7 @@
 ///|
 /// Create a horizontal row container
 pub fn row(
-  children : Array[@tui.Component],
+  children : Array[@core.Component],
   // ID
   id? : String = "",
   // Size
@@ -31,12 +31,12 @@ pub fn row(
   margin_x? : Double = 0.0,
   margin_y? : Double = 0.0,
   // Style
-  border? : @tui.BorderChars? = None,
-  border_color? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::transparent(),
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
-  @tui.box(
+  border? : @core.BorderChars? = None,
+  border_color? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::transparent(),
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
+  @core.box(
     children,
     id~,
     flex_direction=@types.FlexDirection::Row,

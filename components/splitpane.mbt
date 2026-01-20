@@ -99,14 +99,14 @@ pub fn calc_split_sizes(
 ///|
 /// Horizontal split pane (top and bottom)
 pub fn hsplit(
-  top : Array[@tui.Component],
-  bottom : Array[@tui.Component],
+  top : Array[@core.Component],
+  bottom : Array[@core.Component],
   total_height : Int,
   top_size : SplitSize,
   bottom_size : SplitSize,
-  divider? : @tui.Component? = None,
+  divider? : @core.Component? = None,
   divider_size? : Int = 1,
-) -> @tui.Component {
+) -> @core.Component {
   let (top_h, bottom_h) = calc_split_sizes(
     total_height,
     top_size,
@@ -117,11 +117,11 @@ pub fn hsplit(
     Some(d) => d
     None => hdivider()
   }
-  @tui.box(
+  @core.box(
     [
-      @tui.box(top, height=@types.Dimension::Length(top_h.to_double())),
+      @core.box(top, height=@types.Dimension::Length(top_h.to_double())),
       divider_component,
-      @tui.box(bottom, height=@types.Dimension::Length(bottom_h.to_double())),
+      @core.box(bottom, height=@types.Dimension::Length(bottom_h.to_double())),
     ],
     flex_direction=@types.FlexDirection::Column,
     height=@types.Dimension::Length(total_height.to_double()),
@@ -131,14 +131,14 @@ pub fn hsplit(
 ///|
 /// Vertical split pane (left and right)
 pub fn vsplit(
-  left : Array[@tui.Component],
-  right : Array[@tui.Component],
+  left : Array[@core.Component],
+  right : Array[@core.Component],
   total_width : Int,
   left_size : SplitSize,
   right_size : SplitSize,
-  divider? : @tui.Component? = None,
+  divider? : @core.Component? = None,
   divider_size? : Int = 1,
-) -> @tui.Component {
+) -> @core.Component {
   let (left_w, right_w) = calc_split_sizes(
     total_width,
     left_size,
@@ -149,11 +149,11 @@ pub fn vsplit(
     Some(d) => d
     None => vdivider()
   }
-  @tui.box(
+  @core.box(
     [
-      @tui.box(left, width=@types.Dimension::Length(left_w.to_double())),
+      @core.box(left, width=@types.Dimension::Length(left_w.to_double())),
       divider_component,
-      @tui.box(right, width=@types.Dimension::Length(right_w.to_double())),
+      @core.box(right, width=@types.Dimension::Length(right_w.to_double())),
     ],
     flex_direction=@types.FlexDirection::Row,
     width=@types.Dimension::Length(total_width.to_double()),
@@ -163,12 +163,12 @@ pub fn vsplit(
 ///|
 /// Simple horizontal split with fixed bottom height
 pub fn hsplit_fixed_bottom(
-  top : Array[@tui.Component],
-  bottom : Array[@tui.Component],
+  top : Array[@core.Component],
+  bottom : Array[@core.Component],
   total_height : Int,
   bottom_height : Int,
-  divider? : @tui.Component? = None,
-) -> @tui.Component {
+  divider? : @core.Component? = None,
+) -> @core.Component {
   hsplit(
     top,
     bottom,
@@ -182,12 +182,12 @@ pub fn hsplit_fixed_bottom(
 ///|
 /// Simple horizontal split with fixed top height
 pub fn hsplit_fixed_top(
-  top : Array[@tui.Component],
-  bottom : Array[@tui.Component],
+  top : Array[@core.Component],
+  bottom : Array[@core.Component],
   total_height : Int,
   top_height : Int,
-  divider? : @tui.Component? = None,
-) -> @tui.Component {
+  divider? : @core.Component? = None,
+) -> @core.Component {
   hsplit(
     top,
     bottom,
@@ -201,12 +201,12 @@ pub fn hsplit_fixed_top(
 ///|
 /// Simple vertical split with fixed left width
 pub fn vsplit_fixed_left(
-  left : Array[@tui.Component],
-  right : Array[@tui.Component],
+  left : Array[@core.Component],
+  right : Array[@core.Component],
   total_width : Int,
   left_width : Int,
-  divider? : @tui.Component? = None,
-) -> @tui.Component {
+  divider? : @core.Component? = None,
+) -> @core.Component {
   vsplit(
     left,
     right,
@@ -220,12 +220,12 @@ pub fn vsplit_fixed_left(
 ///|
 /// Simple vertical split with fixed right width
 pub fn vsplit_fixed_right(
-  left : Array[@tui.Component],
-  right : Array[@tui.Component],
+  left : Array[@core.Component],
+  right : Array[@core.Component],
   total_width : Int,
   right_width : Int,
-  divider? : @tui.Component? = None,
-) -> @tui.Component {
+  divider? : @core.Component? = None,
+) -> @core.Component {
   vsplit(
     left,
     right,

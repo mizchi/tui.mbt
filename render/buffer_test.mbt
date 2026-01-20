@@ -17,21 +17,21 @@ test "CharBuffer::write_text writes text correctly" {
 
 ///|
 test "char_display_width handles ASCII and CJK" {
-  inspect(char_display_width('A'), content="1")
-  inspect(char_display_width('a'), content="1")
-  inspect(char_display_width('\u4E2D'), content="2") // 中
-  inspect(char_display_width('\u3042'), content="2") // あ
+  inspect(@core.char_display_width('A'), content="1")
+  inspect(@core.char_display_width('a'), content="1")
+  inspect(@core.char_display_width('\u4E2D'), content="2") // 中
+  inspect(@core.char_display_width('\u3042'), content="2") // あ
 }
 
 ///|
 test "string_display_width calculates mixed text" {
-  inspect(string_display_width("Hello"), content="5")
-  inspect(string_display_width("AB\u4E2D"), content="4") // AB中
+  inspect(@core.string_display_width("Hello"), content="5")
+  inspect(@core.string_display_width("AB\u4E2D"), content="4") // AB中
 }
 
 ///|
 test "BorderChars::single returns correct characters" {
-  let border = BorderChars::single()
+  let border = @core.BorderChars::single()
   inspect(border.top_left, content="┌")
   inspect(border.horizontal, content="─")
 }

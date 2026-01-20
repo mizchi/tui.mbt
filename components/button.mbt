@@ -17,17 +17,17 @@ pub fn button(
   id? : String = "",
   state? : ButtonState = ButtonState::Normal,
   // Style
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::rgb(60, 60, 80),
-  hover_bg? : @tui.Color = @tui.Color::rgb(80, 80, 100),
-  pressed_bg? : @tui.Color = @tui.Color::rgb(40, 40, 60),
-  disabled_fg? : @tui.Color = @tui.Color::rgb(100, 100, 100),
-  border_color? : @tui.Color = @tui.Color::cyan(),
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::rgb(60, 60, 80),
+  hover_bg? : @core.Color = @core.Color::rgb(80, 80, 100),
+  pressed_bg? : @core.Color = @core.Color::rgb(40, 40, 60),
+  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
+  border_color? : @core.Color = @core.Color::cyan(),
   // Size
   min_width? : Double = 0.0,
   padding_x? : Double = 2.0,
   padding_y? : Double = 0.0,
-) -> @tui.Component {
+) -> @core.Component {
   // Determine colors based on state
   let (actual_fg, actual_bg) = match state {
     ButtonState::Normal => (fg, bg)
@@ -45,7 +45,7 @@ pub fn button(
     padding_y~,
     justify=@types.Alignment::Center,
     align=@types.Alignment::Center,
-    border=Some(@tui.BorderChars::rounded()),
+    border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
   )
@@ -56,12 +56,12 @@ pub fn button(
 pub fn text_button(
   label : String,
   state? : ButtonState = ButtonState::Normal,
-  fg? : @tui.Color = @tui.Color::cyan(),
-  hover_fg? : @tui.Color = @tui.Color::yellow(),
-  pressed_fg? : @tui.Color = @tui.Color::green(),
-  disabled_fg? : @tui.Color = @tui.Color::rgb(100, 100, 100),
+  fg? : @core.Color = @core.Color::cyan(),
+  hover_fg? : @core.Color = @core.Color::yellow(),
+  pressed_fg? : @core.Color = @core.Color::green(),
+  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
   underline? : Bool = true,
-) -> @tui.Component {
+) -> @core.Component {
   let actual_fg = match state {
     ButtonState::Normal => fg
     ButtonState::Hover => hover_fg
@@ -76,11 +76,11 @@ pub fn text_button(
 pub fn icon_button(
   icon : String,
   state? : ButtonState = ButtonState::Normal,
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::transparent(),
-  hover_bg? : @tui.Color = @tui.Color::rgb(60, 60, 80),
-  pressed_bg? : @tui.Color = @tui.Color::rgb(40, 40, 60),
-) -> @tui.Component {
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::transparent(),
+  hover_bg? : @core.Color = @core.Color::rgb(60, 60, 80),
+  pressed_bg? : @core.Color = @core.Color::rgb(40, 40, 60),
+) -> @core.Component {
   let actual_bg = match state {
     ButtonState::Normal => bg
     ButtonState::Hover => hover_bg

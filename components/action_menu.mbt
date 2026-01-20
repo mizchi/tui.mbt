@@ -106,26 +106,26 @@ pub fn ActionMenu::build(
   self : ActionMenu,
   container_width : Int,
   container_height : Int,
-) -> @tui.Component {
-  let items : Array[@tui.Component] = []
+) -> @core.Component {
+  let items : Array[@core.Component] = []
 
   // Title
-  items.push(text(self.title, fg=@tui.Color::cyan(), bold=true))
-  items.push(@tui.spacer(flex_grow=0.5))
+  items.push(text(self.title, fg=@core.Color::cyan(), bold=true))
+  items.push(@core.spacer(flex_grow=0.5))
 
   // Action items
   for action in self.actions {
     let label = "[" + action.key.to_string() + "] " + action.label
     items.push(text(label))
   }
-  items.push(@tui.spacer(flex_grow=1.0))
+  items.push(@core.spacer(flex_grow=1.0))
 
   // Close hint
   let close_hint = match self.toggle_key {
     Some(k) => "[Esc/" + k.to_string() + "] Close"
     None => "[Esc] Close"
   }
-  items.push(text(close_hint, fg=@tui.Color::rgb(100, 100, 100)))
+  items.push(text(close_hint, fg=@core.Color::rgb(100, 100, 100)))
   let content = column(items, gap=0.0, min_width=@types.Dimension::Length(25.0))
   modal_with_backdrop(
     content,
@@ -165,7 +165,7 @@ pub(all) enum MenuKeyResult {
 /// Returns MenuKeyResult indicating how the event was processed
 pub fn ActionMenu::handle_event(
   self : ActionMenu,
-  app : @tui.App,
+  app : @render.App,
   event : @events.InputEvent,
 ) -> MenuKeyResult {
   if not(self.is_open()) {
@@ -196,7 +196,7 @@ pub fn ActionMenu::handle_event(
 
 ///|
 /// Open the menu and clear app buffer for clean render
-pub fn ActionMenu::open_with_app(self : ActionMenu, app : @tui.App) -> Unit {
+pub fn ActionMenu::open_with_app(self : ActionMenu, app : @render.App) -> Unit {
   self.open()
   app.clear_prev_buffer()
 }

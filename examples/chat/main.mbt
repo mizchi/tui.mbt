@@ -18,7 +18,7 @@ struct Message {
 ///|
 fn main {
   // Get terminal size (mutable for resize support)
-  let (cols, rows) = @tui.get_terminal_size()
+  let (cols, rows) = @io.get_terminal_size()
   let width : Ref[Int] = { val: cols }
   let height : Ref[Int] = { val: rows }
 
@@ -41,7 +41,7 @@ fn main {
   let streaming = @c.StreamingState::new()
 
   // Create the app (mutable for resize support)
-  let app : Ref[@tui.App] = { val: @tui.App::new(width.val, height.val) }
+  let app : Ref[@render.App] = { val: @render.App::new(width.val, height.val) }
 
   // Action menu with clear messages action
   let action_menu = @c.ActionMenu::new(
@@ -64,15 +64,15 @@ fn main {
   )
 
   // Build a single message component
-  fn build_message(msg : Message) -> @tui.Component {
+  fn build_message(msg : Message) -> @core.Component {
     let (icon, role_name, color) = match msg.role {
-      User => ("◆", "You", @tui.Color::cyan())
-      Assistant => ("✦", "Assistant", @tui.Color::rgb(255, 150, 100))
+      User => ("◆", "You", @core.Color::cyan())
+      Assistant => ("✦", "Assistant", @core.Color::rgb(255, 150, 100))
     }
     @c.column(
       [
         @c.text(icon + " " + role_name, fg=color, bold=true),
-        @c.text("   " + msg.content, fg=@tui.Color::rgb(220, 220, 220)),
+        @c.text("   " + msg.content, fg=@core.Color::rgb(220, 220, 220)),
       ],
       gap=0.0,
       width=@types.Dimension::Length(width.val.to_double()),
@@ -80,7 +80,7 @@ fn main {
   }
 
   // Build streaming message component with fixed height to prevent layout jumps
-  fn build_streaming_message() -> @tui.Component {
+  fn build_streaming_message() -> @core.Component {
     let partial = streaming.get_partial()
     let display = if streaming.is_streaming() {
       partial + "▌"
@@ -89,8 +89,8 @@ fn main {
     }
     @c.column(
       [
-        @c.text("✦ Assistant", fg=@tui.Color::rgb(255, 150, 100), bold=true),
-        @c.text("   " + display, fg=@tui.Color::rgb(220, 220, 220)),
+        @c.text("✦ Assistant", fg=@core.Color::rgb(255, 150, 100), bold=true),
+        @c.text("   " + display, fg=@core.Color::rgb(220, 220, 220)),
       ],
       gap=0.0,
       width=@types.Dimension::Length(width.val.to_double()),
@@ -109,9 +109,9 @@ fn main {
   }
 
   // Build message list components
-  fn build_message_list() -> Array[@tui.Component] {
+  fn build_message_list() -> Array[@core.Component] {
     let msgs = messages.get()
-    let items : Array[@tui.Component] = []
+    let items : Array[@core.Component] = []
     for msg in msgs {
       items.push(build_message(msg))
     }
@@ -135,7 +135,7 @@ fn main {
   }
 
   // Build the entire UI using crater layout
-  fn build_ui() -> @tui.Component {
+  fn build_ui() -> @core.Component {
     let editing = is_editing.get()
     let input_text = input_value.get()
     let w = width.val
@@ -148,7 +148,7 @@ fn main {
 
     // Add scroll indicator if needed
     let indicator = scroller.indicator(get_item_count(), visible_count)
-    let display_items : Array[@tui.Component] = []
+    let display_items : Array[@core.Component] = []
     for item in visible_items {
       display_items.push(item)
     }
@@ -165,9 +165,9 @@ fn main {
 
     // Divider - simple text line instead of hdivider (which uses border)
     let divider_color = if editing {
-      @tui.Color::rgb(100, 150, 255)
+      @core.Color::rgb(100, 150, 255)
     } else {
-      @tui.Color::rgb(60, 60, 60)
+      @core.Color::rgb(60, 60, 60)
     }
     let divider = @c.text("─".repeat(w), fg=divider_color)
 
@@ -178,14 +178,14 @@ fn main {
       input_text
     }
     let input_color = if input_text.length() == 0 && not(editing) {
-      @tui.Color::rgb(100, 100, 100)
+      @core.Color::rgb(100, 100, 100)
     } else {
-      @tui.Color::white()
+      @core.Color::white()
     }
     let cursor = if editing { "█" } else { "" }
     let status_text = "Enter: send · ↑↓: scroll · F: actions · Ctrl+C: quit"
     // Input content box (5 lines)
-    let input_content = @tui.text_box(
+    let input_content = @core.text_box(
       " " + display_text + cursor,
       fg=input_color,
       height=@types.Dimension::Length(max_input_rows.to_double()),
@@ -193,7 +193,7 @@ fn main {
     let input_area = @c.column(
       [
         input_content,
-        @c.text(" " + status_text, fg=@tui.Color::rgb(80, 80, 80)),
+        @c.text(" " + status_text, fg=@core.Color::rgb(80, 80, 80)),
       ],
       height=@types.Dimension::Length(input_area_height.to_double()),
     )
@@ -224,18 +224,18 @@ fn main {
     let editing = is_editing.get()
     // Save cursor position before rendering if editing
     if editing {
-      @tui.print_raw(ansi_save_cursor())
+      @io.print_raw(ansi_save_cursor())
     }
     let ui = build_ui()
     let output = app.val.render_frame(ui)
-    @tui.print_raw(output)
+    @io.print_raw(output)
     if editing {
       // Restore cursor position and show cursor
-      @tui.print_raw(ansi_restore_cursor())
-      @tui.print_raw(@tui.ansi_show_cursor())
+      @io.print_raw(ansi_restore_cursor())
+      @io.print_raw(@render.ansi_show_cursor())
     } else {
       // Keep cursor in input area when not editing
-      @tui.print_raw(ansi_move_to(calc_input_row(height.val), 1))
+      @io.print_raw(ansi_move_to(calc_input_row(height.val), 1))
     }
   }
 
@@ -243,11 +243,11 @@ fn main {
   fn do_quit() -> Unit {
     running.set(false)
     streaming.clear() // Stop any ongoing streaming
-    @tui.stop_keypress_listener()
-    @tui.stop_resize_listener()
-    @tui.print_raw(@tui.disable_mouse())
-    @tui.cleanup_stdin()
-    @tui.print_raw(@tui.App::restore_terminal())
+    @io.stop_keypress_listener()
+    @io.stop_resize_listener()
+    @io.print_raw(@render.disable_mouse())
+    @io.cleanup_stdin()
+    @io.print_raw(@render.App::restore_terminal())
     println("Goodbye!")
   }
 
@@ -296,9 +296,9 @@ fn main {
     width.val = new_width
     height.val = new_height
     // Recreate app with new dimensions
-    app.val = @tui.App::new(new_width, new_height)
+    app.val = @render.App::new(new_width, new_height)
     // Clear screen and re-render
-    @tui.print_raw(@tui.ansi_clear_screen())
+    @io.print_raw(@render.ansi_clear_screen())
     do_render()
   }
 
@@ -318,11 +318,11 @@ fn main {
       start_streaming(response)
     }
     is_editing.set(false)
-    @tui.print_raw(@tui.ansi_full_reset())
-    @tui.print_raw(@tui.enable_mouse())
+    @io.print_raw(@render.ansi_full_reset())
+    @io.print_raw(@render.enable_mouse())
     app.val.clear_prev_buffer()
     do_render()
-    @tui.start_keypress_listener(handle_key)
+    @io.start_keypress_listener(handle_key)
   }
   and start_editing: () -> Unit = fn() {
     is_editing.set(true)
@@ -338,8 +338,8 @@ fn main {
       "Message",
       signal,
       on_edit_start=Some(fn() {
-        @tui.stop_keypress_listener()
-        @tui.print_raw(@tui.disable_mouse())
+        @io.stop_keypress_listener()
+        @io.print_raw(@render.disable_mouse())
       }),
       on_force_quit=Some(fn() {
         do_quit()
@@ -348,7 +348,7 @@ fn main {
 
     // Clear content area
     for r = 0; r < content_height; r = r + 1 {
-      @tui.print_raw(ansi_move_to(row + r, col) + " ".repeat(content_width))
+      @io.print_raw(ansi_move_to(row + r, col) + " ".repeat(content_width))
     }
     let on_lines_change : (Int) -> Int = fn(line_count) {
       clamp_input_lines(line_count)
@@ -369,7 +369,7 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @tui.parse_input(key)
+    let event = @events.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
     let total = get_item_count()
@@ -453,15 +453,15 @@ fn main {
   start_editing_ref.val = start_editing
 
   // Initialize terminal
-  @tui.print_raw(@tui.App::init_terminal())
-  @tui.print_raw(@tui.enable_mouse())
+  @io.print_raw(@render.App::init_terminal())
+  @io.print_raw(@render.enable_mouse())
 
   // Start resize listener
-  @tui.start_resize_listener(handle_resize)
+  @io.start_resize_listener(handle_resize)
 
   // Initial render
   do_render()
 
   // Start event-driven keypress listener
-  @tui.start_keypress_listener(handle_key)
+  @io.start_keypress_listener(handle_key)
 }

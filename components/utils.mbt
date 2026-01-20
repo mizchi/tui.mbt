@@ -5,51 +5,51 @@
 /// Text component
 pub fn text(
   content : String,
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::transparent(),
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::transparent(),
   bold? : Bool = false,
   underline? : Bool = false,
-) -> @tui.Component {
-  @tui.styled_text(content, fg~, bg~, bold~, underline~)
+) -> @core.Component {
+  @core.styled_text(content, fg~, bg~, bold~, underline~)
 }
 
 ///|
 /// Bold text
-pub fn bold(content : String) -> @tui.Component {
-  @tui.styled_text(content, bold=true)
+pub fn bold(content : String) -> @core.Component {
+  @core.styled_text(content, bold=true)
 }
 
 ///|
 /// Colored text
-pub fn colored(content : String, fg : @tui.Color) -> @tui.Component {
-  @tui.styled_text(content, fg~)
+pub fn colored(content : String, fg : @core.Color) -> @core.Component {
+  @core.styled_text(content, fg~)
 }
 
 ///|
 /// Flexible spacer
-pub fn spacer(flex_grow? : Double = 1.0) -> @tui.Component {
-  @tui.spacer(flex_grow~)
+pub fn spacer(flex_grow? : Double = 1.0) -> @core.Component {
+  @core.spacer(flex_grow~)
 }
 
 ///|
 /// Fixed-width horizontal spacer
-pub fn hspace(width : Double) -> @tui.Component {
-  @tui.box([], width=@types.Dimension::Length(width))
+pub fn hspace(width : Double) -> @core.Component {
+  @core.box([], width=@types.Dimension::Length(width))
 }
 
 ///|
 /// Fixed-height vertical spacer
-pub fn vspace(height : Double) -> @tui.Component {
-  @tui.box([], height=@types.Dimension::Length(height))
+pub fn vspace(height : Double) -> @core.Component {
+  @core.box([], height=@types.Dimension::Length(height))
 }
 
 ///|
 /// Horizontal divider line
 pub fn hdivider(
   char? : Char = '-',
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
-  @tui.box(
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
+  @core.box(
     [],
     flex_grow=1.0,
     height=@types.Dimension::Length(1.0),
@@ -69,9 +69,9 @@ pub fn hdivider(
 /// Vertical divider line
 pub fn vdivider(
   char? : Char = '|',
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
-  @tui.box(
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
+  @core.box(
     [],
     flex_grow=1.0,
     width=@types.Dimension::Length(1.0),
@@ -90,26 +90,26 @@ pub fn vdivider(
 ///|
 /// Box with border
 pub fn bordered(
-  children : Array[@tui.Component],
-  style? : @tui.BorderChars = @tui.BorderChars::single(),
-  color? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
-  @tui.box(children, border=Some(style), border_color=color)
+  children : Array[@core.Component],
+  style? : @core.BorderChars = @core.BorderChars::single(),
+  color? : @core.Color = @core.Color::white(),
+) -> @core.Component {
+  @core.box(children, border=Some(style), border_color=color)
 }
 
 ///|
 /// Box with padding
 pub fn padded(
-  children : Array[@tui.Component],
+  children : Array[@core.Component],
   padding? : Double = 1.0,
-) -> @tui.Component {
-  @tui.box(children, padding~)
+) -> @core.Component {
+  @core.box(children, padding~)
 }
 
 ///|
 /// Center content
-pub fn center(children : Array[@tui.Component]) -> @tui.Component {
-  @tui.box(
+pub fn center(children : Array[@core.Component]) -> @core.Component {
+  @core.box(
     children,
     justify_content=@types.Alignment::Center,
     align_items=@types.Alignment::Center,
@@ -118,6 +118,6 @@ pub fn center(children : Array[@tui.Component]) -> @tui.Component {
 
 ///|
 /// Fill available space
-pub fn fill(children : Array[@tui.Component]) -> @tui.Component {
-  @tui.box(children, flex_grow=1.0)
+pub fn fill(children : Array[@core.Component]) -> @core.Component {
+  @core.box(children, flex_grow=1.0)
 }

@@ -1,6 +1,5 @@
 ///|
-/// Integration with crater layout engine
-/// Uses character-based measurements (1 char = 1 unit width/height)
+/// Text measurement utilities for layout engine
 
 ///|
 /// Create a MeasureFunc for text that uses character width
@@ -72,74 +71,4 @@ fn calculate_wrapped_height(text : String, max_width : Int) -> Int {
     }
   }
   lines
-}
-
-///|
-/// Compute layout using crater engine with character-based viewport
-pub fn compute_layout(
-  node : @node.Node,
-  width : Int,
-  height : Int,
-) -> @types.Layout {
-  let viewport = @types.Size::new(width.to_double(), height.to_double())
-  @crater.compute_layout(node, viewport)
-}
-
-///|
-/// Border characters for box drawing
-pub(all) struct BorderChars {
-  top_left : Char
-  top_right : Char
-  bottom_left : Char
-  bottom_right : Char
-  horizontal : Char
-  vertical : Char
-}
-
-///|
-pub fn BorderChars::single() -> BorderChars {
-  {
-    top_left: '\u250C',
-    top_right: '\u2510',
-    bottom_left: '\u2514',
-    bottom_right: '\u2518',
-    horizontal: '\u2500',
-    vertical: '\u2502',
-  }
-}
-
-///|
-pub fn BorderChars::double() -> BorderChars {
-  {
-    top_left: '\u2554',
-    top_right: '\u2557',
-    bottom_left: '\u255A',
-    bottom_right: '\u255D',
-    horizontal: '\u2550',
-    vertical: '\u2551',
-  }
-}
-
-///|
-pub fn BorderChars::rounded() -> BorderChars {
-  {
-    top_left: '\u256D',
-    top_right: '\u256E',
-    bottom_left: '\u2570',
-    bottom_right: '\u256F',
-    horizontal: '\u2500',
-    vertical: '\u2502',
-  }
-}
-
-///|
-pub fn BorderChars::ascii() -> BorderChars {
-  {
-    top_left: '+',
-    top_right: '+',
-    bottom_left: '+',
-    bottom_right: '+',
-    horizontal: '-',
-    vertical: '|',
-  }
 }

@@ -39,7 +39,7 @@ test "enable_mouse and disable_mouse" {
 
 ///|
 test "ansi_fg_color: generates foreground color" {
-  let color = Color::rgb(255, 0, 0) // Red
+  let color = @core.Color::rgb(255, 0, 0) // Red
   let seq = ansi_fg_color(color)
   // Uses 256-color mode
   assert_true(seq.length() > 0)
@@ -47,7 +47,7 @@ test "ansi_fg_color: generates foreground color" {
 
 ///|
 test "ansi_bg_color: generates background color" {
-  let color = Color::rgb(0, 0, 255) // Blue
+  let color = @core.Color::rgb(0, 0, 255) // Blue
   let seq = ansi_bg_color(color)
   assert_true(seq.length() > 0)
 }

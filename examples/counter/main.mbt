@@ -4,7 +4,7 @@
 ///|
 async fn main {
   // Get terminal size
-  let (cols, rows) = @tui.get_terminal_size()
+  let (cols, rows) = @io.get_terminal_size()
   let width = cols
   let height = rows
 
@@ -12,16 +12,16 @@ async fn main {
   let count = @signals.signal(0)
 
   // Create the app
-  let app = @tui.App::new(width, height)
+  let app = @render.App::new(width, height)
 
   // Render function that creates the component tree
-  fn render_ui() -> @tui.Component {
+  fn render_ui() -> @core.Component {
     let current_count = count.get()
     @c.column(
       [
         // Title
         @c.row(
-          [@c.text("Counter Demo", fg=@tui.Color::yellow(), bold=true)],
+          [@c.text("Counter Demo", fg=@core.Color::yellow(), bold=true)],
           justify=@types.Alignment::Center,
           margin_y=1.0,
         ),
@@ -33,9 +33,9 @@ async fn main {
             @c.text(
               current_count.to_string(),
               fg=if current_count >= 0 {
-                @tui.Color::green()
+                @core.Color::green()
               } else {
-                @tui.Color::red()
+                @core.Color::red()
               },
               bold=true,
             ),
@@ -47,11 +47,11 @@ async fn main {
         // Buttons row
         @c.row(
           [
-            @c.button(" - ", min_width=7.0, bg=@tui.Color::rgb(100, 50, 50)),
+            @c.button(" - ", min_width=7.0, bg=@core.Color::rgb(100, 50, 50)),
             @c.hspace(2.0),
-            @c.button("Reset", min_width=9.0, bg=@tui.Color::rgb(60, 60, 60)),
+            @c.button("Reset", min_width=9.0, bg=@core.Color::rgb(60, 60, 60)),
             @c.hspace(2.0),
-            @c.button(" + ", min_width=7.0, bg=@tui.Color::rgb(50, 100, 50)),
+            @c.button(" + ", min_width=7.0, bg=@core.Color::rgb(50, 100, 50)),
           ],
           justify=@types.Alignment::Center,
         ),
@@ -60,7 +60,7 @@ async fn main {
           [
             @c.text(
               "Click buttons or: q=quit | +/-=count | r=reset",
-              fg=@tui.Color::rgb(128, 128, 128),
+              fg=@core.Color::rgb(128, 128, 128),
             ),
           ],
           justify=@types.Alignment::Center,
@@ -70,28 +70,28 @@ async fn main {
       width=@types.Dimension::Length(width.to_double()),
       height=@types.Dimension::Length(height.to_double()),
       padding=1.0,
-      border=Some(@tui.BorderChars::rounded()),
-      border_color=@tui.Color::cyan(),
+      border=Some(@core.BorderChars::rounded()),
+      border_color=@core.Color::cyan(),
     )
   }
 
   // Initialize terminal
-  @tui.print_raw(@tui.App::init_terminal())
-  @tui.enable_raw_mode()
-  @tui.print_raw(@tui.enable_mouse())
+  @io.print_raw(@render.App::init_terminal())
+  @io.enable_raw_mode()
+  @io.print_raw(@render.enable_mouse())
 
   // Initial render
-  @tui.print_raw(app.render_frame(render_ui()))
+  @io.print_raw(app.render_frame(render_ui()))
 
   // Event loop
   let mut running = true
   while running {
-    let key = @tui.read_key()
+    let key = @io.read_key()
     // Skip empty input
     if key.length() == 0 {
       continue
     }
-    let event = @tui.parse_input(key)
+    let event = @events.parse_input(key)
     let mut need_render = true
     match event {
       @events.InputEvent::Key(key_event) =>
@@ -150,13 +150,13 @@ async fn main {
     }
     // Re-render only when state changed
     if need_render && running {
-      @tui.print_raw(app.render_frame(render_ui()))
+      @io.print_raw(app.render_frame(render_ui()))
     }
   }
 
   // Restore terminal
-  @tui.print_raw(@tui.disable_mouse())
-  @tui.cleanup_stdin()
-  @tui.print_raw(@tui.App::restore_terminal())
+  @io.print_raw(@render.disable_mouse())
+  @io.cleanup_stdin()
+  @io.print_raw(@render.App::restore_terminal())
   println("Goodbye! Final count: " + count.get().to_string())
 }

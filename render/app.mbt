@@ -25,7 +25,7 @@ pub fn App::new(width : Int, height : Int) -> App {
 
 ///|
 /// Render a component tree to ANSI string
-pub fn App::render(self : App, component : Component) -> String {
+pub fn App::render(self : App, component : @core.Component) -> String {
   // Compute layout
   let layout = compute_layout(component.node, self.width, self.height)
 
@@ -51,7 +51,7 @@ pub fn App::render(self : App, component : Component) -> String {
 
 ///|
 /// Render with cursor hidden and positioned at origin
-pub fn App::render_frame(self : App, component : Component) -> String {
+pub fn App::render_frame(self : App, component : @core.Component) -> String {
   ansi_hide_cursor() + self.render(component)
 }
 
@@ -60,7 +60,7 @@ pub fn App::render_frame(self : App, component : Component) -> String {
 /// Returns a dispose function
 pub fn App::create_render_effect(
   self : App,
-  render_fn : () -> Component,
+  render_fn : () -> @core.Component,
   output_fn : (String) -> Unit,
 ) -> () -> Unit {
   @signals.render_effect(fn() {
@@ -87,7 +87,7 @@ pub fn App::restore_terminal() -> String {
 pub fn run_app(
   width : Int,
   height : Int,
-  render_fn : () -> Component,
+  render_fn : () -> @core.Component,
   output_fn : (String) -> Unit,
 ) -> () -> Unit {
   let app = App::new(width, height)
@@ -107,7 +107,7 @@ pub fn run_app(
 
 ///|
 /// Simple render function for one-shot rendering (no reactivity)
-pub fn render_once(width : Int, height : Int, component : Component) -> String {
+pub fn render_once(width : Int, height : Int, component : @core.Component) -> String {
   let app = App::new(width, height)
   app.render(component)
 }
@@ -128,7 +128,7 @@ pub fn App::handle_mouse(self : App, event : @events.MouseEvent) -> Bool {
         @events.MouseButton::Left =>
           match self.last_layout {
             Some(layout) =>
-              handle_click(layout, self.handlers, event.x, event.y)
+              @events.handle_click(layout, self.handlers, event.x, event.y)
             None => false
           }
         _ => false
@@ -141,7 +141,7 @@ pub fn App::handle_mouse(self : App, event : @events.MouseEvent) -> Bool {
 /// Perform hit test at coordinates
 pub fn App::hit_test(self : App, x : Int, y : Int) -> @events.HitTestResult? {
   match self.last_layout {
-    Some(layout) => hit_test_root(layout, x, y)
+    Some(layout) => @events.hit_test_root(layout, x, y)
     None => None
   }
 }
@@ -150,7 +150,7 @@ pub fn App::hit_test(self : App, x : Int, y : Int) -> @events.HitTestResult? {
 /// Find component by ID
 pub fn App::find_by_id(self : App, id : String) -> @events.HitTestResult? {
   match self.last_layout {
-    Some(layout) => find_layout_by_id_root(layout, id)
+    Some(layout) => @events.find_layout_by_id_root(layout, id)
     None => None
   }
 }

@@ -19,13 +19,13 @@ pub fn input(
   placeholder? : String = "",
   state? : InputState = InputState::Idle,
   // Style
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  placeholder_fg? : @tui.Color = @tui.Color::rgb(100, 100, 100),
-  focus_border_color? : @tui.Color = @tui.Color::cyan(),
-  edit_border_color? : @tui.Color = @tui.Color::green(),
-  disabled_fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
-  disabled_bg? : @tui.Color = @tui.Color::rgb(30, 30, 35),
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  placeholder_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
+  focus_border_color? : @core.Color = @core.Color::cyan(),
+  edit_border_color? : @core.Color = @core.Color::green(),
+  disabled_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+  disabled_bg? : @core.Color = @core.Color::rgb(30, 30, 35),
   // Size
   width? : @types.Dimension = @types.Dimension::Auto,
   height? : @types.Dimension = @types.Dimension::Auto,
@@ -33,7 +33,7 @@ pub fn input(
   min_height? : Double = 1.0,
   padding_x? : Double = 0.0,
   padding_y? : Double = 0.0,
-) -> @tui.Component {
+) -> @core.Component {
   // Determine display text
   let display_text = if value.length() == 0 {
     match state {
@@ -54,7 +54,7 @@ pub fn input(
           fg
         },
         bg,
-        @tui.Color::rgb(80, 80, 80),
+        @core.Color::rgb(80, 80, 80),
       )
     InputState::Focused =>
       (
@@ -68,7 +68,7 @@ pub fn input(
       )
     InputState::Editing => (fg, bg, edit_border_color)
     InputState::Disabled =>
-      (disabled_fg, disabled_bg, @tui.Color::rgb(60, 60, 60))
+      (disabled_fg, disabled_bg, @core.Color::rgb(60, 60, 60))
   }
 
   // Add cursor indicator when editing
@@ -90,7 +90,7 @@ pub fn input(
     height~,
     padding_x~,
     padding_y~,
-    border=Some(@tui.BorderChars::rounded()),
+    border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
   )
@@ -105,11 +105,11 @@ pub fn input_plain(
   value : String,
   placeholder? : String = "",
   state? : InputState = InputState::Idle,
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::transparent(),
-  placeholder_fg? : @tui.Color = @tui.Color::rgb(100, 100, 100),
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::transparent(),
+  placeholder_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
   underline? : Bool = true,
-) -> @tui.Component {
+) -> @core.Component {
   let display_text = if value.length() == 0 {
     match state {
       InputState::Editing => ""

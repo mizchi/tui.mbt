@@ -5,7 +5,7 @@
 /// Create a grid layout using nested Row/Column
 /// This simulates CSS Grid using flexbox
 pub fn grid(
-  children : Array[@tui.Component],
+  children : Array[@core.Component],
   // Grid configuration
   columns? : Int = 2,
   column_gap? : Double = 0.0,
@@ -28,16 +28,16 @@ pub fn grid(
   margin_x? : Double = 0.0,
   margin_y? : Double = 0.0,
   // Style
-  border? : @tui.BorderChars? = None,
-  border_color? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::transparent(),
-  fg? : @tui.Color = @tui.Color::white(),
-) -> @tui.Component {
+  border? : @core.BorderChars? = None,
+  border_color? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::transparent(),
+  fg? : @core.Color = @core.Color::white(),
+) -> @core.Component {
   let num_columns = if columns > 0 { columns } else { 2 }
-  let rows : Array[@tui.Component] = []
+  let rows : Array[@core.Component] = []
 
   // Group children into rows
-  let mut current_row : Array[@tui.Component] = []
+  let mut current_row : Array[@core.Component] = []
   for i, child in children {
     current_row.push(child)
     if (i + 1) % num_columns == 0 {

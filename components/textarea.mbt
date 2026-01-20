@@ -19,19 +19,19 @@ pub fn textarea(
   placeholder? : String = "",
   state? : TextareaState = TextareaState::Idle,
   // Style
-  fg? : @tui.Color = @tui.Color::white(),
-  bg? : @tui.Color = @tui.Color::rgb(40, 40, 50),
-  placeholder_fg? : @tui.Color = @tui.Color::rgb(100, 100, 100),
-  focus_border_color? : @tui.Color = @tui.Color::cyan(),
-  edit_border_color? : @tui.Color = @tui.Color::green(),
-  disabled_fg? : @tui.Color = @tui.Color::rgb(80, 80, 80),
-  disabled_bg? : @tui.Color = @tui.Color::rgb(30, 30, 35),
+  fg? : @core.Color = @core.Color::white(),
+  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  placeholder_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
+  focus_border_color? : @core.Color = @core.Color::cyan(),
+  edit_border_color? : @core.Color = @core.Color::green(),
+  disabled_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+  disabled_bg? : @core.Color = @core.Color::rgb(30, 30, 35),
   // Size
   width? : @types.Dimension = @types.Dimension::Auto,
   min_width? : Double = 20.0,
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
-) -> @tui.Component {
+) -> @core.Component {
   // Split value into lines
   let lines = split_lines(value)
 
@@ -56,7 +56,7 @@ pub fn textarea(
           fg
         },
         bg,
-        @tui.Color::rgb(80, 80, 80),
+        @core.Color::rgb(80, 80, 80),
       )
     TextareaState::Focused =>
       (
@@ -70,11 +70,11 @@ pub fn textarea(
       )
     TextareaState::Editing => (fg, bg, edit_border_color)
     TextareaState::Disabled =>
-      (disabled_fg, disabled_bg, @tui.Color::rgb(60, 60, 60))
+      (disabled_fg, disabled_bg, @core.Color::rgb(60, 60, 60))
   }
 
   // Build text lines (show cursor on last line when editing)
-  let text_components : Array[@tui.Component] = []
+  let text_components : Array[@core.Component] = []
   for i, line in display_lines {
     let is_last = i == display_lines.length() - 1
     let line_text = if is_last && state is TextareaState::Editing {
@@ -102,7 +102,7 @@ pub fn textarea(
     padding_y~,
     justify=@types.Alignment::Start,
     align=@types.Alignment::Start,
-    border=Some(@tui.BorderChars::rounded()),
+    border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
   )
