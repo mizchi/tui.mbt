@@ -203,6 +203,7 @@ pub fn StreamingState::new() -> Self
 pub fn StreamingState::start(Self, String, Int, () -> Unit, () -> Unit) -> Bool
 pub fn StreamingState::stop(Self) -> Unit
 pub fn StreamingState::take(Self) -> String
+pub fn StreamingState::take_partial(Self) -> String
 
 pub(all) enum TextareaState {
   Idle

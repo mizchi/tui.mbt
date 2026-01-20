@@ -28,6 +28,9 @@ fn main {
   let is_editing = @signals.signal(false)
   let running = @signals.signal(true)
 
+  // Forward reference for start_editing (set later in letrec)
+  let start_editing_ref : Ref[() -> Unit] = { val: fn() { () } }
+
   // Item-based scroller for message list
   let scroller = @c.ItemScroller::new()
 
@@ -273,6 +276,10 @@ fn main {
     let raw = input_value.get()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
+      // If streaming, interrupt and discard partial response
+      if streaming.is_streaming() {
+        streaming.clear()
+      }
       scroller.auto_scroll.set(true)
       add_message(User, text)
       input_value.set("")
@@ -371,6 +378,13 @@ fn main {
       _ => need_render = false
     }
     if should_edit {
+      // Extract initial character if it was a character input
+      match event {
+        @tui.InputEvent::Key(@tui.KeyEvent::Char(ch, @tui.KeyModifier::None)) =>
+          input_value.set(ch.to_string())
+        _ => ()
+      }
+      // Start editing (streaming continues in background)
       start_editing()
       return
     }
@@ -378,6 +392,9 @@ fn main {
       do_render()
     }
   }
+
+  // Set forward reference for start_editing
+  start_editing_ref.val = start_editing
 
   // Initialize terminal
   @tui.print_raw(@tui.App::init_terminal())

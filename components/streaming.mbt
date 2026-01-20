@@ -140,6 +140,15 @@ pub fn StreamingState::take(self : StreamingState) -> String {
 }
 
 ///|
+/// Get the partial text (up to current position) and clear the state
+/// Useful for interrupting streaming and keeping what was shown
+pub fn StreamingState::take_partial(self : StreamingState) -> String {
+  let text = self.get_partial()
+  self.clear()
+  text
+}
+
+///|
 /// Complete streaming immediately (show all text)
 pub fn StreamingState::complete(self : StreamingState) -> Unit {
   self.stop()
