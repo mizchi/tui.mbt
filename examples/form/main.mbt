@@ -191,6 +191,16 @@ fn main {
     @tui.print_raw(app.render_frame(render_ui()))
   }
 
+  // Handle quit
+  fn do_quit() -> Unit {
+    running.set(false)
+    @tui.stop_keypress_listener()
+    @tui.print_raw(@tui.disable_mouse())
+    @tui.cleanup_stdin()
+    @tui.print_raw(@tui.App::restore_terminal())
+    println("Cancelled.")
+  }
+
   // Handle submit
   fn do_submit() -> Unit {
     running.set(false)
@@ -225,6 +235,7 @@ fn main {
                 @tui.stop_keypress_listener()
                 @tui.print_raw(@tui.disable_mouse())
               }),
+              on_force_quit=Some(fn() { do_quit() }),
             )
             // Calculate position for inplace editing
             // bounds.x/y are 0-indexed, ANSI coordinates are 1-indexed
@@ -255,6 +266,7 @@ fn main {
                 @tui.stop_keypress_listener()
                 @tui.print_raw(@tui.disable_mouse())
               }),
+              on_force_quit=Some(fn() { do_quit() }),
             )
             @c.start_edit(config, signal.get(), restore_tui)
           }
@@ -270,10 +282,10 @@ fn main {
     let mut need_render = true
     let mut start_edit_id = ""
     match event {
-      @tui.InputEvent::Key(key_event) =>
+      @events.InputEvent::Key(key_event) =>
         match key_event {
           // Ctrl+C - always quit
-          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
+          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
             running.set(false)
             @tui.stop_keypress_listener()
             @tui.print_raw(@tui.disable_mouse())
@@ -281,7 +293,7 @@ fn main {
             @tui.print_raw(@tui.App::restore_terminal())
           }
           // q to quit when not focused on input
-          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) =>
+          @events.KeyEvent::Char('q', @events.KeyModifier::None) =>
             if not(input_ids.contains(focused_id.get())) {
               running.set(false)
               @tui.stop_keypress_listener()
@@ -292,23 +304,23 @@ fn main {
               need_render = false
             }
           // Tab - next focus
-          @tui.KeyEvent::Special(@tui.SpecialKey::Tab, @tui.KeyModifier::None) =>
+          @events.KeyEvent::Special(@events.SpecialKey::Tab, @events.KeyModifier::None) =>
             focus_next()
           // Shift+Tab or BackTab - previous focus
-          @tui.KeyEvent::Special(
-            @tui.SpecialKey::Tab
-            | @tui.SpecialKey::BackTab,
-            @tui.KeyModifier::Shift
+          @events.KeyEvent::Special(
+            @events.SpecialKey::Tab
+            | @events.SpecialKey::BackTab,
+            @events.KeyModifier::Shift
           ) => focus_prev()
-          @tui.KeyEvent::Special(
-            @tui.SpecialKey::BackTab,
-            @tui.KeyModifier::None
+          @events.KeyEvent::Special(
+            @events.SpecialKey::BackTab,
+            @events.KeyModifier::None
           ) => focus_prev()
           // Escape - unfocus
-          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) =>
+          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) =>
             focused_id.set("")
           // Enter - edit if on input, submit if on button
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
+          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) => {
             let focus = focused_id.get()
             if focus == "submit-btn" {
               do_submit()
@@ -321,13 +333,13 @@ fn main {
             }
           }
           // Arrow keys for navigation
-          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) => focus_next()
-          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) => focus_prev()
+          @events.KeyEvent::Special(@events.SpecialKey::Down, _) => focus_next()
+          @events.KeyEvent::Special(@events.SpecialKey::Up, _) => focus_prev()
           _ => need_render = false
         }
-      @tui.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@tui.MouseEventType::Press, @tui.MouseButton::Left) => {
+          (@events.MouseEventType::Press, @events.MouseButton::Left) => {
             let x = mouse_event.x
             let y = mouse_event.y
             match app.hit_test(x, y) {

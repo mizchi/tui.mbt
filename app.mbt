@@ -9,7 +9,7 @@ pub struct App {
   height : Int
   mut prev_buffer : CharBuffer?
   mut last_layout : @types.Layout?
-  handlers : EventHandlers
+  handlers : @events.EventHandlers
 }
 
 ///|
@@ -19,7 +19,7 @@ pub fn App::new(width : Int, height : Int) -> App {
     height,
     prev_buffer: None,
     last_layout: None,
-    handlers: EventHandlers::new(),
+    handlers: @events.EventHandlers::new(),
   }
 }
 
@@ -115,17 +115,17 @@ pub fn render_once(width : Int, height : Int, component : Component) -> String {
 ///|
 /// Register a click handler for a component ID
 pub fn App::on_click(self : App, id : String, handler : () -> Unit) -> Unit {
-  self.handlers.on_click(id, ClickHandler(handler))
+  self.handlers.on_click(id, @events.ClickHandler::new(handler))
 }
 
 ///|
 /// Handle a mouse event
 /// Returns true if an event handler was invoked
-pub fn App::handle_mouse(self : App, event : MouseEvent) -> Bool {
+pub fn App::handle_mouse(self : App, event : @events.MouseEvent) -> Bool {
   match event.event_type {
-    MouseEventType::Press =>
+    @events.MouseEventType::Press =>
       match event.button {
-        MouseButton::Left =>
+        @events.MouseButton::Left =>
           match self.last_layout {
             Some(layout) =>
               handle_click(layout, self.handlers, event.x, event.y)
@@ -139,7 +139,7 @@ pub fn App::handle_mouse(self : App, event : MouseEvent) -> Bool {
 
 ///|
 /// Perform hit test at coordinates
-pub fn App::hit_test(self : App, x : Int, y : Int) -> HitTestResult? {
+pub fn App::hit_test(self : App, x : Int, y : Int) -> @events.HitTestResult? {
   match self.last_layout {
     Some(layout) => hit_test_root(layout, x, y)
     None => None
@@ -148,7 +148,7 @@ pub fn App::hit_test(self : App, x : Int, y : Int) -> HitTestResult? {
 
 ///|
 /// Find component by ID
-pub fn App::find_by_id(self : App, id : String) -> HitTestResult? {
+pub fn App::find_by_id(self : App, id : String) -> @events.HitTestResult? {
   match self.last_layout {
     Some(layout) => find_layout_by_id_root(layout, id)
     None => None

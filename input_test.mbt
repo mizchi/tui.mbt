@@ -7,7 +7,7 @@ test "parse_input: SGR mouse press format" {
   let input = "\u001b[<0;51;13M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="Left")
       inspect(mouse.event_type, content="Press")
       inspect(mouse.x, content="51")
@@ -23,7 +23,7 @@ test "parse_input: SGR mouse release format" {
   let input = "\u001b[<0;10;20m"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="Left")
       inspect(mouse.event_type, content="Release")
       inspect(mouse.x, content="10")
@@ -39,7 +39,7 @@ test "parse_input: SGR mouse right click" {
   let input = "\u001b[<2;30;15M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="Right")
       inspect(mouse.event_type, content="Press")
       inspect(mouse.x, content="30")
@@ -55,7 +55,7 @@ test "parse_input: SGR mouse middle click" {
   let input = "\u001b[<1;5;5M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="Middle")
       inspect(mouse.event_type, content="Press")
       inspect(mouse.x, content="5")
@@ -71,7 +71,7 @@ test "parse_input: SGR mouse scroll up" {
   let input = "\u001b[<64;20;10M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="ScrollUp")
       inspect(mouse.x, content="20")
       inspect(mouse.y, content="10")
@@ -86,7 +86,7 @@ test "parse_input: SGR mouse scroll down" {
   let input = "\u001b[<65;20;10M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="ScrollDown")
       inspect(mouse.x, content="20")
       inspect(mouse.y, content="10")
@@ -101,7 +101,7 @@ test "parse_input: SGR mouse drag" {
   let input = "\u001b[<32;25;30M"
   let event = parse_input(input)
   match event {
-    InputEvent::Mouse(mouse) => {
+    @events.InputEvent::Mouse(mouse) => {
       inspect(mouse.button, content="Left")
       inspect(mouse.event_type, content="Drag")
       inspect(mouse.x, content="25")
@@ -190,7 +190,7 @@ test "parse_input: unknown sequences" {
   // Unknown CSI sequence
   let event = parse_input("\u001b[999X")
   match event {
-    InputEvent::Unknown(_) => ()
+    @events.InputEvent::Unknown(_) => ()
     _ => fail("Expected Unknown event")
   }
 }

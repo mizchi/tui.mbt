@@ -164,7 +164,7 @@ pub fn stop_keypress_listener() -> Unit {
 /// Start an inplace input session with raw mode
 /// Stays in alternate screen, edits at specified position
 /// row/col are 1-indexed ANSI coordinates
-/// Enter confirms, Esc cancels
+/// Enter confirms, Esc cancels, Ctrl+C force quits
 /// Supports arrow keys, Home, End, Delete for cursor movement
 extern "js" fn js_start_inplace_input(
   row : Int,
@@ -175,8 +175,9 @@ extern "js" fn js_start_inplace_input(
   initial : String,
   on_confirmed : (String) -> Unit,
   on_cancelled : () -> Unit,
+  on_force_quit : () -> Unit,
 ) -> Unit =
-  #| async (row, col, width, height, multiline, initial, onConfirmed, onCancelled) => {
+  #| async (row, col, width, height, multiline, initial, onConfirmed, onCancelled, onForceQuit) => {
   #|   const { stdin, stdout } = await import('node:process');
   #|
   #|   // Helper to get display width of a character
@@ -498,8 +499,11 @@ extern "js" fn js_start_inplace_input(
   #|       const code = char.charCodeAt(0);
   #|
   #|       if (code === 3) {
-  #|         // Ctrl+C - cancel
-  #|         cancel();
+  #|         // Ctrl+C - force quit
+  #|         if (done) return;
+  #|         done = true;
+  #|         cleanup();
+  #|         setImmediate(() => onForceQuit());
   #|         return;
   #|       } else if (code === 4 || code === 10) {
   #|         // Ctrl+D or Ctrl+J - insert newline in multiline mode
@@ -550,14 +554,15 @@ extern "js" fn js_start_inplace_input(
 ///|
 /// Start an inline input session with cooked mode (IME enabled)
 /// Exits alternate screen temporarily for proper IME support
-/// Enter confirms, Ctrl+C cancels
+/// Enter confirms, Escape cancels, Ctrl+C force quits
 extern "js" fn js_start_inline_input_cooked(
   field_name : String,
   initial : String,
   on_confirmed : (String) -> Unit,
   on_cancelled : () -> Unit,
+  on_force_quit : () -> Unit,
 ) -> Unit =
-  #| async (fieldName, initial, onConfirmed, onCancelled) => {
+  #| async (fieldName, initial, onConfirmed, onCancelled, onForceQuit) => {
   #|   const { stdin, stdout } = await import('node:process');
   #|
   #|   // Exit alternate screen
@@ -570,7 +575,7 @@ extern "js" fn js_start_inline_input_cooked(
   #|   // Show prompt
   #|   console.log(`\n  Editing: ${fieldName}`);
   #|   console.log(`  Current: "${initial}"`);
-  #|   console.log(`  (Enter to confirm, Ctrl+C to cancel)\n`);
+  #|   console.log(`  (Enter to confirm, Esc to cancel, Ctrl+C to quit)\n`);
   #|   stdout.write('  > ');
   #|
   #|   // Clean up any existing handlers
@@ -614,16 +619,31 @@ extern "js" fn js_start_inline_input_cooked(
   #|     setImmediate(() => onCancelled());
   #|   };
   #|
+  #|   const forceQuit = () => {
+  #|     if (done) return;
+  #|     done = true;
+  #|     cleanup();
+  #|     // Re-enter alternate screen immediately before callback
+  #|     stdout.write('\x1b[?1049h');
+  #|     setImmediate(() => onForceQuit());
+  #|   };
+  #|
   #|   // Handle input directly without readline
   #|   const onData = (chunk) => {
   #|     if (done) return;
+  #|
+  #|     // Check for Escape key
+  #|     if (chunk === '\x1b' || chunk.startsWith('\x1b[')) {
+  #|       cancel();
+  #|       return;
+  #|     }
   #|
   #|     for (const char of chunk) {
   #|       const code = char.charCodeAt(0);
   #|
   #|       if (code === 3) {
-  #|         // Ctrl+C
-  #|         cancel();
+  #|         // Ctrl+C - force quit
+  #|         forceQuit();
   #|         return;
   #|       } else if (code === 13 || code === 10) {
   #|         // Enter
@@ -837,6 +857,7 @@ pub fn start_inline_input_cooked(
     initial,
     fn(value) { on_result(InputResult::Confirmed(value)) },
     fn() { on_result(InputResult::Cancelled) },
+    fn() { on_result(InputResult::ForceQuit) },
   )
 }
 
@@ -866,6 +887,7 @@ pub fn start_inplace_input(
     initial,
     fn(value) { on_result(InputResult::Confirmed(value)) },
     fn() { on_result(InputResult::Cancelled) },
+    fn() { on_result(InputResult::ForceQuit) },
   )
 }
 

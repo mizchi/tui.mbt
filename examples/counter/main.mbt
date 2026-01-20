@@ -94,33 +94,33 @@ async fn main {
     let event = @tui.parse_input(key)
     let mut need_render = true
     match event {
-      @tui.InputEvent::Key(key_event) =>
+      @events.InputEvent::Key(key_event) =>
         match key_event {
           // Quit on 'q' or Ctrl+C or Escape
-          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => running = false
-          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => running = false
-          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => running = false
+          @events.KeyEvent::Char('q', @events.KeyModifier::None) => running = false
+          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => running = false
+          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => running = false
           // Increment
-          @tui.KeyEvent::Char('+', _) => count.set(count.get() + 1)
-          @tui.KeyEvent::Char('=', _) => count.set(count.get() + 1)
-          @tui.KeyEvent::Char('k', @tui.KeyModifier::None) =>
+          @events.KeyEvent::Char('+', _) => count.set(count.get() + 1)
+          @events.KeyEvent::Char('=', _) => count.set(count.get() + 1)
+          @events.KeyEvent::Char('k', @events.KeyModifier::None) =>
             count.set(count.get() + 1)
-          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) =>
+          @events.KeyEvent::Special(@events.SpecialKey::Up, _) =>
             count.set(count.get() + 1)
           // Decrement
-          @tui.KeyEvent::Char('-', _) => count.set(count.get() - 1)
-          @tui.KeyEvent::Char('_', _) => count.set(count.get() - 1)
-          @tui.KeyEvent::Char('j', @tui.KeyModifier::None) =>
+          @events.KeyEvent::Char('-', _) => count.set(count.get() - 1)
+          @events.KeyEvent::Char('_', _) => count.set(count.get() - 1)
+          @events.KeyEvent::Char('j', @events.KeyModifier::None) =>
             count.set(count.get() - 1)
-          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) =>
+          @events.KeyEvent::Special(@events.SpecialKey::Down, _) =>
             count.set(count.get() - 1)
           // Reset
-          @tui.KeyEvent::Char('r', @tui.KeyModifier::None) => count.set(0)
+          @events.KeyEvent::Char('r', @events.KeyModifier::None) => count.set(0)
           _ => need_render = false
         }
-      @tui.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@tui.MouseEventType::Press, @tui.MouseButton::Left) => {
+          (@events.MouseEventType::Press, @events.MouseButton::Left) => {
             let x = mouse_event.x
             let y = mouse_event.y
             // Use hit_test to find clicked component

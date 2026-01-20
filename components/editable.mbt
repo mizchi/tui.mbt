@@ -12,6 +12,8 @@ pub(all) struct EditConfig {
   on_edit_start : (() -> Unit)?
   /// Called after editing ends (optional, for cleanup like re-enabling mouse)
   on_edit_end : (() -> Unit)?
+  /// Called when Ctrl+C is pressed (optional, for force quit)
+  on_force_quit : (() -> Unit)?
 }
 
 ///|
@@ -33,6 +35,15 @@ pub fn start_edit(
     match result {
       @tui.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
       @tui.InputResult::Cancelled => ()
+      @tui.InputResult::ForceQuit => {
+        // Call force quit handler if provided
+        match config.on_force_quit {
+          Some(f) => f()
+          None => ()
+        }
+        // Don't call on_complete - we're quitting
+        return
+      }
       _ => ()
     }
 
@@ -80,6 +91,15 @@ pub fn start_edit_inplace(
       match result {
         @tui.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
         @tui.InputResult::Cancelled => ()
+        @tui.InputResult::ForceQuit => {
+          // Call force quit handler if provided
+          match config.on_force_quit {
+            Some(f) => f()
+            None => ()
+          }
+          // Don't call on_complete - we're quitting
+          return
+        }
         _ => ()
       }
 
@@ -101,12 +121,14 @@ pub fn form_edit_config(
   signal : @signals.Signal[String],
   on_edit_start? : (() -> Unit)? = None,
   on_edit_end? : (() -> Unit)? = None,
+  on_force_quit? : (() -> Unit)? = None,
 ) -> EditConfig {
   {
     field_name,
     on_change: fn(value) { signal.set(value) },
     on_edit_start,
     on_edit_end,
+    on_force_quit,
   }
 }
 

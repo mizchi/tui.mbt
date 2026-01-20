@@ -28,8 +28,8 @@ fn main {
   let is_editing = @signals.signal(false)
   let running = @signals.signal(true)
 
-  // Modal state for action menu (like a filer)
-  let action_modal = @c.ModalState::new()
+  // Action menu will be created after other state is defined
+  // (handlers need to capture messages, streaming, scroller)
 
   // Forward reference for start_editing (set later in letrec)
   let start_editing_ref : Ref[() -> Unit] = { val: fn() { () } }
@@ -42,6 +42,26 @@ fn main {
 
   // Create the app (mutable for resize support)
   let app : Ref[@tui.App] = { val: @tui.App::new(width.val, height.val) }
+
+  // Action menu with clear messages action
+  let action_menu = @c.ActionMenu::new(
+    "Actions",
+    [
+      @c.ActionItem::new('1', "Clear messages", fn() {
+        messages.set([])
+        streaming.clear()
+        scroller.offset.set(0)
+        scroller.auto_scroll.set(true)
+      }),
+      @c.ActionItem::new('2', "Export chat", fn() {
+        // Placeholder - just close modal
+      }),
+      @c.ActionItem::new('3', "Settings", fn() {
+        // Placeholder - just close modal
+      }),
+    ],
+    toggle_key=Some('f'),
+  )
 
   // Build a single message component
   fn build_message(msg : Message) -> @tui.Component {
@@ -192,26 +212,8 @@ fn main {
     )
 
     // When modal is open, render modal full-screen instead of base UI
-    if action_modal.get_is_open() {
-      let modal_content = @c.column(
-        [
-          @c.text("Actions", fg=@tui.Color::cyan(), bold=true),
-          @tui.spacer(flex_grow=0.5),
-          @c.text("[1] Clear messages"),
-          @c.text("[2] Export chat"),
-          @c.text("[3] Settings"),
-          @tui.spacer(flex_grow=1.0),
-          @c.text("[Esc/F] Close", fg=@tui.Color::rgb(100, 100, 100)),
-        ],
-        gap=0.0,
-        min_width=@types.Dimension::Length(25.0),
-      )
-      // Full-screen modal (replaces base UI when open)
-      @c.modal_with_backdrop(
-        modal_content,
-        container_width=@types.Dimension::Length(w.to_double()),
-        container_height=@types.Dimension::Length(h.to_double()),
-      )
+    if action_menu.is_open() {
+      action_menu.build(w, h)
     } else {
       base_ui
     }
@@ -240,6 +242,7 @@ fn main {
   // Quit helper
   fn do_quit() -> Unit {
     running.set(false)
+    streaming.clear() // Stop any ongoing streaming
     @tui.stop_keypress_listener()
     @tui.stop_resize_listener()
     @tui.print_raw(@tui.disable_mouse())
@@ -338,6 +341,9 @@ fn main {
         @tui.stop_keypress_listener()
         @tui.print_raw(@tui.disable_mouse())
       }),
+      on_force_quit=Some(fn() {
+        do_quit()
+      }),
     )
 
     // Clear content area
@@ -370,84 +376,53 @@ fn main {
     let visible = get_visible_count()
 
     // Handle modal keys when modal is open
-    if action_modal.get_is_open() {
-      match event {
-        @tui.InputEvent::Key(key_event) =>
-          match key_event {
-            @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _)
-            | @tui.KeyEvent::Char('f', _)
-            | @tui.KeyEvent::Char('F', _) => {
-              action_modal.close()
-              app.val.clear_prev_buffer()
-            }
-            @tui.KeyEvent::Char('1', _) => {
-              // Clear messages
-              messages.set([])
-              streaming.clear()
-              scroller.offset.set(0)
-              scroller.auto_scroll.set(true)
-              action_modal.close()
-              app.val.clear_prev_buffer()
-            }
-            @tui.KeyEvent::Char('2', _) => {
-              // Export chat (placeholder - just close modal)
-              action_modal.close()
-              app.val.clear_prev_buffer()
-            }
-            @tui.KeyEvent::Char('3', _) => {
-              // Settings (placeholder - just close modal)
-              action_modal.close()
-              app.val.clear_prev_buffer()
-            }
-            _ => need_render = false
-          }
-        _ => need_render = false
+    match action_menu.handle_event(app.val, event) {
+      @c.MenuKeyResult::Handled | @c.MenuKeyResult::Closed => {
+        if running.get() {
+          do_render()
+        }
+        return
       }
-      if need_render && running.get() {
-        do_render()
-      }
-      return
+      @c.MenuKeyResult::NotHandled => ()
     }
 
     // Normal mode key handling
     match event {
-      @tui.InputEvent::Key(key_event) =>
+      @events.InputEvent::Key(key_event) =>
         match key_event {
-          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
+          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
             do_quit()
             return
           }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
+          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
             do_quit()
             return
           }
-          @tui.KeyEvent::Char('f', @tui.KeyModifier::None)
-          | @tui.KeyEvent::Char('F', @tui.KeyModifier::None) => {
-            // Open action modal - clear buffer for full redraw
-            action_modal.open()
-            app.val.clear_prev_buffer()
-          }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
+          @events.KeyEvent::Char('f', @events.KeyModifier::None)
+          | @events.KeyEvent::Char('F', @events.KeyModifier::None) =>
+            // Open action menu - clear buffer for full redraw
+            action_menu.open_with_app(app.val)
+          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
             should_edit = true
-          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => should_edit = true
-          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _)
-          | @tui.KeyEvent::Special(@tui.SpecialKey::PageUp, _) =>
+          @events.KeyEvent::Char(_, @events.KeyModifier::None) => should_edit = true
+          @events.KeyEvent::Special(@events.SpecialKey::Up, _)
+          | @events.KeyEvent::Special(@events.SpecialKey::PageUp, _) =>
             ignore(scroller.up(1))
-          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _)
-          | @tui.KeyEvent::Special(@tui.SpecialKey::PageDown, _) =>
+          @events.KeyEvent::Special(@events.SpecialKey::Down, _)
+          | @events.KeyEvent::Special(@events.SpecialKey::PageDown, _) =>
             ignore(scroller.down(1, total, visible))
           _ => need_render = false
         }
-      @tui.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@tui.MouseEventType::Press, @tui.MouseButton::Left) =>
+          (@events.MouseEventType::Press, @events.MouseButton::Left) =>
             match app.val.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) => if hit.id == "chat-input" { should_edit = true }
               None => ()
             }
-          (@tui.MouseEventType::Press, @tui.MouseButton::ScrollUp) =>
+          (@events.MouseEventType::Press, @events.MouseButton::ScrollUp) =>
             ignore(scroller.up(3))
-          (@tui.MouseEventType::Press, @tui.MouseButton::ScrollDown) =>
+          (@events.MouseEventType::Press, @events.MouseButton::ScrollDown) =>
             ignore(scroller.down(3, total, visible))
           _ => need_render = false
         }
@@ -456,7 +431,7 @@ fn main {
     if should_edit {
       // Extract initial character if it was a character input
       match event {
-        @tui.InputEvent::Key(@tui.KeyEvent::Char(ch, @tui.KeyModifier::None)) =>
+        @events.InputEvent::Key(@events.KeyEvent::Char(ch, @events.KeyModifier::None)) =>
           // Don't start editing with 'f'/'F' as it opens modal
           if ch != 'f' && ch != 'F' {
             input_value.set(ch.to_string())
@@ -464,7 +439,7 @@ fn main {
         _ => ()
       }
       // Start editing (streaming continues in background) - but not if we just opened modal
-      if not(action_modal.get_is_open()) {
+      if not(action_menu.is_open()) {
         start_editing()
       }
       return

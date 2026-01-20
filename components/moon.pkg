@@ -1,5 +1,6 @@
 import {
   "mizchi/tui" as @tui,
+  "mizchi/tui/events" as @events,
   "mizchi/crater/style",
   "mizchi/crater/types",
   "mizchi/signals" as @signals,

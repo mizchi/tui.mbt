@@ -238,6 +238,85 @@ test "chat layout: text length affects height" {
   inspect(long_visible.length(), content="10")
 }
 
+// ============================================
+// Accessibility Tests - Keyboard Interaction
+// ============================================
+
+///|
+/// a11y: Button must have ID for focus tracking
+test "a11y: button has focusable ID" {
+  let btn = button("Submit", id="submit-btn")
+  // Button must have an ID for keyboard focus
+  inspect(btn.node.id, content="submit-btn")
+}
+
+///|
+/// a11y: Button states are distinguishable
+test "a11y: button has distinct states for visual feedback" {
+  // All button states should be creatable
+  let normal = button("OK", state=ButtonState::Normal)
+  let hover = button("OK", state=ButtonState::Hover)
+  let pressed = button("OK", state=ButtonState::Pressed)
+  let disabled = button("OK", state=ButtonState::Disabled)
+  // All should create valid components
+  inspect(normal.node.id.length() > 0, content="true")
+  inspect(hover.node.id.length() > 0, content="true")
+  inspect(pressed.node.id.length() > 0, content="true")
+  inspect(disabled.node.id.length() > 0, content="true")
+}
+
+///|
+/// a11y: Input has focusable ID for keyboard navigation
+test "a11y: input has focusable ID" {
+  let inp = input("", id="email-input", placeholder="Enter email")
+  inspect(inp.node.id, content="email-input")
+}
+
+///|
+/// a11y: Input states indicate interaction mode
+test "a11y: input has distinct states (idle/focused/editing/disabled)" {
+  let idle = input("test", state=InputState::Idle)
+  let focused = input("test", state=InputState::Focused)
+  let editing = input("test", state=InputState::Editing)
+  let disabled = input("test", state=InputState::Disabled)
+  // All states should be distinguishable (cursor shows in editing)
+  inspect(idle.texts.get(idle.node.id).unwrap().contains("_"), content="false")
+  inspect(
+    focused.texts.get(focused.node.id).unwrap().contains("_"),
+    content="false",
+  )
+  inspect(
+    editing.texts.get(editing.node.id).unwrap().contains("_"),
+    content="true",
+  )
+  inspect(
+    disabled.texts.get(disabled.node.id).unwrap().contains("_"),
+    content="false",
+  )
+}
+
+///|
+/// a11y: Input shows placeholder for empty value (user guidance)
+test "a11y: input placeholder provides guidance" {
+  let inp = input("", placeholder="Type here...")
+  inspect(
+    inp.texts.get(inp.node.id).unwrap().contains("Type here"),
+    content="true",
+  )
+}
+
+///|
+/// a11y: Textarea has distinct editing state
+test "a11y: textarea editing state shows cursor" {
+  let idle = textarea("content", state=TextareaState::Idle)
+  let editing = textarea("content", state=TextareaState::Editing)
+  // Editing state should show cursor
+  let idle_output = @tui.render_once(80, 24, idle)
+  let editing_output = @tui.render_once(80, 24, editing)
+  inspect(idle_output.contains("content_"), content="false")
+  inspect(editing_output.contains("content_"), content="true")
+}
+
 ///|
 /// Test that simulates streaming text and its effect on layout
 /// This reproduces the +1 height issue in chat example

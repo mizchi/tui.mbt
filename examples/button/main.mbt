@@ -109,37 +109,37 @@ fn main {
     let event = @tui.parse_input(key)
     let mut need_render = true
     match event {
-      @tui.InputEvent::Key(key_event) =>
+      @events.InputEvent::Key(key_event) =>
         match key_event {
-          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => {
+          @events.KeyEvent::Char('q', @events.KeyModifier::None) => {
             do_quit()
             return
           }
-          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
+          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
             do_quit()
             return
           }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
+          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
             do_quit()
             return
           }
-          @tui.KeyEvent::Char('+', _) | @tui.KeyEvent::Char('=', _) => {
+          @events.KeyEvent::Char('+', _) | @events.KeyEvent::Char('=', _) => {
             count.set(count.get() + 1)
             message.set("Incremented!")
           }
-          @tui.KeyEvent::Char('-', _) => {
+          @events.KeyEvent::Char('-', _) => {
             count.set(count.get() - 1)
             message.set("Decremented!")
           }
-          @tui.KeyEvent::Char('r', @tui.KeyModifier::None) => {
+          @events.KeyEvent::Char('r', @events.KeyModifier::None) => {
             count.set(0)
             message.set("Reset!")
           }
           _ => need_render = false
         }
-      @tui.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@tui.MouseEventType::Press, @tui.MouseButton::Left) =>
+          (@events.MouseEventType::Press, @events.MouseButton::Left) =>
             // Perform hit test
             match app.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) =>
