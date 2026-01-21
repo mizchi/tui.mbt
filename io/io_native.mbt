@@ -830,12 +830,43 @@ pub fn start_inplace_input(
 ///|
 /// Start inline input with cooked mode (stub)
 pub fn start_inline_input_cooked(
-  _field_name : String,
-  _initial : String,
-  _on_result : (InputResult) -> Unit,
+  field_name : String,
+  initial : String,
+  on_result : (InputResult) -> Unit,
 ) -> Unit {
-  // Cooked mode input would need async context
-  // This is a stub
+  let was_raw = is_raw_mode()
+  if was_raw {
+    cleanup_stdin()
+  }
+
+  // Show cursor (stay in alt screen)
+  let _ = field_name
+  print_raw("\u001b[?25h")
+
+  // Read a single line in cooked mode
+  let buf = FixedArray::make(1, b'\x00')
+  let bytes : Array[Byte] = []
+  for {
+    let n = @stdio.stdin.read(buf, offset=0, max_len=1)
+    if n <= 0 {
+      break
+    }
+    let b = buf[0]
+    if b == b'\n' || b == b'\r' {
+      break
+    }
+    bytes.push(b)
+  }
+  let input = if bytes.length() == 0 {
+    ""
+  } else {
+    Bytes::from_array(bytes).to_unchecked_string()
+  }
+  let result = if input.length() == 0 { initial } else { input }
+  if was_raw {
+    enable_raw_mode()
+  }
+  on_result(InputResult::Confirmed(result))
 }
 
 // --- Functions for JS compatibility ---

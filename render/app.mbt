@@ -51,6 +51,26 @@ pub fn App::render(self : App, component : @core.Component) -> String {
 }
 
 ///|
+/// Render a component tree with a cursor offset (no screen clear)
+pub fn App::render_with_offset(
+  self : App,
+  component : @core.Component,
+  row_offset? : Int = 0,
+  col_offset? : Int = 0,
+) -> String {
+  let layout = compute_layout(component.node, self.width, self.height)
+  self.last_layout = Some(layout)
+  let buf = CharBuffer::new(self.width, self.height)
+  render_layout(buf, layout, component.styles, component.texts, 0, 0)
+  let output = match self.prev_buffer {
+    Some(prev) => buffer_diff_to_ansi_offset(buf, prev, row_offset, col_offset)
+    None => buffer_to_ansi_offset(buf, row_offset, col_offset)
+  }
+  self.prev_buffer = Some(buf)
+  output
+}
+
+///|
 /// Render with cursor hidden and positioned at origin
 pub fn App::render_frame(self : App, component : @core.Component) -> String {
   ansi_hide_cursor() + self.render(component)

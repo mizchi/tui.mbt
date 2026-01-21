@@ -47,7 +47,11 @@ pub fn ansi_underline() -> String
 
 pub fn buffer_diff_to_ansi(CharBuffer, CharBuffer) -> String
 
+pub fn buffer_diff_to_ansi_offset(CharBuffer, CharBuffer, Int, Int) -> String
+
 pub fn buffer_to_ansi(CharBuffer) -> String
+
+pub fn buffer_to_ansi_offset(CharBuffer, Int, Int) -> String
 
 pub fn color_to_256(@core.Color) -> Int
 
@@ -87,6 +91,7 @@ pub fn App::new(Int, Int) -> Self
 pub fn App::on_click(Self, String, () -> Unit) -> Unit
 pub fn App::render(Self, @core.Component) -> String
 pub fn App::render_frame(Self, @core.Component) -> String
+pub fn App::render_with_offset(Self, @core.Component, row_offset? : Int, col_offset? : Int) -> String
 pub fn App::restore_terminal() -> String
 
 pub struct CharBuffer {

@@ -16,6 +16,12 @@ pub fn accordion_header(String, Bool, id? : String, fg? : @core.Color, bg? : @co
 
 pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
+pub fn ansi_move_to(Int, Int) -> String
+
+pub fn ansi_restore_cursor() -> String
+
+pub fn ansi_save_cursor() -> String
+
 pub fn[T] apply_scroll(Array[T], Int, Int, reserve_indicator? : Bool) -> Array[T]
 
 pub fn autocomplete(Array[ComboboxOption], String, id? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_visible? : Int) -> @core.Component
@@ -26,17 +32,35 @@ pub fn bold(String) -> @core.Component
 
 pub fn bordered(Array[@core.Component], style? : @core.BorderChars, color? : @core.Color) -> @core.Component
 
+pub let buffer_lines : Int
+
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
 
 pub fn button(String, id? : String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
+pub fn calc_input_row(Int) -> Int
 
 pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
 
 pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int, Int)
 
+pub fn calc_total_lines(Int, Bool) -> Int
+
+pub fn calc_visible_height(Int) -> Int
+
 pub fn center(Array[@core.Component]) -> @core.Component
 
+pub fn chat_message(Message, Int) -> @core.Component
+
+pub fn chat_message_list(Array[Message], StreamingState, InputQueue, Int, Int) -> Array[@core.Component]
+
+pub fn chat_queued_message(String, Int, Int, Int) -> @core.Component
+
+pub fn chat_streaming_message(StreamingState, Int, Int) -> @core.Component
+
 pub fn checkbox(Bool, fg? : @core.Color, checked_fg? : @core.Color, checked_icon? : String, unchecked_icon? : String) -> @core.Component
+
+pub fn clamp_input_lines(Int) -> Int
 
 pub fn colored(String, @core.Color) -> @core.Component
 
@@ -49,6 +73,8 @@ pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_l
 pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, min_width? : Double) -> @core.Component
 
 pub fn count_lines(String) -> Int
+
+pub let divider_height : Int
 
 pub fn editor(EditorState, @core.Color, @core.Color, @core.Color, @core.Color, @core.Color, Double, Double, Bool, String) -> @core.Component
 
@@ -74,7 +100,13 @@ pub fn hsplit_fixed_top(Array[@core.Component], Array[@core.Component], Int, Int
 
 pub fn icon_button(String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color) -> @core.Component
 
+pub fn ime_input(String, Bool, focused? : Bool, disabled? : Bool, id? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
+pub fn ime_textarea(String, Bool, focused? : Bool, disabled? : Bool, id? : String, rows? : Int, placeholder? : String, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
 pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
+pub let input_area_height : Int
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
 
@@ -89,6 +121,8 @@ pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientati
 pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
 pub fn loading_dots(Int, label? : String, fg? : @core.Color) -> @core.Component
+
+pub let max_input_rows : Int
 
 pub fn menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color, separator_fg? : @core.Color, min_width? : Double) -> @core.Component
 
@@ -149,6 +183,8 @@ pub fn splitter_handle(SplitterOrientation, focused? : Bool, id? : String, fg? :
 pub fn start_edit(EditConfig, String, () -> Unit) -> Unit
 
 pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+
+pub let streaming_message_height : Int
 
 pub fn switch(Bool, id? : String, state? : SwitchState, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, track_on? : String, track_off? : String) -> @core.Component
 
@@ -281,6 +317,27 @@ pub fn HeadlessApp::locator(Self, String) -> Locator
 pub fn HeadlessApp::new(width? : Int, height? : Int) -> Self
 pub fn HeadlessApp::render(Self, @core.Component) -> Self
 
+pub(all) struct ImeSession {
+  is_editing : @signals.Signal[Bool]
+}
+pub fn ImeSession::is_editing(Self) -> Bool
+pub fn ImeSession::new() -> Self
+pub fn ImeSession::start(Self, EditConfig, String, () -> Unit) -> Unit
+
+pub(all) struct InputQueue {
+  queue : Array[String]
+  is_processing : Ref[Bool]
+}
+pub fn InputQueue::dequeue_all(Self) -> Array[String]
+pub fn InputQueue::enqueue(Self, String) -> Unit
+pub fn InputQueue::finish_processing(Self) -> Unit
+pub fn InputQueue::is_busy(Self) -> Bool
+pub fn InputQueue::is_empty(Self) -> Bool
+pub fn InputQueue::items(Self) -> Array[String]
+pub fn InputQueue::length(Self) -> Int
+pub fn InputQueue::new() -> Self
+pub fn InputQueue::start_processing(Self) -> Unit
+
 pub(all) enum InputState {
   Idle
   Focused
@@ -369,6 +426,17 @@ pub(all) struct MenubarState {
   open_submenu_path : Array[String]
 }
 pub fn MenubarState::new() -> Self
+
+pub(all) struct Message {
+  role : MessageRole
+  content : String
+}
+
+pub(all) enum MessageRole {
+  User
+  Assistant
+}
+pub impl Eq for MessageRole
 
 pub(all) struct ModalState {
   is_open : @signals.Signal[Bool]
@@ -463,6 +531,19 @@ pub(all) struct SplitterState {
   focused : Bool
 }
 pub fn SplitterState::new(initial_position? : Int, collapsed? : Bool) -> Self
+
+pub(all) struct StreamBuffer {
+  app : Ref[@render.App]
+  width : Ref[Int]
+  height : Ref[Int]
+}
+pub fn StreamBuffer::clear(Self) -> Unit
+pub fn StreamBuffer::new(Int, Int) -> Self
+pub fn StreamBuffer::render(Self, @core.Component, row? : Int, col? : Int, preserve_cursor? : Bool) -> Unit
+pub fn StreamBuffer::render_output(Self, @core.Component, row? : Int, col? : Int, preserve_cursor? : Bool) -> String
+pub fn StreamBuffer::resize(Self, Int, Int) -> Unit
+pub fn StreamBuffer::size(Self) -> (Int, Int)
+pub fn StreamBuffer::sync(Self, @core.Component) -> Unit
 
 pub(all) struct StreamingState {
   full_text : @signals.Signal[String]

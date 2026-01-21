@@ -273,18 +273,18 @@ extern "js" fn js_start_inplace_input(
   #|     stdin.__dataHandler = null;
   #|   }
   #|
-   #|   // Keep raw mode for character-by-character input
-   #|   if (stdin.isTTY) {
-   #|     stdin.setRawMode(true);
-   #|   }
-   #|   stdin.pause();
-   #|   stdin.resume();
-   #|   stdin.setEncoding('utf8');
-   #|
-   #|   let chars = [...initial];
-   #|   let cursor = chars.length;
-   #|   let done = false;
-   #|   let scrollOffset = 0; // First visible line index
+  #|   // Keep raw mode for character-by-character input
+  #|   if (stdin.isTTY) {
+  #|     stdin.setRawMode(true);
+  #|   }
+  #|   stdin.pause();
+  #|   stdin.resume();
+  #|   stdin.setEncoding('utf8');
+  #|
+  #|   let chars = [...initial];
+  #|   let cursor = chars.length;
+  #|   let done = false;
+  #|   let scrollOffset = 0; // First visible line index
   #|
   #|   const redraw = () => {
   #|     const lines = wrapText(chars);
@@ -566,23 +566,17 @@ extern "js" fn js_start_inline_input_cooked(
   #| async (fieldName, initial, onConfirmed, onCancelled, onForceQuit) => {
   #|   const { stdin, stdout } = await import('node:process');
   #|
-  #|   // Exit alternate screen
-  #|   stdout.write('\x1b[?1049l');
-  #|   // Show cursor
+  #|   // Show cursor (stay in alt screen)
   #|   stdout.write('\x1b[?25h');
-  #|   // Clear screen and move to top
-  #|   stdout.write('\x1b[2J\x1b[H');
-  #|
-  #|   // Show prompt
-  #|   console.log(`\n  Editing: ${fieldName}`);
-  #|   console.log(`  Current: "${initial}"`);
-  #|   console.log(`  (Enter to confirm, Esc to cancel, Ctrl+C to quit)\n`);
-  #|   stdout.write('  > ');
   #|
   #|   // Clean up any existing handlers
   #|   if (stdin.__dataHandler) {
   #|     stdin.removeListener('data', stdin.__dataHandler);
   #|     stdin.__dataHandler = null;
+  #|   }
+  #|   if (stdin.__cookedHandler) {
+  #|     stdin.removeListener('data', stdin.__cookedHandler);
+  #|     stdin.__cookedHandler = null;
   #|   }
   #|
   #|   // Set cooked mode for IME support
@@ -592,7 +586,7 @@ extern "js" fn js_start_inline_input_cooked(
   #|   stdin.resume();
   #|   stdin.setEncoding('utf8');
   #|
-  #|   let buffer = '';
+  #|   let buffer = initial || '';
   #|   let done = false;
   #|
   #|   const cleanup = () => {
@@ -606,8 +600,6 @@ extern "js" fn js_start_inline_input_cooked(
   #|     if (done) return;
   #|     done = true;
   #|     cleanup();
-  #|     // Re-enter alternate screen immediately before callback
-  #|     stdout.write('\x1b[?1049h');
   #|     setImmediate(() => onConfirmed(result));
   #|   };
   #|
@@ -615,8 +607,6 @@ extern "js" fn js_start_inline_input_cooked(
   #|     if (done) return;
   #|     done = true;
   #|     cleanup();
-  #|     // Re-enter alternate screen immediately before callback
-  #|     stdout.write('\x1b[?1049h');
   #|     setImmediate(() => onCancelled());
   #|   };
   #|
@@ -624,16 +614,17 @@ extern "js" fn js_start_inline_input_cooked(
   #|     if (done) return;
   #|     done = true;
   #|     cleanup();
-  #|     // Re-enter alternate screen immediately before callback
-  #|     stdout.write('\x1b[?1049h');
   #|     setImmediate(() => onForceQuit());
   #|   };
   #|
-  #|   // Handle input directly without readline
+  #|   if (buffer.length > 0) {
+  #|     stdout.write(buffer);
+  #|   }
+  #|
   #|   const onData = (chunk) => {
   #|     if (done) return;
   #|
-  #|     // Check for Escape key
+  #|     // Escape cancels
   #|     if (chunk === '\x1b' || chunk.startsWith('\x1b[')) {
   #|       cancel();
   #|       return;
@@ -643,7 +634,7 @@ extern "js" fn js_start_inline_input_cooked(
   #|       const code = char.charCodeAt(0);
   #|
   #|       if (code === 3) {
-  #|         // Ctrl+C - force quit
+  #|         // Ctrl+C
   #|         forceQuit();
   #|         return;
   #|       } else if (code === 13 || code === 10) {
@@ -659,7 +650,6 @@ extern "js" fn js_start_inline_input_cooked(
   #|           stdout.write('\b \b');
   #|         }
   #|       } else if (code >= 32) {
-  #|         // Printable
   #|         buffer += char;
   #|         stdout.write(char);
   #|       }

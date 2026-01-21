@@ -2,37 +2,10 @@
 package "mizchi/tui/examples/chat"
 
 // Values
-pub fn ansi_move_to(Int, Int) -> String
-
-pub fn ansi_restore_cursor() -> String
-
-pub fn ansi_save_cursor() -> String
-
-pub let buffer_lines : Int
-
-pub fn calc_input_row(Int) -> Int
-
-pub fn calc_total_lines(Int, Bool) -> Int
-
-pub fn calc_visible_height(Int) -> Int
-
-pub fn clamp_input_lines(Int) -> Int
-
-pub let divider_height : Int
-
-pub let input_area_height : Int
-
-pub let max_input_rows : Int
-
-pub let streaming_message_height : Int
 
 // Errors
 
 // Types and methods
-type Message
-
-type MessageRole
-pub impl Eq for MessageRole
 
 // Type aliases
 

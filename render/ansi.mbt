@@ -185,6 +185,71 @@ pub fn buffer_to_ansi(buf : CharBuffer) -> String {
 }
 
 ///|
+/// Convert CharBuffer to ANSI-encoded string with an offset
+pub fn buffer_to_ansi_offset(
+  buf : CharBuffer,
+  row_offset : Int,
+  col_offset : Int,
+) -> String {
+  let sb = StringBuilder::new()
+  let mut last_fg = -1
+  let mut last_bg = -1
+  let mut last_bold = false
+  let mut last_underline = false
+  for row = 0; row < buf.height; row = row + 1 {
+    sb.write_string(ansi_move_to(row + row_offset, col_offset))
+    for col = 0; col < buf.width; col = col + 1 {
+      let cell = buf.get_cell(col, row)
+      if cell.char == '\u0000' {
+        continue
+      }
+      let fg_idx = if cell.fg.is_transparent() {
+        7
+      } else {
+        color_to_256(cell.fg)
+      }
+      let bg_idx = if cell.bg.is_transparent() {
+        -1
+      } else {
+        color_to_256(cell.bg)
+      }
+      let need_reset = (last_bold && not(cell.bold)) ||
+        (last_underline && not(cell.underline))
+      if need_reset {
+        sb.write_string(ansi_reset())
+        last_fg = -1
+        last_bg = -1
+        last_bold = false
+        last_underline = false
+      }
+      if cell.bold && not(last_bold) {
+        sb.write_string(ansi_bold())
+        last_bold = true
+      }
+      if cell.underline && not(last_underline) {
+        sb.write_string(ansi_underline())
+        last_underline = true
+      }
+      if fg_idx != last_fg {
+        sb.write_string(ansi_fg_256(fg_idx))
+        last_fg = fg_idx
+      }
+      if bg_idx != last_bg {
+        if bg_idx >= 0 {
+          sb.write_string(ansi_bg_256(bg_idx))
+        } else {
+          sb.write_string(ansi_bg_reset())
+        }
+        last_bg = bg_idx
+      }
+      sb.write_char(cell.char)
+    }
+  }
+  sb.write_string(ansi_reset())
+  sb.to_string()
+}
+
+///|
 /// Optimized ANSI output with diff (only output changed cells)
 pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
   let sb = StringBuilder::new()
@@ -201,8 +266,13 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
       if cell == prev_cell {
         continue
       }
-      if cell.char == '\u0000' {
-        continue
+      let mut ch = cell.char
+      if ch == '\u0000' {
+        if prev_cell.char == '\u0000' {
+          continue
+        }
+        // Clear placeholder cell from wide chars
+        ch = ' '
       }
       if row != last_row || col != last_col + 1 {
         sb.write_string(ansi_move_to(row, col))
@@ -246,9 +316,91 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
         }
         last_bg = bg_idx
       }
-      sb.write_char(cell.char)
+      sb.write_char(ch)
       last_row = row
       last_col = col
+    }
+  }
+  sb.write_string(ansi_reset())
+  sb.to_string()
+}
+
+///|
+/// Optimized ANSI output with diff and an offset
+pub fn buffer_diff_to_ansi_offset(
+  current : CharBuffer,
+  prev : CharBuffer,
+  row_offset : Int,
+  col_offset : Int,
+) -> String {
+  let sb = StringBuilder::new()
+  let mut last_row = -1
+  let mut last_col = -1
+  let mut last_fg = -1
+  let mut last_bg = -1
+  let mut last_bold = false
+  let mut last_underline = false
+  for row = 0; row < current.height; row = row + 1 {
+    for col = 0; col < current.width; col = col + 1 {
+      let cell = current.get_cell(col, row)
+      let prev_cell = prev.get_cell(col, row)
+      if cell == prev_cell {
+        continue
+      }
+      let mut ch = cell.char
+      if ch == '\u0000' {
+        if prev_cell.char == '\u0000' {
+          continue
+        }
+        ch = ' '
+      }
+      let out_row = row + row_offset
+      let out_col = col + col_offset
+      if out_row != last_row || out_col != last_col + 1 {
+        sb.write_string(ansi_move_to(out_row, out_col))
+      }
+      let fg_idx = if cell.fg.is_transparent() {
+        7
+      } else {
+        color_to_256(cell.fg)
+      }
+      let bg_idx = if cell.bg.is_transparent() {
+        -1
+      } else {
+        color_to_256(cell.bg)
+      }
+      let need_reset = (last_bold && not(cell.bold)) ||
+        (last_underline && not(cell.underline))
+      if need_reset {
+        sb.write_string(ansi_reset())
+        last_fg = -1
+        last_bg = -1
+        last_bold = false
+        last_underline = false
+      }
+      if cell.bold && not(last_bold) {
+        sb.write_string(ansi_bold())
+        last_bold = true
+      }
+      if cell.underline && not(last_underline) {
+        sb.write_string(ansi_underline())
+        last_underline = true
+      }
+      if fg_idx != last_fg {
+        sb.write_string(ansi_fg_256(fg_idx))
+        last_fg = fg_idx
+      }
+      if bg_idx != last_bg {
+        if bg_idx >= 0 {
+          sb.write_string(ansi_bg_256(bg_idx))
+        } else {
+          sb.write_string(ansi_bg_reset())
+        }
+        last_bg = bg_idx
+      }
+      sb.write_char(ch)
+      last_row = out_row
+      last_col = out_col
     }
   }
   sb.write_string(ansi_reset())
