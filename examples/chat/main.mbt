@@ -174,10 +174,7 @@ fn main {
       "◇ Queued"
     }
     @c.column(
-      [
-        @c.text(label, fg=gray, bold=false),
-        @c.text("   " + content, fg=gray),
-      ],
+      [@c.text(label, fg=gray, bold=false), @c.text("   " + content, fg=gray)],
       gap=0.0,
       width=@types.Dimension::Length(width.val.to_double()),
     )
@@ -261,7 +258,7 @@ fn main {
     } else {
       @core.Color::white()
     }
-    let cursor = if editing { "█" } else { "" }
+    let cursor = "" // No cursor - start_edit_inplace manages cursor position
     // Build status text with queue info
     let queue_info = if input_queue.is_busy() {
       let count = input_queue.length()
@@ -355,9 +352,9 @@ fn main {
     let output = app.val.render_frame(ui)
     @io.print_raw(output)
     if editing {
-      // Restore cursor position and show cursor
+      // Restore cursor position - don't show it here
+      // start_edit_inplace will manage cursor visibility
       @io.print_raw(ansi_restore_cursor())
-      @io.print_raw(@render.ansi_show_cursor())
     } else {
       // Keep cursor in input area when not editing
       @io.print_raw(ansi_move_to(calc_input_row(height.val), 0))
@@ -454,6 +451,7 @@ fn main {
       start_streaming(response)
     }
   }
+
   process_queue_ref.val = process_queue
 
   // Handle resize event
@@ -493,9 +491,14 @@ fn main {
     @io.start_keypress_listener(handle_key)
   }
   and start_editing: () -> Unit = fn() {
-    // Render full screen first (before setting is_editing)
-    do_render()
+    // Set is_editing BEFORE do_render to ensure cursor is saved correctly
+    // during any streaming ticks that may occur during editing
     is_editing.set(true)
+
+    // Render full screen
+    do_render()
+    // Hide cursor immediately - start_edit_inplace will manage it
+    @io.print_raw(@render.ansi_hide_cursor())
 
     // Calculate input area position from layout
     let row = calc_input_row(height.val)
@@ -532,8 +535,8 @@ fn main {
       queue_info
     @io.print_raw(
       ansi_move_to(status_row, 0) +
-        status_text +
-        " ".repeat((width.val - status_text.length()).clamp(min=0, max=width.val)),
+      status_text +
+      " ".repeat((width.val - status_text.length()).clamp(min=0, max=width.val)),
     )
     let on_lines_change : (Int) -> Int = fn(line_count) {
       clamp_input_lines(line_count)

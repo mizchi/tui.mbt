@@ -273,17 +273,18 @@ extern "js" fn js_start_inplace_input(
   #|     stdin.__dataHandler = null;
   #|   }
   #|
-  #|   // Keep raw mode for character-by-character input
-  #|   if (stdin.isTTY) {
-  #|     stdin.setRawMode(true);
-  #|   }
-  #|   stdin.resume();
-  #|   stdin.setEncoding('utf8');
-  #|
-  #|   let chars = [...initial];
-  #|   let cursor = chars.length;
-  #|   let done = false;
-  #|   let scrollOffset = 0; // First visible line index
+   #|   // Keep raw mode for character-by-character input
+   #|   if (stdin.isTTY) {
+   #|     stdin.setRawMode(true);
+   #|   }
+   #|   stdin.pause();
+   #|   stdin.resume();
+   #|   stdin.setEncoding('utf8');
+   #|
+   #|   let chars = [...initial];
+   #|   let cursor = chars.length;
+   #|   let done = false;
+   #|   let scrollOffset = 0; // First visible line index
   #|
   #|   const redraw = () => {
   #|     const lines = wrapText(chars);

@@ -44,7 +44,10 @@ test "calc_input_row: matches layout structure" {
   let msg_height = calc_visible_height(h)
   let input_row = calc_input_row(h)
   // input_row (0-indexed) = msg_height + divider + buffer
-  inspect(input_row == msg_height + divider_height + buffer_lines, content="true")
+  inspect(
+    input_row == msg_height + divider_height + buffer_lines,
+    content="true",
+  )
   // And input_area should extend to the end
   inspect(input_row + input_area_height == h, content="true")
 }
@@ -108,15 +111,15 @@ test "start_edit_inplace coordinates" {
   let terminal_height = 24
   let row = calc_input_row(terminal_height) // 0-indexed
   let col = 1 // 0-indexed (column after leading space)
-  
+
   // start_edit_inplace expects 1-indexed, so we add 1
   let inplace_row = row + 1
   let inplace_col = col + 1
-  
+
   // For 24-row terminal: row=18 (0-indexed) -> 19 (1-indexed)
   inspect(inplace_row, content="19")
   inspect(inplace_col, content="2")
-  
+
   // Verify this is correct position in layout
   // Row 19 (1-indexed) = Row 18 (0-indexed) = after message(16) + divider(1) + buffer(1)
   inspect(row, content="18")
@@ -127,7 +130,6 @@ test "ansi_move_to converts 0-indexed to 1-indexed" {
   // ansi_move_to takes 0-indexed and outputs 1-indexed ANSI
   let escape = ansi_move_to(0, 0)
   inspect(escape, content="\u{1b}[1;1H")
-  
   let escape2 = ansi_move_to(18, 1)
   inspect(escape2, content="\u{1b}[19;2H")
 }
@@ -137,13 +139,13 @@ test "message_area height does not overlap with input area" {
   let h = 24
   let visible_height = calc_visible_height(h)
   let input_row = calc_input_row(h)
-  
+
   // Message area ends at row visible_height (0-indexed)
   // Input area starts at row input_row (0-indexed)
   // There should be divider + buffer between them
   inspect(visible_height, content="16")
   inspect(input_row, content="18")
-  
+
   // Gap should be divider_height + buffer_lines = 2
   let gap = input_row - visible_height
   inspect(gap, content="2")
@@ -156,8 +158,7 @@ test "render App height matches visible_height" {
   // This ensures render output stays within message area bounds
   let h = 24
   let visible_height = calc_visible_height(h)
-  let app = @render.App::new(80, visible_height)
-  
+
   // App should have the correct dimensions
   inspect(visible_height, content="16")
 }
