@@ -48,7 +48,6 @@ fn line_gutter(
   let bg = gutter_bg
   let current_fg = @core.Color::cyan()
   let current_bg = @core.Color::rgb(40, 40, 50)
-  
   let components : Array[@core.Component] = []
   for i = 1; i <= line_count; i = i + 1 {
     let is_current = i == current_line
@@ -61,7 +60,11 @@ fn line_gutter(
     }
     components.push(text(padded, fg=actual_fg, bg=actual_bg))
   }
-  column(components, bg=bg)
+  column(
+    components,
+    bg~,
+    height=@types.Dimension::Length(line_count.to_double()),
+  )
 }
 
 ///|
@@ -82,29 +85,22 @@ fn status_bar(
   let line_info = cursor.row.to_string() + ":" + cursor.col.to_string()
   let modified = if state.modified { "[+]" } else { "" }
   let filename = state.filename + modified
-  
-  let mode_text = text(" " + mode_str + " ", fg=@core.Color::cyan(), bg=bg)
-  let pos_text = text(" " + line_info + " ", fg=fg, bg=bg)
-  let file_text = text(" " + filename + " ", fg=fg, bg=bg)
-  let msg_text = text(status_message, fg=fg, bg=bg)
-  
-  row([mode_text, pos_text, file_text, msg_text], bg=bg)
+  let mode_text = text(" " + mode_str + " ", fg=@core.Color::cyan(), bg~)
+  let pos_text = text(" " + line_info + " ", fg~, bg~)
+  let file_text = text(" " + filename + " ", fg~, bg~)
+  let msg_text = text(status_message, fg~, bg~)
+  row([mode_text, pos_text, file_text, msg_text], bg~)
 }
 
 ///|
 /// Main editor component
 pub fn editor(
   state : EditorState,
-  id : String,
   fg : @core.Color,
   bg : @core.Color,
   gutter_bg : @core.Color,
-  selection_fg : @core.Color,
-  selection_bg : @core.Color,
   line_fg : @core.Color,
   line_bg : @core.Color,
-  cursor_fg : @core.Color,
-  cursor_bg : @core.Color,
   min_width : Double,
   min_height : Double,
   show_status : Bool,
@@ -113,10 +109,10 @@ pub fn editor(
   let buffer = state.buffer
   let line_count = buffer.line_count()
   let current_line = buffer.cursor.row
-  
+
   // Build line gutter
   let gutter = line_gutter(line_count, current_line, gutter_bg)
-  
+
   // Build content lines
   let content_lines : Array[@core.Component] = []
   for i, line in buffer.lines {
@@ -127,39 +123,32 @@ pub fn editor(
     } else {
       @core.Color::transparent()
     }
-    let line_component = text(
-      line + " ",
-      fg=line_fg,
-      bg=actual_bg,
-    )
+    let line_component = text(line + " ", fg=line_fg, bg=actual_bg)
     content_lines.push(line_component)
   }
   let content = column(
     content_lines,
-    bg=bg,
+    bg~,
     justify=@types.Alignment::Start,
     align=@types.Alignment::Start,
+    height=@types.Dimension::Length(min_height),
   )
-  
+
   // Build main editor area
   let editor_area = row(
     [gutter, content],
     width=@types.Dimension::Length(min_width),
     min_width=@types.Dimension::Length(min_width),
+    height=@types.Dimension::Length(min_height),
   )
-  
+
   // Build full editor with status bar
   if show_status {
     let editor_with_status = column(
-      [
-        editor_area,
-        hspace(1.0),
-        status_bar(state, status_message, fg, bg),
-      ],
+      [editor_area, status_bar(state, status_message, fg, bg)],
       min_width=@types.Dimension::Length(min_width),
-      min_height=@types.Dimension::Length(min_height),
-      height=@types.Dimension::Length(min_height + 2),
-      bg=bg,
+      height=@types.Dimension::Length(min_height + 1),
+      bg~,
     )
     editor_with_status
   } else {
@@ -167,7 +156,7 @@ pub fn editor(
       [editor_area],
       min_width=@types.Dimension::Length(min_width),
       min_height=@types.Dimension::Length(min_height),
-      bg=bg,
+      bg~,
     )
     editor_no_status
   }
@@ -177,21 +166,17 @@ pub fn editor(
 /// Simple editor (without undo/redo)
 pub fn simple_editor(
   buffer : TextBuffer,
-  id : String,
   fg : @core.Color,
   bg : @core.Color,
   gutter_bg : @core.Color,
 ) -> @core.Component {
   let line_count = buffer.line_count()
   let current_line = buffer.cursor.row
-  
   let gutter = line_gutter(line_count, current_line, gutter_bg)
-  
   let content_lines : Array[@core.Component] = []
   for line in buffer.lines {
-    content_lines.push(text(line + " ", fg=fg, bg=bg))
+    content_lines.push(text(line + " ", fg~, bg~))
   }
-  let content = column(content_lines, bg=bg, justify=@types.Alignment::Start)
-  
-  row([gutter, content], bg=bg)
+  let content = column(content_lines, bg~, justify=@types.Alignment::Start)
+  row([gutter, content], bg~)
 }

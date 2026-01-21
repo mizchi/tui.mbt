@@ -1,13 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui/components"
 
-import(
-  "mizchi/crater/types"
-  "mizchi/signals"
-  "mizchi/tui/core"
-  "mizchi/tui/events"
-  "mizchi/tui/render"
-)
+import {
+  "mizchi/crater/types",
+  "mizchi/signals",
+  "mizchi/tui/core",
+  "mizchi/tui/events",
+  "mizchi/tui/render",
+}
 
 // Values
 pub fn accordion(Array[AccordionItem], id? : String, header_fg? : @core.Color, header_bg? : @core.Color, content_bg? : @core.Color, border_color? : @core.Color, expanded_icon? : String, collapsed_icon? : String, header_padding_x? : Double, header_padding_y? : Double, content_padding? : Double, gap? : Double) -> @core.Component
@@ -49,6 +49,8 @@ pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_l
 pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, min_width? : Double) -> @core.Component
 
 pub fn count_lines(String) -> Int
+
+pub fn editor(EditorState, @core.Color, @core.Color, @core.Color, @core.Color, @core.Color, Double, Double, Bool, String) -> @core.Component
 
 pub fn fill(Array[@core.Component]) -> @core.Component
 
@@ -132,6 +134,10 @@ pub fn select(Array[ComboboxOption], String, id? : String, open? : Bool, placeho
 
 pub fn selectable_list(Array[(String, String)], String, focused_id? : String, fg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color) -> @core.Component
 
+pub fn simple_editor(TextBuffer, @core.Color, @core.Color, @core.Color) -> @core.Component
+
+pub fn snapshot(HeadlessApp, String) -> Unit
+
 pub fn spacer(flex_grow? : Double) -> @core.Component
 
 pub fn spinner(Int, label? : String, fg? : @core.Color) -> @core.Component
@@ -146,11 +152,15 @@ pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Un
 
 pub fn switch(Bool, id? : String, state? : SwitchState, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, track_on? : String, track_off? : String) -> @core.Component
 
-pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, orientation? : TabOrientation) -> @core.Component
+pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, orientation? : TabOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
 pub fn tab_panel(@core.Component, id? : String, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
 
 pub fn tabs(Array[TabItem], String, id? : String, orientation? : TabOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, gap? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
+pub fn tabs_boxed(Array[TabItem], String, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, selected_border_color? : @core.Color, padding_x? : Double) -> @core.Component
+
+pub fn tabs_underline(Array[TabItem], String, id? : String, fg? : @core.Color, selected_fg? : @core.Color, underline_color? : @core.Color, padding_x? : Double) -> @core.Component
 
 pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underline? : Bool) -> @core.Component
 
@@ -168,7 +178,7 @@ pub fn vsplit_fixed_left(Array[@core.Component], Array[@core.Component], Int, In
 
 pub fn vsplit_fixed_right(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
-pub fn window_splitter(@core.Component, @core.Component, SplitterState, orientation? : SplitterOrientation, id? : String, min? : Int, max? : Int, divider_fg? : @core.Color, divider_bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color, total_size? : Int) -> @core.Component
+pub fn window_splitter(@core.Component, @core.Component, SplitterState, orientation? : SplitterOrientation, id? : String, min? : Int, max? : Int, divider_fg? : @core.Color, divider_bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color, total_size? : Int, divider_width? : Double) -> @core.Component
 
 pub fn with_modal(@core.Component, @core.Component, Bool) -> @core.Component
 
@@ -226,6 +236,12 @@ pub(all) enum ComboboxState {
   Disabled
 }
 
+pub(all) struct CursorPosition {
+  row : Int
+  col : Int
+}
+pub fn CursorPosition::new(row? : Int, col? : Int) -> Self
+
 pub(all) struct EditConfig {
   field_name : String
   on_change : (String) -> Unit
@@ -243,6 +259,27 @@ pub fn EditContext::edit(Self, String, String) -> Bool
 pub fn EditContext::edit_focused(Self) -> Bool
 pub fn EditContext::new(@signals.Signal[String], () -> Unit) -> Self
 pub fn EditContext::register(Self, String, EditConfig) -> Unit
+
+pub(all) struct EditorState {
+  buffer : TextBuffer
+  undo_stack : UndoStack
+  filename : String
+  mode : SelectionMode
+  modified : Bool
+}
+pub fn EditorState::from_file(String) -> Self
+pub fn EditorState::new() -> Self
+
+pub(all) struct HeadlessApp {
+  width : Int
+  height : Int
+  output : String
+}
+pub fn HeadlessApp::ansi_output(Self) -> String
+pub fn HeadlessApp::content(Self) -> String
+pub fn HeadlessApp::locator(Self, String) -> Locator
+pub fn HeadlessApp::new(width? : Int, height? : Int) -> Self
+pub fn HeadlessApp::render(Self, @core.Component) -> Self
 
 pub(all) enum InputState {
   Idle
@@ -264,6 +301,12 @@ pub fn ItemScroller::new() -> Self
 pub fn[T] ItemScroller::slice(Self, Array[T], Int) -> Array[T]
 pub fn ItemScroller::to_bottom(Self, Int, Int) -> Unit
 pub fn ItemScroller::up(Self, Int) -> Bool
+
+pub(all) struct Keyboard {
+  app : HeadlessApp
+}
+pub fn Keyboard::press(Self, String) -> Self
+pub fn Keyboard::type_text(Self, String) -> Self
 
 pub(all) enum LabelPosition {
   Left
@@ -288,6 +331,10 @@ pub(all) struct ListboxState {
   anchor_id : String
 }
 pub fn ListboxState::new(initial_selected? : Array[String]) -> Self
+
+pub(all) struct Locator {
+  id : String
+}
 
 pub(all) struct MenuItem {
   id : String
@@ -332,6 +379,14 @@ pub fn ModalState::new(initial_open? : Bool) -> Self
 pub fn ModalState::open(Self) -> Unit
 pub fn ModalState::toggle(Self) -> Unit
 
+pub(all) struct Page {
+  app : HeadlessApp
+}
+pub fn Page::content(Self) -> String
+pub fn Page::keyboard(Self) -> Keyboard
+pub fn Page::locator(Self, String) -> Locator
+pub fn Page::new(HeadlessApp) -> Self
+
 pub(all) enum ProgressStyle {
   Bar
   Dots
@@ -371,6 +426,19 @@ pub fn ScrollState::scroll_down(Self, Int, Int, Int) -> Bool
 pub fn ScrollState::scroll_to_bottom(Self, Int, Int) -> Unit
 pub fn ScrollState::scroll_up(Self, Int) -> Bool
 pub fn ScrollState::with_values(Int, Bool) -> Self
+
+pub(all) struct Selection {
+  anchor : CursorPosition
+  cursor : CursorPosition
+}
+pub fn Selection::is_empty(Self) -> Bool
+
+pub(all) enum SelectionMode {
+  Caret
+  VisualChar
+  VisualLine
+  VisualBlock
+}
 
 pub(all) enum SplitDirection {
   Horizontal
@@ -432,12 +500,43 @@ pub(all) enum TabOrientation {
   Vertical
 }
 
+pub(all) struct TextBuffer {
+  lines : Array[String]
+  cursor : CursorPosition
+  selection : Selection
+  mode : SelectionMode
+  modified : Bool
+}
+pub fn TextBuffer::current_line(Self) -> String
+pub fn TextBuffer::cursor(Self) -> CursorPosition
+pub fn TextBuffer::delete_backwards(Self) -> Self
+pub fn TextBuffer::delete_forwards(Self) -> Self
+pub fn TextBuffer::delete_line(Self) -> Self
+pub fn TextBuffer::from_file(String) -> Self
+pub fn TextBuffer::from_string(String) -> Self
+pub fn TextBuffer::insert_char(Self, Char) -> Self
+pub fn TextBuffer::insert_newline(Self) -> Self
+pub fn TextBuffer::insert_string(Self, String) -> Self
+pub fn TextBuffer::line_count(Self) -> Int
+pub fn TextBuffer::move_to(Self, Int, Int) -> Self
+pub fn TextBuffer::new() -> Self
+pub fn TextBuffer::to_string(Self) -> String
+
 pub(all) enum TextareaState {
   Idle
   Focused
   Editing
   Disabled
 }
+
+pub(all) struct UndoStack {
+  history : Array[String]
+  max_size : Int
+}
+pub fn UndoStack::new() -> Self
+pub fn UndoStack::push(Self, String) -> Self
+pub fn UndoStack::redo_count(Self) -> Int
+pub fn UndoStack::undo_count(Self) -> Int
 
 // Type aliases
 

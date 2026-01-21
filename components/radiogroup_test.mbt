@@ -16,7 +16,7 @@ test "radiogroup: vertical layout" {
   let output = @render.render_once(30, 5, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m○ Option 1                    \u{1b}[2;1H                              \u{1b}[3;1H\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mOption 2\u{1b}[38;5;231m                    \u{1b}[4;1H                              \u{1b}[5;1H○ Option 3                    \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ Option 1                    \u{1b}[2;1H                              \u{1b}[3;1H\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mOption 2\u{1b}[38;5;231m                    \u{1b}[4;1H                              \u{1b}[5;1H○ Option 3                    \u{1b}[0m",
   )
 }
 
@@ -31,7 +31,7 @@ test "radiogroup: horizontal layout" {
   let output = @render.render_once(30, 2, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m○ A\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mB\u{1b}[38;5;231m○ C                     \u{1b}[2;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ A\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mB\u{1b}[38;5;231m○ C                     \u{1b}[2;1H                              \u{1b}[0m",
   )
 }
 
@@ -45,7 +45,7 @@ test "radiogroup: no selection" {
   let output = @render.render_once(20, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m○ X                 \u{1b}[2;1H○ Y                 \u{1b}[3;1H                    \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ X                 \u{1b}[2;1H○ Y                 \u{1b}[3;1H                    \u{1b}[0m",
   )
 }
 
@@ -57,11 +57,11 @@ test "radio: single radio button" {
   let out_u = @render.render_once(20, 1, unselected)
   inspect(
     out_s,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mSelected\u{1b}[38;5;231m          \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mSelected\u{1b}[38;5;231m          \u{1b}[0m",
   )
   inspect(
     out_u,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m○ Unselected        \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ Unselected        \u{1b}[0m",
   )
 }
 

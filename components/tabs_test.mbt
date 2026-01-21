@@ -16,7 +16,7 @@ test "tabs: horizontal layout" {
   let output = @render.render_once(60, 10, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mHome\u{1b}[38;5;231m  \u{1b}[48;5;17mSettings  About  \u{1b}[49m                                     \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[4;1H                                                            \u{1b}[5;1H                                                            \u{1b}[6;1H                                                            \u{1b}[7;1H                                                            \u{1b}[8;1H                                                            \u{1b}[9;1H                                                            \u{1b}[10;1H                                                            \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mHome\u{1b}[38;5;231m  \u{1b}[48;5;17mSettings  About  \u{1b}[49m                                     \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[4;1H                                                            \u{1b}[5;1H                                                            \u{1b}[6;1H                                                            \u{1b}[7;1H                                                            \u{1b}[8;1H                                                            \u{1b}[9;1H                                                            \u{1b}[10;1H                                                            \u{1b}[0m",
   )
 }
 
@@ -30,7 +30,7 @@ test "tabs: vertical layout" {
   let output = @render.render_once(30, 6, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;17mTab A  \u{1b}[49m                       \u{1b}[2;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[3;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[4;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[5;1H\u{1b}[38;5;16m\u{1b}[48;5;51mTab B\u{1b}[38;5;231m  \u{1b}[49m                       \u{1b}[6;1H\u{1b}[48;5;51m       \u{1b}[49m                       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;17mTab A  \u{1b}[49m                       \u{1b}[2;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[3;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[4;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[5;1H\u{1b}[38;5;16m\u{1b}[48;5;51mTab B\u{1b}[38;5;231m  \u{1b}[49m                       \u{1b}[6;1H\u{1b}[48;5;51m       \u{1b}[49m                       \u{1b}[0m",
   )
 }
 
@@ -45,7 +45,7 @@ test "tabs: tab container with panel" {
   let output = @render.render_once(40, 8, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mMain\u{1b}[38;5;231m  \u{1b}[48;5;17mAux  \u{1b}[49m                             \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[4;1H\u{1b}[38;5;60m┌───────────────┐\u{1b}[38;5;231m                       \u{1b}[5;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[6;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m Panel content \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[7;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[8;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mMain\u{1b}[38;5;231m  \u{1b}[48;5;17mAux  \u{1b}[49m                             \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[4;1H\u{1b}[38;5;60m┌───────────────┐\u{1b}[38;5;231m                       \u{1b}[5;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[6;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m Panel content \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[7;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[8;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[0m",
   )
 }
 

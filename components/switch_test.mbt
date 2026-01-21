@@ -11,7 +11,7 @@ test "switch: on state" {
   let output = @render.render_once(10, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
   )
 }
 
@@ -21,7 +21,7 @@ test "switch: off state" {
   let output = @render.render_once(10, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
   )
 }
 
@@ -33,11 +33,11 @@ test "switch: disabled state" {
   let out_off = @render.render_once(10, 1, off_disabled)
   inspect(
     out_on,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m━━●\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m━━●\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
   )
   inspect(
     out_off,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
   )
 }
 
@@ -51,7 +51,7 @@ test "labeled_switch: label on left" {
   let output = @render.render_once(25, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mDark Mode \u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m           \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mDark Mode \u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m           \u{1b}[0m",
   )
 }
 
@@ -65,7 +65,7 @@ test "labeled_switch: label on right" {
   let output = @render.render_once(25, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m Notifications       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m Notifications       \u{1b}[0m",
   )
 }
 
@@ -75,7 +75,7 @@ test "checkbox: checked" {
   let output = @render.render_once(5, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m  \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m  \u{1b}[0m",
   )
 }
 
@@ -83,10 +83,7 @@ test "checkbox: checked" {
 test "checkbox: unchecked" {
   let comp = checkbox(false)
   let output = @render.render_once(5, 1, comp)
-  inspect(
-    output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m[ ]  \u{1b}[0m",
-  )
+  inspect(output, content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m[ ]  \u{1b}[0m")
 }
 
 ///|
@@ -95,7 +92,7 @@ test "labeled_checkbox: label on right" {
   let output = @render.render_once(20, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m Accept terms    \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m Accept terms    \u{1b}[0m",
   )
 }
 
@@ -109,7 +106,7 @@ test "labeled_checkbox: label on left" {
   let output = @render.render_once(15, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mEnable [ ]     \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mEnable [ ]     \u{1b}[0m",
   )
 }
 

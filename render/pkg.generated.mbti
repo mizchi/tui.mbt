@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui/render"
 
-import(
-  "mizchi/crater/layout/node"
-  "mizchi/crater/types"
-  "mizchi/tui/core"
-  "mizchi/tui/events"
-)
+import {
+  "mizchi/crater/layout/node",
+  "mizchi/crater/types",
+  "mizchi/tui/core",
+  "mizchi/tui/events",
+}
 
 // Values
 pub fn ansi_bg_256(Int) -> String

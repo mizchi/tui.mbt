@@ -7,8 +7,8 @@ import {
 }
 
 options(
-  "readme": "README.md",
-  "license": "MIT",
-  "version": "0.1.0",
-  "description": "Ink like terminal UI renderer with crater layout engine",
+  description: "Ink like terminal UI renderer with crater layout engine",
+  license: "MIT",
+  readme: "README.md",
+  version: "0.1.0",
 )

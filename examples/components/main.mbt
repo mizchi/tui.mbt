@@ -137,7 +137,8 @@ fn main {
               handle_demo_key(
                 "right", current_tab, tab_selection, accordion_expanded, radio_selection,
                 switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-                splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+                splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+                message,
               )
             } else {
               for i = 0; i < demos.length(); i = i + 1 {
@@ -155,7 +156,8 @@ fn main {
               handle_demo_key(
                 "left", current_tab, tab_selection, accordion_expanded, radio_selection,
                 switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-                splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+                splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+                message,
               )
             } else {
               for i = 0; i < demos.length(); i = i + 1 {
@@ -172,60 +174,66 @@ fn main {
             handle_demo_key(
               "up", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Special(@events.SpecialKey::Down, _) =>
             handle_demo_key(
               "down", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Char(' ', _) =>
             handle_demo_key(
               "space", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
             handle_demo_key(
               "enter", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Char('1', _) =>
             handle_demo_key(
               "1", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Char('2', _) =>
             handle_demo_key(
               "2", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           @events.KeyEvent::Char('3', _) =>
             handle_demo_key(
               "3", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
-              splitter_position, splitter_focused, menubar_open, menubar_focused_item, message,
+              splitter_position, splitter_focused, menubar_open, menubar_focused_item,
+              message,
             )
           _ => need_render = false
         }
-@events.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@events.MouseEventType::Drag, _) => {
+          (@events.MouseEventType::Drag, _) =>
             if current_tab.get() == "splitter" && splitter_dragging.get() {
               let width = 80
               let divider_width = 2
               // x is 1-indexed, divider is at splitter_position + divider_width/2
               let x = mouse_event.x - 1
-              let ratio = (x * 100) / (width - divider_width)
+              let ratio = x * 100 / (width - divider_width)
               let new_pos = ratio.clamp(min=10, max=90)
               splitter_position.set(new_pos)
               message.set("Splitter: " + new_pos.to_string() + "%")
             }
-          }
           (@events.MouseEventType::Press, @events.MouseButton::Left) =>
             match app.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) => {
@@ -243,12 +251,16 @@ fn main {
                 if not(found) {
                   // Switch demo - click on switch/checkbox
                   if current_tab.get() == "switch" {
-                    if hit.id == "switch-darkmode" || hit.id.has_prefix("switch-darkmode") {
+                    if hit.id == "switch-darkmode" ||
+                      hit.id.has_prefix("switch-darkmode") {
                       let new_state = not(switch_on.get())
                       switch_on.set(new_state)
-                      message.set("Switch: " + (if new_state { "ON" } else { "OFF" }))
+                      message.set(
+                        "Switch: " + (if new_state { "ON" } else { "OFF" }),
+                      )
                       found = true
-                    } else if hit.id == "checkbox-terms" || hit.id.has_prefix("checkbox-terms") {
+                    } else if hit.id == "checkbox-terms" ||
+                      hit.id.has_prefix("checkbox-terms") {
                       let new_checked = not(checkbox_checked.get())
                       checkbox_checked.set(new_checked)
                       message.set(
@@ -259,7 +271,9 @@ fn main {
                     }
                   }
                   // Start dragging splitter
-                  if current_tab.get() == "splitter" && not(found) && (hit.id == "splitter" || hit.id == "splitter-divider") {
+                  if current_tab.get() == "splitter" &&
+                    not(found) &&
+                    (hit.id == "splitter" || hit.id == "splitter-divider") {
                     splitter_dragging.set(true)
                     splitter_focused.set(true)
                     message.set("Splitter dragging")
@@ -304,12 +318,11 @@ fn main {
               }
               None => need_render = false
             }
-          (@events.MouseEventType::Release, _) => {
+          (@events.MouseEventType::Release, _) =>
             if splitter_dragging.get() {
               splitter_dragging.set(false)
               message.set("Splitter released")
             }
-          }
           _ => need_render = false
         }
       _ => need_render = false
@@ -399,8 +412,7 @@ fn handle_demo_key(
         let new_checked = not(checkbox_checked.get())
         checkbox_checked.set(new_checked)
         message.set(
-          "Checkbox: " +
-          (if new_checked { "checked" } else { "unchecked" }),
+          "Checkbox: " + (if new_checked { "checked" } else { "unchecked" }),
         )
       }
     "listbox" => {
@@ -476,6 +488,7 @@ fn handle_demo_key(
           _ => []
         }
       }
+
       if key == "1" {
         menubar_open.set("file")
         menubar_focused_item.set("new")
@@ -642,7 +655,11 @@ fn render_switch_demo(
         label_position=@c.LabelPosition::Right,
       ),
       @c.vspace(1.0),
-      @c.labeled_checkbox("Accept Terms", checkbox_checked.get(), id="checkbox-terms"),
+      @c.labeled_checkbox(
+        "Accept Terms",
+        checkbox_checked.get(),
+        id="checkbox-terms",
+      ),
       @c.labeled_checkbox(
         "Subscribe to newsletter",
         not(checkbox_checked.get()),
@@ -741,7 +758,14 @@ fn render_splitter_demo(
         fg=@core.Color::cyan(),
       ),
       @c.vspace(1.0),
-      @c.window_splitter(primary, secondary, state, total_size=80, id="splitter", divider_width=2.0),
+      @c.window_splitter(
+        primary,
+        secondary,
+        state,
+        total_size=80,
+        id="splitter",
+        divider_width=2.0,
+      ),
     ],
     gap=0.5,
   )
@@ -803,7 +827,11 @@ fn render_menubar_demo(
         "Open: " +
         (if open_menu.get().length() > 0 { open_menu.get() } else { "none" }) +
         " | Focused: " +
-        (if menubar_focused_item.get().length() > 0 { menubar_focused_item.get() } else { "none" }),
+        (if menubar_focused_item.get().length() > 0 {
+          menubar_focused_item.get()
+        } else {
+          "none"
+        }),
         fg=@core.Color::green(),
       ),
     ],

@@ -39,7 +39,11 @@ pub fn ansi_bg_reset() -> String {
 
 ///|
 pub fn ansi_move_to(row : Int, col : Int) -> String {
-  "\u001b[" + row.to_string() + ";" + col.to_string() + "H"
+  // ANSI escape sequences use 1-indexed coordinates
+  // We convert from 0-indexed to 1-indexed internally
+  let ansi_row = row + 1
+  let ansi_col = col + 1
+  "\u001b[" + ansi_row.to_string() + ";" + ansi_col.to_string() + "H"
 }
 
 ///|
@@ -128,7 +132,7 @@ pub fn buffer_to_ansi(buf : CharBuffer) -> String {
   let mut last_bold = false
   let mut last_underline = false
   for row = 0; row < buf.height; row = row + 1 {
-    sb.write_string(ansi_move_to(row + 1, 1))
+    sb.write_string(ansi_move_to(row, 0))
     for col = 0; col < buf.width; col = col + 1 {
       let cell = buf.get_cell(col, row)
       if cell.char == '\u0000' {
@@ -201,7 +205,7 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
         continue
       }
       if row != last_row || col != last_col + 1 {
-        sb.write_string(ansi_move_to(row + 1, col + 1))
+        sb.write_string(ansi_move_to(row, col))
       }
       let fg_idx = if cell.fg.is_transparent() {
         7

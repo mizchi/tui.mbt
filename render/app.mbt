@@ -41,7 +41,8 @@ pub fn App::render(self : App, component : @core.Component) -> String {
     Some(prev) => buffer_diff_to_ansi(buf, prev)
     None =>
       // First render: clear screen and render full
-      ansi_clear_screen() + ansi_move_to(0, 0) + buffer_to_ansi(buf)
+      // buffer_to_ansi already handles cursor positioning, so no need for explicit move
+      ansi_clear_screen() + buffer_to_ansi(buf)
   }
 
   // Save current buffer for next diff

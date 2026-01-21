@@ -3,9 +3,9 @@
 
 ///|
 test "ansi_move_to: generates correct escape sequence" {
-  // Move to (1, 1) - ANSI is 1-indexed
-  inspect(ansi_move_to(0, 0), content="\u{1b}[0;0H")
-  inspect(ansi_move_to(10, 5), content="\u{1b}[10;5H")
+  // Move to (1, 1) - ANSI is 1-indexed (0-indexed input)
+  inspect(ansi_move_to(0, 0), content="\u{1b}[1;1H")
+  inspect(ansi_move_to(10, 5), content="\u{1b}[11;6H")
 }
 
 ///|

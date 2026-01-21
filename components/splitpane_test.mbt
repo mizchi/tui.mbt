@@ -14,7 +14,7 @@ test "window_splitter: horizontal 50%" {
   let output = @render.render_once(40, 5, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mLeft Pane          │Right Pane          \u{1b}[2;1H                                        \u{1b}[3;1H                                        \u{1b}[4;1H                                        \u{1b}[5;1H                                        \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mLeft Pane          │Right Pane          \u{1b}[2;1H                                        \u{1b}[3;1H                                        \u{1b}[4;1H                                        \u{1b}[5;1H                                        \u{1b}[0m",
   )
 }
 
@@ -33,7 +33,7 @@ test "window_splitter: vertical 50%" {
   let output = @render.render_once(30, 10, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mTop                           \u{1b}[2;1HPane                          \u{1b}[3;1H                              \u{1b}[4;1H                              \u{1b}[5;1H──                            \u{1b}[6;1HBottom                        \u{1b}[7;1H Pane                         \u{1b}[8;1H                              \u{1b}[9;1H                              \u{1b}[10;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mTop                           \u{1b}[2;1HPane                          \u{1b}[3;1H                              \u{1b}[4;1H                              \u{1b}[5;1H──                            \u{1b}[6;1HBottom                        \u{1b}[7;1H Pane                         \u{1b}[8;1H                              \u{1b}[9;1H                              \u{1b}[10;1H                              \u{1b}[0m",
   )
 }
 
@@ -51,7 +51,7 @@ test "window_splitter: horizontal 30%" {
   let output = @render.render_once(40, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mLeft       │Right                       \u{1b}[2;1H                                        \u{1b}[3;1H                                        \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mLeft       │Right                       \u{1b}[2;1H                                        \u{1b}[3;1H                                        \u{1b}[0m",
   )
 }
 
@@ -69,7 +69,7 @@ test "window_splitter: collapsed" {
   let output = @render.render_once(30, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m│Full                         \u{1b}[2;1H                              \u{1b}[3;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m│Full                         \u{1b}[2;1H                              \u{1b}[3;1H                              \u{1b}[0m",
   )
 }
 
@@ -87,7 +87,7 @@ test "window_splitter: focused divider" {
   let output = @render.render_once(30, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231mLeft          \u{1b}[38;5;51m┃\u{1b}[38;5;231mRight          \u{1b}[2;1H                              \u{1b}[3;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mLeft          \u{1b}[38;5;51m┃\u{1b}[38;5;231mRight          \u{1b}[2;1H                              \u{1b}[3;1H                              \u{1b}[0m",
   )
 }
 
@@ -97,7 +97,7 @@ test "splitter_handle: horizontal unfocused" {
   let output = @render.render_once(3, 3, handle)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m│\u{1b}[49m  \u{1b}[2;1H   \u{1b}[3;1H   \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m│\u{1b}[49m  \u{1b}[2;1H   \u{1b}[3;1H   \u{1b}[0m",
   )
 }
 
@@ -111,7 +111,7 @@ test "splitter_handle: horizontal focused" {
   let output = @render.render_once(3, 3, handle)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;51m\u{1b}[48;5;24m┃\u{1b}[38;5;231m\u{1b}[49m  \u{1b}[2;1H   \u{1b}[3;1H   \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;51m\u{1b}[48;5;24m┃\u{1b}[38;5;231m\u{1b}[49m  \u{1b}[2;1H   \u{1b}[3;1H   \u{1b}[0m",
   )
 }
 
@@ -121,7 +121,7 @@ test "splitter_handle: vertical unfocused" {
   let output = @render.render_once(10, 1, handle)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m───\u{1b}[49m       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m───\u{1b}[49m       \u{1b}[0m",
   )
 }
 
@@ -135,7 +135,7 @@ test "splitter_handle: vertical focused" {
   let output = @render.render_once(10, 1, handle)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;51m\u{1b}[48;5;24m━━━\u{1b}[38;5;231m\u{1b}[49m       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;51m\u{1b}[48;5;24m━━━\u{1b}[38;5;231m\u{1b}[49m       \u{1b}[0m",
   )
 }
 
@@ -153,7 +153,7 @@ test "resizable_pane: with position indicator" {
   let output = @render.render_once(30, 5, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;246m 75% \u{1b}[38;5;231m                         \u{1b}[2;1H                              \u{1b}[3;1HA                    \u{1b}[48;5;59m│\u{1b}[49mB       \u{1b}[4;1H                              \u{1b}[5;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;246m 75% \u{1b}[38;5;231m                         \u{1b}[2;1H                              \u{1b}[3;1HA                    \u{1b}[48;5;59m│\u{1b}[49mB       \u{1b}[4;1H                              \u{1b}[5;1H                              \u{1b}[0m",
   )
 }
 

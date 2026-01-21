@@ -25,7 +25,7 @@ test "accordion: collapsed state" {
   let output = @render.render_once(40, 6, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▶ Section 1 \u{1b}[49m                            \u{1b}[2;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[3;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[4;1H\u{1b}[48;5;59m▶ Section 2 \u{1b}[49m                            \u{1b}[5;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[6;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▶ Section 1 \u{1b}[49m                            \u{1b}[2;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[3;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[4;1H\u{1b}[48;5;59m▶ Section 2 \u{1b}[49m                            \u{1b}[5;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[6;1H\u{1b}[48;5;59m            \u{1b}[49m                            \u{1b}[0m",
   )
 }
 
@@ -49,7 +49,7 @@ test "accordion: expanded state" {
   let output = @render.render_once(40, 8, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ Section 1     \u{1b}[49m                        \u{1b}[2;1H\u{1b}[48;5;59m                \u{1b}[49m                        \u{1b}[3;1H\u{1b}[48;5;59m                \u{1b}[49m                        \u{1b}[4;1H\u{1b}[38;5;239m┌──────────────┐\u{1b}[38;5;231m                        \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m Details here \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[7;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[8;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ Section 1     \u{1b}[49m                        \u{1b}[2;1H\u{1b}[48;5;59m                \u{1b}[49m                        \u{1b}[3;1H\u{1b}[48;5;59m                \u{1b}[49m                        \u{1b}[4;1H\u{1b}[38;5;239m┌──────────────┐\u{1b}[38;5;231m                        \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m Details here \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[7;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[8;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m              \u{1b}[38;5;239m│\u{1b}[38;5;231m                        \u{1b}[0m",
   )
 }
 
@@ -73,7 +73,7 @@ test "accordion: multiple expanded" {
   let output = @render.render_once(30, 14, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ A          \u{1b}[49m                 \u{1b}[2;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[3;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[4;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[5;1H\u{1b}[38;5;239m┌───────────┐\u{1b}[38;5;231m                 \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[7;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m A content \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[8;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[9;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[10;1H\u{1b}[38;5;239m└───────────┘\u{1b}[38;5;231m                 \u{1b}[11;1H\u{1b}[48;5;59m▼ B          \u{1b}[49m                 \u{1b}[12;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[13;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[14;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ A          \u{1b}[49m                 \u{1b}[2;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[3;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[4;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[5;1H\u{1b}[38;5;239m┌───────────┐\u{1b}[38;5;231m                 \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[7;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m A content \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[8;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[9;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m           \u{1b}[38;5;239m│\u{1b}[38;5;231m                 \u{1b}[10;1H\u{1b}[38;5;239m└───────────┘\u{1b}[38;5;231m                 \u{1b}[11;1H\u{1b}[48;5;59m▼ B          \u{1b}[49m                 \u{1b}[12;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[13;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[14;1H\u{1b}[48;5;59m             \u{1b}[49m                 \u{1b}[0m",
   )
 }
 
@@ -85,11 +85,11 @@ test "accordion_header: standalone header" {
   let output_e = @render.render_once(20, 1, expanded)
   inspect(
     output_c,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▶ Collapsed \u{1b}[49m        \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▶ Collapsed \u{1b}[49m        \u{1b}[0m",
   )
   inspect(
     output_e,
-    content="\u{1b}[2J\u{1b}[0;0H\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ Expanded \u{1b}[49m         \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;59m▼ Expanded \u{1b}[49m         \u{1b}[0m",
   )
 }
 

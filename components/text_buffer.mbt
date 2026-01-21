@@ -17,8 +17,8 @@ pub fn CursorPosition::new(row? : Int = 1, col? : Int = 1) -> CursorPosition {
 ///|
 /// Selection range
 pub(all) struct Selection {
-  anchor : CursorPosition  // Selection start point
-  cursor : CursorPosition  // Current cursor position
+  anchor : CursorPosition
+  cursor : CursorPosition
 }
 
 ///|
@@ -30,10 +30,10 @@ pub fn Selection::is_empty(self : Selection) -> Bool {
 ///|
 /// Selection mode
 pub(all) enum SelectionMode {
-  Caret       // Single cursor, no selection
-  VisualChar  // Character selection
-  VisualLine  // Line selection
-  VisualBlock // Block selection (rectangular)
+  Caret
+  VisualChar
+  VisualLine
+  VisualBlock
 }
 
 ///|
@@ -62,14 +62,19 @@ pub fn TextBuffer::new() -> TextBuffer {
 ///|
 /// Create text buffer from string (preserves \n line endings)
 pub fn TextBuffer::from_string(text : String) -> TextBuffer {
-  let lines = text.split("\n").to_array()
-  let buffer = TextBuffer::new()
-  TextBuffer::{ lines, ..buffer }
+  let lines = text.split("\n").map(fn(sv) { sv.to_string() }).to_array()
+  TextBuffer::{
+    lines,
+    cursor: CursorPosition::new(),
+    selection: { anchor: CursorPosition::new(), cursor: CursorPosition::new() },
+    mode: SelectionMode::Caret,
+    modified: false,
+  }
 }
 
 ///|
 /// Create text buffer from file (not yet implemented)
-pub fn TextBuffer::from_file(path : String) -> TextBuffer {
+pub fn TextBuffer::from_file(_path : String) -> TextBuffer {
   TextBuffer::new()
 }
 
@@ -81,14 +86,24 @@ pub fn TextBuffer::cursor(self : TextBuffer) -> CursorPosition {
 
 ///|
 /// Move cursor to position
-pub fn TextBuffer::move_to(self : TextBuffer, row : Int, col : Int) -> TextBuffer {
+pub fn TextBuffer::move_to(
+  self : TextBuffer,
+  row : Int,
+  col : Int,
+) -> TextBuffer {
   let max_row = self.lines.length()
   let clamped_row = row.clamp(min=1, max=max_row)
   let line = self.lines[clamped_row - 1]
   let max_col = line.length() + 1
   let clamped_col = col.clamp(min=1, max=max_col)
   let new_cursor = CursorPosition::new(row=clamped_row, col=clamped_col)
-  TextBuffer::{ cursor: new_cursor, ..self }
+  TextBuffer::{
+    lines: self.lines,
+    cursor: new_cursor,
+    selection: { anchor: self.selection.anchor, cursor: new_cursor },
+    mode: self.mode,
+    modified: self.modified,
+  }
 }
 
 ///|
@@ -101,27 +116,38 @@ pub fn TextBuffer::current_line(self : TextBuffer) -> String {
 /// Insert character at cursor
 pub fn TextBuffer::insert_char(self : TextBuffer, ch : Char) -> TextBuffer {
   let line = self.lines[self.cursor.row - 1]
-  let before = line.substring(0, self.cursor.col - 1)
-  let after = line.substring(self.cursor.col - 1)
+  let before = String::view(
+    line,
+    start_offset=0,
+    end_offset=self.cursor.col - 1,
+  ).to_string()
+  let after = String::view(line, start_offset=self.cursor.col - 1).to_string()
   let new_line = before + ch.to_string() + after
-  let mut new_lines = self.lines
+  let new_lines = self.lines.copy()
   new_lines[self.cursor.row - 1] = new_line
-  let new_cursor = CursorPosition::new(row=self.cursor.row, col=self.cursor.col + 1)
+  let new_cursor = CursorPosition::new(
+    row=self.cursor.row,
+    col=self.cursor.col + 1,
+  )
   TextBuffer::{
     lines: new_lines,
     cursor: new_cursor,
     selection: { anchor: new_cursor, cursor: new_cursor },
+    mode: self.mode,
     modified: true,
-    ..self
   }
 }
 
 ///|
 /// Insert string at cursor
-pub fn TextBuffer::insert_string(self : TextBuffer, text : String) -> TextBuffer {
+pub fn TextBuffer::insert_string(
+  self : TextBuffer,
+  text : String,
+) -> TextBuffer {
   let mut buffer = self
-  for ch in text.to_array() {
-    buffer = buffer.insert_char(ch)
+  let chars = text.to_array()
+  for i = 0; i < chars.length(); i = i + 1 {
+    buffer = buffer.insert_char(chars[i])
   }
   buffer
 }
@@ -130,24 +156,28 @@ pub fn TextBuffer::insert_string(self : TextBuffer, text : String) -> TextBuffer
 /// Insert newline at cursor
 pub fn TextBuffer::insert_newline(self : TextBuffer) -> TextBuffer {
   let line = self.lines[self.cursor.row - 1]
-  let before = line.substring(0, self.cursor.col - 1)
-  let after = line.substring(self.cursor.col - 1)
-  let mut new_lines = self.lines
-  new_lines[self.cursor.row - 1] = before
-  let mut after_insert = []
-  for i = self.cursor.row; i < new_lines.length(); i = i + 1 {
-    after_insert.push(new_lines[i])
+  let before = String::view(
+    line,
+    start_offset=0,
+    end_offset=self.cursor.col - 1,
+  ).to_string()
+  let after = String::view(line, start_offset=self.cursor.col - 1).to_string()
+  let new_lines = Array::new(capacity=self.lines.length() + 1)
+  for i = 0; i < self.cursor.row - 1; i = i + 1 {
+    new_lines.push(self.lines[i])
   }
-  after_insert.push(after)
-  new_lines = new_lines.slice(end=self.cursor.row)
-  new_lines.append_array(after_insert)
+  new_lines.push(before)
+  new_lines.push(after)
+  for i = self.cursor.row; i < self.lines.length(); i = i + 1 {
+    new_lines.push(self.lines[i])
+  }
   let new_cursor = CursorPosition::new(row=self.cursor.row + 1, col=1)
   TextBuffer::{
     lines: new_lines,
     cursor: new_cursor,
     selection: { anchor: new_cursor, cursor: new_cursor },
+    mode: self.mode,
     modified: true,
-    ..self
   }
 }
 
@@ -158,36 +188,44 @@ pub fn TextBuffer::delete_backwards(self : TextBuffer) -> TextBuffer {
     return self
   }
   if self.cursor.col == 1 {
-    // Delete newline - merge with previous line
     let prev_line = self.lines[self.cursor.row - 2]
     let curr_line = self.lines[self.cursor.row - 1]
     let merged = prev_line + curr_line
-    let mut new_lines = self.lines
+    let new_lines = self.lines.copy()
     new_lines[self.cursor.row - 2] = merged
-    new_lines.remove_at(self.cursor.row - 1)
-    let new_cursor = CursorPosition::new(row=self.cursor.row - 1, col=prev_line.length() + 1)
+    ignore(Array::remove(new_lines, self.cursor.row - 1))
+    let new_cursor = CursorPosition::new(
+      row=self.cursor.row - 1,
+      col=prev_line.length() + 1,
+    )
     TextBuffer::{
       lines: new_lines,
       cursor: new_cursor,
       selection: { anchor: new_cursor, cursor: new_cursor },
+      mode: self.mode,
       modified: true,
-      ..self
     }
   } else {
-    // Delete character in current line
     let line = self.lines[self.cursor.row - 1]
-    let before = line.substring(0, self.cursor.col - 2)
-    let after = line.substring(self.cursor.col - 1)
+    let before = String::view(
+      line,
+      start_offset=0,
+      end_offset=self.cursor.col - 2,
+    ).to_string()
+    let after = String::view(line, start_offset=self.cursor.col - 1).to_string()
     let new_line = before + after
-    let mut new_lines = self.lines
+    let new_lines = self.lines.copy()
     new_lines[self.cursor.row - 1] = new_line
-    let new_cursor = CursorPosition::new(row=self.cursor.row, col=self.cursor.col - 1)
+    let new_cursor = CursorPosition::new(
+      row=self.cursor.row,
+      col=self.cursor.col - 1,
+    )
     TextBuffer::{
       lines: new_lines,
       cursor: new_cursor,
       selection: { anchor: new_cursor, cursor: new_cursor },
+      mode: self.mode,
       modified: true,
-      ..self
     }
   }
 }
@@ -197,22 +235,36 @@ pub fn TextBuffer::delete_backwards(self : TextBuffer) -> TextBuffer {
 pub fn TextBuffer::delete_forwards(self : TextBuffer) -> TextBuffer {
   let line = self.lines[self.cursor.row - 1]
   if self.cursor.col <= line.length() {
-    // Delete character in current line
-    let before = line.substring(0, self.cursor.col - 1)
-    let after = line.substring(self.cursor.col)
+    let before = String::view(
+      line,
+      start_offset=0,
+      end_offset=self.cursor.col - 1,
+    ).to_string()
+    let after = String::view(line, start_offset=self.cursor.col).to_string()
     let new_line = before + after
-    let mut new_lines = self.lines
+    let new_lines = self.lines.copy()
     new_lines[self.cursor.row - 1] = new_line
-    TextBuffer::{ lines: new_lines, modified: true, ..self }
+    TextBuffer::{
+      lines: new_lines,
+      cursor: self.cursor,
+      selection: self.selection,
+      mode: self.mode,
+      modified: true,
+    }
   } else if self.cursor.row < self.lines.length() {
-    // Delete newline - merge with next line
     let curr_line = self.lines[self.cursor.row - 1]
     let next_line = self.lines[self.cursor.row]
     let merged = curr_line + next_line
-    let mut new_lines = self.lines
+    let new_lines = self.lines.copy()
     new_lines[self.cursor.row - 1] = merged
-    new_lines.remove_at(self.cursor.row)
-    TextBuffer::{ lines: new_lines, modified: true, ..self }
+    ignore(Array::remove(new_lines, self.cursor.row))
+    TextBuffer::{
+      lines: new_lines,
+      cursor: self.cursor,
+      selection: self.selection,
+      mode: self.mode,
+      modified: true,
+    }
   } else {
     self
   }
@@ -222,31 +274,40 @@ pub fn TextBuffer::delete_forwards(self : TextBuffer) -> TextBuffer {
 /// Delete current line
 pub fn TextBuffer::delete_line(self : TextBuffer) -> TextBuffer {
   if self.lines.length() == 1 {
-    // Clear single line
     TextBuffer::{
       lines: [""],
       cursor: CursorPosition::new(row=1, col=1),
-      selection: { anchor: { row=1, col=1 }, cursor: { row=1, col=1 } },
+      selection: {
+        anchor: CursorPosition::new(row=1, col=1),
+        cursor: CursorPosition::new(row=1, col=1),
+      },
+      mode: self.mode,
       modified: true,
-      ..self
     }
   } else if self.cursor.row == self.lines.length() {
-    // Delete last line
-    let mut new_lines = self.lines
-    new_lines.remove_at(self.cursor.row - 1)
-    let new_cursor = CursorPosition::new(row=self.lines.length() - 1, col=self.lines[self.lines.length() - 2].length() + 1)
+    let new_lines = self.lines.copy()
+    ignore(Array::remove(new_lines, self.cursor.row - 1))
+    let new_cursor = CursorPosition::new(
+      row=self.lines.length() - 1,
+      col=self.lines[self.lines.length() - 2].length() + 1,
+    )
     TextBuffer::{
       lines: new_lines,
       cursor: new_cursor,
       selection: { anchor: new_cursor, cursor: new_cursor },
+      mode: self.mode,
       modified: true,
-      ..self
     }
   } else {
-    // Delete middle line
-    let mut new_lines = self.lines
-    new_lines.remove_at(self.cursor.row - 1)
-    TextBuffer::{ lines: new_lines, modified: true, ..self }
+    let new_lines = self.lines.copy()
+    ignore(Array::remove(new_lines, self.cursor.row - 1))
+    TextBuffer::{
+      lines: new_lines,
+      cursor: self.cursor,
+      selection: self.selection,
+      mode: self.mode,
+      modified: true,
+    }
   }
 }
 
@@ -255,12 +316,12 @@ pub fn TextBuffer::delete_line(self : TextBuffer) -> TextBuffer {
 pub fn TextBuffer::to_string(self : TextBuffer) -> String {
   let mut result = ""
   let mut first = true
-  for line in self.lines {
+  for i = 0; i < self.lines.length(); i = i + 1 {
     if not(first) {
       result = result + "\n"
     }
     first = false
-    result = result + line
+    result = result + self.lines[i]
   }
   result
 }

@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui/io"
 
-import(
-  "moonbitlang/async/js_async"
-)
+import {
+  "moonbitlang/async/js_async",
+}
 
 // Values
 pub fn abort_input_session() -> Unit

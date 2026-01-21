@@ -1,13 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui"
 
-import(
-  "mizchi/tui/components"
-  "mizchi/tui/core"
-  "mizchi/tui/events"
-  "mizchi/tui/io"
-  "mizchi/tui/render"
-)
+import {
+  "mizchi/tui/components",
+  "mizchi/tui/core",
+  "mizchi/tui/events",
+  "mizchi/tui/io",
+  "mizchi/tui/render",
+}
 
 // Values
 

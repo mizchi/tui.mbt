@@ -338,9 +338,7 @@ pub fn window_splitter(
   let primary_size = if state.collapsed {
     0.0
   } else {
-    actual_position.clamp(min~, max~).to_double() /
-    100.0 *
-    available
+    actual_position.clamp(min~, max~).to_double() / 100.0 * available
   }
   let secondary_size = available - primary_size
   match orientation {

@@ -119,12 +119,10 @@ pub fn tabs_underline(
     let underline_char = if is_selected { "━" } else { " " }
     let underline_len = item.label.length() + (padding_x * 2.0).to_int()
     tab_components.push(
-      column(
-        [
-          row([text(item.label, fg=tab_fg)], id=item.id, padding_x~),
-          text(underline_char.repeat(underline_len), fg=underline_color),
-        ],
-      ),
+      column([
+        row([text(item.label, fg=tab_fg)], id=item.id, padding_x~),
+        text(underline_char.repeat(underline_len), fg=underline_color),
+      ]),
     )
   }
   row(tab_components, id~)
