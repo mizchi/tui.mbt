@@ -1,6 +1,7 @@
 ///|
 /// Chat example - Claude Code-like chat UI using crater layout
 /// Top area shows scrollable message log, bottom has input field
+/// Supports input queue for batching user inputs while task is running
 
 ///|
 /// Message type for chat
@@ -13,6 +14,55 @@ enum MessageRole {
 struct Message {
   role : MessageRole
   content : String
+}
+
+///|
+/// Input queue for storing user inputs while task is running
+struct InputQueue {
+  queue : Array[String]
+  is_processing : Ref[Bool]
+}
+
+///|
+fn InputQueue::new() -> InputQueue {
+  { queue: [], is_processing: { val: false } }
+}
+
+///|
+fn InputQueue::enqueue(self : InputQueue, input : String) -> Unit {
+  self.queue.push(input)
+}
+
+///|
+fn InputQueue::dequeue_all(self : InputQueue) -> Array[String] {
+  let items = self.queue.copy()
+  self.queue.clear()
+  items
+}
+
+///|
+fn InputQueue::is_empty(self : InputQueue) -> Bool {
+  self.queue.length() == 0
+}
+
+///|
+fn InputQueue::length(self : InputQueue) -> Int {
+  self.queue.length()
+}
+
+///|
+fn InputQueue::start_processing(self : InputQueue) -> Unit {
+  self.is_processing.val = true
+}
+
+///|
+fn InputQueue::finish_processing(self : InputQueue) -> Unit {
+  self.is_processing.val = false
+}
+
+///|
+fn InputQueue::is_busy(self : InputQueue) -> Bool {
+  self.is_processing.val
 }
 
 ///|
@@ -39,6 +89,14 @@ fn main {
 
   // Streaming state using StreamingState component
   let streaming = @c.StreamingState::new()
+
+  // Separate App for message area rendering (to avoid clear screen on first render)
+  let msg_app : Ref[@render.App] = {
+    val: @render.App::new(cols, calc_visible_height(rows)),
+  }
+
+  // Input queue for batching inputs during task processing
+  let input_queue = InputQueue::new()
 
   // Create the app (mutable for resize support)
   let app : Ref[@render.App] = { val: @render.App::new(width.val, height.val) }
@@ -98,14 +156,31 @@ fn main {
     )
   }
 
-  // Get total item count (messages + streaming if any)
+  // Get total item count (messages + streaming + queued)
   fn get_item_count() -> Int {
-    let count = messages.get().length()
+    let mut count = messages.get().length()
     if streaming.has_content() {
-      count + 1
-    } else {
-      count
+      count = count + 1
     }
+    count + input_queue.length()
+  }
+
+  // Build a queued (pending) message preview in gray
+  fn build_queued_message(content : String, index : Int) -> @core.Component {
+    let gray = @core.Color::rgb(100, 100, 100)
+    let label = if input_queue.length() > 1 {
+      "◇ Queued [" + (index + 1).to_string() + "]"
+    } else {
+      "◇ Queued"
+    }
+    @c.column(
+      [
+        @c.text(label, fg=gray, bold=false),
+        @c.text("   " + content, fg=gray),
+      ],
+      gap=0.0,
+      width=@types.Dimension::Length(width.val.to_double()),
+    )
   }
 
   // Build message list components
@@ -117,6 +192,10 @@ fn main {
     }
     if streaming.has_content() {
       items.push(build_streaming_message())
+    }
+    // Show queued messages as gray preview
+    for i, queued in input_queue.queue {
+      items.push(build_queued_message(queued, i))
     }
     items
   }
@@ -183,7 +262,19 @@ fn main {
       @core.Color::white()
     }
     let cursor = if editing { "█" } else { "" }
-    let status_text = "Enter: send · ↑↓: scroll · F: actions · Ctrl+C: quit"
+    // Build status text with queue info
+    let queue_info = if input_queue.is_busy() {
+      let count = input_queue.length()
+      if count > 0 {
+        " · [Queue: " + count.to_string() + "]"
+      } else {
+        " · [Processing...]"
+      }
+    } else {
+      ""
+    }
+    let status_text = "Enter: send · ↑↓: scroll · F: actions · Ctrl+C: quit" +
+      queue_info
     // Input content box (5 lines)
     let input_content = @core.text_box(
       " " + display_text + cursor,
@@ -219,6 +310,40 @@ fn main {
     }
   }
 
+  // Render only the message area (for use during editing)
+  fn render_message_area_only() -> Unit {
+    @io.print_raw(ansi_save_cursor())
+    @io.print_raw(ansi_move_to(0, 0))
+    let all_items = build_message_list()
+    let visible_count = get_visible_count()
+    let visible_items = scroller.slice(all_items, visible_count)
+    let indicator = scroller.indicator(get_item_count(), visible_count)
+    let display_items : Array[@core.Component] = []
+    for item in visible_items {
+      display_items.push(item)
+    }
+    match indicator {
+      @c.ScrollIndicator::None => ()
+      _ => display_items.push(@c.scroll_indicator(indicator))
+    }
+    let visible_height = calc_visible_height(height.val)
+    let message_area = @c.column(
+      display_items,
+      width=@types.Dimension::Length(width.val.to_double()),
+      height=@types.Dimension::Length(visible_height.to_double()),
+      justify=@types.Alignment::FlexEnd,
+    )
+    // Initialize msg_app prev_buffer if needed (avoid clear_screen on first call)
+    if msg_app.val.prev_buffer is None {
+      // Do a silent first render to initialize prev_buffer, then discard output
+      ignore(msg_app.val.render(message_area))
+    }
+    // Now render with diff (no clear_screen)
+    let output = msg_app.val.render(message_area)
+    @io.print_raw(output)
+    @io.print_raw(ansi_restore_cursor())
+  }
+
   // Render helper
   fn do_render() -> Unit {
     let editing = is_editing.get()
@@ -235,7 +360,7 @@ fn main {
       @io.print_raw(@render.ansi_show_cursor())
     } else {
       // Keep cursor in input area when not editing
-      @io.print_raw(ansi_move_to(calc_input_row(height.val), 1))
+      @io.print_raw(ansi_move_to(calc_input_row(height.val), 0))
     }
   }
 
@@ -269,34 +394,75 @@ fn main {
     scroller.follow_bottom(get_item_count(), get_visible_count())
   }
 
+  // Forward reference for process_queue
+  let process_queue_ref : Ref[() -> Unit] = { val: fn() { () } }
+
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
+    input_queue.start_processing()
     // Force scroll to bottom when starting output
     scroller.to_bottom(get_item_count(), get_visible_count())
     fn on_tick() {
       scroller.follow_bottom(get_item_count(), get_visible_count())
-      do_render()
+      // Use partial render during editing to avoid overwriting input area
+      if is_editing.get() {
+        render_message_area_only()
+      } else {
+        do_render()
+      }
     }
 
     fn on_complete() {
       finish_streaming()
-      do_render()
+      input_queue.finish_processing()
+      // Process any queued inputs after task completion
+      (process_queue_ref.val)()
+      // Only render if not editing
+      if not(is_editing.get()) {
+        do_render()
+      }
     }
 
     let started = streaming.start(response, 200, on_tick, on_complete)
     if not(started) || streaming.ticker_id.val == 0 {
       streaming.clear()
       add_message(Assistant, response)
+      input_queue.finish_processing()
+      (process_queue_ref.val)()
     }
-    do_render()
+    if not(is_editing.get()) {
+      do_render()
+    }
   }
+
+  // Process all queued inputs and send as batch
+  fn process_queue() -> Unit {
+    if input_queue.is_busy() || input_queue.is_empty() {
+      return
+    }
+    let queued = input_queue.dequeue_all()
+    if queued.length() > 0 {
+      scroller.auto_scroll.set(true)
+      // Add each queued message as separate user message
+      for msg in queued {
+        add_message(User, msg)
+      }
+      // Single response for all
+      let response = "Processed " +
+        queued.length().to_string() +
+        " queued message(s)."
+      start_streaming(response)
+    }
+  }
+  process_queue_ref.val = process_queue
 
   // Handle resize event
   fn handle_resize(new_width : Int, new_height : Int) -> Unit {
     width.val = new_width
     height.val = new_height
-    // Recreate app with new dimensions
+    // Recreate apps with new dimensions
     app.val = @render.App::new(new_width, new_height)
+    msg_app.val = @render.App::new(new_width, calc_visible_height(new_height))
     // Clear screen and re-render
     @io.print_raw(@render.ansi_clear_screen())
     do_render()
@@ -307,15 +473,17 @@ fn main {
     let raw = input_value.get()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
-      // If streaming, interrupt and discard partial response
-      if streaming.is_streaming() {
-        streaming.clear()
-      }
-      scroller.auto_scroll.set(true)
-      add_message(User, text)
       input_value.set("")
-      let response = "You said: " + text + ". This is a simulated response."
-      start_streaming(response)
+      // If task is running (streaming), queue the input instead of sending immediately
+      if input_queue.is_busy() {
+        input_queue.enqueue(text)
+      } else {
+        // No task running, send immediately
+        scroller.auto_scroll.set(true)
+        add_message(User, text)
+        let response = "You said: " + text + ". This is a simulated response."
+        start_streaming(response)
+      }
     }
     is_editing.set(false)
     @io.print_raw(@render.ansi_full_reset())
@@ -325,12 +493,13 @@ fn main {
     @io.start_keypress_listener(handle_key)
   }
   and start_editing: () -> Unit = fn() {
-    is_editing.set(true)
+    // Render full screen first (before setting is_editing)
     do_render()
+    is_editing.set(true)
 
     // Calculate input area position from layout
     let row = calc_input_row(height.val)
-    let col = 2
+    let col = 1 // Column 1 (0-indexed) = column 2 in 1-indexed (after leading space)
     let content_width = width.val - 2
     let content_height = max_input_rows
     let signal = input_value
@@ -343,19 +512,38 @@ fn main {
       }),
       on_force_quit=Some(fn() { do_quit() }),
     )
-
-    // Clear content area
+    // Clear input content area before starting inplace edit
     for r = 0; r < content_height; r = r + 1 {
-      @io.print_raw(ansi_move_to(row + r, col) + " ".repeat(content_width))
+      @io.print_raw(ansi_move_to(row + r, 0) + " ".repeat(width.val))
     }
+    // Draw status line below input area
+    let status_row = row + content_height
+    let queue_info = if input_queue.is_busy() {
+      let count = input_queue.length()
+      if count > 0 {
+        " · [Queue: " + count.to_string() + "]"
+      } else {
+        " · [Processing...]"
+      }
+    } else {
+      ""
+    }
+    let status_text = " Enter: send · ↑↓: scroll · F: actions · Ctrl+C: quit" +
+      queue_info
+    @io.print_raw(
+      ansi_move_to(status_row, 0) +
+        status_text +
+        " ".repeat((width.val - status_text.length()).clamp(min=0, max=width.val)),
+    )
     let on_lines_change : (Int) -> Int = fn(line_count) {
       clamp_input_lines(line_count)
     }
+    // start_edit_inplace expects 1-indexed row/col
     @c.start_edit_inplace(
       config,
       signal.get(),
-      row,
-      col,
+      row + 1,
+      col + 1,
       content_width,
       content_height,
       true,

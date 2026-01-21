@@ -27,11 +27,13 @@ pub fn calc_visible_height(total_height : Int) -> Int {
 }
 
 ///|
-/// Calculate the row position where input area starts (1-indexed)
+/// Calculate the row position where input content starts (0-indexed)
+/// Layout: message_area | divider(1) | buffer(1) | input_area(6)
 /// total_height: terminal height
-/// Returns: row number for input area start
+/// Returns: row number for input content start (0-indexed for use with ansi_move_to)
 pub fn calc_input_row(total_height : Int) -> Int {
-  total_height - input_area_height + 1
+  // input_area starts after message_area + divider + buffer
+  calc_visible_height(total_height) + divider_height + buffer_lines
 }
 
 ///|
