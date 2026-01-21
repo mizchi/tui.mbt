@@ -1,0 +1,10 @@
+import {
+  "mizchi/tui/core" as @core,
+  "mizchi/tui/render" as @render,
+  "mizchi/tui/components" as @components,
+  "mizchi/crater/types",
+}
+
+options(
+  "is-test": true,
+)
