@@ -83,6 +83,8 @@ pub struct App {
 }
 pub fn App::clear_prev_buffer(Self) -> Unit
 pub fn App::create_render_effect(Self, () -> @core.Component, (String) -> Unit) -> () -> Unit
+pub fn App::dispatch_click(Self, @events.MouseEvent, Map[String, () -> Unit]) -> String?
+pub fn App::dispatch_click_with_result(Self, @events.MouseEvent) -> @events.HitTestResult?
 pub fn App::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn App::handle_mouse(Self, @events.MouseEvent) -> Bool
 pub fn App::hit_test(Self, Int, Int) -> @events.HitTestResult?

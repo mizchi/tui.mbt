@@ -35,15 +35,8 @@ pub fn textarea(
   let display_text = textarea_display_text(value, placeholder, state)
   let display_lines = split_lines(display_text)
   let (actual_fg, actual_bg, border_color) = textarea_palette(
-    value,
-    fg,
-    bg,
-    placeholder_fg,
-    focus_border_color,
-    edit_border_color,
-    disabled_fg,
-    disabled_bg,
-    state,
+    value, fg, bg, placeholder_fg, focus_border_color, edit_border_color, disabled_fg,
+    disabled_bg, state,
   )
 
   // Build text lines (show cursor on last line when editing)

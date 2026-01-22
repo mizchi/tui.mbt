@@ -59,5 +59,8 @@ test "stream_buffer_respects_offset" {
   let buffer = StreamBuffer::new(8, 2)
   ignore(buffer.render_output(text("A"), row=2, col=4))
   let output = buffer.render_output(text("B"), row=2, col=4)
-  inspect(output, content="\u{1b}[s\u{1b}[3;5H\u{1b}[38;5;231mB\u{1b}[0m\u{1b}[u")
+  inspect(
+    output,
+    content="\u{1b}[s\u{1b}[3;5H\u{1b}[38;5;231mB\u{1b}[0m\u{1b}[u",
+  )
 }

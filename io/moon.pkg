@@ -6,6 +6,6 @@ import {
 }
 
 options(
-  targets: { "io_js.mbt": [ "js" ], "io_native.mbt": [ "not", "js" ] },
   link: { "native": { "cc-link-flags": "io/tui_native.c" } },
+  targets: { "io_js.mbt": [ "js" ], "io_native.mbt": [ "not", "js" ] },
 )

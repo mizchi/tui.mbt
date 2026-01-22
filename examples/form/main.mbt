@@ -13,14 +13,13 @@ fn main {
   let name = @signals.signal("")
   let email = @signals.signal("")
   let message = @signals.signal("")
-  let focused_id = @signals.signal("")
   let running = @signals.signal(true)
 
-  // Focus order (inputs only, submit handled separately)
+  // Focus navigation with FocusNav utility
   let input_ids = ["name-input", "email-input", "message-textarea"]
-  let focusable_ids = [
+  let focus = @c.FocusNav::new([
     "name-input", "email-input", "message-textarea", "submit-btn",
-  ]
+  ])
 
   // Create the app
   let app = @render.App::new(width, height)
@@ -32,43 +31,12 @@ fn main {
     "message-textarea": ("Message", message),
   }
 
-  // Helper to get input state
-  fn get_input_state(id : String) -> @c.InputState {
-    if focused_id.get() == id {
-      @c.InputState::Focused
-    } else {
-      @c.InputState::Idle
-    }
-  }
-
-  // Helper to get textarea state
-  fn get_textarea_state(id : String) -> @c.TextareaState {
-    if focused_id.get() == id {
-      @c.TextareaState::Focused
-    } else {
-      @c.TextareaState::Idle
-    }
-  }
-
-  // Helper to get button state
-  fn get_button_state(id : String) -> @c.ButtonState {
-    if focused_id.get() == id {
-      @c.ButtonState::Hover
-    } else {
-      @c.ButtonState::Normal
-    }
-  }
-
   // Render function
   fn render_ui() -> @core.Component {
     @c.column(
       [
         // Title
-        @c.row(
-          [@c.text("Form Demo", fg=@core.Color::yellow(), bold=true)],
-          justify=@types.Alignment::Center,
-          margin_y=1.0,
-        ),
+        @c.title_bar("Form Demo"),
         // Form fields
         @c.column(
           [
@@ -80,7 +48,7 @@ fn main {
                   name.get(),
                   id="name-input",
                   placeholder="Enter your name",
-                  state=get_input_state("name-input"),
+                  state=focus.input_state("name-input"),
                   min_width=40.0,
                   min_height=3.0,
                 ),
@@ -95,7 +63,7 @@ fn main {
                   email.get(),
                   id="email-input",
                   placeholder="user@example.com",
-                  state=get_input_state("email-input"),
+                  state=focus.input_state("email-input"),
                   min_width=40.0,
                   min_height=3.0,
                 ),
@@ -110,7 +78,7 @@ fn main {
                   message.get(),
                   id="message-textarea",
                   placeholder="Enter your message...",
-                  state=get_textarea_state("message-textarea"),
+                  state=focus.textarea_state("message-textarea"),
                   rows=4,
                   min_width=40.0,
                 ),
@@ -124,7 +92,7 @@ fn main {
                 @c.button(
                   "Submit",
                   id="submit-btn",
-                  state=get_button_state("submit-btn"),
+                  state=focus.button_state("submit-btn"),
                   min_width=12.0,
                 ),
               ],
@@ -134,56 +102,18 @@ fn main {
           padding=2.0,
         ),
         // Status bar
-        @c.row(
-          [
-            @c.text(
-              "Tab: next | Enter: edit/confirm | Shift+Enter/Ctrl+D: newline | Esc: cancel",
-              fg=@core.Color::rgb(100, 100, 100),
-            ),
-          ],
-          justify=@types.Alignment::Center,
-          margin_y=1.0,
-        ),
+        @c.footer([
+          @c.text(
+            "Tab: next | Enter: edit/confirm | Shift+Enter/Ctrl+D: newline | Esc: cancel",
+          ),
+        ]),
       ],
-      width=@types.Dimension::Length(width.to_double()),
-      height=@types.Dimension::Length(height.to_double()),
+      width=@c.dim_length(width.to_double()),
+      height=@c.dim_length(height.to_double()),
       padding=1.0,
       border=Some(@core.BorderChars::rounded()),
       border_color=@core.Color::cyan(),
     )
-  }
-
-  // Focus navigation helpers
-  fn focus_next() {
-    let current = focused_id.get()
-    if current == "" {
-      focused_id.set(focusable_ids[0])
-    } else {
-      let idx = focusable_ids.search(current)
-      match idx {
-        Some(i) => {
-          let next_idx = (i + 1) % focusable_ids.length()
-          focused_id.set(focusable_ids[next_idx])
-        }
-        None => focused_id.set(focusable_ids[0])
-      }
-    }
-  }
-
-  fn focus_prev() {
-    let current = focused_id.get()
-    if current == "" {
-      focused_id.set(focusable_ids[focusable_ids.length() - 1])
-    } else {
-      let idx = focusable_ids.search(current)
-      match idx {
-        Some(i) => {
-          let prev_idx = if i == 0 { focusable_ids.length() - 1 } else { i - 1 }
-          focused_id.set(focusable_ids[prev_idx])
-        }
-        None => focused_id.set(focusable_ids[focusable_ids.length() - 1])
-      }
-    }
   }
 
   // Render helper
@@ -271,80 +201,49 @@ fn main {
     let event = @events.parse_input(key)
     let mut need_render = true
     let mut start_edit_id = ""
-    match event {
-      @events.InputEvent::Key(key_event) =>
-        match key_event {
-          // Ctrl+C - always quit
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
-            running.set(false)
-            @io.stop_keypress_listener()
-            @io.print_raw(@render.disable_mouse())
-            @io.cleanup_stdin()
-            @io.print_raw(@render.App::restore_terminal())
+
+    // Handle Ctrl+C - always quit
+    if @events.is_ctrl_c(event) {
+      do_quit()
+      return
+    }
+
+    // Handle q to quit when not focused on input
+    if @events.is_char(event, 'q') && not(focus.focused_in(input_ids)) {
+      do_quit()
+      return
+    }
+
+    // Handle Tab navigation using FocusNav
+    if focus.handle_tab(event) {
+      // Tab was handled
+    } else if focus.handle_arrows(event) {
+      // Arrow was handled
+    } else if @events.is_escape(event) {
+      // Escape - unfocus
+      focus.blur()
+    } else if @events.is_enter(event) {
+      // Enter - edit if on input, submit if on button
+      let current_focus = focus.get()
+      if current_focus == "submit-btn" {
+        do_submit()
+        return
+      } else if input_ids.contains(current_focus) {
+        start_edit_id = current_focus
+        need_render = false
+      } else {
+        focus.next()
+      }
+    } else {
+      // Handle mouse clicks
+      match event {
+        @events.InputEvent::Mouse(mouse_event) =>
+          match app.dispatch_click_with_result(mouse_event) {
+            Some(hit) => if focus.ids.contains(hit.id) { focus.set(hit.id) }
+            None => ()
           }
-          // q to quit when not focused on input
-          @events.KeyEvent::Char('q', @events.KeyModifier::None) =>
-            if not(input_ids.contains(focused_id.get())) {
-              running.set(false)
-              @io.stop_keypress_listener()
-              @io.print_raw(@render.disable_mouse())
-              @io.cleanup_stdin()
-              @io.print_raw(@render.App::restore_terminal())
-            } else {
-              need_render = false
-            }
-          // Tab - next focus
-          @events.KeyEvent::Special(
-            @events.SpecialKey::Tab,
-            @events.KeyModifier::None
-          ) => focus_next()
-          // Shift+Tab or BackTab - previous focus
-          @events.KeyEvent::Special(
-            @events.SpecialKey::Tab
-            | @events.SpecialKey::BackTab,
-            @events.KeyModifier::Shift
-          ) => focus_prev()
-          @events.KeyEvent::Special(
-            @events.SpecialKey::BackTab,
-            @events.KeyModifier::None
-          ) => focus_prev()
-          // Escape - unfocus
-          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) =>
-            focused_id.set("")
-          // Enter - edit if on input, submit if on button
-          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) => {
-            let focus = focused_id.get()
-            if focus == "submit-btn" {
-              do_submit()
-              return
-            } else if input_ids.contains(focus) {
-              start_edit_id = focus
-              need_render = false
-            } else {
-              focus_next()
-            }
-          }
-          // Arrow keys for navigation
-          @events.KeyEvent::Special(@events.SpecialKey::Down, _) => focus_next()
-          @events.KeyEvent::Special(@events.SpecialKey::Up, _) => focus_prev()
-          _ => need_render = false
-        }
-      @events.InputEvent::Mouse(mouse_event) =>
-        match (mouse_event.event_type, mouse_event.button) {
-          (@events.MouseEventType::Press, @events.MouseButton::Left) => {
-            let x = mouse_event.x
-            let y = mouse_event.y
-            match app.hit_test(x, y) {
-              Some(hit) =>
-                if focusable_ids.contains(hit.id) {
-                  focused_id.set(hit.id)
-                }
-              None => ()
-            }
-          }
-          _ => need_render = false
-        }
-      _ => need_render = false
+        _ => need_render = false
+      }
     }
 
     // Handle editing

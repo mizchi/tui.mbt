@@ -6,12 +6,9 @@ fn main {
   let (cols, rows) = @io.get_terminal_size()
   let width : Ref[Int] = { val: cols }
   let height : Ref[Int] = { val: rows }
-
   let editing = @signals.signal(false)
   let text_value = @signals.signal("")
-
   let app : Ref[@render.App] = { val: @render.App::new(cols, rows) }
-
   fn editor_box_size() -> (Int, Int) {
     let header_lines = 1
     let footer_lines = 1
@@ -129,9 +126,8 @@ fn main {
         match key_event {
           @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => do_quit()
           @events.KeyEvent::Char('q', @events.KeyModifier::None) => do_quit()
-          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) => {
+          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
             start_editing()
-          }
           @events.KeyEvent::Char('e', @events.KeyModifier::None) =>
             start_editing()
           _ => ()

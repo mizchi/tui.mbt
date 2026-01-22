@@ -1,0 +1,115 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/testing"
+
+import {
+  "mizchi/tui/core",
+  "mizchi/tui/events",
+  "mizchi/tui/render",
+}
+
+// Values
+pub fn alt(Char) -> String
+
+pub fn ctrl(Char) -> String
+
+pub fn has_ansi(String) -> Bool
+
+pub fn key_backspace() -> String
+
+pub fn key_backtab() -> String
+
+pub fn key_delete() -> String
+
+pub fn key_down() -> String
+
+pub fn key_end() -> String
+
+pub fn key_enter() -> String
+
+pub fn key_esc() -> String
+
+pub fn key_f1() -> String
+
+pub fn key_f10() -> String
+
+pub fn key_f11() -> String
+
+pub fn key_f12() -> String
+
+pub fn key_f2() -> String
+
+pub fn key_f3() -> String
+
+pub fn key_f4() -> String
+
+pub fn key_f5() -> String
+
+pub fn key_f6() -> String
+
+pub fn key_f7() -> String
+
+pub fn key_f8() -> String
+
+pub fn key_f9() -> String
+
+pub fn key_home() -> String
+
+pub fn key_insert() -> String
+
+pub fn key_left() -> String
+
+pub fn key_page_down() -> String
+
+pub fn key_page_up() -> String
+
+pub fn key_right() -> String
+
+pub fn key_tab() -> String
+
+pub fn key_up() -> String
+
+pub fn mouse_click(Int, Int, button? : Int) -> String
+
+pub fn mouse_release(Int, Int, button? : Int) -> String
+
+pub fn scroll_down(Int, Int) -> String
+
+pub fn scroll_up(Int, Int) -> String
+
+pub fn split_lines_plain(String) -> Array[String]
+
+pub fn strip_ansi(String) -> String
+
+pub fn test_height() -> Int
+
+pub fn test_width() -> Int
+
+pub fn visible_length(String) -> Int
+
+// Errors
+
+// Types and methods
+pub(all) struct TestHarness {
+  app : @render.App
+  width : Int
+  height : Int
+  frames : Array[String]
+}
+pub fn TestHarness::clear_frames(Self) -> Unit
+pub fn TestHarness::contains(Self, String) -> Bool
+pub fn TestHarness::find_by_id(Self, String) -> @events.HitTestResult?
+pub fn TestHarness::frame_count(Self) -> Int
+pub fn TestHarness::get_line(Self, Int) -> String
+pub fn TestHarness::get_lines(Self) -> Array[String]
+pub fn TestHarness::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn TestHarness::last_frame(Self) -> String
+pub fn TestHarness::last_frame_plain(Self) -> String
+pub fn TestHarness::line_contains(Self, Int, String) -> Bool
+pub fn TestHarness::new(width? : Int, height? : Int) -> Self
+pub fn TestHarness::parse_key(Self, String) -> @events.InputEvent
+pub fn TestHarness::render(Self, @core.Component) -> String
+
+// Type aliases
+
+// Traits
+

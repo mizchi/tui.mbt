@@ -39,27 +39,27 @@ pub fn start_edit(
     config.field_name,
     current_value,
     fn(result) {
-    match result {
-      @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
-      @io.InputResult::Cancelled => ()
-      @io.InputResult::ForceQuit => {
-        // Call force quit handler if provided
-        match config.on_force_quit {
-          Some(f) => f()
-          None => ()
+      match result {
+        @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
+        @io.InputResult::Cancelled => ()
+        @io.InputResult::ForceQuit => {
+          // Call force quit handler if provided
+          match config.on_force_quit {
+            Some(f) => f()
+            None => ()
+          }
+          // Don't call on_complete - we're quitting
+          return
         }
-        // Don't call on_complete - we're quitting
-        return
+        _ => ()
       }
-      _ => ()
-    }
 
-    // Call optional cleanup callback
-    match config.on_edit_end {
-      Some(f) => f()
-      None => ()
-    }
-    on_complete()
+      // Call optional cleanup callback
+      match config.on_edit_end {
+        Some(f) => f()
+        None => ()
+      }
+      on_complete()
     },
     confirm_on_shift_enter~,
     esc_cancels~,
@@ -133,6 +133,7 @@ pub fn start_edit_inplace(
 ///|
 /// Start editing within bounds (HitTestResult) with border adjustment.
 /// bounds.x/y are 0-indexed; row/col for ANSI are 1-indexed.
+
 ///|
 /// Helper to create a standard edit config for form fields
 pub fn form_edit_config(

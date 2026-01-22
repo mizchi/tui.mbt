@@ -15,6 +15,22 @@ fn main {
   // Create the app
   let app = @render.App::new(width, height)
 
+  // Click handlers map
+  let click_handlers : Map[String, () -> Unit] = {
+    "btn-plus": fn() {
+      count.set(count.get() + 1)
+      message.set("Incremented!")
+    },
+    "btn-minus": fn() {
+      count.set(count.get() - 1)
+      message.set("Decremented!")
+    },
+    "btn-reset": fn() {
+      count.set(0)
+      message.set("Reset!")
+    },
+  }
+
   // Render function
   fn render_ui() -> @core.Component {
     let current_count = count.get()
@@ -22,15 +38,11 @@ fn main {
     @c.column(
       [
         // Title
-        @c.row(
-          [@c.text("Button Demo", fg=@core.Color::yellow(), bold=true)],
-          justify=@types.Alignment::Center,
-          margin_y=1.0,
-        ),
+        @c.title_bar("Button Demo"),
         // Message display
         @c.row(
           [@c.text(current_message, fg=@core.Color::cyan())],
-          justify=@types.Alignment::Center,
+          justify=@c.align_center(),
         ),
         // Count display
         @c.row(
@@ -46,7 +58,7 @@ fn main {
               bold=true,
             ),
           ],
-          justify=@types.Alignment::Center,
+          justify=@c.align_center(),
           margin_y=1.0,
         ),
         // Buttons row
@@ -62,24 +74,17 @@ fn main {
             @c.hspace(2.0),
             @c.button("[ + ]", bg=@core.Color::rgb(40, 80, 40), id="btn-plus"),
           ],
-          justify=@types.Alignment::Center,
+          justify=@c.align_center(),
         ),
         // Spacer
         @c.spacer(),
         // Instructions
-        @c.row(
-          [
-            @c.text(
-              "Click buttons or use: +/- keys | r: reset | q: quit",
-              fg=@core.Color::rgb(100, 100, 100),
-            ),
-          ],
-          justify=@types.Alignment::Center,
-          margin_y=1.0,
-        ),
+        @c.footer([
+          @c.text("Click buttons or use: +/- keys | r: reset | q: quit"),
+        ]),
       ],
-      width=@types.Dimension::Length(width.to_double()),
-      height=@types.Dimension::Length(height.to_double()),
+      width=@c.dim_length(width.to_double()),
+      height=@c.dim_length(height.to_double()),
       padding=1.0,
       border=Some(@core.BorderChars::rounded()),
       border_color=@core.Color::cyan(),
@@ -108,66 +113,40 @@ fn main {
     }
     let event = @events.parse_input(key)
     let mut need_render = true
-    match event {
-      @events.InputEvent::Key(key_event) =>
-        match key_event {
-          @events.KeyEvent::Char('q', @events.KeyModifier::None) => {
-            do_quit()
-            return
+
+    // Handle quit keys
+    if @events.is_quit(event) {
+      do_quit()
+      return
+    }
+
+    // Handle keyboard shortcuts
+    if @events.is_char(event, '+') || @events.is_char(event, '=') {
+      count.set(count.get() + 1)
+      message.set("Incremented!")
+    } else if @events.is_char(event, '-') {
+      count.set(count.get() - 1)
+      message.set("Decremented!")
+    } else if @events.is_char(event, 'r') {
+      count.set(0)
+      message.set("Reset!")
+    } else {
+      // Handle mouse clicks with dispatch
+      match event {
+        @events.InputEvent::Mouse(mouse_event) =>
+          match app.dispatch_click(mouse_event, click_handlers) {
+            Some(_) => ()
+            None =>
+              message.set(
+                "Clicked at (" +
+                mouse_event.x.to_string() +
+                "," +
+                mouse_event.y.to_string() +
+                ")",
+              )
           }
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
-            do_quit()
-            return
-          }
-          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
-            do_quit()
-            return
-          }
-          @events.KeyEvent::Char('+', _) | @events.KeyEvent::Char('=', _) => {
-            count.set(count.get() + 1)
-            message.set("Incremented!")
-          }
-          @events.KeyEvent::Char('-', _) => {
-            count.set(count.get() - 1)
-            message.set("Decremented!")
-          }
-          @events.KeyEvent::Char('r', @events.KeyModifier::None) => {
-            count.set(0)
-            message.set("Reset!")
-          }
-          _ => need_render = false
-        }
-      @events.InputEvent::Mouse(mouse_event) =>
-        match (mouse_event.event_type, mouse_event.button) {
-          (@events.MouseEventType::Press, @events.MouseButton::Left) =>
-            // Perform hit test
-            match app.hit_test(mouse_event.x, mouse_event.y) {
-              Some(hit) =>
-                // Handle button clicks
-                if hit.id == "btn-plus" {
-                  count.set(count.get() + 1)
-                  message.set("Incremented!")
-                } else if hit.id == "btn-minus" {
-                  count.set(count.get() - 1)
-                  message.set("Decremented!")
-                } else if hit.id == "btn-reset" {
-                  count.set(0)
-                  message.set("Reset!")
-                } else {
-                  message.set("Clicked: " + hit.id)
-                }
-              None =>
-                message.set(
-                  "Clicked at (" +
-                  mouse_event.x.to_string() +
-                  "," +
-                  mouse_event.y.to_string() +
-                  ")",
-                )
-            }
-          _ => need_render = false
-        }
-      _ => need_render = false
+        _ => need_render = false
+      }
     }
     if need_render && running.get() {
       do_render()

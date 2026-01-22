@@ -785,10 +785,8 @@ pub fn start_inline_input_cooked(
   if not(was_raw) {
     enable_raw_mode()
   }
-
   let _ = field_name
   print_raw(@render.ansi_show_cursor())
-
   let buf : Array[Char] = []
   for c in initial {
     buf.push(c)
@@ -802,7 +800,6 @@ pub fn start_inline_input_cooked(
   let mut max_cols = 1
   let mut scroll_offset = 0
   let reserve_rows = 1
-
   fn parse_cursor_pos(resp : String) -> (Int, Int)? {
     if not(resp.has_prefix("\u001b[")) || not(resp.has_suffix("R")) {
       return None
@@ -857,15 +854,13 @@ pub fn start_inline_input_cooked(
     }
     None => ()
   }
-
   fn render_all() -> Bool {
     if not(can_render) {
       return false
     }
     let lines = wrap_text_to_lines(buf, max_cols)
     let (cursor_line_idx, cursor_col_offset) = find_cursor_line(
-      lines,
-      cursor_pos,
+      lines, cursor_pos,
     )
     let max_visible = if max_rows > 0 { max_rows } else { 1 }
     if lines.length() <= max_visible {
@@ -898,16 +893,12 @@ pub fn start_inline_input_cooked(
     }
     for i = 0; i < clear_lines; i = i + 1 {
       let row = start_row + i
-      print_raw(
-        "\u001b[" + row.to_string() + ";" + start_col.to_string() + "H",
-      )
+      print_raw("\u001b[" + row.to_string() + ";" + start_col.to_string() + "H")
       print_raw("\u001b[K")
     }
     for i = start_idx; i < end_idx; i = i + 1 {
       let row = start_row + (i - start_idx)
-      print_raw(
-        "\u001b[" + row.to_string() + ";" + start_col.to_string() + "H",
-      )
+      print_raw("\u001b[" + row.to_string() + ";" + start_col.to_string() + "H")
       print_raw(buf_to_string(lines[i].chars))
     }
     rendered_lines = if visible_len > 0 { visible_len } else { 1 }
@@ -930,7 +921,6 @@ pub fn start_inline_input_cooked(
   if not(render_all()) && buf.length() > 0 {
     print_raw(buf_to_string(buf))
   }
-
   for {
     let key = read_key()
     if key.length() == 0 {
@@ -940,12 +930,15 @@ pub fn start_inline_input_cooked(
     let mut need_render = false
     let mut done = false
     let mut result : InputResult = InputResult::Cancelled
-
     if key.length() > 1 && key[0].to_int() == 0x1b {
       if is_shift_enter_sequence(key) {
         if confirm_on_shift_enter {
           done = true
-          let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
+          let value = if buf.length() == 0 {
+            initial
+          } else {
+            buf_to_string(buf)
+          }
           result = InputResult::Confirmed(value)
         } else {
           buf.insert(cursor_pos, '\n')
@@ -1007,7 +1000,11 @@ pub fn start_inline_input_cooked(
           need_render = true
         } else {
           done = true
-          let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
+          let value = if buf.length() == 0 {
+            initial
+          } else {
+            buf_to_string(buf)
+          }
           result = InputResult::Confirmed(value)
         }
       } else if code == 127 || code == 8 {
@@ -1060,9 +1057,9 @@ pub fn start_inline_input_cooked(
       }
       need_render = true
     }
-
     if need_render {
       let _ = render_all()
+
     }
     if done {
       if not(was_raw) {
@@ -1139,4 +1136,26 @@ pub fn start_input_session_cb(
 /// Abort input session (stub)
 pub fn abort_input_session() -> Unit {
   // Native input is blocking, cannot be aborted externally
+}
+
+// --- Environment and Arguments ---
+
+///|
+/// Get command line arguments (not available in native mode)
+pub fn get_args() -> Array[String] {
+  // Native mode doesn't have easy access to argv
+  []
+}
+
+///|
+/// Get environment variable value (not available in native mode)
+pub fn get_env(_name : String) -> String {
+  // Native mode doesn't have easy access to getenv
+  ""
+}
+
+///|
+/// Check if running in headless mode (always false for native)
+pub fn is_headless() -> Bool {
+  false
 }

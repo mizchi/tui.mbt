@@ -10,13 +10,25 @@ pub fn abort_input_session() -> Unit
 
 pub fn cleanup_stdin() -> Unit
 
+pub fn cursor_col_offset(Array[Char], Int) -> Int
+
+pub fn cursor_line_bounds(Array[Char], Int) -> (Int, Int)
+
+pub fn cursor_position_wrapped(Array[Char], Int, Int) -> (Int, Int)
+
 pub fn debug_stderr(String) -> Unit
 
 pub fn debug_stdin_state(String) -> Unit
 
 pub fn enable_raw_mode() -> Unit
 
+pub fn get_args() -> Array[String]
+
+pub fn get_env(String) -> String
+
 pub fn get_terminal_size() -> (Int, Int)
+
+pub fn is_headless() -> Bool
 
 pub fn is_raw_mode() -> Bool
 
@@ -34,9 +46,9 @@ pub async fn sleep(Int) -> Unit
 
 pub fn start_inline_input(String, String, Int, Int, Int, Int, (InputResult) -> Unit) -> Unit
 
-pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit) -> Unit
+pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?) -> Unit
 
 pub async fn start_input_session(Int, Int, String) -> InputResult
 

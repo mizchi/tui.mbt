@@ -109,7 +109,11 @@ fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
     new_cursor = prev_line.start_idx + i + 1
   }
   let max_pos = prev_line.start_idx + prev_line.chars.length()
-  if new_cursor > max_pos { max_pos } else { new_cursor }
+  if new_cursor > max_pos {
+    max_pos
+  } else {
+    new_cursor
+  }
 }
 
 ///|
@@ -131,7 +135,11 @@ fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
     new_cursor = next_line.start_idx + i + 1
   }
   let max_pos = next_line.start_idx + next_line.chars.length()
-  if new_cursor > max_pos { max_pos } else { new_cursor }
+  if new_cursor > max_pos {
+    max_pos
+  } else {
+    new_cursor
+  }
 }
 
 ///|

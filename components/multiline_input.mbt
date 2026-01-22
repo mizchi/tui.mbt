@@ -25,17 +25,9 @@ pub fn multiline_input(
 ) -> @core.Component {
   let display_text = textarea_display_text(value, placeholder, state)
   let (actual_fg, actual_bg, border_color) = textarea_palette(
-    value,
-    fg,
-    bg,
-    placeholder_fg,
-    focus_border_color,
-    edit_border_color,
-    disabled_fg,
-    disabled_bg,
-    state,
+    value, fg, bg, placeholder_fg, focus_border_color, edit_border_color, disabled_fg,
+    disabled_bg, state,
   )
-
   @core.text_box(
     display_text,
     id~,

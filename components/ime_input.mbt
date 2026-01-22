@@ -26,10 +26,16 @@ pub fn ImeSession::start(
   esc_cancels? : Bool = true,
 ) -> Unit {
   self.is_editing.set(true)
-  start_edit(config, current_value, fn() {
-    self.is_editing.set(false)
-    on_complete()
-  }, confirm_on_shift_enter~, esc_cancels~)
+  start_edit(
+    config,
+    current_value,
+    fn() {
+      self.is_editing.set(false)
+      on_complete()
+    },
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
 }
 
 ///|

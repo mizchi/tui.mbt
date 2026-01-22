@@ -1637,3 +1637,48 @@ pub fn start_resize_listener(callback : (Int, Int) -> Unit) -> Unit {
 pub fn stop_resize_listener() -> Unit {
   js_stop_resize_listener()
 }
+
+// --- Environment and Arguments ---
+
+///|
+/// Get command line arguments (excluding node and script path)
+extern "js" fn js_get_args() -> Array[String] =
+  #| () => {
+  #|   if (typeof process === 'undefined') return [];
+  #|   return process.argv.slice(2);
+  #| }
+
+///|
+/// Get an environment variable value (empty string if not set)
+extern "js" fn js_get_env(name : String) -> String =
+  #| (name) => {
+  #|   if (typeof process === 'undefined') return '';
+  #|   return process.env[name] || '';
+  #| }
+
+///|
+/// Get command line arguments
+pub fn get_args() -> Array[String] {
+  js_get_args()
+}
+
+///|
+/// Get environment variable value (empty string if not set)
+pub fn get_env(name : String) -> String {
+  js_get_env(name)
+}
+
+///|
+/// Check if running in headless mode (TUI_HEADLESS=1 or --headless argument)
+pub fn is_headless() -> Bool {
+  if js_get_env("TUI_HEADLESS") == "1" {
+    return true
+  }
+  let args = js_get_args()
+  for arg in args {
+    if arg == "--headless" {
+      return true
+    }
+  }
+  false
+}

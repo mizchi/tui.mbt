@@ -2,9 +2,60 @@
 /// Chat example - Claude Code-like chat UI using crater layout
 /// Top area shows scrollable message log, bottom has input field
 /// Supports input queue for batching user inputs while task is running
+///
+/// Run with --headless or TUI_HEADLESS=1 for non-interactive testing
+
+///|
+fn run_headless() -> Unit {
+  // Fixed size for headless mode
+  let width = 80
+  let height = 24
+
+  // Create state
+  let messages : Array[@c.Message] = []
+  let streaming = @c.StreamingState::new()
+  let input_queue = @c.InputQueue::new()
+
+  // Simulate some messages
+  messages.push({ role: User, content: "Hello, how are you?" })
+  messages.push({
+    role: Assistant,
+    content: "I'm doing great! How can I help you today?",
+  })
+  messages.push({ role: User, content: "Tell me about MoonBit" })
+
+  // Build message list
+  let all_items = @c.chat_message_list(
+    messages, streaming, input_queue, width, @c.streaming_message_height,
+  )
+
+  // Output state as plain text (no ANSI escapes)
+  println("=== HEADLESS MODE ===")
+  println("Terminal size: " + width.to_string() + "x" + height.to_string())
+  println("Messages: " + messages.length().to_string())
+  println("")
+  println("--- Message Log ---")
+  for i, msg in messages {
+    let role_str = match msg.role {
+      User => "[User]"
+      Assistant => "[Assistant]"
+    }
+    println(i.to_string() + ". " + role_str + " " + msg.content)
+  }
+  println("")
+  println("--- UI Components ---")
+  println("Item count: " + all_items.length().to_string())
+  println("")
+  println("=== END HEADLESS ===")
+}
 
 ///|
 fn main {
+  // Check for headless mode
+  if @io.is_headless() {
+    run_headless()
+    return
+  }
   // Get terminal size (mutable for resize support)
   let (cols, rows) = @io.get_terminal_size()
   let width : Ref[Int] = { val: cols }
@@ -268,8 +319,9 @@ fn main {
     }
 
     let started = streaming.start(response, 200, on_tick, on_complete)
-    if not(started) || streaming.ticker_id.val == 0 {
-      streaming.clear()
+    // If start failed (already streaming), add message directly
+    // Note: ticker_id == 0 case is handled inside start() which calls on_complete
+    if not(started) {
       add_message(Assistant, response)
       input_queue.finish_processing()
       (process_queue_ref.val)()

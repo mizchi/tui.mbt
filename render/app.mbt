@@ -185,3 +185,41 @@ pub fn App::find_by_id(self : App, id : String) -> @events.HitTestResult? {
 pub fn App::clear_prev_buffer(self : App) -> Unit {
   self.prev_buffer = None
 }
+
+///|
+/// Dispatch a click event to handlers based on hit test result
+/// Returns the clicked component ID if found, None otherwise
+pub fn App::dispatch_click(
+  self : App,
+  event : @events.MouseEvent,
+  handlers : Map[String, () -> Unit],
+) -> String? {
+  // Only handle left click press
+  match (event.event_type, event.button) {
+    (@events.MouseEventType::Press, @events.MouseButton::Left) =>
+      match self.hit_test(event.x, event.y) {
+        Some(hit) => {
+          match handlers.get(hit.id) {
+            Some(handler) => handler()
+            None => ()
+          }
+          Some(hit.id)
+        }
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
+/// Dispatch a click event, returns hit result for custom handling
+pub fn App::dispatch_click_with_result(
+  self : App,
+  event : @events.MouseEvent,
+) -> @events.HitTestResult? {
+  match (event.event_type, event.button) {
+    (@events.MouseEventType::Press, @events.MouseButton::Left) =>
+      self.hit_test(event.x, event.y)
+    _ => None
+  }
+}

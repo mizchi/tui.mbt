@@ -409,3 +409,136 @@ pub fn key_is_ctrl_q(event : KeyEvent) -> Bool {
     _ => false
   }
 }
+
+///|
+// InputEvent helpers - work directly with parsed events
+
+///|
+/// Check if the input event is a key matching a character (no modifier)
+pub fn is_char(event : InputEvent, c : Char) -> Bool {
+  match event {
+    InputEvent::Key(KeyEvent::Char(ch, KeyModifier::None)) => ch == c
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is a key with Ctrl modifier
+pub fn is_ctrl(event : InputEvent, c : Char) -> Bool {
+  match event {
+    InputEvent::Key(KeyEvent::Char(ch, KeyModifier::Ctrl)) => ch == c
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is Ctrl+C (quit)
+pub fn is_ctrl_c(event : InputEvent) -> Bool {
+  is_ctrl(event, 'c')
+}
+
+///|
+/// Check if the input event is Escape
+pub fn is_escape(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Escape, _)) => true
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is Tab
+pub fn is_tab(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Tab, KeyModifier::None)) =>
+      true
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is Shift+Tab or BackTab
+pub fn is_backtab(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Key(
+      KeyEvent::Special(
+        SpecialKey::Tab
+        | SpecialKey::BackTab,
+        KeyModifier::Shift
+      )
+    ) => true
+    InputEvent::Key(KeyEvent::Special(SpecialKey::BackTab, KeyModifier::None)) =>
+      true
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is Enter
+pub fn is_enter(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Enter, _)) => true
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is an arrow key, returns the direction
+pub fn is_arrow(event : InputEvent) -> SpecialKey? {
+  match event {
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Up as k, _)) => Some(k)
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Down as k, _)) => Some(k)
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Left as k, _)) => Some(k)
+    InputEvent::Key(KeyEvent::Special(SpecialKey::Right as k, _)) => Some(k)
+    _ => None
+  }
+}
+
+///|
+/// Check if the input event is a common quit key (q, Ctrl+C, Escape)
+pub fn is_quit(event : InputEvent) -> Bool {
+  is_char(event, 'q') || is_ctrl_c(event) || is_escape(event)
+}
+
+///|
+// MouseEvent helpers
+
+///|
+/// Check if the input event is a left mouse button press
+pub fn is_left_click(event : InputEvent) -> MouseEvent? {
+  match event {
+    InputEvent::Mouse(
+      { button: MouseButton::Left, event_type: MouseEventType::Press, .. } as m
+    ) => Some(m)
+    _ => None
+  }
+}
+
+///|
+/// Check if the input event is a right mouse button press
+pub fn is_right_click(event : InputEvent) -> MouseEvent? {
+  match event {
+    InputEvent::Mouse(
+      { button: MouseButton::Right, event_type: MouseEventType::Press, .. } as m
+    ) => Some(m)
+    _ => None
+  }
+}
+
+///|
+/// Check if the input event is a scroll up
+pub fn is_scroll_up(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Mouse({ button: MouseButton::ScrollUp, .. }) => true
+    _ => false
+  }
+}
+
+///|
+/// Check if the input event is a scroll down
+pub fn is_scroll_down(event : InputEvent) -> Bool {
+  match event {
+    InputEvent::Mouse({ button: MouseButton::ScrollDown, .. }) => true
+    _ => false
+  }
+}

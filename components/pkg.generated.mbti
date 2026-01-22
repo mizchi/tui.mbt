@@ -16,6 +16,20 @@ pub fn accordion_header(String, Bool, id? : String, fg? : @core.Color, bg? : @co
 
 pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
+pub fn align_center() -> @types.Alignment
+
+pub fn align_end() -> @types.Alignment
+
+pub fn align_space_around() -> @types.Alignment
+
+pub fn align_space_between() -> @types.Alignment
+
+pub fn align_space_evenly() -> @types.Alignment
+
+pub fn align_start() -> @types.Alignment
+
+pub fn align_stretch() -> @types.Alignment
+
 pub fn ansi_move_to(Int, Int) -> String
 
 pub fn ansi_restore_cursor() -> String
@@ -48,6 +62,8 @@ pub fn calc_total_lines(Int, Bool) -> Int
 
 pub fn calc_visible_height(Int) -> Int
 
+pub fn card(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
+
 pub fn center(Array[@core.Component]) -> @core.Component
 
 pub fn chat_message(Message, Int) -> @core.Component
@@ -74,15 +90,25 @@ pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @
 
 pub fn count_lines(String) -> Int
 
+pub fn dim_auto() -> @types.Dimension
+
+pub fn dim_length(Double) -> @types.Dimension
+
+pub fn dim_percent(Double) -> @types.Dimension
+
 pub let divider_height : Int
 
 pub fn editor(EditorState, @core.Color, @core.Color, @core.Color, @core.Color, @core.Color, Double, Double, Bool, String) -> @core.Component
 
 pub fn fill(Array[@core.Component]) -> @core.Component
 
+pub fn footer(Array[@core.Component], fg? : @core.Color) -> @core.Component
+
 pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?, on_force_quit? : (() -> Unit)?) -> EditConfig
 
 pub fn fraction_text(Int, Int, fg? : @core.Color) -> @core.Component
+
+pub fn fullscreen(Array[@core.Component], Int, Int, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double) -> @core.Component
 
 pub fn get_spinner_frame(Int) -> String
 
@@ -142,9 +168,13 @@ pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? :
 
 pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double, backdrop_bg? : @core.Color, container_width? : @types.Dimension, container_height? : @types.Dimension) -> @core.Component
 
+pub fn multiline_input(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
 pub fn option_list(Array[ListboxOption], Array[String], focused_id? : String, multiselectable? : Bool, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color) -> @core.Component
 
 pub fn padded(Array[@core.Component], padding? : Double) -> @core.Component
+
+pub fn panel(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color) -> @core.Component
 
 pub fn percent_text(Double, fg? : @core.Color) -> @core.Component
 
@@ -180,9 +210,11 @@ pub fn split_lines(String) -> Array[String]
 
 pub fn splitter_handle(SplitterOrientation, focused? : Bool, id? : String, fg? : @core.Color, bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color) -> @core.Component
 
-pub fn start_edit(EditConfig, String, () -> Unit) -> Unit
+pub fn start_edit(EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, on_lines_change? : ((Int) -> Int)?) -> Unit
+pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?) -> Unit
+
+pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?) -> Unit
 
 pub let streaming_message_height : Int
 
@@ -203,6 +235,8 @@ pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underlin
 pub fn text_button(String, state? : ButtonState, fg? : @core.Color, hover_fg? : @core.Color, pressed_fg? : @core.Color, disabled_fg? : @core.Color, underline? : Bool) -> @core.Component
 
 pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+
+pub fn title_bar(String, fg? : @core.Color) -> @core.Component
 
 pub fn vdivider(char? : Char, fg? : @core.Color) -> @core.Component
 
@@ -306,6 +340,25 @@ pub(all) struct EditorState {
 pub fn EditorState::from_file(String) -> Self
 pub fn EditorState::new() -> Self
 
+pub(all) struct FocusNav {
+  focused_id : @signals.Signal[String]
+  ids : Array[String]
+}
+pub fn FocusNav::blur(Self) -> Unit
+pub fn FocusNav::button_state(Self, String) -> ButtonState
+pub fn FocusNav::focused_in(Self, Array[String]) -> Bool
+pub fn FocusNav::get(Self) -> String
+pub fn FocusNav::handle_arrows(Self, @events.InputEvent) -> Bool
+pub fn FocusNav::handle_tab(Self, @events.InputEvent) -> Bool
+pub fn FocusNav::input_state(Self, String) -> InputState
+pub fn FocusNav::is_focused(Self, String) -> Bool
+pub fn FocusNav::new(Array[String]) -> Self
+pub fn FocusNav::next(Self) -> Unit
+pub fn FocusNav::prev(Self) -> Unit
+pub fn FocusNav::set(Self, String) -> Unit
+pub fn FocusNav::textarea_state(Self, String) -> TextareaState
+pub fn FocusNav::with_initial(Array[String], String) -> Self
+
 pub(all) struct HeadlessApp {
   width : Int
   height : Int
@@ -322,7 +375,7 @@ pub(all) struct ImeSession {
 }
 pub fn ImeSession::is_editing(Self) -> Bool
 pub fn ImeSession::new() -> Self
-pub fn ImeSession::start(Self, EditConfig, String, () -> Unit) -> Unit
+pub fn ImeSession::start(Self, EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
 pub(all) struct InputQueue {
   queue : Array[String]
