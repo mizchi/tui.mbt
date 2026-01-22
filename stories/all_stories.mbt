@@ -78,6 +78,26 @@ pub fn all_stories() -> Array[Story] {
   for s in text_stories() {
     stories.push(s)
   }
+
+  // Dashboard (btop-like components)
+  for s in sparkline_stories() {
+    stories.push(s)
+  }
+  for s in gauge_stories() {
+    stories.push(s)
+  }
+  for s in stat_stories() {
+    stories.push(s)
+  }
+  for s in meter_stories() {
+    stories.push(s)
+  }
+  for s in table_stories() {
+    stories.push(s)
+  }
+  for s in titled_box_stories() {
+    stories.push(s)
+  }
   stories
 }
 

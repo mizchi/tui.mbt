@@ -48,7 +48,17 @@ pub fn bordered(Array[@core.Component], style? : @core.BorderChars, color? : @co
 
 pub let buffer_lines : Int
 
+pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
+
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
+
+pub fn build_sparkline(Array[Double], width? : Int) -> String
+
+pub fn build_table_header(Array[TableColumn], separator? : String) -> String
+
+pub fn build_table_row(Array[TableColumn], Array[String], separator? : String) -> String
+
+pub fn build_titled_border_top(String, Int, border? : @core.BorderChars) -> String
 
 pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
@@ -110,6 +120,8 @@ pub fn fraction_text(Int, Int, theme? : Theme) -> @core.Component
 
 pub fn fullscreen(Array[@core.Component], Int, Int, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double) -> @core.Component
 
+pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool, style? : GaugeStyle, theme? : Theme) -> @core.Component
+
 pub fn get_spinner_frame(Int) -> String
 
 pub fn grid(Array[@core.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
@@ -164,6 +176,8 @@ pub fn menu_submenu(String, String, Array[MenuItem], disabled? : Bool) -> MenuIt
 
 pub fn menubar(Array[MenubarItem], MenubarState, id? : String, theme? : Theme, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
 
+pub fn meter(String, Double, width? : Int, label_width? : Int, theme? : Theme) -> @core.Component
+
 pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double, backdrop_bg? : @core.Color, container_width? : @types.Dimension, container_height? : @types.Dimension) -> @core.Component
@@ -204,6 +218,8 @@ pub fn snapshot(HeadlessApp, String) -> Unit
 
 pub fn spacer(flex_grow? : Double) -> @core.Component
 
+pub fn sparkline(Array[Double], width? : Int, fg? : @core.Color, theme? : Theme) -> @core.Component
+
 pub fn spinner(Int, label? : String, theme? : Theme) -> @core.Component
 
 pub fn split_lines(String) -> Array[String]
@@ -216,6 +232,8 @@ pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Un
 
 pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?) -> Unit
 
+pub fn stat(String, String, label_width? : Int, theme? : Theme) -> @core.Component
+
 pub let streaming_message_height : Int
 
 pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, track_on? : String, track_off? : String) -> @core.Component
@@ -223,6 +241,12 @@ pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Th
 pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
 pub fn tab_panel(@core.Component, id? : String, theme? : Theme, border? : @core.BorderChars?, padding? : Double) -> @core.Component
+
+pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int, theme? : Theme) -> @core.Component
+
+pub fn table_header(Array[TableColumn], separator? : String, theme? : Theme) -> @core.Component
+
+pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool, theme? : Theme) -> @core.Component
 
 pub fn tabs(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
@@ -237,6 +261,8 @@ pub fn text_button(String, state? : ButtonState, theme? : Theme, underline? : Bo
 pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn title_bar(String, fg? : @core.Color) -> @core.Component
+
+pub fn titled_box(String, Array[@core.Component], width? : Int, border? : @core.BorderChars, border_color? : @core.Color, title_color? : @core.Color, theme? : Theme) -> @core.Component
 
 pub fn vdivider(char? : Char, fg? : @core.Color) -> @core.Component
 
@@ -292,6 +318,12 @@ pub(all) enum ButtonState {
   Pressed
   Focused
   Disabled
+}
+
+pub(all) enum ColumnAlign {
+  Left
+  Right
+  Center
 }
 
 pub(all) struct ComboboxOption {
@@ -359,6 +391,12 @@ pub fn FocusNav::prev(Self) -> Unit
 pub fn FocusNav::set(Self, String) -> Unit
 pub fn FocusNav::textarea_state(Self, String) -> TextareaState
 pub fn FocusNav::with_initial(Array[String], String) -> Self
+
+pub(all) enum GaugeStyle {
+  Bar
+  Thin
+  Blocks
+}
 
 pub(all) struct HeadlessApp {
   width : Int
@@ -635,6 +673,13 @@ pub(all) enum TabOrientation {
   Horizontal
   Vertical
 }
+
+pub(all) struct TableColumn {
+  header : String
+  width : Int
+  align : ColumnAlign
+}
+pub fn TableColumn::new(String, width? : Int, align? : ColumnAlign) -> Self
 
 pub(all) struct TextBuffer {
   lines : Array[String]
