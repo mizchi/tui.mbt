@@ -35,6 +35,9 @@ extern "C" fn tui_is_tty() -> Int = "tui_is_tty"
 ///|
 extern "C" fn tui_sleep_ms(ms : Int) = "tui_sleep_ms"
 
+///|
+extern "C" fn tui_get_time_ms() -> Int = "tui_get_time_ms"
+
 // --- Helper functions ---
 
 ///|
@@ -283,6 +286,12 @@ pub fn sleep(ms : Int) -> Unit {
 }
 
 ///|
+/// Get current time in milliseconds (monotonic)
+pub fn get_time_ms() -> Int {
+  tui_get_time_ms()
+}
+
+///|
 /// Check if stdin is a TTY
 pub fn is_tty() -> Bool {
   tui_is_tty() != 0
@@ -333,13 +342,17 @@ pub async fn sleep_async(ms : Int) -> Unit {
 
 ///|
 /// Keypress handler storage
-let keypress_handler : Ref[(String) -> Unit] = { val: fn(_s) {  } }
+let keypress_handler : Ref[(String) -> Unit] = Ref::new(fn(_s) {  })
 
 ///|
-let keypress_running : Ref[Bool] = { val: false }
+/// Idle handler storage (called when no key input)
+let idle_handler : Ref[() -> Unit] = Ref::new(fn() {  })
 
 ///|
-let inside_listener_loop : Ref[Bool] = { val: false }
+let keypress_running : Ref[Bool] = Ref::new(false)
+
+///|
+let inside_listener_loop : Ref[Bool] = Ref::new(false)
 
 ///|
 /// Start keypress listener (raw mode) - blocks until stop_keypress_listener is called
@@ -363,10 +376,18 @@ pub fn start_keypress_listener(handler : (String) -> Unit) -> Unit {
     if key.length() > 0 {
       (keypress_handler.val)(key)
     } else {
+      // Call idle handler when no key input
+      (idle_handler.val)()
       sleep(10)
     }
   }
   inside_listener_loop.val = false
+}
+
+///|
+/// Set idle handler (called periodically when no key input)
+pub fn set_idle_handler(handler : () -> Unit) -> Unit {
+  idle_handler.val = handler
 }
 
 ///|

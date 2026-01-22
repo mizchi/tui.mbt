@@ -1,4 +1,5 @@
 import {
+  "mizchi/tui/completion" as @comp,
   "mizchi/tui/events" as @events,
   "mizchi/tui/io" as @io,
   "mizchi/tui/render" as @render,
@@ -7,4 +8,5 @@ import {
 
 options(
   "is-main": true,
+  link: { "native": { "cc-link-flags": "io/tui_native.c" } },
 )

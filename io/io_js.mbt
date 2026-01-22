@@ -96,6 +96,17 @@ extern "js" fn js_sleep(ms : Int) -> @js_async.Promise[Unit] =
   #| (ms) => new Promise(r => setTimeout(r, ms))
 
 ///|
+/// Get current time in milliseconds
+extern "js" fn js_get_time_ms() -> Int =
+  #| () => Date.now()
+
+///|
+/// Get current time in milliseconds (monotonic)
+pub fn get_time_ms() -> Int {
+  js_get_time_ms()
+}
+
+///|
 /// Keep the process alive without blocking (non-blocking)
 /// This schedules a timeout but doesn't wait - keeps event loop active
 extern "js" fn js_keep_alive_nonblocking(ms : Int) =
@@ -158,6 +169,36 @@ pub fn start_keypress_listener(callback : (String) -> Unit) -> Unit {
 /// Stop listening for keypresses
 pub fn stop_keypress_listener() -> Unit {
   js_stop_keypress_listener()
+  // Also stop idle interval
+  if idle_interval_id.val >= 0 {
+    js_stop_idle_interval(idle_interval_id.val)
+    idle_interval_id.val = -1
+  }
+}
+
+///|
+/// Start idle interval timer
+extern "js" fn js_start_idle_interval(handler : () -> Unit, ms : Int) -> Int =
+  #| (handler, ms) => setInterval(() => handler(), ms)
+
+///|
+/// Stop idle interval timer
+extern "js" fn js_stop_idle_interval(id : Int) =
+  #| (id) => clearInterval(id)
+
+///|
+/// Idle interval ID storage
+let idle_interval_id : Ref[Int] = Ref::new(-1)
+
+///|
+/// Set idle handler (uses setInterval for JS)
+pub fn set_idle_handler(handler : () -> Unit) -> Unit {
+  // Clear previous interval if any
+  if idle_interval_id.val >= 0 {
+    js_stop_idle_interval(idle_interval_id.val)
+  }
+  // Start new interval (10ms polling)
+  idle_interval_id.val = js_start_idle_interval(handler, 10)
 }
 
 ///|

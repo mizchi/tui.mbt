@@ -114,3 +114,18 @@ int tui_is_tty(void) {
 void tui_sleep_ms(int ms) {
     usleep(ms * 1000);
 }
+
+// Get current time in milliseconds (monotonic, relative to first call)
+#include <time.h>
+
+static int64_t start_time_ms = -1;
+
+int tui_get_time_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    int64_t now_ms = (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+    if (start_time_ms < 0) {
+        start_time_ms = now_ms;
+    }
+    return (int)(now_ms - start_time_ms);
+}
