@@ -19,10 +19,14 @@ pub(all) struct EditConfig {
 ///|
 /// Start editing a field with cooked mode (IME support)
 /// This exits alternate screen temporarily for proper IME input
+/// confirm_on_shift_enter: if true, Shift+Enter confirms and Enter inserts newline
+/// esc_cancels: if false, Esc is ignored
 pub fn start_edit(
   config : EditConfig,
   current_value : String,
   on_complete : () -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
 ) -> Unit {
   // Call optional setup callback
   match config.on_edit_start {
@@ -31,7 +35,10 @@ pub fn start_edit(
   }
 
   // Start cooked mode input
-  @io.start_inline_input_cooked(config.field_name, current_value, fn(result) {
+  @io.start_inline_input_cooked(
+    config.field_name,
+    current_value,
+    fn(result) {
     match result {
       @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
       @io.InputResult::Cancelled => ()
@@ -53,14 +60,19 @@ pub fn start_edit(
       None => ()
     }
     on_complete()
-  })
+    },
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
 }
 
 ///|
 /// Start editing a field inplace (stays in TUI screen)
 /// row/col are 1-indexed ANSI coordinates
 /// width/height define the input area (supports multi-line wrapping)
-/// multiline: if true, Enter inserts newline, Ctrl+D confirms
+/// multiline: if true, Enter can insert newline when confirm_on_shift_enter is true
+/// confirm_on_shift_enter: if true, Shift+Enter confirms
+/// esc_cancels: if false, Esc is ignored
 /// on_lines_change: optional callback (line_count) -> new_height for dynamic resizing
 pub fn start_edit_inplace(
   config : EditConfig,
@@ -71,6 +83,8 @@ pub fn start_edit_inplace(
   height : Int,
   multiline : Bool,
   on_complete : () -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Call optional setup callback
@@ -110,10 +124,15 @@ pub fn start_edit_inplace(
       }
       on_complete()
     },
+    confirm_on_shift_enter~,
+    esc_cancels~,
     on_lines_change~,
   )
 }
 
+///|
+/// Start editing within bounds (HitTestResult) with border adjustment.
+/// bounds.x/y are 0-indexed; row/col for ANSI are 1-indexed.
 ///|
 /// Helper to create a standard edit config for form fields
 pub fn form_edit_config(

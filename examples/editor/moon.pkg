@@ -4,11 +4,11 @@ import {
   "mizchi/tui/events" as @events,
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
-  "mizchi/tui/components" as @components,
   "mizchi/crater/types",
   "mizchi/signals",
 }
 
 options(
   "is-main": true,
+  link: { "native": { "cc-link-flags": "io/tui_native.c" } },
 )

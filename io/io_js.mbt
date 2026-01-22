@@ -173,11 +173,13 @@ extern "js" fn js_start_inplace_input(
   height : Int,
   multiline : Bool,
   initial : String,
+  confirm_on_shift_enter : Bool,
+  esc_cancels : Bool,
   on_confirmed : (String) -> Unit,
   on_cancelled : () -> Unit,
   on_force_quit : () -> Unit,
 ) -> Unit =
-  #| async (row, col, width, height, multiline, initial, onConfirmed, onCancelled, onForceQuit) => {
+  #| async (row, col, width, height, multiline, initial, confirmOnShiftEnter, escCancels, onConfirmed, onCancelled, onForceQuit) => {
   #|   const { stdin, stdout, stderr } = await import('node:process');
   #|   const { execSync } = await import('node:child_process');
   #|   const debug = process.env.TUI_DEBUG_COOKED === '1';
@@ -190,82 +192,6 @@ extern "js" fn js_start_inplace_input(
   #|     } catch {
   #|       return '[unprintable]';
   #|     }
-  #|   };
-  #|
-  #|   // Helper to get display width of a character
-  #|   const getCharWidth = (char) => {
-  #|     const code = char.codePointAt(0);
-  #|     if (code >= 0x1100 && (
-  #|       code <= 0x115F ||
-  #|       code === 0x2329 || code === 0x232A ||
-  #|       (code >= 0x2E80 && code <= 0x303E) ||
-  #|       (code >= 0x3040 && code <= 0x33FF) ||
-  #|       (code >= 0x3400 && code <= 0x4DBF) ||
-  #|       (code >= 0x4E00 && code <= 0x9FFF) ||
-  #|       (code >= 0xAC00 && code <= 0xD7A3) ||
-  #|       (code >= 0xF900 && code <= 0xFAFF) ||
-  #|       (code >= 0xFE10 && code <= 0xFE1F) ||
-  #|       (code >= 0xFE30 && code <= 0xFE6F) ||
-  #|       (code >= 0xFF00 && code <= 0xFF60) ||
-  #|       (code >= 0xFFE0 && code <= 0xFFE6) ||
-  #|       (code >= 0x20000 && code <= 0x2FFFF)
-  #|     )) {
-  #|       return 2;
-  #|     }
-  #|     return 1;
-  #|   };
-  #|
-  #|   const wrapText = (chars) => {
-  #|     const width = maxCols || Number.MAX_SAFE_INTEGER;
-  #|     const lines = [];
-  #|     let currentLine = [];
-  #|     let currentWidth = 0;
-  #|     let lineStartIdx = 0;
-  #|     for (let i = 0; i < chars.length; i++) {
-  #|       const char = chars[i];
-  #|       if (char === '\n') {
-  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|         currentLine = [];
-  #|         currentWidth = 0;
-  #|         lineStartIdx = i + 1;
-  #|         continue;
-  #|       }
-  #|       const cw = getCharWidth(char);
-  #|       if (currentWidth + cw > width) {
-  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|         currentLine = [char];
-  #|         currentWidth = cw;
-  #|         lineStartIdx = i;
-  #|       } else {
-  #|         currentLine.push(char);
-  #|         currentWidth += cw;
-  #|       }
-  #|     }
-  #|     lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|     return lines;
-  #|   };
-  #|
-  #|   const findCursorPos = (lines, cursor) => {
-  #|     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-  #|       const line = lines[lineIdx];
-  #|       const nextStart = lineIdx + 1 < lines.length
-  #|         ? lines[lineIdx + 1].startIdx
-  #|         : line.startIdx + line.chars.length;
-  #|       if (cursor < nextStart) {
-  #|         const posInLine = cursor - line.startIdx;
-  #|         let colOffset = 0;
-  #|         for (let i = 0; i < posInLine; i++) {
-  #|           colOffset += getCharWidth(line.chars[i]);
-  #|         }
-  #|         return { lineIdx, colOffset };
-  #|       }
-  #|     }
-  #|     const lastLine = lines[lines.length - 1];
-  #|     let colOffset = 0;
-  #|     for (const char of lastLine.chars) {
-  #|       colOffset += getCharWidth(char);
-  #|     }
-  #|     return { lineIdx: lines.length - 1, colOffset };
   #|   };
   #|
   #|   // Helper to get display width of a character
@@ -498,7 +424,9 @@ extern "js" fn js_start_inplace_input(
   #|
   #|     // Handle escape sequences
   #|     if (chunk === '\x1b') {
-  #|       cancel();
+  #|       if (escCancels) {
+  #|         cancel();
+  #|       }
   #|       return;
   #|     }
   #|     if (chunk === '\x1b[A') {
@@ -575,6 +503,10 @@ extern "js" fn js_start_inplace_input(
   #|     }
   #|     // Check for Shift+Enter or Alt+Enter
   #|     if (chunk === '\x1b[13;2u' || chunk === '\x1b[27;2;13~' || chunk === '\x1bOM' || chunk === '\x1b\r' || chunk === '\x1b\n') {
+  #|       if (confirmOnShiftEnter) {
+  #|         finish(chars.join(''));
+  #|         return;
+  #|       }
   #|       // Shift+Enter or Alt+Enter - insert newline
   #|       chars.splice(cursor, 0, '\n');
   #|       cursor++;
@@ -620,9 +552,15 @@ extern "js" fn js_start_inplace_input(
   #|         cursor = 0;
   #|         redraw();
   #|       } else if (code === 13) {
-  #|         // Enter always confirms
-  #|         finish(chars.join(''));
-  #|         return;
+  #|         if (confirmOnShiftEnter && multiline) {
+  #|           chars.splice(cursor, 0, '\n');
+  #|           cursor++;
+  #|           redraw();
+  #|         } else {
+  #|           // Enter confirms
+  #|           finish(chars.join(''));
+  #|           return;
+  #|         }
   #|       } else if (code === 127 || code === 8) {
   #|         if (cursor > 0) {
   #|           chars.splice(cursor - 1, 1);
@@ -648,11 +586,13 @@ extern "js" fn js_start_inplace_input(
 extern "js" fn js_start_inline_input_cooked(
   field_name : String,
   initial : String,
+  confirm_on_shift_enter : Bool,
+  esc_cancels : Bool,
   on_confirmed : (String) -> Unit,
   on_cancelled : () -> Unit,
   on_force_quit : () -> Unit,
 ) -> Unit =
-  #| async (fieldName, initial, onConfirmed, onCancelled, onForceQuit) => {
+  #| async (fieldName, initial, confirmOnShiftEnter, escCancels, onConfirmed, onCancelled, onForceQuit) => {
   #|   const { stdin, stdout, stderr } = await import('node:process');
   #|   const { execSync } = await import('node:child_process');
   #|   const debug = process.env.TUI_DEBUG_COOKED === '1';
@@ -982,6 +922,11 @@ extern "js" fn js_start_inline_input_cooked(
   #|       if (chunk[i] === '\x1b') {
   #|         const seq = shiftEnterAt(chunk, i);
   #|         if (seq) {
+  #|           if (confirmOnShiftEnter) {
+  #|             const result = chars.length > 0 ? bufferString() : initialText;
+  #|             finish(result);
+  #|             return;
+  #|           }
   #|           chars.splice(cursor, 0, '\n');
   #|           cursor += 1;
   #|           needRender = true;
@@ -1018,6 +963,46 @@ extern "js" fn js_start_inline_input_cooked(
   #|           i += 3;
   #|           continue;
   #|         }
+  #|         if (chunk.startsWith('\x1b[A', i)) {
+  #|           const lines = wrapText(chars);
+  #|           const pos = findCursorPos(lines, cursor);
+  #|           if (pos.lineIdx > 0) {
+  #|             const prevLine = lines[pos.lineIdx - 1];
+  #|             let targetCol = pos.colOffset;
+  #|             let newCursor = prevLine.startIdx;
+  #|             let w = 0;
+  #|             for (let j = 0; j < prevLine.chars.length; j++) {
+  #|               const cw = getCharWidth(prevLine.chars[j]);
+  #|               if (w + cw > targetCol) break;
+  #|               w += cw;
+  #|               newCursor = prevLine.startIdx + j + 1;
+  #|             }
+  #|             cursor = Math.min(newCursor, prevLine.startIdx + prevLine.chars.length);
+  #|             needRender = true;
+  #|           }
+  #|           i += 3;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[B', i)) {
+  #|           const lines = wrapText(chars);
+  #|           const pos = findCursorPos(lines, cursor);
+  #|           if (pos.lineIdx < lines.length - 1) {
+  #|             const nextLine = lines[pos.lineIdx + 1];
+  #|             let targetCol = pos.colOffset;
+  #|             let newCursor = nextLine.startIdx;
+  #|             let w = 0;
+  #|             for (let j = 0; j < nextLine.chars.length; j++) {
+  #|               const cw = getCharWidth(nextLine.chars[j]);
+  #|               if (w + cw > targetCol) break;
+  #|               w += cw;
+  #|               newCursor = nextLine.startIdx + j + 1;
+  #|             }
+  #|             cursor = Math.min(newCursor, nextLine.startIdx + nextLine.chars.length);
+  #|             needRender = true;
+  #|           }
+  #|           i += 3;
+  #|           continue;
+  #|         }
   #|         if (chunk.startsWith('\x1b[1~', i)) {
   #|           cursor = 0;
   #|           needRender = true;
@@ -1048,8 +1033,12 @@ extern "js" fn js_start_inline_input_cooked(
   #|           continue;
   #|         }
   #|         if (chunk.length === 1) {
-  #|           cancel();
-  #|           return;
+  #|           if (escCancels) {
+  #|             cancel();
+  #|             return;
+  #|           }
+  #|           i += 1;
+  #|           continue;
   #|         }
   #|         i += 1;
   #|         continue;
@@ -1085,6 +1074,12 @@ extern "js" fn js_start_inline_input_cooked(
   #|         continue;
   #|       }
   #|       if (ch === '\r' || ch === '\n') {
+  #|         if (confirmOnShiftEnter) {
+  #|           chars.splice(cursor, 0, '\n');
+  #|           cursor += 1;
+  #|           needRender = true;
+  #|           continue;
+  #|         }
   #|         const result = chars.length > 0 ? bufferString() : initialText;
   #|         finish(result);
   #|         return;
@@ -1291,10 +1286,14 @@ pub fn start_inline_input_cooked(
   field_name : String,
   initial : String,
   on_result : (InputResult) -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
 ) -> Unit {
   js_start_inline_input_cooked(
     field_name,
     initial,
+    confirm_on_shift_enter,
+    esc_cancels,
     fn(value) { on_result(InputResult::Confirmed(value)) },
     fn() { on_result(InputResult::Cancelled) },
     fn() { on_result(InputResult::ForceQuit) },
@@ -1314,6 +1313,8 @@ pub fn start_inplace_input(
   multiline : Bool,
   initial : String,
   on_result : (InputResult) -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Note: on_lines_change is currently ignored in JS version (uses scroll)
@@ -1325,6 +1326,8 @@ pub fn start_inplace_input(
     height,
     multiline,
     initial,
+    confirm_on_shift_enter,
+    esc_cancels,
     fn(value) { on_result(InputResult::Confirmed(value)) },
     fn() { on_result(InputResult::Cancelled) },
     fn() { on_result(InputResult::ForceQuit) },

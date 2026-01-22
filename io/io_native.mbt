@@ -391,98 +391,6 @@ pub fn poll_keypress() -> Bool {
 }
 
 ///|
-/// Get character display width (simplified: ASCII=1, CJK=2)
-fn char_width_code(code : Int) -> Int {
-  if code < 0x80 {
-    1
-  } else if code >= 0x1100 &&
-    (
-      code <= 0x115F ||
-      code == 0x2329 ||
-      code == 0x232A ||
-      (code >= 0x2E80 && code <= 0x9FFF) ||
-      (code >= 0xAC00 && code <= 0xD7A3) ||
-      (code >= 0xF900 && code <= 0xFAFF) ||
-      (code >= 0xFE10 && code <= 0xFE1F) ||
-      (code >= 0xFE30 && code <= 0xFE6F) ||
-      (code >= 0xFF00 && code <= 0xFF60) ||
-      (code >= 0xFFE0 && code <= 0xFFE6)
-    ) {
-    2
-  } else {
-    1
-  }
-}
-
-///|
-/// Line info for scrolling
-priv struct LineInfo {
-  start_idx : Int
-  chars : Array[Char]
-}
-
-///|
-/// Wrap text into lines (considering newlines and max_width)
-fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
-  let lines : Array[LineInfo] = []
-  let mut current_chars : Array[Char] = []
-  let mut current_width = 0
-  let mut line_start_idx = 0
-  for i, c in buf {
-    let code = c.to_int()
-    // Handle newline
-    if code == 10 {
-      lines.push({ start_idx: line_start_idx, chars: current_chars })
-      current_chars = []
-      current_width = 0
-      line_start_idx = i + 1
-      continue
-    }
-    let cw = char_width_code(code)
-    // Wrap if needed
-    if current_width + cw > max_width {
-      lines.push({ start_idx: line_start_idx, chars: current_chars })
-      current_chars = [c]
-      current_width = cw
-      line_start_idx = i
-    } else {
-      current_chars.push(c)
-      current_width = current_width + cw
-    }
-  }
-  lines.push({ start_idx: line_start_idx, chars: current_chars })
-  lines
-}
-
-///|
-/// Find cursor line index and column offset
-fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
-  for line_idx, line in lines {
-    let next_start = if line_idx + 1 < lines.length() {
-      lines[line_idx + 1].start_idx
-    } else {
-      line.start_idx + line.chars.length()
-    }
-    if cursor < next_start {
-      let pos_in_line = cursor - line.start_idx
-      let mut col_offset = 0
-      for i = 0; i < pos_in_line && i < line.chars.length(); i = i + 1 {
-        col_offset = col_offset + char_width_code(line.chars[i].to_int())
-      }
-      return (line_idx, col_offset)
-    }
-  }
-  // Cursor at end
-  let last_idx = lines.length() - 1
-  let last_line = lines[last_idx]
-  let mut col_offset = 0
-  for c in last_line.chars {
-    col_offset = col_offset + char_width_code(c.to_int())
-  }
-  (last_idx, col_offset)
-}
-
-///|
 /// Render buffer with scroll support
 fn render_inplace_buffer_scroll(
   buf : Array[Char],
@@ -572,6 +480,8 @@ pub fn start_inplace_input(
   multiline : Bool,
   initial : String,
   on_result : (InputResult) -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
 ) -> Unit {
   // Ensure raw mode is enabled
@@ -648,11 +558,12 @@ pub fn start_inplace_input(
       }
     }
     // Adjust scroll to keep cursor visible
-    if cursor_line_idx < scroll_offset {
-      scroll_offset = cursor_line_idx
-    } else if cursor_line_idx >= scroll_offset + current_height {
-      scroll_offset = cursor_line_idx - current_height + 1
-    }
+    scroll_offset = adjust_scroll_offset(
+      scroll_offset,
+      cursor_line_idx,
+      current_height,
+      lines.length(),
+    )
     // Render with scroll (at calculated start row)
     render_inplace_buffer_scroll(
       buf, start_row, col, width, current_height, scroll_offset,
@@ -687,11 +598,15 @@ pub fn start_inplace_input(
         done = true
         result = InputResult::TabPrev(buf_to_string(buf))
       } else if is_shift_enter_sequence(key) {
-        // Shift+Enter or Alt+Enter - insert newline
-        // ESC CR or ESC LF is Alt+Enter in many terminals
-        buf.insert(cursor_pos, '\n')
-        cursor_pos = cursor_pos + 1
-        need_render = true
+        // Shift+Enter or Alt+Enter
+        if confirm_on_shift_enter {
+          done = true
+          result = InputResult::Confirmed(buf_to_string(buf))
+        } else {
+          buf.insert(cursor_pos, '\n')
+          cursor_pos = cursor_pos + 1
+          need_render = true
+        }
       } else if key == "\u001b[D" {
         // Left arrow - move cursor left
         if cursor_pos > 0 {
@@ -704,9 +619,20 @@ pub fn start_inplace_input(
           cursor_pos = cursor_pos + 1
           need_render = true
         }
-      } else if key == "\u001b[A" || key == "\u001b[B" {
-        // Up/Down arrows - ignore for now (TODO: multiline navigation)
-        ()
+      } else if key == "\u001b[A" {
+        let lines = wrap_text_to_lines(buf, width)
+        let new_cursor = cursor_up(lines, cursor_pos)
+        if new_cursor != cursor_pos {
+          cursor_pos = new_cursor
+          need_render = true
+        }
+      } else if key == "\u001b[B" {
+        let lines = wrap_text_to_lines(buf, width)
+        let new_cursor = cursor_down(lines, cursor_pos)
+        if new_cursor != cursor_pos {
+          cursor_pos = new_cursor
+          need_render = true
+        }
       } else if key == "\u001b[H" {
         // Home - move to start
         cursor_pos = 0
@@ -718,8 +644,10 @@ pub fn start_inplace_input(
       }
     } else if key == "\u001b" {
       // Escape - cancel
-      done = true
-      result = InputResult::Cancelled
+      if esc_cancels {
+        done = true
+        result = InputResult::Cancelled
+      }
     } else if key.length() == 1 {
       let code = key[0].to_int()
       if code == 9 {
@@ -727,9 +655,15 @@ pub fn start_inplace_input(
         done = true
         result = InputResult::TabNext(buf_to_string(buf))
       } else if code == 13 {
-        // Enter (CR) - confirm (both single and multiline)
-        done = true
-        result = InputResult::Confirmed(buf_to_string(buf))
+        if confirm_on_shift_enter && multiline {
+          buf.insert(cursor_pos, '\n')
+          cursor_pos = cursor_pos + 1
+          need_render = true
+        } else {
+          // Enter (CR) - confirm
+          done = true
+          result = InputResult::Confirmed(buf_to_string(buf))
+        }
       } else if code == 10 {
         // Ctrl+J (LF) - newline in multiline, confirm in single line
         if multiline {
@@ -843,6 +777,8 @@ pub fn start_inline_input_cooked(
   field_name : String,
   initial : String,
   on_result : (InputResult) -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
 ) -> Unit {
   // Ensure raw mode is enabled for predictable key handling
   let was_raw = is_raw_mode()
@@ -935,11 +871,12 @@ pub fn start_inline_input_cooked(
     if lines.length() <= max_visible {
       scroll_offset = 0
     } else {
-      if cursor_line_idx < scroll_offset {
-        scroll_offset = cursor_line_idx
-      } else if cursor_line_idx >= scroll_offset + max_visible {
-        scroll_offset = cursor_line_idx - max_visible + 1
-      }
+      scroll_offset = adjust_scroll_offset(
+        scroll_offset,
+        cursor_line_idx,
+        max_visible,
+        lines.length(),
+      )
       if scroll_offset < 0 {
         scroll_offset = 0
       }
@@ -1006,9 +943,15 @@ pub fn start_inline_input_cooked(
 
     if key.length() > 1 && key[0].to_int() == 0x1b {
       if is_shift_enter_sequence(key) {
-        buf.insert(cursor_pos, '\n')
-        cursor_pos = cursor_pos + 1
-        need_render = true
+        if confirm_on_shift_enter {
+          done = true
+          let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
+          result = InputResult::Confirmed(value)
+        } else {
+          buf.insert(cursor_pos, '\n')
+          cursor_pos = cursor_pos + 1
+          need_render = true
+        }
       } else if key == "\u001b[3~" {
         if cursor_pos < buf.length() {
           let _ = buf.remove(cursor_pos)
@@ -1024,6 +967,20 @@ pub fn start_inline_input_cooked(
           cursor_pos = cursor_pos + 1
           need_render = true
         }
+      } else if key == "\u001b[A" {
+        let lines = wrap_text_to_lines(buf, max_cols)
+        let new_cursor = cursor_up(lines, cursor_pos)
+        if new_cursor != cursor_pos {
+          cursor_pos = new_cursor
+          need_render = true
+        }
+      } else if key == "\u001b[B" {
+        let lines = wrap_text_to_lines(buf, max_cols)
+        let new_cursor = cursor_down(lines, cursor_pos)
+        if new_cursor != cursor_pos {
+          cursor_pos = new_cursor
+          need_render = true
+        }
       } else if key == "\u001b[H" || key == "\u001b[1~" {
         cursor_pos = 0
         need_render = true
@@ -1034,17 +991,25 @@ pub fn start_inline_input_cooked(
         ()
       }
     } else if key == "\u001b" {
-      done = true
-      result = InputResult::Cancelled
+      if esc_cancels {
+        done = true
+        result = InputResult::Cancelled
+      }
     } else if key.length() == 1 {
       let code = key[0].to_int()
       if code == 3 {
         done = true
         result = InputResult::ForceQuit
       } else if code == 13 || code == 10 {
-        done = true
-        let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
-        result = InputResult::Confirmed(value)
+        if confirm_on_shift_enter {
+          buf.insert(cursor_pos, '\n')
+          cursor_pos = cursor_pos + 1
+          need_render = true
+        } else {
+          done = true
+          let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
+          result = InputResult::Confirmed(value)
+        }
       } else if code == 127 || code == 8 {
         if cursor_pos > 0 {
           let _ = buf.remove(cursor_pos - 1)

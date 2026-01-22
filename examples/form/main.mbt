@@ -237,22 +237,12 @@ fn main {
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            // Calculate position for inplace editing
-            // bounds.x/y are 0-indexed, ANSI coordinates are 1-indexed
-            // +1 for 0-to-1 index conversion, +1 for border
-            let row = bounds.y + 2 // +1 for 1-indexed, +1 for border
-            let col = bounds.x + 2 // +1 for 1-indexed, +1 for border
-            let content_width = bounds.width - 2 // Exclude left and right borders
-            let content_height = bounds.height - 2 // Exclude top and bottom borders
             // Determine if this is a multiline textarea
             let multiline = id == "message-textarea"
-            @c.start_edit_inplace(
+            @c.start_edit_inplace_in_bounds(
               config,
               signal.get(),
-              row,
-              col,
-              content_width,
-              content_height,
+              bounds,
               multiline,
               restore_tui,
             )

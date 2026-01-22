@@ -1,18 +1,9 @@
 ///|
-/// Textarea - Multi-line text input component
+/// Multiline input - text box with input-like states and placeholder
 
 ///|
-/// Textarea state for visual feedback
-pub(all) enum TextareaState {
-  Idle
-  Focused
-  Editing
-  Disabled
-}
-
-///|
-/// Create a textarea component
-pub fn textarea(
+/// Create a multiline input component that wraps text within its bounds.
+pub fn multiline_input(
   value : String,
   id? : String = "",
   rows? : Int = 3,
@@ -33,7 +24,6 @@ pub fn textarea(
   padding_y? : Double = 0.0,
 ) -> @core.Component {
   let display_text = textarea_display_text(value, placeholder, state)
-  let display_lines = split_lines(display_text)
   let (actual_fg, actual_bg, border_color) = textarea_palette(
     value,
     fg,
@@ -46,39 +36,18 @@ pub fn textarea(
     state,
   )
 
-  // Build text lines (show cursor on last line when editing)
-  let text_components : Array[@core.Component] = []
-  for i, line in display_lines {
-    let is_last = i == display_lines.length() - 1
-    let line_text = if is_last && state is TextareaState::Editing {
-      line + "_"
-    } else {
-      line
-    }
-    text_components.push(text(line_text, fg=actual_fg))
-  }
-
-  // Pad with empty lines to reach minimum rows
-  let remaining_rows = rows - text_components.length()
-  for _ in 0..<remaining_rows {
-    text_components.push(text("", fg=actual_fg))
-  }
-
-  // Build textarea with border
-  column(
-    text_components,
+  @core.text_box(
+    display_text,
     id~,
-    min_width=@types.Dimension::Length(min_width),
     width~,
     height=@types.Dimension::Length(rows.to_double()),
+    min_width=@types.Dimension::Length(min_width),
+    min_height=@types.Dimension::Length(rows.to_double()),
     padding_x~,
     padding_y~,
-    justify=@types.Alignment::Start,
-    align=@types.Alignment::Start,
     border=Some(@core.BorderChars::rounded()),
     border_color~,
+    fg=actual_fg,
     bg=actual_bg,
   )
 }
-
-// split_lines is now defined in streaming.mbt
