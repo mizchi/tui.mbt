@@ -25,7 +25,7 @@ pub fn button(
   border_color? : @core.Color = @core.Color::cyan(),
   // Size
   min_width? : Double = 0.0,
-  padding_x? : Double = 2.0,
+  padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
 ) -> @core.Component {
   // Determine colors based on state
@@ -37,6 +37,8 @@ pub fn button(
   }
 
   // Build button with border
+  // Note: justify/align with min_width doesn't work correctly in crater,
+  // so centering is limited. Use fixed width if centering is critical.
   row(
     [text(label, fg=actual_fg)],
     id~,

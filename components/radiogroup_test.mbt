@@ -31,7 +31,7 @@ test "radiogroup: horizontal layout" {
   let output = @render.render_once(30, 2, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ A\u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mB\u{1b}[38;5;231m○ C                     \u{1b}[2;1H                              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m○ A  \u{1b}[38;5;51m◉\u{1b}[38;5;231m \u{1b}[38;5;51mB\u{1b}[38;5;231m  ○ C                 \u{1b}[2;1H                              \u{1b}[0m",
   )
 }
 

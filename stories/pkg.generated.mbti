@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/stories"
+
+import {
+  "mizchi/tui/core",
+}
+
+// Values
+pub fn accordion_stories() -> Array[Story]
+
+pub fn all_categories() -> Array[String]
+
+pub fn all_stories() -> Array[Story]
+
+pub fn bordered_stories() -> Array[Story]
+
+pub fn button_stories() -> Array[Story]
+
+pub fn card_stories() -> Array[Story]
+
+pub fn checkbox_stories() -> Array[Story]
+
+pub fn context_menu_stories() -> Array[Story]
+
+pub fn divider_stories() -> Array[Story]
+
+pub fn input_stories() -> Array[Story]
+
+pub fn listbox_stories() -> Array[Story]
+
+pub fn loading_dots_stories() -> Array[Story]
+
+pub fn menu_stories() -> Array[Story]
+
+pub fn panel_stories() -> Array[Story]
+
+pub fn progress_stories() -> Array[Story]
+
+pub fn radio_stories() -> Array[Story]
+
+pub fn select_stories() -> Array[Story]
+
+pub fn spinner_stories() -> Array[Story]
+
+pub fn stories_by_category(String) -> Array[Story]
+
+pub fn switch_stories() -> Array[Story]
+
+pub fn tabs_stories() -> Array[Story]
+
+pub fn text_stories() -> Array[Story]
+
+pub fn textarea_stories() -> Array[Story]
+
+// Errors
+
+// Types and methods
+pub(all) struct Story {
+  category : String
+  name : String
+  width : Int
+  height : Int
+  render : () -> @core.Component
+}
+pub fn Story::new(String, String, () -> @core.Component, width? : Int, height? : Int) -> Self
+pub fn Story::snapshot_filename(Self) -> String
+pub fn Story::to_ansi(Self) -> String
+pub fn Story::to_plain(Self) -> String
+pub fn Story::to_snapshot(Self) -> String
+
+// Type aliases
+
+// Traits
+

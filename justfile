@@ -34,5 +34,12 @@ info:
 clean:
     moon clean
 
+# Generate component snapshots
+snapshot:
+    #!/usr/bin/env bash
+    mkdir -p __snapshots__
+    moon run examples/snapshot --target {{target}} 2>/dev/null | grep -v "^Generating\|^Done\|^To save\|^  moon" > __snapshots__/components.txt
+    echo "Generated __snapshots__/components.txt ($(wc -l < __snapshots__/components.txt) lines)"
+
 # Pre-release check
 release-check: fmt info check test

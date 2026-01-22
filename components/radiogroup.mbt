@@ -47,7 +47,11 @@ pub fn radiogroup(
     items.push(item)
   }
   match orientation {
-    RadioOrientation::Horizontal => row(items, id~, gap~)
+    RadioOrientation::Horizontal => {
+      // Use larger gap for horizontal layout if not specified
+      let actual_gap = if gap == 0.0 { 2.0 } else { gap }
+      row(items, id~, gap=actual_gap)
+    }
     RadioOrientation::Vertical => column(items, id~, gap~)
   }
 }
