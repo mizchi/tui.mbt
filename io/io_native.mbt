@@ -210,6 +210,16 @@ pub fn read_key() -> String {
 }
 
 ///|
+/// Detect Shift+Enter or Alt+Enter escape sequences
+fn is_shift_enter_sequence(key : String) -> Bool {
+  key == "\u001b[13;2u" ||
+  key == "\u001b[27;2;13~" ||
+  key == "\u001bOM" ||
+  key == "\u001b\r" ||
+  key == "\u001b\n"
+}
+
+///|
 /// Encode a Unicode code point to UTF-8 bytes
 fn encode_utf8(code : Int, buf : FixedArray[Byte], pos : Int) -> Int {
   if code < 0x80 {
@@ -843,7 +853,7 @@ pub fn start_inline_input_cooked(
   let _ = field_name
   print_raw(@render.ansi_show_cursor())
 
-  let mut buf : Array[Char] = []
+  let buf : Array[Char] = []
   for c in initial {
     buf.push(c)
   }
@@ -1073,7 +1083,7 @@ pub fn start_inline_input_cooked(
         cursor_pos = new_pos
         need_render = true
       } else if code >= 32 {
-        let c = key[0]
+        let c = Int::unsafe_to_char(key[0].to_int())
         buf.insert(cursor_pos, c)
         cursor_pos = cursor_pos + 1
         need_render = true
