@@ -47,6 +47,13 @@ pub fn checkbox_stories() -> Array[Story] {
       width=20,
       height=3,
     ),
+    Story::new(
+      "checkbox",
+      "focused",
+      fn() { @components.checkbox(true, focused=true) },
+      width=10,
+      height=3,
+    ),
   ]
 }
 
@@ -71,16 +78,21 @@ pub fn switch_stories() -> Array[Story] {
     Story::new(
       "switch",
       "disabled_off",
-      fn() {
-        @components.switch(false, state=@components.SwitchState::Disabled)
-      },
+      fn() { @components.switch(false, disabled=true) },
       width=10,
       height=3,
     ),
     Story::new(
       "switch",
       "disabled_on",
-      fn() { @components.switch(true, state=@components.SwitchState::Disabled) },
+      fn() { @components.switch(true, disabled=true) },
+      width=10,
+      height=3,
+    ),
+    Story::new(
+      "switch",
+      "focused",
+      fn() { @components.switch(true, focused=true) },
       width=10,
       height=3,
     ),

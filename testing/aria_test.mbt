@@ -171,14 +171,10 @@ test "Switch: on state renders differently from off" {
 ///|
 test "Switch: disabled state prevents interaction" {
   let h = TestHarness::new(width=15, height=3)
-  let _ = h.render(
-    @components.switch(false, state=@components.SwitchState::Disabled),
-  )
+  let _ = h.render(@components.switch(false, disabled=true))
   let disabled = h.last_frame()
   h.clear_frames()
-  let _ = h.render(
-    @components.switch(false, state=@components.SwitchState::Off),
-  )
+  let _ = h.render(@components.switch(false))
   let normal = h.last_frame()
 
   // Disabled should look different (different colors)

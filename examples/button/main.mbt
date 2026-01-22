@@ -64,15 +64,11 @@ fn main {
         // Buttons row
         @c.row(
           [
-            @c.button("[ - ]", bg=@core.Color::rgb(80, 40, 40), id="btn-minus"),
+            @c.button("[ - ]", id="btn-minus"),
             @c.hspace(2.0),
-            @c.button(
-              "[ Reset ]",
-              bg=@core.Color::rgb(60, 60, 60),
-              id="btn-reset",
-            ),
+            @c.button("[ Reset ]", id="btn-reset"),
             @c.hspace(2.0),
-            @c.button("[ + ]", bg=@core.Color::rgb(40, 80, 40), id="btn-plus"),
+            @c.button("[ + ]", id="btn-plus"),
           ],
           justify=@c.align_center(),
         ),

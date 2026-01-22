@@ -4,16 +4,28 @@ test "button layout: text should be centered" {
   let layout = @render.compute_layout(btn.node, 20, 5)
 
   // Button root
-  println("Root: x=\{layout.x}, y=\{layout.y}, w=\{layout.width}, h=\{layout.height}")
-  println("Root padding: L=\{layout.padding.left}, R=\{layout.padding.right}, T=\{layout.padding.top}, B=\{layout.padding.bottom}")
-  println("Root border: L=\{layout.border.left}, R=\{layout.border.right}, T=\{layout.border.top}, B=\{layout.border.bottom}")
+  println(
+    "Root: x=\{layout.x}, y=\{layout.y}, w=\{layout.width}, h=\{layout.height}",
+  )
+  println(
+    "Root padding: L=\{layout.padding.left}, R=\{layout.padding.right}, T=\{layout.padding.top}, B=\{layout.padding.bottom}",
+  )
+  println(
+    "Root border: L=\{layout.border.left}, R=\{layout.border.right}, T=\{layout.border.top}, B=\{layout.border.bottom}",
+  )
 
   // Children (text)
   for i, child in layout.children {
-    println("Child[\{i}]: id=\{child.id}, x=\{child.x}, y=\{child.y}, w=\{child.width}, h=\{child.height}")
-    println("Child[\{i}] padding: L=\{child.padding.left}, R=\{child.padding.right}, T=\{child.padding.top}, B=\{child.padding.bottom}")
+    println(
+      "Child[\{i}]: id=\{child.id}, x=\{child.x}, y=\{child.y}, w=\{child.width}, h=\{child.height}",
+    )
+    println(
+      "Child[\{i}] padding: L=\{child.padding.left}, R=\{child.padding.right}, T=\{child.padding.top}, B=\{child.padding.bottom}",
+    )
     for j, grandchild in child.children {
-      println("  Grandchild[\{j}]: id=\{grandchild.id}, x=\{grandchild.x}, y=\{grandchild.y}, w=\{grandchild.width}, h=\{grandchild.height}")
+      println(
+        "  Grandchild[\{j}]: id=\{grandchild.id}, x=\{grandchild.x}, y=\{grandchild.y}, w=\{grandchild.width}, h=\{grandchild.height}",
+      )
     }
   }
 
@@ -31,7 +43,6 @@ test "simple row with justify center" {
     justify=@types.Alignment::Center,
   )
   let layout = @render.compute_layout(comp.node, 20, 3)
-
   println("Simple Row: w=\{layout.width}, h=\{layout.height}")
   println("Simple Row padding: L=\{layout.padding.left}")
   for i, child in layout.children {
@@ -50,9 +61,10 @@ test "row with padding and justify center" {
     justify=@types.Alignment::Center,
   )
   let layout = @render.compute_layout(comp.node, 20, 3)
-
   println("Padded Row: w=\{layout.width}, h=\{layout.height}")
-  println("Padded Row padding: L=\{layout.padding.left}, R=\{layout.padding.right}")
+  println(
+    "Padded Row padding: L=\{layout.padding.left}, R=\{layout.padding.right}",
+  )
   for i, child in layout.children {
     println("Child[\{i}]: x=\{child.x}, w=\{child.width}")
     // With width=10, padding_x=2 on each side, content area = 6
@@ -70,9 +82,10 @@ test "row with border and justify center" {
     justify=@types.Alignment::Center,
   )
   let layout = @render.compute_layout(comp.node, 20, 3)
-
   println("Bordered Row: w=\{layout.width}, h=\{layout.height}")
-  println("Bordered Row border: L=\{layout.border.left}, R=\{layout.border.right}")
+  println(
+    "Bordered Row border: L=\{layout.border.left}, R=\{layout.border.right}",
+  )
   for i, child in layout.children {
     println("Child[\{i}]: x=\{child.x}, w=\{child.width}")
     // With width=10, border=1 on each side, content area = 8
@@ -91,7 +104,6 @@ test "row with padding AND border and justify center" {
     justify=@types.Alignment::Center,
   )
   let layout = @render.compute_layout(comp.node, 20, 3)
-
   println("Padded+Bordered Row: w=\{layout.width}, h=\{layout.height}")
   println("  padding: L=\{layout.padding.left}, R=\{layout.padding.right}")
   println("  border: L=\{layout.border.left}, R=\{layout.border.right}")
@@ -106,17 +118,13 @@ test "row with padding AND border and justify center" {
 ///|
 test "workaround: use spacers for centering" {
   // Use flex-grow spacers instead of padding + justify
-  let spacer = @core.box(
-    [],
-    flex_grow=1.0,
-  )
+  let spacer = @core.box([], flex_grow=1.0)
   let comp = row(
     [spacer, @core.text("X"), spacer],
     width=@types.Dimension::Length(10.0),
     border=Some(@core.BorderChars::rounded()),
   )
   let layout = @render.compute_layout(comp.node, 20, 3)
-
   println("Spacer Row: w=\{layout.width}, h=\{layout.height}")
   for i, child in layout.children {
     println("Child[\{i}]: x=\{child.x}, w=\{child.width}")
@@ -136,10 +144,11 @@ test "vertical centering with fixed height" {
     align=@types.Alignment::Center,
   )
   let layout = @render.compute_layout(comp.node, 20, 10)
-
   println("Tall Row: w=\{layout.width}, h=\{layout.height}")
   for i, child in layout.children {
-    println("Child[\{i}]: x=\{child.x}, y=\{child.y}, w=\{child.width}, h=\{child.height}")
+    println(
+      "Child[\{i}]: x=\{child.x}, y=\{child.y}, w=\{child.width}, h=\{child.height}",
+    )
     // height=5, border=2, content area=3
     // text height=1, should be centered: y = 1 + (3-1)/2 = 2
   }
@@ -149,20 +158,18 @@ test "vertical centering with fixed height" {
 test "2D centering with spacers" {
   // Use nested spacers for 2D centering
   let hspacer = @core.box([], flex_grow=1.0)
-  let vspacer = @core.box([], flex_grow=1.0, width=@types.Dimension::Percent(100.0))
-
+  let vspacer = @core.box(
+    [],
+    flex_grow=1.0,
+    width=@types.Dimension::Percent(100.0),
+  )
   let comp = column(
-    [
-      vspacer,
-      row([hspacer, @core.text("X"), hspacer]),
-      vspacer,
-    ],
+    [vspacer, row([hspacer, @core.text("X"), hspacer]), vspacer],
     width=@types.Dimension::Length(10.0),
     height=@types.Dimension::Length(5.0),
     border=Some(@core.BorderChars::rounded()),
   )
   let layout = @render.compute_layout(comp.node, 20, 10)
-
   println("2D Centered: w=\{layout.width}, h=\{layout.height}")
   // Find text position recursively
   fn find_text(l : @types.Layout, depth : Int) -> Unit {
@@ -173,6 +180,7 @@ test "2D centering with spacers" {
       find_text(child, depth + 1)
     }
   }
+
   find_text(layout, 0)
 }
 
@@ -186,12 +194,10 @@ test "min_width vs width with justify center" {
     justify=@types.Alignment::Center,
   )
   let layout1 = @render.compute_layout(comp1.node, 20, 3)
-
   println("min_width Row: w=\{layout1.width}, h=\{layout1.height}")
   for i, child in layout1.children {
     println("  Child[\{i}]: x=\{child.x}, w=\{child.width}")
   }
-
   let comp2 = row(
     [@core.text("OK")],
     width=@types.Dimension::Length(10.0),
@@ -199,7 +205,6 @@ test "min_width vs width with justify center" {
     justify=@types.Alignment::Center,
   )
   let layout2 = @render.compute_layout(comp2.node, 20, 3)
-
   println("fixed width Row: w=\{layout2.width}, h=\{layout2.height}")
   for i, child in layout2.children {
     println("  Child[\{i}]: x=\{child.x}, w=\{child.width}")
@@ -229,10 +234,13 @@ test "button texts map" {
     } else {
       "      "
     }
-    println("\{prefix}id=\{l.id}, w=\{l.width}, h=\{l.height}, hasText=\{has_text}")
+    println(
+      "\{prefix}id=\{l.id}, w=\{l.width}, h=\{l.height}, hasText=\{has_text}",
+    )
     for child in l.children {
       print_layout_tree(child, depth + 1)
     }
   }
+
   print_layout_tree(layout, 0)
 }

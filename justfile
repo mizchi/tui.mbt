@@ -40,6 +40,12 @@ snapshot:
     mkdir -p __snapshots__
     moon run examples/snapshot --target {{target}} 2>/dev/null | grep -v "^Generating\|^Done\|^To save\|^  moon" > __snapshots__/components.txt
     echo "Generated __snapshots__/components.txt ($(wc -l < __snapshots__/components.txt) lines)"
+    moon run examples/snapshot-ansi --target {{target}} 2>/dev/null > __snapshots__/components.ansi
+    echo "Generated __snapshots__/components.ansi ($(wc -l < __snapshots__/components.ansi) lines)"
+
+# Run story lints (odd dimensions, reasonable sizes, etc.)
+lint:
+    moon run examples/lint --target {{target}}
 
 # Pre-release check
-release-check: fmt info check test
+release-check: fmt info check test lint

@@ -43,21 +43,14 @@ pub fn ListboxState::new(
 }
 
 ///|
-/// Create a single-select listbox
+/// Create a single-select listbox with theme support
 pub fn listbox(
   options : Array[ListboxOption],
   selected_id : String,
   id? : String = "",
   focused_id? : String = "",
   orientation? : ListboxOrientation = ListboxOrientation::Vertical,
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
-  focused_border? : @core.Color = @core.Color::yellow(),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  border_color? : @core.Color = @core.Color::rgb(80, 80, 80),
+  theme? : Theme = Theme::default(),
   // Size
   min_width? : Double = 20.0,
   max_height? : Int = 10,
@@ -69,36 +62,25 @@ pub fn listbox(
     anchor_id: selected_id,
   }
   build_listbox(
-    options, state, false, // multiselectable
-     orientation, id, fg, bg, selected_fg, selected_bg, focused_border, disabled_fg,
-    border_color, min_width, max_height, padding_x,
+    options, state, false, orientation, id, theme, min_width, max_height, padding_x,
   )
 }
 
 ///|
-/// Create a multi-select listbox
+/// Create a multi-select listbox with theme support
 pub fn listbox_multi(
   options : Array[ListboxOption],
   state : ListboxState,
   id? : String = "",
   orientation? : ListboxOrientation = ListboxOrientation::Vertical,
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
-  focused_border? : @core.Color = @core.Color::yellow(),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  border_color? : @core.Color = @core.Color::rgb(80, 80, 80),
+  theme? : Theme = Theme::default(),
   // Size
   min_width? : Double = 20.0,
   max_height? : Int = 10,
   padding_x? : Double = 1.0,
 ) -> @core.Component {
   build_listbox(
-    options, state, true, // multiselectable
-     orientation, id, fg, bg, selected_fg, selected_bg, focused_border, disabled_fg,
-    border_color, min_width, max_height, padding_x,
+    options, state, true, orientation, id, theme, min_width, max_height, padding_x,
   )
 }
 
@@ -109,13 +91,7 @@ fn build_listbox(
   multiselectable : Bool,
   orientation : ListboxOrientation,
   id : String,
-  fg : @core.Color,
-  bg : @core.Color,
-  selected_fg : @core.Color,
-  selected_bg : @core.Color,
-  focused_border : @core.Color,
-  disabled_fg : @core.Color,
-  border_color : @core.Color,
+  theme : Theme,
   min_width : Double,
   max_height : Int,
   padding_x : Double,
@@ -131,13 +107,15 @@ fn build_listbox(
     let is_selected = state.selected_ids.contains(opt.id)
     let is_focused = state.focused_id == opt.id
 
-    // Determine colors
-    let (item_fg, item_bg) = if opt.disabled {
-      (disabled_fg, bg)
+    // Determine colors - no background, use text color
+    let item_fg = if opt.disabled {
+      theme.disabled
+    } else if is_focused {
+      theme.focus
     } else if is_selected {
-      (selected_fg, selected_bg)
+      theme.primary
     } else {
-      (fg, bg)
+      theme.fg
     }
 
     // Build option item
@@ -149,15 +127,23 @@ fn build_listbox(
       opt.label
     }
 
-    // Add focus indicator
-    let focus_indicator = if is_focused { "▸ " } else { "  " }
+    // Selection and focus indicators
+    let prefix = if is_focused {
+      "▸ "
+    } else if is_selected {
+      "● "
+    } else {
+      "  "
+    }
+    // Text with padding
+    let padded_text = text(
+      " ".repeat(padding_x.to_int()) + prefix + label_text,
+      fg=item_fg,
+    )
     let item = row(
-      [text(focus_indicator + label_text, fg=item_fg)],
+      [padded_text],
       id=opt.id,
-      padding_x~,
-      bg=item_bg,
-      border=if is_focused { Some(@core.BorderChars::single()) } else { None },
-      border_color=focused_border,
+      height=@types.Dimension::Length(1.0),
     )
     items.push(item)
   }
@@ -165,12 +151,14 @@ fn build_listbox(
   // Add scroll indicator if needed
   if options.length() > max_height {
     let remaining = options.length() - max_height
-    items.push(
-      row(
-        [text("  ... " + remaining.to_string() + " more", fg=disabled_fg)],
-        padding_x~,
-      ),
+    let scroll_text = text(
+      " ".repeat(padding_x.to_int()) +
+      "  ... " +
+      remaining.to_string() +
+      " more",
+      fg=theme.disabled,
     )
+    items.push(row([scroll_text], height=@types.Dimension::Length(1.0)))
   }
 
   // Build container based on orientation
@@ -180,18 +168,17 @@ fn build_listbox(
         items,
         id~,
         min_width=@types.Dimension::Length(min_width),
-        bg~,
+        // Auto-size to content
         border=Some(@core.BorderChars::single()),
-        border_color~,
+        border_color=theme.border,
       )
     ListboxOrientation::Horizontal =>
       row(
         items,
         id~,
         min_width=@types.Dimension::Length(min_width),
-        bg~,
         border=Some(@core.BorderChars::single()),
-        border_color~,
+        border_color=theme.border,
       )
   }
 }
@@ -203,23 +190,20 @@ pub fn option_list(
   selected_ids : Array[String],
   focused_id? : String = "",
   multiselectable? : Bool = false,
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::transparent(),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   let items : Array[@core.Component] = []
   for opt in options {
     let is_selected = selected_ids.contains(opt.id)
     let is_focused = focused_id == opt.id
-    let (item_fg, item_bg) = if opt.disabled {
-      (disabled_fg, bg)
+    let item_fg = if opt.disabled {
+      theme.disabled
+    } else if is_focused {
+      theme.focus
     } else if is_selected {
-      (selected_fg, selected_bg)
+      theme.primary
     } else {
-      (fg, bg)
+      theme.fg
     }
     let label_text = if multiselectable {
       let check = if is_selected { "[✓]" } else { "[ ]" }
@@ -228,9 +212,7 @@ pub fn option_list(
       opt.label
     }
     let focus_prefix = if is_focused { "▸ " } else { "  " }
-    items.push(
-      row([text(focus_prefix + label_text, fg=item_fg)], id=opt.id, bg=item_bg),
-    )
+    items.push(row([text(focus_prefix + label_text, fg=item_fg)], id=opt.id))
   }
   column(items)
 }
@@ -241,19 +223,10 @@ pub fn selectable_list(
   items_data : Array[(String, String)], // (id, label)
   selected_id : String,
   focused_id? : String = "",
-  fg? : @core.Color = @core.Color::white(),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   let options = items_data.map(fn(item) {
     { id: item.0, label: item.1, disabled: false }
   })
-  option_list(
-    options,
-    [selected_id],
-    focused_id~,
-    fg~,
-    selected_fg~,
-    selected_bg~,
-  )
+  option_list(options, [selected_id], focused_id~, theme~)
 }

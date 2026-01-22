@@ -92,19 +92,12 @@ pub fn MenubarState::new() -> MenubarState {
 }
 
 ///|
-/// Create a menubar component
+/// Create a menubar component with theme support
 pub fn menubar(
   items : Array[MenubarItem],
   state : MenubarState,
   id? : String = "",
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
-  hover_bg? : @core.Color = @core.Color::rgb(60, 60, 80),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  separator_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+  theme? : Theme = Theme::default(),
   // Size
   item_padding_x? : Double = 2.0,
   dropdown_min_width? : Double = 15.0,
@@ -114,10 +107,12 @@ pub fn menubar(
     let is_open = state.open_menu_id == menu_item.id
     let is_focused = state.focused_item_id == menu_item.id &&
       state.open_menu_id == ""
-    let (item_fg, item_bg) = if is_open || is_focused {
-      (selected_fg, selected_bg)
+    let item_fg = if is_focused {
+      theme.focus
+    } else if is_open {
+      theme.primary
     } else {
-      (fg, bg)
+      theme.fg
     }
 
     // Menubar item
@@ -125,29 +120,22 @@ pub fn menubar(
       [text(menu_item.label, fg=item_fg)],
       id=menu_item.id,
       padding_x=item_padding_x,
-      bg=item_bg,
     )
     bar_items.push(item_component)
   }
 
   // Build the menubar row
-  let bar = row(bar_items, id=id + "-bar", bg~)
+  let bar = row(bar_items, id=id + "-bar")
 
   // Find open menu and build dropdown
   let open_menu = items.iter().find_first(fn(m) { m.id == state.open_menu_id })
   match open_menu {
     Some(menu) => {
-      let dropdown = build_menu(
+      let dropdown = build_menu_themed(
         menu.items,
         state,
         menu.id + "-menu",
-        fg,
-        bg,
-        selected_fg,
-        selected_bg,
-        hover_bg,
-        disabled_fg,
-        separator_fg,
+        theme,
         dropdown_min_width,
       )
       column([bar, dropdown], id~)
@@ -157,17 +145,11 @@ pub fn menubar(
 }
 
 ///|
-fn build_menu(
+fn build_menu_themed(
   items : Array[MenuItem],
   state : MenubarState,
   id : String,
-  fg : @core.Color,
-  bg : @core.Color,
-  selected_fg : @core.Color,
-  selected_bg : @core.Color,
-  hover_bg : @core.Color,
-  disabled_fg : @core.Color,
-  separator_fg : @core.Color,
+  theme : Theme,
   dropdown_min_width : Double,
 ) -> @core.Component {
   let menu_items : Array[@core.Component] = []
@@ -177,42 +159,34 @@ fn build_menu(
         // Separator line
         menu_items.push(
           row(
-            [text("─".repeat(dropdown_min_width.to_int()), fg=separator_fg)],
+            [text("─".repeat(dropdown_min_width.to_int()), fg=theme.border)],
             padding_x=0.0,
           ),
         )
       MenuItemType::Checkbox(checked) => {
         let icon = if checked { "[✓]" } else { "[ ]" }
-        let (item_fg, item_bg) = get_item_colors(
-          item, state, fg, bg, selected_fg, selected_bg, hover_bg, disabled_fg,
-        )
+        let item_fg = get_item_color_themed(item, state, theme)
         menu_items.push(
           row(
             [text(icon + " " + item.label, fg=item_fg)],
             id=item.id,
             padding_x=1.0,
-            bg=item_bg,
           ),
         )
       }
       MenuItemType::Radio(selected) => {
         let icon = if selected { "◉" } else { "○" }
-        let (item_fg, item_bg) = get_item_colors(
-          item, state, fg, bg, selected_fg, selected_bg, hover_bg, disabled_fg,
-        )
+        let item_fg = get_item_color_themed(item, state, theme)
         menu_items.push(
           row(
             [text(icon + " " + item.label, fg=item_fg)],
             id=item.id,
             padding_x=1.0,
-            bg=item_bg,
           ),
         )
       }
       MenuItemType::Submenu(sub_items) => {
-        let (item_fg, item_bg) = get_item_colors(
-          item, state, fg, bg, selected_fg, selected_bg, hover_bg, disabled_fg,
-        )
+        let item_fg = get_item_color_themed(item, state, theme)
         let is_submenu_open = state.open_submenu_path.contains(item.id)
         // Show submenu indicator
         let label_with_arrow = item.label + " ▶"
@@ -220,23 +194,16 @@ fn build_menu(
           [text(label_with_arrow, fg=item_fg)],
           id=item.id,
           padding_x=1.0,
-          bg=item_bg,
         )
         menu_items.push(submenu_row)
 
         // Render submenu if open (inline for TUI - simplified)
         if is_submenu_open {
-          let submenu = build_menu(
+          let submenu = build_menu_themed(
             sub_items,
             state,
             item.id + "-submenu",
-            fg,
-            bg,
-            selected_fg,
-            selected_bg,
-            hover_bg,
-            disabled_fg,
-            separator_fg,
+            theme,
             dropdown_min_width,
           )
           // Indent submenu
@@ -246,16 +213,9 @@ fn build_menu(
         }
       }
       MenuItemType::Action => {
-        let (item_fg, item_bg) = get_item_colors(
-          item, state, fg, bg, selected_fg, selected_bg, hover_bg, disabled_fg,
-        )
+        let item_fg = get_item_color_themed(item, state, theme)
         menu_items.push(
-          row(
-            [text(item.label, fg=item_fg)],
-            id=item.id,
-            padding_x=1.0,
-            bg=item_bg,
-          ),
+          row([text(item.label, fg=item_fg)], id=item.id, padding_x=1.0),
         )
       }
     }
@@ -264,49 +224,35 @@ fn build_menu(
     menu_items,
     id~,
     min_width=@types.Dimension::Length(dropdown_min_width),
-    bg~,
     border=Some(@core.BorderChars::single()),
-    border_color=@core.Color::rgb(80, 80, 80),
+    border_color=theme.border,
   )
 }
 
 ///|
-fn get_item_colors(
+fn get_item_color_themed(
   item : MenuItem,
   state : MenubarState,
-  fg : @core.Color,
-  bg : @core.Color,
-  selected_fg : @core.Color,
-  selected_bg : @core.Color,
-  hover_bg : @core.Color,
-  disabled_fg : @core.Color,
-) -> (@core.Color, @core.Color) {
+  theme : Theme,
+) -> @core.Color {
   if item.disabled {
-    return (disabled_fg, bg)
+    return theme.disabled
   }
   let is_focused = state.focused_item_id == item.id
   if is_focused {
-    (selected_fg, selected_bg)
+    theme.focus
   } else {
-    // Use hover_bg for potential hover state (managed externally)
-    let _ = hover_bg
-    (fg, bg)
+    theme.fg
   }
 }
 
 ///|
-/// Simple menu (dropdown menu without menubar)
+/// Simple menu (dropdown menu without menubar) with theme support
 pub fn menu(
   items : Array[MenuItem],
   focused_id? : String = "",
   id? : String = "",
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
-  selected_fg? : @core.Color = @core.Color::black(),
-  selected_bg? : @core.Color = @core.Color::cyan(),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  separator_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
+  theme? : Theme = Theme::default(),
   min_width? : Double = 15.0,
 ) -> @core.Component {
   let state : MenubarState = {
@@ -314,30 +260,17 @@ pub fn menu(
     focused_item_id: focused_id,
     open_submenu_path: [],
   }
-  build_menu(
-    items,
-    state,
-    id,
-    fg,
-    bg,
-    selected_fg,
-    selected_bg,
-    @core.Color::rgb(60, 60, 80), // hover_bg
-    disabled_fg,
-    separator_fg,
-    min_width,
-  )
+  build_menu_themed(items, state, id, theme, min_width)
 }
 
 ///|
-/// Context menu (positioned menu)
+/// Context menu (positioned menu) with theme support
 pub fn context_menu(
   items : Array[MenuItem],
   focused_id? : String = "",
   id? : String = "",
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(40, 40, 50),
+  theme? : Theme = Theme::default(),
   min_width? : Double = 12.0,
 ) -> @core.Component {
-  menu(items, focused_id~, id~, fg~, bg~, min_width~)
+  menu(items, focused_id~, id~, theme~, min_width~)
 }

@@ -44,46 +44,26 @@ pub fn vspace(height : Double) -> @core.Component {
 }
 
 ///|
-/// Horizontal divider line
+/// Horizontal divider line (1 row height, fills width)
 pub fn hdivider(
-  char? : Char = '-',
+  char? : Char = '─',
   fg? : @core.Color = @core.Color::white(),
+  width? : Int = 40,
 ) -> @core.Component {
-  @core.box(
-    [],
-    flex_grow=1.0,
-    height=@types.Dimension::Length(1.0),
-    border=Some({
-      top_left: char,
-      top_right: char,
-      bottom_left: char,
-      bottom_right: char,
-      horizontal: char,
-      vertical: char,
-    }),
-    border_color=fg,
-  )
+  text(char.to_string().repeat(width), fg~)
 }
 
 ///|
-/// Vertical divider line
+/// Vertical divider line (1 column width, fills height)
 pub fn vdivider(
-  char? : Char = '|',
+  char? : Char = '│',
   fg? : @core.Color = @core.Color::white(),
 ) -> @core.Component {
+  // Use a box with flex_grow to fill vertical space, render char in each row
   @core.box(
-    [],
+    [@core.styled_text(char.to_string(), fg~)],
     flex_grow=1.0,
     width=@types.Dimension::Length(1.0),
-    border=Some({
-      top_left: char,
-      top_right: char,
-      bottom_left: char,
-      bottom_right: char,
-      horizontal: char,
-      vertical: char,
-    }),
-    border_color=fg,
   )
 }
 

@@ -11,7 +11,7 @@ test "switch: on state" {
   let output = @render.render_once(10, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;78m━━●\u{1b}[38;5;231m       \u{1b}[0m",
   )
 }
 
@@ -21,23 +21,23 @@ test "switch: off state" {
   let output = @render.render_once(10, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;247m○━━\u{1b}[38;5;231m       \u{1b}[0m",
   )
 }
 
 ///|
 test "switch: disabled state" {
-  let on_disabled = switch(true, state=SwitchState::Disabled)
-  let off_disabled = switch(false, state=SwitchState::Disabled)
+  let on_disabled = switch(true, disabled=true)
+  let off_disabled = switch(false, disabled=true)
   let out_on = @render.render_once(10, 1, on_disabled)
   let out_off = @render.render_once(10, 1, off_disabled)
   inspect(
     out_on,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m━━●\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m━━●\u{1b}[38;5;231m       \u{1b}[0m",
   )
   inspect(
     out_off,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m\u{1b}[48;5;235m○━━\u{1b}[38;5;231m \u{1b}[49m      \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m○━━\u{1b}[38;5;231m       \u{1b}[0m",
   )
 }
 
@@ -51,7 +51,7 @@ test "labeled_switch: label on left" {
   let output = @render.render_once(25, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mDark Mode \u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m           \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231mDark Mode \u{1b}[38;5;78m━━●\u{1b}[38;5;231m            \u{1b}[0m",
   )
 }
 
@@ -65,7 +65,7 @@ test "labeled_switch: label on right" {
   let output = @render.render_once(25, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;241m\u{1b}[48;5;237m○━━\u{1b}[38;5;231m \u{1b}[49m Notifications       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;247m○━━\u{1b}[38;5;231m  Notifications       \u{1b}[0m",
   )
 }
 
@@ -75,7 +75,7 @@ test "checkbox: checked" {
   let output = @render.render_once(5, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m  \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;78m[✓]\u{1b}[38;5;231m  \u{1b}[0m",
   )
 }
 
@@ -92,7 +92,7 @@ test "labeled_checkbox: label on right" {
   let output = @render.render_once(20, 1, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;46m[✓]\u{1b}[38;5;231m Accept terms    \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;78m[✓]\u{1b}[38;5;231m Accept terms    \u{1b}[0m",
   )
 }
 
@@ -124,8 +124,8 @@ test "a11y: switch - has focusable ID" {
 test "a11y: switch - on/off states are visually distinct" {
   let on_out = @render.render_once(10, 1, switch(true))
   let off_out = @render.render_once(10, 1, switch(false))
-  inspect(on_out != off_out, content="false")
-  inspect(on_out.contains("━━●"), content="false")
+  // ON state has ● indicator, OFF state has ○ indicator
+  inspect(on_out.contains("━━●"), content="true")
   inspect(off_out.contains("○━━"), content="true")
 }
 
@@ -154,8 +154,8 @@ test "a11y: labeled_checkbox - combines label with state" {
 
 ///|
 test "a11y: switch - disabled state is visually distinct" {
-  let enabled = switch(true, state=SwitchState::On)
-  let disabled = switch(true, state=SwitchState::Disabled)
+  let enabled = switch(true)
+  let disabled = switch(true, disabled=true)
   let out_enabled = @render.render_once(10, 1, enabled)
   let out_disabled = @render.render_once(10, 1, disabled)
   // Disabled should look different from enabled
@@ -200,8 +200,8 @@ test "a11y: labeled_checkbox - label position options" {
 
 ///|
 test "a11y: switch - has track indicator for current state" {
-  let on = switch(true, state=SwitchState::On)
-  let off = switch(false, state=SwitchState::Off)
+  let on = switch(true)
+  let off = switch(false)
   let out_on = @render.render_once(10, 1, on)
   let out_off = @render.render_once(10, 1, off)
   // Should contain track characters

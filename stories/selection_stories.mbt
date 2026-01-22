@@ -39,6 +39,13 @@ pub fn radio_stories() -> Array[Story] {
     ),
     Story::new(
       "radio",
+      "group_focused",
+      fn() { @components.radiogroup(options, "small", focused_id="medium") },
+      width=15,
+      height=6,
+    ),
+    Story::new(
+      "radio",
       "group_horizontal",
       fn() {
         @components.radiogroup(
@@ -65,23 +72,25 @@ pub fn listbox_stories() -> Array[Story] {
     Story::new(
       "listbox",
       "first_selected",
-      fn() { @components.listbox(options, "apple") },
-      width=20,
-      height=15,
+      fn() { @components.listbox(options, "apple", max_height=4) },
+      width=21,
+      height=7,
     ),
     Story::new(
       "listbox",
       "middle_selected",
-      fn() { @components.listbox(options, "banana") },
-      width=20,
-      height=15,
+      fn() { @components.listbox(options, "banana", max_height=4) },
+      width=21,
+      height=7,
     ),
     Story::new(
       "listbox",
       "with_focus",
-      fn() { @components.listbox(options, "apple", focused_id="cherry") },
-      width=20,
-      height=17,
+      fn() {
+        @components.listbox(options, "apple", focused_id="cherry", max_height=4)
+      },
+      width=21,
+      height=7,
     ),
     Story::new(
       "listbox",
@@ -98,10 +107,11 @@ pub fn listbox_stories() -> Array[Story] {
             @components.listbox_option("c", "Enabled"),
           ],
           "a",
+          max_height=3,
         )
       },
-      width=20,
-      height=12,
+      width=21,
+      height=5,
     ),
   ]
 }
@@ -118,22 +128,22 @@ pub fn select_stories() -> Array[Story] {
       "select",
       "closed",
       fn() { @components.select(options, "js", open=false) },
-      width=20,
+      width=21,
       height=5,
     ),
     Story::new(
       "select",
       "closed_ts",
       fn() { @components.select(options, "ts", open=false) },
-      width=20,
+      width=21,
       height=5,
     ),
     Story::new(
       "select",
       "open",
       fn() { @components.select(options, "js", open=true) },
-      width=20,
-      height=15,
+      width=21,
+      height=13,
     ),
     Story::new(
       "select",
@@ -141,7 +151,7 @@ pub fn select_stories() -> Array[Story] {
       fn() {
         @components.select(options, "", placeholder="Choose...", open=false)
       },
-      width=20,
+      width=21,
       height=5,
     ),
   ]

@@ -16,15 +16,14 @@ pub(all) enum RadioOrientation {
 }
 
 ///|
-/// Create a radio group component
+/// Create a radio group component with theme support
 pub fn radiogroup(
   options : Array[RadioOption],
   selected_id : String,
   id? : String = "",
+  focused_id? : String = "",
   orientation? : RadioOrientation = RadioOrientation::Vertical,
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  selected_fg? : @core.Color = @core.Color::cyan(),
+  theme? : Theme = Theme::default(),
   // Icons
   selected_icon? : String = "◉",
   unselected_icon? : String = "○",
@@ -35,10 +34,13 @@ pub fn radiogroup(
   let items : Array[@core.Component] = []
   for option in options {
     let is_selected = option.id == selected_id
-    let (icon, color) = if is_selected {
-      (selected_icon, selected_fg)
+    let is_focused = option.id == focused_id
+    let (icon, color) = if is_focused {
+      (if is_selected { selected_icon } else { unselected_icon }, theme.focus)
+    } else if is_selected {
+      (selected_icon, theme.primary)
     } else {
-      (unselected_icon, fg)
+      (unselected_icon, theme.fg)
     }
     let item = row(
       [text(icon, fg=color), hspace(item_gap), text(option.label, fg=color)],
@@ -62,16 +64,19 @@ pub fn radio(
   label : String,
   selected : Bool,
   id? : String = "",
-  fg? : @core.Color = @core.Color::white(),
-  selected_fg? : @core.Color = @core.Color::cyan(),
+  focused? : Bool = false,
+  theme? : Theme = Theme::default(),
   selected_icon? : String = "◉",
   unselected_icon? : String = "○",
   gap? : Double = 1.0,
 ) -> @core.Component {
-  let (icon, color) = if selected {
-    (selected_icon, selected_fg)
+  let icon = if selected { selected_icon } else { unselected_icon }
+  let color = if focused {
+    theme.focus
+  } else if selected {
+    theme.primary
   } else {
-    (unselected_icon, fg)
+    theme.fg
   }
   row([text(icon, fg=color), hspace(gap), text(label, fg=color)], id~)
 }

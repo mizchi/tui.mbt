@@ -7,36 +7,39 @@ pub(all) enum ButtonState {
   Normal
   Hover
   Pressed
+  Focused
   Disabled
 }
 
 ///|
-/// Create a button component
+/// Create a button component with theme support
+///
+/// Uses border color for state differentiation (not background).
+/// - Normal: theme.primary border
+/// - Hover: theme.primary border (brighter fg)
+/// - Focused: theme.focus (yellow) border
+/// - Pressed: theme.primary border (dimmed)
+/// - Disabled: theme.disabled border and fg
 pub fn button(
   label : String,
   id? : String = "",
   state? : ButtonState = ButtonState::Normal,
-  // Style
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(60, 60, 80),
-  hover_bg? : @core.Color = @core.Color::rgb(80, 80, 100),
-  pressed_bg? : @core.Color = @core.Color::rgb(40, 40, 60),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  border_color? : @core.Color = @core.Color::cyan(),
+  theme? : Theme = Theme::default(),
   // Size
   min_width? : Double = 0.0,
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
 ) -> @core.Component {
-  // Determine colors based on state
-  let (actual_fg, actual_bg) = match state {
-    ButtonState::Normal => (fg, bg)
-    ButtonState::Hover => (fg, hover_bg)
-    ButtonState::Pressed => (fg, pressed_bg)
-    ButtonState::Disabled => (disabled_fg, bg)
+  // Determine colors based on state and theme
+  let (actual_fg, actual_border) = match state {
+    ButtonState::Normal => (theme.fg, theme.primary)
+    ButtonState::Hover => (theme.fg, theme.primary)
+    ButtonState::Focused => (theme.focus, theme.focus)
+    ButtonState::Pressed => (theme.muted, theme.primary)
+    ButtonState::Disabled => (theme.disabled, theme.disabled)
   }
 
-  // Build button with border
+  // Build button with border (no background for cleaner look)
   // Note: justify/align with min_width doesn't work correctly in crater,
   // so centering is limited. Use fixed width if centering is critical.
   row(
@@ -48,8 +51,8 @@ pub fn button(
     justify=@types.Alignment::Center,
     align=@types.Alignment::Center,
     border=Some(@core.BorderChars::rounded()),
-    border_color~,
-    bg=actual_bg,
+    border_color=actual_border,
+    bg=@core.Color::transparent(),
   )
 }
 
@@ -58,17 +61,15 @@ pub fn button(
 pub fn text_button(
   label : String,
   state? : ButtonState = ButtonState::Normal,
-  fg? : @core.Color = @core.Color::cyan(),
-  hover_fg? : @core.Color = @core.Color::yellow(),
-  pressed_fg? : @core.Color = @core.Color::green(),
-  disabled_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
+  theme? : Theme = Theme::default(),
   underline? : Bool = true,
 ) -> @core.Component {
   let actual_fg = match state {
-    ButtonState::Normal => fg
-    ButtonState::Hover => hover_fg
-    ButtonState::Pressed => pressed_fg
-    ButtonState::Disabled => disabled_fg
+    ButtonState::Normal => theme.primary
+    ButtonState::Hover => theme.primary
+    ButtonState::Focused => theme.focus
+    ButtonState::Pressed => theme.muted
+    ButtonState::Disabled => theme.disabled
   }
   text(label, fg=actual_fg, underline~)
 }
@@ -78,16 +79,14 @@ pub fn text_button(
 pub fn icon_button(
   icon : String,
   state? : ButtonState = ButtonState::Normal,
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::transparent(),
-  hover_bg? : @core.Color = @core.Color::rgb(60, 60, 80),
-  pressed_bg? : @core.Color = @core.Color::rgb(40, 40, 60),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
-  let actual_bg = match state {
-    ButtonState::Normal => bg
-    ButtonState::Hover => hover_bg
-    ButtonState::Pressed => pressed_bg
-    ButtonState::Disabled => bg
+  let actual_fg = match state {
+    ButtonState::Normal => theme.fg
+    ButtonState::Hover => theme.primary
+    ButtonState::Focused => theme.focus
+    ButtonState::Pressed => theme.muted
+    ButtonState::Disabled => theme.disabled
   }
-  row([text(icon, fg~)], padding_x=1.0, bg=actual_bg)
+  row([text(icon, fg=actual_fg)], padding_x=1.0)
 }

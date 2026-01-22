@@ -1,0 +1,7 @@
+import {
+  "mizchi/tui/stories" as @stories,
+}
+
+options(
+  "is-main": true,
+)

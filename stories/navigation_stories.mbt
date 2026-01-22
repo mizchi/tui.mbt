@@ -9,47 +9,72 @@ pub fn tabs_stories() -> Array[Story] {
     @components.TabItem::{ id: "settings", label: "Settings" },
   ]
   [
+    // Default tabs with content (odd dimensions for better centering)
     Story::new(
       "tabs",
-      "default_first",
-      fn() { @components.tabs(items, "home") },
-      width=35,
-      height=3,
+      "default_home",
+      fn() {
+        @components.tab_container(
+          items,
+          "home",
+          @components.text("Welcome to Home"),
+        )
+      },
+      width=41,
+      height=9,
     ),
     Story::new(
       "tabs",
-      "default_middle",
-      fn() { @components.tabs(items, "profile") },
-      width=35,
-      height=3,
+      "default_profile",
+      fn() {
+        @components.tab_container(
+          items,
+          "profile",
+          @components.text("User Profile"),
+        )
+      },
+      width=41,
+      height=9,
     ),
     Story::new(
       "tabs",
-      "underline_first",
-      fn() { @components.tabs_underline(items, "home") },
-      width=35,
-      height=3,
+      "default_focused",
+      fn() {
+        @components.tab_container(
+          items,
+          "home",
+          @components.text("Home (Settings focused)"),
+          focused_id="settings",
+        )
+      },
+      width=41,
+      height=9,
     ),
+    // Underline style
     Story::new(
       "tabs",
-      "underline_middle",
-      fn() { @components.tabs_underline(items, "profile") },
-      width=35,
-      height=3,
+      "underline",
+      fn() {
+        @components.column([
+          @components.tabs_underline(items, "home"),
+          @components.tab_panel(@components.text("Underline style content")),
+        ])
+      },
+      width=41,
+      height=11,
     ),
+    // Boxed style
     Story::new(
       "tabs",
-      "boxed_first",
-      fn() { @components.tabs_boxed(items, "home") },
-      width=35,
-      height=5,
-    ),
-    Story::new(
-      "tabs",
-      "boxed_middle",
-      fn() { @components.tabs_boxed(items, "profile") },
-      width=35,
-      height=5,
+      "boxed",
+      fn() {
+        @components.column([
+          @components.tabs_boxed(items, "profile"),
+          @components.tab_panel(@components.text("Boxed style content")),
+        ])
+      },
+      width=41,
+      height=11,
     ),
   ]
 }
@@ -76,8 +101,8 @@ pub fn accordion_stories() -> Array[Story] {
           },
         ])
       },
-      width=30,
-      height=8,
+      width=31,
+      height=7,
     ),
     Story::new(
       "accordion",
@@ -98,8 +123,8 @@ pub fn accordion_stories() -> Array[Story] {
           },
         ])
       },
-      width=30,
-      height=15,
+      width=31,
+      height=13,
     ),
     Story::new(
       "accordion",
@@ -120,8 +145,8 @@ pub fn accordion_stories() -> Array[Story] {
           },
         ])
       },
-      width=30,
-      height=15,
+      width=31,
+      height=13,
     ),
   ]
 }
@@ -140,29 +165,29 @@ pub fn menu_stories() -> Array[Story] {
       "menu",
       "no_focus",
       fn() { @components.menu(items) },
-      width=20,
-      height=15,
+      width=21,
+      height=13,
     ),
     Story::new(
       "menu",
       "first_focused",
       fn() { @components.menu(items, focused_id="cut") },
-      width=20,
-      height=15,
+      width=21,
+      height=13,
     ),
     Story::new(
       "menu",
       "middle_focused",
       fn() { @components.menu(items, focused_id="copy") },
-      width=20,
-      height=15,
+      width=21,
+      height=13,
     ),
     Story::new(
       "menu",
       "disabled_focused",
       fn() { @components.menu(items, focused_id="delete") },
-      width=20,
-      height=15,
+      width=21,
+      height=13,
     ),
   ]
 }
@@ -178,15 +203,15 @@ pub fn context_menu_stories() -> Array[Story] {
       "context_menu",
       "default",
       fn() { @components.context_menu(items) },
-      width=20,
-      height=6,
+      width=21,
+      height=7,
     ),
     Story::new(
       "context_menu",
       "focused",
       fn() { @components.context_menu(items, focused_id="refresh") },
-      width=20,
-      height=6,
+      width=21,
+      height=7,
     ),
   ]
 }

@@ -26,6 +26,13 @@ pub fn button_stories() -> Array[Story] {
         min_width=12.0,
       )
     }),
+    Story::new("button", "focused", fn() {
+      @components.button(
+        "Submit",
+        state=@components.ButtonState::Focused,
+        min_width=12.0,
+      )
+    }),
     Story::new("button", "disabled", fn() {
       @components.button(
         "Submit",

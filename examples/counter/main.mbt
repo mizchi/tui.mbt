@@ -47,11 +47,11 @@ async fn main {
         // Buttons row
         @c.row(
           [
-            @c.button(" - ", min_width=7.0, bg=@core.Color::rgb(100, 50, 50)),
+            @c.button(" - ", min_width=7.0),
             @c.hspace(2.0),
-            @c.button("Reset", min_width=9.0, bg=@core.Color::rgb(60, 60, 60)),
+            @c.button("Reset", min_width=9.0),
             @c.hspace(2.0),
-            @c.button(" + ", min_width=7.0, bg=@core.Color::rgb(50, 100, 50)),
+            @c.button(" + ", min_width=7.0),
           ],
           justify=@types.Alignment::Center,
         ),

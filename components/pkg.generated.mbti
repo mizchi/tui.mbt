@@ -10,9 +10,9 @@ import {
 }
 
 // Values
-pub fn accordion(Array[AccordionItem], id? : String, header_fg? : @core.Color, header_bg? : @core.Color, content_bg? : @core.Color, border_color? : @core.Color, expanded_icon? : String, collapsed_icon? : String, header_padding_x? : Double, header_padding_y? : Double, content_padding? : Double, gap? : Double) -> @core.Component
+pub fn accordion(Array[AccordionItem], id? : String, focused_id? : String, theme? : Theme, expanded_icon? : String, collapsed_icon? : String, content_padding? : Double, gap? : Double) -> @core.Component
 
-pub fn accordion_header(String, Bool, id? : String, fg? : @core.Color, bg? : @core.Color, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn accordion_header(String, Bool, id? : String, focused? : Bool, theme? : Theme, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
@@ -38,7 +38,7 @@ pub fn ansi_save_cursor() -> String
 
 pub fn[T] apply_scroll(Array[T], Int, Int, reserve_indicator? : Bool) -> Array[T]
 
-pub fn autocomplete(Array[ComboboxOption], String, id? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_visible? : Int) -> @core.Component
+pub fn autocomplete(Array[ComboboxOption], String, id? : String, focused_id? : String, placeholder? : String, theme? : Theme, min_width? : Double, max_visible? : Int) -> @core.Component
 
 pub fn backdrop(bg? : @core.Color) -> @core.Component
 
@@ -50,7 +50,7 @@ pub let buffer_lines : Int
 
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
 
-pub fn button(String, id? : String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn calc_input_row(Int) -> Int
 
@@ -74,7 +74,7 @@ pub fn chat_queued_message(String, Int, Int, Int) -> @core.Component
 
 pub fn chat_streaming_message(StreamingState, Int, Int) -> @core.Component
 
-pub fn checkbox(Bool, fg? : @core.Color, checked_fg? : @core.Color, checked_icon? : String, unchecked_icon? : String) -> @core.Component
+pub fn checkbox(Bool, focused? : Bool, disabled? : Bool, theme? : Theme, checked_icon? : String, unchecked_icon? : String) -> @core.Component
 
 pub fn clamp_input_lines(Int) -> Int
 
@@ -82,11 +82,11 @@ pub fn colored(String, @core.Color) -> @core.Component
 
 pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
 
-pub fn combobox(Array[ComboboxOption], String, id? : String, state? : ComboboxState, filter? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, focus_border_color? : @core.Color, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
+pub fn combobox(Array[ComboboxOption], String, id? : String, focused_id? : String, state? : ComboboxState, filter? : String, placeholder? : String, theme? : Theme, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
 
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
-pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, min_width? : Double) -> @core.Component
+pub fn context_menu(Array[MenuItem], focused_id? : String, id? : String, theme? : Theme, min_width? : Double) -> @core.Component
 
 pub fn count_lines(String) -> Int
 
@@ -106,7 +106,7 @@ pub fn footer(Array[@core.Component], fg? : @core.Color) -> @core.Component
 
 pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?, on_force_quit? : (() -> Unit)?) -> EditConfig
 
-pub fn fraction_text(Int, Int, fg? : @core.Color) -> @core.Component
+pub fn fraction_text(Int, Int, theme? : Theme) -> @core.Component
 
 pub fn fullscreen(Array[@core.Component], Int, Int, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double) -> @core.Component
 
@@ -114,7 +114,7 @@ pub fn get_spinner_frame(Int) -> String
 
 pub fn grid(Array[@core.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
 
-pub fn hdivider(char? : Char, fg? : @core.Color) -> @core.Component
+pub fn hdivider(char? : Char, fg? : @core.Color, width? : Int) -> @core.Component
 
 pub fn hspace(Double) -> @core.Component
 
@@ -124,7 +124,7 @@ pub fn hsplit_fixed_bottom(Array[@core.Component], Array[@core.Component], Int, 
 
 pub fn hsplit_fixed_top(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
 
-pub fn icon_button(String, state? : ButtonState, fg? : @core.Color, bg? : @core.Color, hover_bg? : @core.Color, pressed_bg? : @core.Color) -> @core.Component
+pub fn icon_button(String, state? : ButtonState, theme? : Theme) -> @core.Component
 
 pub fn ime_input(String, Bool, focused? : Bool, disabled? : Bool, id? : String, placeholder? : String, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
@@ -136,21 +136,21 @@ pub let input_area_height : Int
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
 
-pub fn labeled_checkbox(String, Bool, id? : String, label_position? : LabelPosition, fg? : @core.Color, checked_fg? : @core.Color, gap? : Double) -> @core.Component
+pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double) -> @core.Component
 
-pub fn labeled_switch(String, Bool, id? : String, state? : SwitchState, label_position? : LabelPosition, label_fg? : @core.Color, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, gap? : Double) -> @core.Component
+pub fn labeled_switch(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double) -> @core.Component
 
-pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, focused_border? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
 
-pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientation? : ListboxOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, focused_border? : @core.Color, disabled_fg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
 
 pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
-pub fn loading_dots(Int, label? : String, fg? : @core.Color) -> @core.Component
+pub fn loading_dots(Int, label? : String, theme? : Theme) -> @core.Component
 
 pub let max_input_rows : Int
 
-pub fn menu(Array[MenuItem], focused_id? : String, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color, separator_fg? : @core.Color, min_width? : Double) -> @core.Component
+pub fn menu(Array[MenuItem], focused_id? : String, id? : String, theme? : Theme, min_width? : Double) -> @core.Component
 
 pub fn menu_checkbox(String, String, Bool, disabled? : Bool) -> MenuItem
 
@@ -162,7 +162,7 @@ pub fn menu_separator() -> MenuItem
 
 pub fn menu_submenu(String, String, Array[MenuItem], disabled? : Bool) -> MenuItem
 
-pub fn menubar(Array[MenubarItem], MenubarState, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, hover_bg? : @core.Color, disabled_fg? : @core.Color, separator_fg? : @core.Color, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
+pub fn menubar(Array[MenubarItem], MenubarState, id? : String, theme? : Theme, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
 
 pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
@@ -170,19 +170,19 @@ pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimens
 
 pub fn multiline_input(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub fn option_list(Array[ListboxOption], Array[String], focused_id? : String, multiselectable? : Bool, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, disabled_fg? : @core.Color) -> @core.Component
+pub fn option_list(Array[ListboxOption], Array[String], focused_id? : String, multiselectable? : Bool, theme? : Theme) -> @core.Component
 
 pub fn padded(Array[@core.Component], padding? : Double) -> @core.Component
 
 pub fn panel(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color) -> @core.Component
 
-pub fn percent_text(Double, fg? : @core.Color) -> @core.Component
+pub fn percent_text(Double, theme? : Theme) -> @core.Component
 
-pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, fg? : @core.Color, fill_fg? : @core.Color) -> @core.Component
+pub fn progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool, theme? : Theme) -> @core.Component
 
-pub fn radio(String, Bool, id? : String, fg? : @core.Color, selected_fg? : @core.Color, selected_icon? : String, unselected_icon? : String, gap? : Double) -> @core.Component
+pub fn radio(String, Bool, id? : String, focused? : Bool, theme? : Theme, selected_icon? : String, unselected_icon? : String, gap? : Double) -> @core.Component
 
-pub fn radiogroup(Array[RadioOption], String, id? : String, orientation? : RadioOrientation, fg? : @core.Color, selected_fg? : @core.Color, selected_icon? : String, unselected_icon? : String, gap? : Double, item_gap? : Double) -> @core.Component
+pub fn radiogroup(Array[RadioOption], String, id? : String, focused_id? : String, orientation? : RadioOrientation, theme? : Theme, selected_icon? : String, unselected_icon? : String, gap? : Double, item_gap? : Double) -> @core.Component
 
 pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
 
@@ -194,9 +194,9 @@ pub fn scroll_indicator_text(ScrollIndicator) -> String
 
 pub fn scrollable_list(Array[@core.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @core.Color) -> Array[@core.Component]
 
-pub fn select(Array[ComboboxOption], String, id? : String, open? : Bool, placeholder? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, min_width? : Double, max_visible? : Int) -> @core.Component
+pub fn select(Array[ComboboxOption], String, id? : String, focused_id? : String, open? : Bool, placeholder? : String, theme? : Theme, min_width? : Double, max_visible? : Int) -> @core.Component
 
-pub fn selectable_list(Array[(String, String)], String, focused_id? : String, fg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color) -> @core.Component
+pub fn selectable_list(Array[(String, String)], String, focused_id? : String, theme? : Theme) -> @core.Component
 
 pub fn simple_editor(TextBuffer, @core.Color, @core.Color, @core.Color) -> @core.Component
 
@@ -204,7 +204,7 @@ pub fn snapshot(HeadlessApp, String) -> Unit
 
 pub fn spacer(flex_grow? : Double) -> @core.Component
 
-pub fn spinner(Int, label? : String, fg? : @core.Color) -> @core.Component
+pub fn spinner(Int, label? : String, theme? : Theme) -> @core.Component
 
 pub fn split_lines(String) -> Array[String]
 
@@ -218,21 +218,21 @@ pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, B
 
 pub let streaming_message_height : Int
 
-pub fn switch(Bool, id? : String, state? : SwitchState, on_fg? : @core.Color, off_fg? : @core.Color, on_bg? : @core.Color, off_bg? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, track_on? : String, track_off? : String) -> @core.Component
+pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, track_on? : String, track_off? : String) -> @core.Component
 
-pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, orientation? : TabOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color) -> @core.Component
+pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
-pub fn tab_panel(@core.Component, id? : String, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
+pub fn tab_panel(@core.Component, id? : String, theme? : Theme, border? : @core.BorderChars?, padding? : Double) -> @core.Component
 
-pub fn tabs(Array[TabItem], String, id? : String, orientation? : TabOrientation, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, gap? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn tabs(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
-pub fn tabs_boxed(Array[TabItem], String, id? : String, fg? : @core.Color, bg? : @core.Color, selected_fg? : @core.Color, selected_bg? : @core.Color, border_color? : @core.Color, selected_border_color? : @core.Color, padding_x? : Double) -> @core.Component
+pub fn tabs_boxed(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
-pub fn tabs_underline(Array[TabItem], String, id? : String, fg? : @core.Color, selected_fg? : @core.Color, underline_color? : @core.Color, padding_x? : Double) -> @core.Component
+pub fn tabs_underline(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
 pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underline? : Bool) -> @core.Component
 
-pub fn text_button(String, state? : ButtonState, fg? : @core.Color, hover_fg? : @core.Color, pressed_fg? : @core.Color, disabled_fg? : @core.Color, underline? : Bool) -> @core.Component
+pub fn text_button(String, state? : ButtonState, theme? : Theme, underline? : Bool) -> @core.Component
 
 pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
@@ -290,6 +290,7 @@ pub(all) enum ButtonState {
   Normal
   Hover
   Pressed
+  Focused
   Disabled
 }
 
@@ -620,6 +621,7 @@ pub fn StreamingState::take_partial(Self) -> String
 pub(all) enum SwitchState {
   Off
   On
+  Focused
   Disabled
 }
 
@@ -661,6 +663,31 @@ pub(all) enum TextareaState {
   Focused
   Editing
   Disabled
+}
+
+pub(all) struct Theme {
+  mode : ThemeMode
+  primary : @core.Color
+  focus : @core.Color
+  fg : @core.Color
+  muted : @core.Color
+  disabled : @core.Color
+  bg : @core.Color
+  surface : @core.Color
+  border : @core.Color
+  success : @core.Color
+  error : @core.Color
+}
+pub fn Theme::dark(primary? : @core.Color) -> Self
+pub fn Theme::default() -> Self
+pub fn Theme::focused_color(Self) -> @core.Color
+pub fn Theme::interactive_color(Self) -> @core.Color
+pub fn Theme::light(primary? : @core.Color) -> Self
+pub fn Theme::selected_color(Self) -> @core.Color
+
+pub(all) enum ThemeMode {
+  Light
+  Dark
 }
 
 pub(all) struct UndoStack {

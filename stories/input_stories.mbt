@@ -115,8 +115,8 @@ pub fn textarea_stories() -> Array[Story] {
           min_width=25.0,
         )
       },
-      width=30,
-      height=8,
+      width=31,
+      height=9,
     ),
     Story::new(
       "textarea",
@@ -129,8 +129,8 @@ pub fn textarea_stories() -> Array[Story] {
           min_width=25.0,
         )
       },
-      width=30,
-      height=8,
+      width=31,
+      height=9,
     ),
     Story::new(
       "textarea",
@@ -143,8 +143,8 @@ pub fn textarea_stories() -> Array[Story] {
           min_width=25.0,
         )
       },
-      width=30,
-      height=8,
+      width=31,
+      height=9,
     ),
     Story::new(
       "textarea",
@@ -158,8 +158,8 @@ pub fn textarea_stories() -> Array[Story] {
           min_width=25.0,
         )
       },
-      width=30,
-      height=8,
+      width=31,
+      height=9,
     ),
   ]
 }

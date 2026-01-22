@@ -68,43 +68,41 @@ pub fn build_progress_bar(
 }
 
 ///|
-/// Progress bar component
+/// Progress bar component with theme support
 pub fn progress_bar(
   ratio : Double,
   width : Int,
   style? : ProgressStyle = ProgressStyle::Bar,
   show_percent? : Bool = true,
-  fg? : @core.Color = @core.Color::white(),
-  fill_fg? : @core.Color = @core.Color::cyan(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   // Build the bar text
   let bar_text = build_progress_bar(ratio, width, style~, show_percent~)
-  // For now, return as single styled text
-  // Future: could split into colored segments
-  text(bar_text, fg=if ratio > 0.0 { fill_fg } else { fg })
+  // Use primary color when filled, muted when empty
+  text(bar_text, fg=if ratio > 0.0 { theme.primary } else { theme.muted })
 }
 
 ///|
-/// Spinner component (use with ticker for animation)
+/// Spinner component with theme support (use with ticker for animation)
 pub fn spinner(
   tick : Int,
   label? : String = "",
-  fg? : @core.Color = @core.Color::cyan(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   let frame = get_spinner_frame(tick)
   if label.length() > 0 {
-    row([text(frame + " ", fg~), text(label)])
+    row([text(frame + " ", fg=theme.primary), text(label, fg=theme.fg)])
   } else {
-    text(frame, fg~)
+    text(frame, fg=theme.primary)
   }
 }
 
 ///|
-/// Loading indicator with dots animation
+/// Loading indicator with dots animation and theme support
 pub fn loading_dots(
   tick : Int,
   label? : String = "Loading",
-  fg? : @core.Color = @core.Color::white(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   let dots = match tick % 4 {
     0 => ""
@@ -112,14 +110,14 @@ pub fn loading_dots(
     2 => ".."
     _ => "..."
   }
-  text(label + dots, fg~)
+  text(label + dots, fg=theme.fg)
 }
 
 ///|
-/// Simple percentage text
+/// Simple percentage text with theme support
 pub fn percent_text(
   ratio : Double,
-  fg? : @core.Color = @core.Color::white(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
   let clamped = if ratio < 0.0 {
     0.0
@@ -129,15 +127,15 @@ pub fn percent_text(
     ratio
   }
   let pct = (clamped * 100.0).to_int()
-  text(pct.to_string() + "%", fg~)
+  text(pct.to_string() + "%", fg=theme.fg)
 }
 
 ///|
-/// Fraction text (e.g., "5/10")
+/// Fraction text with theme support (e.g., "5/10")
 pub fn fraction_text(
   current : Int,
   total : Int,
-  fg? : @core.Color = @core.Color::white(),
+  theme? : Theme = Theme::default(),
 ) -> @core.Component {
-  text(current.to_string() + "/" + total.to_string(), fg~)
+  text(current.to_string() + "/" + total.to_string(), fg=theme.fg)
 }

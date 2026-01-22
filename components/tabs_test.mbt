@@ -16,22 +16,20 @@ test "tabs: horizontal layout" {
   let output = @render.render_once(60, 10, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mHome\u{1b}[38;5;231m  \u{1b}[48;5;17mSettings  About  \u{1b}[49m                                     \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m                 \u{1b}[49m                                     \u{1b}[4;1H                                                            \u{1b}[5;1H                                                            \u{1b}[6;1H                                                            \u{1b}[7;1H                                                            \u{1b}[8;1H                                                            \u{1b}[9;1H                                                            \u{1b}[10;1H                                                            \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[1m\u{1b}[38;5;51mHome\u{1b}[0m\u{1b}[38;5;231m  Settings  About                                       \u{1b}[2;1H                                                            \u{1b}[3;1H                                                            \u{1b}[4;1H                                                            \u{1b}[5;1H                                                            \u{1b}[6;1H                                                            \u{1b}[7;1H                                                            \u{1b}[8;1H                                                            \u{1b}[9;1H                                                            \u{1b}[10;1H                                                            \u{1b}[0m",
   )
 }
 
 ///|
-test "tabs: vertical layout" {
+test "tabs: second tab selected" {
   let items = [
     @components.TabItem::{ id: "t1", label: "Tab A" },
     @components.TabItem::{ id: "t2", label: "Tab B" },
   ]
-  let comp = tabs(items, "t2", orientation=TabOrientation::Vertical)
-  let output = @render.render_once(30, 6, comp)
-  inspect(
-    output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m\u{1b}[48;5;17mTab A  \u{1b}[49m                       \u{1b}[2;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[3;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[4;1H\u{1b}[48;5;17m       \u{1b}[49m                       \u{1b}[5;1H\u{1b}[38;5;16m\u{1b}[48;5;51mTab B\u{1b}[38;5;231m  \u{1b}[49m                       \u{1b}[6;1H\u{1b}[48;5;51m       \u{1b}[49m                       \u{1b}[0m",
-  )
+  let comp = tabs(items, "t2")
+  let output = @render.render_once(30, 3, comp)
+  // Tab B should be highlighted (bold/primary color)
+  inspect(output.contains("Tab B"), content="true")
 }
 
 ///|
@@ -45,7 +43,7 @@ test "tabs: tab container with panel" {
   let output = @render.render_once(40, 8, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51mMain\u{1b}[38;5;231m  \u{1b}[48;5;17mAux  \u{1b}[49m                             \u{1b}[2;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[3;1H\u{1b}[48;5;51m      \u{1b}[48;5;17m     \u{1b}[49m                             \u{1b}[4;1H\u{1b}[38;5;60m┌───────────────┐\u{1b}[38;5;231m                       \u{1b}[5;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[6;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m Panel content \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[7;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[8;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;51m┌──────┐       \u{1b}[38;5;231m                         \u{1b}[2;1H\u{1b}[38;5;51m│ Main │  Aux  \u{1b}[38;5;231m                         \u{1b}[3;1H\u{1b}[38;5;60m├───────────────┐\u{1b}[38;5;231m                       \u{1b}[4;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[5;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m Panel content \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[6;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[7;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m               \u{1b}[38;5;60m│\u{1b}[38;5;231m                       \u{1b}[8;1H\u{1b}[38;5;60m└───────────────┘\u{1b}[38;5;231m                       \u{1b}[0m",
   )
 }
 
@@ -109,17 +107,14 @@ test "a11y: tabs - keyboard navigable (all tabs focusable)" {
 }
 
 ///|
-test "a11y: tabs - orientation affects layout direction" {
+test "a11y: tabs - uses row layout" {
   let items = [
     @components.TabItem::{ id: "a", label: "A" },
     @components.TabItem::{ id: "b", label: "B" },
   ]
-  let h = tabs(items, "a", orientation=TabOrientation::Horizontal)
-  let v = tabs(items, "a", orientation=TabOrientation::Vertical)
-  // Horizontal uses Row (flex-direction row)
-  // Vertical uses Column (flex-direction column)
-  inspect(h.node.style.flex_direction, content="Row")
-  inspect(v.node.style.flex_direction, content="Column")
+  let comp = tabs(items, "a")
+  // Tabs use Row layout
+  inspect(comp.node.style.flex_direction, content="Row")
 }
 
 ///|

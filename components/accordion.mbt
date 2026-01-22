@@ -11,42 +11,51 @@ pub(all) struct AccordionItem {
 }
 
 ///|
-/// Create an accordion component
+/// Create an accordion component with theme support
+///
+/// Visual design:
+/// - Collapsed: ▶ Section Title
+/// - Expanded:  ▼ Section Title (highlighted)
+///              ┌─────────────────┐
+///              │ Content here    │
+///              └─────────────────┘
 pub fn accordion(
   items : Array[AccordionItem],
   id? : String = "",
-  // Style
-  header_fg? : @core.Color = @core.Color::white(),
-  header_bg? : @core.Color = @core.Color::rgb(50, 50, 60),
-  content_bg? : @core.Color = @core.Color::transparent(),
-  border_color? : @core.Color = @core.Color::rgb(80, 80, 80),
+  focused_id? : String = "",
+  theme? : Theme = Theme::default(),
   // Icons
   expanded_icon? : String = "▼",
   collapsed_icon? : String = "▶",
   // Spacing
-  header_padding_x? : Double = 1.0,
-  header_padding_y? : Double = 0.0,
   content_padding? : Double = 1.0,
   gap? : Double = 0.0,
 ) -> @core.Component {
   let sections : Array[@core.Component] = []
   for item in items {
+    let is_focused = item.id == focused_id
     let icon = if item.expanded { expanded_icon } else { collapsed_icon }
+    let header_fg = if is_focused {
+      theme.focus
+    } else if item.expanded {
+      theme.primary
+    } else {
+      theme.fg
+    }
+    // Header with bold for expanded
     let header = row(
-      [text(icon + " " + item.title, fg=header_fg)],
+      [text(icon + " " + item.title, fg=header_fg, bold=item.expanded)],
       id=item.id + "-header",
-      bg=header_bg,
-      padding_x=header_padding_x,
-      padding_y=header_padding_y,
+      padding_x=1.0,
     )
     if item.expanded {
+      // Build content with proper bordered box
       let content_section = column(
         [item.content],
         id=item.id + "-content",
-        bg=content_bg,
         padding=content_padding,
         border=Some(@core.BorderChars::single()),
-        border_color~,
+        border_color=theme.border,
       )
       sections.push(column([header, content_section], id=item.id))
     } else {
@@ -57,18 +66,30 @@ pub fn accordion(
 }
 
 ///|
-/// Single accordion section (header only)
+/// Single accordion section (header only) with theme support
 pub fn accordion_header(
   title : String,
   expanded : Bool,
   id? : String = "",
-  fg? : @core.Color = @core.Color::white(),
-  bg? : @core.Color = @core.Color::rgb(50, 50, 60),
+  focused? : Bool = false,
+  theme? : Theme = Theme::default(),
   expanded_icon? : String = "▼",
   collapsed_icon? : String = "▶",
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
 ) -> @core.Component {
   let icon = if expanded { expanded_icon } else { collapsed_icon }
-  row([text(icon + " " + title, fg~)], id~, bg~, padding_x~, padding_y~)
+  let fg = if focused {
+    theme.focus
+  } else if expanded {
+    theme.primary
+  } else {
+    theme.fg
+  }
+  row(
+    [text(icon + " " + title, fg~, bold=expanded)],
+    id~,
+    padding_x~,
+    padding_y~,
+  )
 }

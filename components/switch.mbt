@@ -6,42 +6,33 @@
 pub(all) enum SwitchState {
   Off
   On
+  Focused
   Disabled
 }
 
 ///|
-/// Create a switch component
+/// Create a switch component with theme support
 pub fn switch(
   on : Bool,
   id? : String = "",
-  state? : SwitchState = SwitchState::Off,
-  // Style
-  on_fg? : @core.Color = @core.Color::green(),
-  off_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  on_bg? : @core.Color = @core.Color::rgb(30, 80, 30),
-  off_bg? : @core.Color = @core.Color::rgb(60, 60, 60),
-  disabled_fg? : @core.Color = @core.Color::rgb(80, 80, 80),
-  disabled_bg? : @core.Color = @core.Color::rgb(40, 40, 40),
+  focused? : Bool = false,
+  disabled? : Bool = false,
+  theme? : Theme = Theme::default(),
   // Icons
   track_on? : String = "━━●",
   track_off? : String = "○━━",
 ) -> @core.Component {
-  let actual_on = match state {
-    SwitchState::On => true
-    SwitchState::Off => false
-    SwitchState::Disabled => on
+  let track = if on { track_on } else { track_off }
+  let fg = if disabled {
+    theme.disabled
+  } else if focused {
+    theme.focus
+  } else if on {
+    theme.success
+  } else {
+    theme.muted
   }
-  let (fg, bg, track) = match state {
-    SwitchState::Disabled =>
-      (disabled_fg, disabled_bg, if on { track_on } else { track_off })
-    _ =>
-      if actual_on {
-        (on_fg, on_bg, track_on)
-      } else {
-        (off_fg, off_bg, track_off)
-      }
-  }
-  row([text(track, fg~)], id~, bg~, padding_x=1.0)
+  row([text(track, fg~)], id~, padding_x=1.0)
 }
 
 ///|
@@ -50,17 +41,14 @@ pub fn labeled_switch(
   label : String,
   on : Bool,
   id? : String = "",
-  state? : SwitchState = SwitchState::Off,
+  focused? : Bool = false,
+  disabled? : Bool = false,
   label_position? : LabelPosition = LabelPosition::Left,
-  // Style
-  label_fg? : @core.Color = @core.Color::white(),
-  on_fg? : @core.Color = @core.Color::green(),
-  off_fg? : @core.Color = @core.Color::rgb(100, 100, 100),
-  on_bg? : @core.Color = @core.Color::rgb(30, 80, 30),
-  off_bg? : @core.Color = @core.Color::rgb(60, 60, 60),
+  theme? : Theme = Theme::default(),
   gap? : Double = 1.0,
 ) -> @core.Component {
-  let switch_component = switch(on, state~, on_fg~, off_fg~, on_bg~, off_bg~)
+  let switch_component = switch(on, focused~, disabled~, theme~)
+  let label_fg = if disabled { theme.disabled } else { theme.fg }
   let label_component = text(label, fg=label_fg)
   match label_position {
     LabelPosition::Left =>
@@ -81,17 +69,23 @@ pub(all) enum LabelPosition {
 /// Checkbox-style toggle (square)
 pub fn checkbox(
   checked : Bool,
-  fg? : @core.Color = @core.Color::white(),
-  checked_fg? : @core.Color = @core.Color::green(),
+  focused? : Bool = false,
+  disabled? : Bool = false,
+  theme? : Theme = Theme::default(),
   checked_icon? : String = "[✓]",
   unchecked_icon? : String = "[ ]",
 ) -> @core.Component {
-  let (icon, color) = if checked {
-    (checked_icon, checked_fg)
+  let icon = if checked { checked_icon } else { unchecked_icon }
+  let fg = if disabled {
+    theme.disabled
+  } else if focused {
+    theme.focus
+  } else if checked {
+    theme.success
   } else {
-    (unchecked_icon, fg)
+    theme.fg
   }
-  text(icon, fg=color)
+  text(icon, fg~)
 }
 
 ///|
@@ -100,13 +94,15 @@ pub fn labeled_checkbox(
   label : String,
   checked : Bool,
   id? : String = "",
+  focused? : Bool = false,
+  disabled? : Bool = false,
   label_position? : LabelPosition = LabelPosition::Right,
-  fg? : @core.Color = @core.Color::white(),
-  checked_fg? : @core.Color = @core.Color::green(),
+  theme? : Theme = Theme::default(),
   gap? : Double = 1.0,
 ) -> @core.Component {
-  let checkbox_component = checkbox(checked, fg~, checked_fg~)
-  let label_component = text(label, fg~)
+  let checkbox_component = checkbox(checked, focused~, disabled~, theme~)
+  let label_fg = if disabled { theme.disabled } else { theme.fg }
+  let label_component = text(label, fg=label_fg)
   match label_position {
     LabelPosition::Left =>
       row([label_component, hspace(gap), checkbox_component], id~)

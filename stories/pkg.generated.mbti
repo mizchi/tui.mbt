@@ -24,7 +24,15 @@ pub fn context_menu_stories() -> Array[Story]
 
 pub fn divider_stories() -> Array[Story]
 
+pub fn format_lint_report(Array[LintViolation]) -> String
+
 pub fn input_stories() -> Array[Story]
+
+pub fn lint_all(Array[Story]) -> Array[LintViolation]
+
+pub fn lint_dimension_range(Array[Story]) -> Array[LintViolation]
+
+pub fn lint_odd_dimensions(Array[Story]) -> Array[LintViolation]
 
 pub fn listbox_stories() -> Array[Story]
 
@@ -55,6 +63,12 @@ pub fn textarea_stories() -> Array[Story]
 // Errors
 
 // Types and methods
+pub(all) struct LintViolation {
+  rule : String
+  story : String
+  message : String
+}
+
 pub(all) struct Story {
   category : String
   name : String

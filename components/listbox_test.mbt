@@ -16,7 +16,7 @@ test "listbox: single select vertical" {
   let output = @render.render_once(25, 6, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m  Apple           \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;226m┌────────────────┐\u{1b}[38;5;239m│\u{1b}[38;5;231m     \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;226m│\u{1b}[38;5;16m\u{1b}[48;5;51m▸ Banana\u{1b}[38;5;231m        \u{1b}[38;5;226m\u{1b}[49m│\u{1b}[38;5;239m│\u{1b}[38;5;231m     \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;60m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   Apple          \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;60m│\u{1b}[38;5;226m ▸ Banana\u{1b}[38;5;231m         \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   Cherry         \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;60m└──────────────────┘\u{1b}[38;5;231m     \u{1b}[6;1H                         \u{1b}[0m",
   )
 }
 
@@ -31,7 +31,7 @@ test "listbox: with disabled option" {
   let output = @render.render_once(25, 5, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;239m│\u{1b}[38;5;16m\u{1b}[48;5;51m  Option A\u{1b}[38;5;231m        \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;241m\u{1b}[48;5;17m  Option B\u{1b}[38;5;231m        \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;60m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;60m│\u{1b}[38;5;51m ● Option A\u{1b}[38;5;231m       \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;60m│\u{1b}[38;5;241m   Option B\u{1b}[38;5;231m       \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   Option C       \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;60m└──────────────────┘\u{1b}[38;5;231m     \u{1b}[0m",
   )
 }
 
@@ -46,7 +46,7 @@ test "listbox: horizontal orientation" {
   let output = @render.render_once(30, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m┌──────────────────┐\u{1b}[38;5;231m          \u{1b}[2;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m  X \u{1b}[38;5;16m\u{1b}[48;5;51m  Y\u{1b}[38;5;231m \u{1b}[48;5;17m  Z       \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m          \u{1b}[3;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m    \u{1b}[48;5;51m    \u{1b}[48;5;17m          \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m          \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;60m┌──────────────────┐\u{1b}[38;5;231m          \u{1b}[2;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   X\u{1b}[38;5;51m ● Y\u{1b}[38;5;231m   Z      \u{1b}[38;5;60m│\u{1b}[38;5;231m          \u{1b}[3;1H\u{1b}[38;5;60m└──────────────────┘\u{1b}[38;5;231m          \u{1b}[0m",
   )
 }
 
@@ -66,7 +66,7 @@ test "listbox_multi: multiple selections" {
   let output = @render.render_once(25, 6, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;239m│\u{1b}[38;5;16m\u{1b}[48;5;51m  [✓] Red\u{1b}[38;5;231m         \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;226m┌────────────────┐\u{1b}[38;5;239m│\u{1b}[38;5;231m     \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;60m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;60m│\u{1b}[38;5;51m ● [✓] Red\u{1b}[38;5;231m        \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;60m│\u{1b}[38;5;226m ▸ [ ] Green\u{1b}[38;5;231m      \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;60m│\u{1b}[38;5;51m ● [✓] Blue\u{1b}[38;5;231m       \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;60m└──────────────────┘\u{1b}[38;5;231m     \u{1b}[6;1H                         \u{1b}[0m",
   )
 }
 
@@ -84,7 +84,7 @@ test "listbox: overflow with scroll indicator" {
   let output = @render.render_once(25, 7, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;239m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;239m│\u{1b}[38;5;16m\u{1b}[48;5;51m  Item 1\u{1b}[38;5;231m          \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;51m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m  Item 2          \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[6;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[7;1H\u{1b}[38;5;239m│\u{1b}[38;5;231m\u{1b}[48;5;17m                  \u{1b}[38;5;239m\u{1b}[49m│\u{1b}[38;5;231m     \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;60m┌──────────────────┐\u{1b}[38;5;231m     \u{1b}[2;1H\u{1b}[38;5;60m│\u{1b}[38;5;51m ● Item 1\u{1b}[38;5;231m         \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[3;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   Item 2         \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[4;1H\u{1b}[38;5;60m│\u{1b}[38;5;231m   Item 3         \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[5;1H\u{1b}[38;5;60m│\u{1b}[38;5;241m   ... 3 more\u{1b}[38;5;231m     \u{1b}[38;5;60m│\u{1b}[38;5;231m     \u{1b}[6;1H\u{1b}[38;5;60m└──────────────────┘\u{1b}[38;5;231m     \u{1b}[7;1H                         \u{1b}[0m",
   )
 }
 
@@ -98,7 +98,7 @@ test "option_list: inline list" {
   let output = @render.render_once(20, 3, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;16m\u{1b}[48;5;51m  Alpha\u{1b}[38;5;231m\u{1b}[49m             \u{1b}[2;1H\u{1b}[48;5;51m       \u{1b}[49m             \u{1b}[3;1H  Beta              \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;51m  Alpha\u{1b}[38;5;231m             \u{1b}[2;1H                    \u{1b}[3;1H  Beta              \u{1b}[0m",
   )
 }
 
@@ -109,7 +109,7 @@ test "selectable_list: simple tuple API" {
   let output = @render.render_once(20, 4, comp)
   inspect(
     output,
-    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m  First             \u{1b}[2;1H                    \u{1b}[3;1H\u{1b}[38;5;16m\u{1b}[48;5;51m▸ Second\u{1b}[38;5;231m\u{1b}[49m            \u{1b}[4;1H\u{1b}[48;5;51m        \u{1b}[49m            \u{1b}[0m",
+    content="\u{1b}[2J\u{1b}[1;1H\u{1b}[38;5;231m  First             \u{1b}[2;1H                    \u{1b}[3;1H\u{1b}[38;5;226m▸ Second\u{1b}[38;5;231m            \u{1b}[4;1H                    \u{1b}[0m",
   )
 }
 
@@ -159,7 +159,7 @@ test "a11y: listbox - focused option has indicator" {
   let comp = listbox(options, "x", focused_id="y")
   let output = @render.render_once(20, 4, comp)
   // Focused item should have ▸ indicator
-  inspect(output.contains("▸"), content="false")
+  inspect(output.contains("▸"), content="true")
 }
 
 ///|
@@ -177,7 +177,7 @@ test "a11y: listbox_multi - shows checkboxes" {
   let output = @render.render_once(20, 4, comp)
   // Multi-select should show checkbox icons
   inspect(output.contains("[✓]"), content="true")
-  inspect(output.contains("[ ]"), content="false")
+  inspect(output.contains("[ ]"), content="true")
 }
 
 ///|
@@ -190,7 +190,7 @@ test "a11y: listbox - disabled option styled differently" {
   let output = @render.render_once(25, 4, comp)
   // Both options should be visible
   inspect(output.contains("Enabled"), content="true")
-  inspect(output.contains("Disabled"), content="false")
+  inspect(output.contains("Disabled"), content="true")
 }
 
 ///|
@@ -234,7 +234,7 @@ test "a11y: listbox_multi - multiple items can be selected" {
       check_count = check_count + 1
     }
   }
-  inspect(check_count, content="1")
+  inspect(check_count, content="2")
 }
 
 ///|
@@ -249,7 +249,7 @@ test "a11y: listbox - scroll indicator when overflow" {
   let comp = listbox(options, "1", max_height=2)
   let output = @render.render_once(25, 5, comp)
   // Should show scroll indicator
-  inspect(output.contains("more"), content="false")
+  inspect(output.contains("more"), content="true")
 }
 
 ///|
