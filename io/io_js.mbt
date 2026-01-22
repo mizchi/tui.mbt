@@ -178,7 +178,19 @@ extern "js" fn js_start_inplace_input(
   on_force_quit : () -> Unit,
 ) -> Unit =
   #| async (row, col, width, height, multiline, initial, onConfirmed, onCancelled, onForceQuit) => {
-  #|   const { stdin, stdout } = await import('node:process');
+  #|   const { stdin, stdout, stderr } = await import('node:process');
+  #|   const { execSync } = await import('node:child_process');
+  #|   const debug = process.env.TUI_DEBUG_COOKED === '1';
+  #|   const toHex = (text) => Array.from(text)
+  #|     .map((ch) => ch.codePointAt(0).toString(16).padStart(4, '0'))
+  #|     .join(' ');
+  #|   const show = (text) => {
+  #|     try {
+  #|       return JSON.stringify(text);
+  #|     } catch {
+  #|       return '[unprintable]';
+  #|     }
+  #|   };
   #|
   #|   // Helper to get display width of a character
   #|   const getCharWidth = (char) => {
@@ -564,10 +576,34 @@ extern "js" fn js_start_inline_input_cooked(
   on_force_quit : () -> Unit,
 ) -> Unit =
   #| async (fieldName, initial, onConfirmed, onCancelled, onForceQuit) => {
-  #|   const { stdin, stdout } = await import('node:process');
+  #|   const { stdin, stdout, stderr } = await import('node:process');
+  #|   const { execSync } = await import('node:child_process');
+  #|   const debug = process.env.TUI_DEBUG_COOKED === '1';
+  #|   const reserveRows = Number(process.env.TUI_IME_RESERVE_ROWS || '1');
+  #|   const toHex = (text) => Array.from(text)
+  #|     .map((ch) => ch.codePointAt(0).toString(16).padStart(4, '0'))
+  #|     .join(' ');
+  #|   const show = (text) => {
+  #|     try {
+  #|       return JSON.stringify(text);
+  #|     } catch {
+  #|       return '[unprintable]';
+  #|     }
+  #|   };
   #|
   #|   // Show cursor (stay in alt screen)
   #|   stdout.write('\x1b[?25h');
+  #|   // Enable modifyOtherKeys to detect Shift+Enter if supported
+  #|   stdout.write('\x1b[>4;2m');
+  #|
+  #|   let sttyState = null;
+  #|   if (stdin.isTTY) {
+  #|     try {
+  #|       sttyState = execSync('stty -g < /dev/tty', { encoding: 'utf8' }).trim();
+  #|     } catch {
+  #|       sttyState = null;
+  #|     }
+  #|   }
   #|
   #|   // Clean up any existing handlers
   #|   if (stdin.__dataHandler) {
@@ -585,14 +621,143 @@ extern "js" fn js_start_inline_input_cooked(
   #|   }
   #|   stdin.resume();
   #|   stdin.setEncoding('utf8');
+  #|   if (stdin.isTTY && sttyState) {
+  #|     try {
+  #|       execSync('stty -echoctl < /dev/tty');
+  #|     } catch {
+  #|       try {
+  #|         execSync('stty -ctlecho < /dev/tty');
+  #|       } catch {
+  #|         // ignore if unsupported
+  #|       }
+  #|     }
+  #|   }
+  #|
+  #|   if (stdin.isTTY && sttyState) {
+  #|     try {
+  #|       execSync('stty -icanon -echo -icrnl < /dev/tty');
+  #|     } catch {
+  #|       // ignore if unsupported
+  #|     }
+  #|   }
   #|
   #|   let buffer = initial || '';
   #|   let done = false;
+  #|
+  #|   const shiftEnterSeqs = [
+  #|     '\x1b[13;2u',
+  #|     '\x1b[27;2;13~',
+  #|     '\x1bOM',
+  #|     '\x1b\r',
+  #|     '\x1b\n',
+  #|   ];
+  #|   const shiftEnterAt = (text, index) =>
+  #|     shiftEnterSeqs.find((seq) => text.startsWith(seq, index));
+  #|   const deleteSeq = '\x1b[3~';
+  #|
+  #|   const readCursorPos = () => new Promise((resolve) => {
+  #|     let buf = '';
+  #|     const onResp = (chunk) => {
+  #|       buf += chunk;
+  #|       const match = /\x1b\[(\d+);(\d+)R/.exec(buf);
+  #|       if (match) {
+  #|         stdin.removeListener('data', onResp);
+  #|         resolve({ row: Number(match[1]), col: Number(match[2]) });
+  #|       }
+  #|     };
+  #|     stdin.on('data', onResp);
+  #|     stdout.write('\x1b[6n');
+  #|     setTimeout(() => {
+  #|       stdin.removeListener('data', onResp);
+  #|       resolve(null);
+  #|     }, 100);
+  #|   });
+  #|
+  #|   let startRow = null;
+  #|   let startCol = 1;
+  #|   let canRender = false;
+  #|   let prefix = '';
+  #|   let renderedLines = Math.max(1, buffer.split('\n').length);
+  #|   let maxRows = null;
+  #|   let cursorPending = false;
+  #|
+  #|   const updatePrefix = () => {
+  #|     prefix = startCol > 1 ? ' '.repeat(startCol - 1) : '';
+  #|   };
+  #|
+  #|   const applyCursorPos = (pos) => {
+  #|     if (!pos) return false;
+  #|     startRow = pos.row;
+  #|     startCol = pos.col;
+  #|     canRender = true;
+  #|     if (stdout.rows) {
+  #|       const available = stdout.rows - startRow + 1 - reserveRows;
+  #|       maxRows = Math.max(1, available);
+  #|     }
+  #|     updatePrefix();
+  #|     return true;
+  #|   };
+  #|
+  #|   const renderAll = () => {
+  #|     if (!canRender) return false;
+  #|     const lines = buffer.split('\n');
+  #|     const visible = maxRows && lines.length > maxRows
+  #|       ? lines.slice(lines.length - maxRows)
+  #|       : lines;
+  #|     stdout.write(`\x1b[${startRow};${startCol}H`);
+  #|     const clearLines = maxRows ? Math.min(renderedLines, maxRows) : renderedLines;
+  #|     for (let i = 0; i < clearLines; i++) {
+  #|       stdout.write('\x1b[K');
+  #|       if (i < clearLines - 1) {
+  #|         stdout.write('\x1b[1B');
+  #|       }
+  #|     }
+  #|     stdout.write(`\x1b[${startRow};${startCol}H`);
+  #|     for (let i = 0; i < visible.length; i++) {
+  #|       if (i > 0) {
+  #|         stdout.write('\n' + prefix);
+  #|       }
+  #|       stdout.write(visible[i]);
+  #|     }
+  #|     const nextLines = maxRows ? Math.min(maxRows, visible.length) : visible.length;
+  #|     renderedLines = Math.max(1, nextLines);
+  #|     return true;
+  #|   };
+  #|
+  #|   const requestCursorPos = () => {
+  #|     if (cursorPending || canRender) return;
+  #|     cursorPending = true;
+  #|     readCursorPos().then((pos) => {
+  #|       cursorPending = false;
+  #|       if (applyCursorPos(pos)) {
+  #|         renderAll();
+  #|       }
+  #|     });
+  #|   };
+  #|
+  #|   const initialPos = await readCursorPos();
+  #|   applyCursorPos(initialPos);
+  #|
+  #|   const removeLastChar = (text) => {
+  #|     if (text.length === 0) return text;
+  #|     const chars = Array.from(text);
+  #|     chars.pop();
+  #|     return chars.join('');
+  #|   };
   #|
   #|   const cleanup = () => {
   #|     if (stdin.__cookedHandler) {
   #|       stdin.removeListener('data', stdin.__cookedHandler);
   #|       stdin.__cookedHandler = null;
+  #|     }
+  #|     // Disable modifyOtherKeys
+  #|     stdout.write('\x1b[>4;m');
+  #|     if (sttyState) {
+  #|       try {
+  #|         execSync(`stty ${sttyState} < /dev/tty`);
+  #|       } catch {
+  #|         // ignore restore errors
+  #|       }
   #|     }
   #|   };
   #|
@@ -617,42 +782,90 @@ extern "js" fn js_start_inline_input_cooked(
   #|     setImmediate(() => onForceQuit());
   #|   };
   #|
-  #|   if (buffer.length > 0) {
-  #|     stdout.write(buffer);
+  #|   if (!renderAll()) {
+  #|     requestCursorPos();
+  #|     if (buffer.length > 0) {
+  #|       stdout.write(buffer);
+  #|     }
   #|   }
   #|
   #|   const onData = (chunk) => {
   #|     if (done) return;
   #|
-  #|     // Escape cancels
-  #|     if (chunk === '\x1b' || chunk.startsWith('\x1b[')) {
-  #|       cancel();
-  #|       return;
+  #|     if (debug) {
+  #|       stderr.write(`[cooked] raw=${show(chunk)} hex=${toHex(chunk)}\n`);
   #|     }
   #|
-  #|     for (const char of chunk) {
-  #|       const code = char.charCodeAt(0);
+  #|     let i = 0;
+  #|     while (i < chunk.length) {
+  #|       if (chunk[i] === '\x1b') {
+  #|         const seq = shiftEnterAt(chunk, i);
+  #|         if (seq) {
+  #|           buffer += '\n';
+  #|           if (!renderAll()) {
+  #|             requestCursorPos();
+  #|             stdout.write('\n' + prefix);
+  #|           }
+  #|           i += seq.length;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith(deleteSeq, i)) {
+  #|           if (buffer.length > 0) {
+  #|             buffer = removeLastChar(buffer);
+  #|             if (!renderAll()) {
+  #|               requestCursorPos();
+  #|               stdout.write('\b \b');
+  #|             }
+  #|           }
+  #|           i += deleteSeq.length;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[', i) || chunk.startsWith('\x1bO', i)) {
+  #|           i += 2;
+  #|           while (i < chunk.length) {
+  #|             const c = chunk[i];
+  #|             i += 1;
+  #|             if (c >= '@' && c <= '~') {
+  #|               break;
+  #|             }
+  #|           }
+  #|           continue;
+  #|         }
+  #|         if (chunk.length === 1) {
+  #|           cancel();
+  #|           return;
+  #|         }
+  #|         i += 1;
+  #|         continue;
+  #|       }
   #|
-  #|       if (code === 3) {
-  #|         // Ctrl+C
+  #|       const code = chunk.codePointAt(i);
+  #|       const ch = String.fromCodePoint(code);
+  #|       const size = ch.length;
+  #|       i += size;
+  #|
+  #|       if (ch === '\x03') {
   #|         forceQuit();
   #|         return;
-  #|       } else if (code === 13 || code === 10) {
-  #|         // Enter
-  #|         stdout.write('\n');
+  #|       }
+  #|       if (ch === '\x7f' || ch === '\x08') {
+  #|         if (buffer.length > 0) {
+  #|           buffer = removeLastChar(buffer);
+  #|           if (!renderAll()) {
+  #|             requestCursorPos();
+  #|             stdout.write('\b \b');
+  #|           }
+  #|         }
+  #|         continue;
+  #|       }
+  #|       if (ch === '\r' || ch === '\n') {
   #|         const result = buffer.length > 0 ? buffer : initial;
   #|         finish(result);
   #|         return;
-  #|       } else if (code === 127 || code === 8) {
-  #|         // Backspace
-  #|         if (buffer.length > 0) {
-  #|           buffer = buffer.slice(0, -1);
-  #|           stdout.write('\b \b');
-  #|         }
-  #|       } else if (code >= 32) {
-  #|         buffer += char;
-  #|         stdout.write(char);
   #|       }
+  #|
+  #|       buffer += ch;
+  #|       stdout.write(ch);
   #|     }
   #|   };
   #|
