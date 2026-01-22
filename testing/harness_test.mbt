@@ -30,10 +30,10 @@ test "key sequences parse correctly - arrows" {
   let down = @events.parse_input(key_down())
   let left = @events.parse_input(key_left())
   let right = @events.parse_input(key_right())
-  assert_true(@events.is_arrow(up).is_some())
-  assert_true(@events.is_arrow(down).is_some())
-  assert_true(@events.is_arrow(left).is_some())
-  assert_true(@events.is_arrow(right).is_some())
+  assert_true(@events.is_arrow(up) is Some(_))
+  assert_true(@events.is_arrow(down) is Some(_))
+  assert_true(@events.is_arrow(left) is Some(_))
+  assert_true(@events.is_arrow(right) is Some(_))
 }
 
 ///|
@@ -80,7 +80,7 @@ test "scroll sequences parse correctly" {
 ///|
 test "TestHarness button render and click" {
   let h = TestHarness::new(width=30, height=8)
-  let counter = { val: 0 }
+  let counter : Ref[Int] = Ref::new(0)
   // Build a simple button
   let btn = @components.button(
     "Click me",

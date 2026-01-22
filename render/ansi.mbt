@@ -12,6 +12,11 @@ pub fn ansi_bold() -> String {
 }
 
 ///|
+pub fn ansi_dim() -> String {
+  "\u001b[2m"
+}
+
+///|
 pub fn ansi_underline() -> String {
   "\u001b[4m"
 }
@@ -19,6 +24,54 @@ pub fn ansi_underline() -> String {
 ///|
 pub fn ansi_reverse() -> String {
   "\u001b[7m"
+}
+
+// --- Basic foreground colors ---
+
+///|
+pub fn ansi_fg_black() -> String {
+  "\u001b[30m"
+}
+
+///|
+pub fn ansi_fg_red() -> String {
+  "\u001b[31m"
+}
+
+///|
+pub fn ansi_fg_green() -> String {
+  "\u001b[32m"
+}
+
+///|
+pub fn ansi_fg_yellow() -> String {
+  "\u001b[33m"
+}
+
+///|
+pub fn ansi_fg_blue() -> String {
+  "\u001b[34m"
+}
+
+///|
+pub fn ansi_fg_magenta() -> String {
+  "\u001b[35m"
+}
+
+///|
+pub fn ansi_fg_cyan() -> String {
+  "\u001b[36m"
+}
+
+///|
+pub fn ansi_fg_white() -> String {
+  "\u001b[37m"
+}
+
+///|
+/// Dim gray (bright black)
+pub fn ansi_fg_gray() -> String {
+  "\u001b[90m"
 }
 
 ///|
@@ -35,6 +88,30 @@ pub fn ansi_bg_256(color_idx : Int) -> String {
 /// Reset background color to default
 pub fn ansi_bg_reset() -> String {
   "\u001b[49m"
+}
+
+///|
+/// Move cursor up by n lines
+pub fn ansi_move_up(n? : Int = 1) -> String {
+  "\u001b[" + n.to_string() + "A"
+}
+
+///|
+/// Move cursor down by n lines
+pub fn ansi_move_down(n? : Int = 1) -> String {
+  "\u001b[" + n.to_string() + "B"
+}
+
+///|
+/// Move cursor right by n columns
+pub fn ansi_move_right(n? : Int = 1) -> String {
+  "\u001b[" + n.to_string() + "C"
+}
+
+///|
+/// Move cursor left by n columns
+pub fn ansi_move_left(n? : Int = 1) -> String {
+  "\u001b[" + n.to_string() + "D"
 }
 
 ///|

@@ -7,5 +7,10 @@ import {
 
 options(
   link: { "native": { "cc-link-flags": "io/tui_native.c" } },
-  targets: { "io_js.mbt": [ "js" ], "io_native.mbt": [ "not", "js" ] },
+  targets: {
+    "io_js.mbt": [ "js" ],
+    "io_native.mbt": [ "not", "js" ],
+    "input_nav.mbt": [ "not", "js" ],
+    "input_nav_wbtest.mbt": [ "not", "js" ],
+  },
 )

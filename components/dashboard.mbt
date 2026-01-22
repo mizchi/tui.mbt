@@ -209,31 +209,19 @@ pub fn TableColumn::new(
 }
 
 ///|
-/// Truncate string to given width
-fn truncate(s : String, width : Int) -> String {
-  let chars = s.iter().take(width).collect()
-  String::from_array(chars)
+/// Convert ColumnAlign to TextAlign
+fn column_align_to_text_align(align : ColumnAlign) -> TextAlign {
+  match align {
+    ColumnAlign::Left => TextAlign::Left
+    ColumnAlign::Right => TextAlign::Right
+    ColumnAlign::Center => TextAlign::Center
+  }
 }
 
 ///|
-/// Align text within given width
-fn align_text(s : String, width : Int, align : ColumnAlign) -> String {
-  let len = s.length()
-  if len >= width {
-    // Truncate if too long
-    truncate(s, width)
-  } else {
-    let padding = width - len
-    match align {
-      ColumnAlign::Left => s + " ".repeat(padding)
-      ColumnAlign::Right => " ".repeat(padding) + s
-      ColumnAlign::Center => {
-        let left_pad = padding / 2
-        let right_pad = padding - left_pad
-        " ".repeat(left_pad) + s + " ".repeat(right_pad)
-      }
-    }
-  }
+/// Align text within given width using ColumnAlign
+fn align_column_text(s : String, width : Int, align : ColumnAlign) -> String {
+  align_text(s, width, align=column_align_to_text_align(align))
 }
 
 ///|
@@ -244,7 +232,7 @@ pub fn build_table_header(
 ) -> String {
   let parts : Array[String] = []
   for col in columns {
-    parts.push(align_text(col.header, col.width, col.align))
+    parts.push(align_column_text(col.header, col.width, col.align))
   }
   parts
   .iter()
@@ -261,7 +249,7 @@ pub fn build_table_row(
   let parts : Array[String] = []
   for i = 0; i < columns.length(); i = i + 1 {
     let value = if i < values.length() { values[i] } else { "" }
-    parts.push(align_text(value, columns[i].width, columns[i].align))
+    parts.push(align_column_text(value, columns[i].width, columns[i].align))
   }
   parts
   .iter()
@@ -279,7 +267,7 @@ pub fn table_header(
   let parts : Array[@core.Component] = []
   for i = 0; i < columns.length(); i = i + 1 {
     let col = columns[i]
-    let aligned = align_text(col.header, col.width, col.align)
+    let aligned = align_column_text(col.header, col.width, col.align)
     parts.push(text(aligned, fg=theme.fg, bold=true))
     if i < columns.length() - 1 {
       parts.push(text(separator, fg=theme.fg))
@@ -308,7 +296,7 @@ pub fn table_row(
   for i = 0; i < columns.length(); i = i + 1 {
     let col = columns[i]
     let value = if i < values.length() { values[i] } else { "" }
-    let aligned = align_text(value, col.width, col.align)
+    let aligned = align_column_text(value, col.width, col.align)
     parts.push(text(aligned, fg=fg_color, bg=bg_color))
     if i < columns.length() - 1 {
       parts.push(text(separator, fg=fg_color, bg=bg_color))
@@ -430,7 +418,7 @@ pub fn meter(
   let padded_label = if label.length() < label_width {
     label + " ".repeat(label_width - label.length())
   } else {
-    truncate(label, label_width)
+    truncate_text(label, label_width)
   }
 
   // Calculate bar width: total - label - space - percent (4 chars for " XX%")

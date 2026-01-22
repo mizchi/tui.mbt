@@ -182,3 +182,44 @@ pub fn title_bar(
     margin_y=1.0,
   )
 }
+
+// --- Text utilities ---
+
+///|
+/// Text alignment options
+pub(all) enum TextAlign {
+  Left
+  Right
+  Center
+}
+
+///|
+/// Truncate string to given width
+pub fn truncate_text(s : String, width : Int) -> String {
+  let chars = s.iter().take(width).collect()
+  String::from_array(chars)
+}
+
+///|
+/// Align text within given width
+pub fn align_text(
+  s : String,
+  width : Int,
+  align? : TextAlign = TextAlign::Left,
+) -> String {
+  let len = s.length()
+  if len >= width {
+    truncate_text(s, width)
+  } else {
+    let padding = width - len
+    match align {
+      TextAlign::Left => s + " ".repeat(padding)
+      TextAlign::Right => " ".repeat(padding) + s
+      TextAlign::Center => {
+        let left_pad = padding / 2
+        let right_pad = padding - left_pad
+        " ".repeat(left_pad) + s + " ".repeat(right_pad)
+      }
+    }
+  }
+}
