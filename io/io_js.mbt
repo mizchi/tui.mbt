@@ -215,6 +215,82 @@ extern "js" fn js_start_inplace_input(
   #|     return 1;
   #|   };
   #|
+  #|   const wrapText = (chars) => {
+  #|     const width = maxCols || Number.MAX_SAFE_INTEGER;
+  #|     const lines = [];
+  #|     let currentLine = [];
+  #|     let currentWidth = 0;
+  #|     let lineStartIdx = 0;
+  #|     for (let i = 0; i < chars.length; i++) {
+  #|       const char = chars[i];
+  #|       if (char === '\n') {
+  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
+  #|         currentLine = [];
+  #|         currentWidth = 0;
+  #|         lineStartIdx = i + 1;
+  #|         continue;
+  #|       }
+  #|       const cw = getCharWidth(char);
+  #|       if (currentWidth + cw > width) {
+  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
+  #|         currentLine = [char];
+  #|         currentWidth = cw;
+  #|         lineStartIdx = i;
+  #|       } else {
+  #|         currentLine.push(char);
+  #|         currentWidth += cw;
+  #|       }
+  #|     }
+  #|     lines.push({ chars: currentLine, startIdx: lineStartIdx });
+  #|     return lines;
+  #|   };
+  #|
+  #|   const findCursorPos = (lines, cursor) => {
+  #|     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+  #|       const line = lines[lineIdx];
+  #|       const nextStart = lineIdx + 1 < lines.length
+  #|         ? lines[lineIdx + 1].startIdx
+  #|         : line.startIdx + line.chars.length;
+  #|       if (cursor < nextStart) {
+  #|         const posInLine = cursor - line.startIdx;
+  #|         let colOffset = 0;
+  #|         for (let i = 0; i < posInLine; i++) {
+  #|           colOffset += getCharWidth(line.chars[i]);
+  #|         }
+  #|         return { lineIdx, colOffset };
+  #|       }
+  #|     }
+  #|     const lastLine = lines[lines.length - 1];
+  #|     let colOffset = 0;
+  #|     for (const char of lastLine.chars) {
+  #|       colOffset += getCharWidth(char);
+  #|     }
+  #|     return { lineIdx: lines.length - 1, colOffset };
+  #|   };
+  #|
+  #|   // Helper to get display width of a character
+  #|   const getCharWidth = (char) => {
+  #|     const code = char.codePointAt(0);
+  #|     if (code >= 0x1100 && (
+  #|       code <= 0x115F ||
+  #|       code === 0x2329 || code === 0x232A ||
+  #|       (code >= 0x2E80 && code <= 0x303E) ||
+  #|       (code >= 0x3040 && code <= 0x33FF) ||
+  #|       (code >= 0x3400 && code <= 0x4DBF) ||
+  #|       (code >= 0x4E00 && code <= 0x9FFF) ||
+  #|       (code >= 0xAC00 && code <= 0xD7A3) ||
+  #|       (code >= 0xF900 && code <= 0xFAFF) ||
+  #|       (code >= 0xFE10 && code <= 0xFE1F) ||
+  #|       (code >= 0xFE30 && code <= 0xFE6F) ||
+  #|       (code >= 0xFF00 && code <= 0xFF60) ||
+  #|       (code >= 0xFFE0 && code <= 0xFFE6) ||
+  #|       (code >= 0x20000 && code <= 0x2FFFF)
+  #|     )) {
+  #|       return 2;
+  #|     }
+  #|     return 1;
+  #|   };
+  #|
   #|   const getStringWidth = (str) => {
   #|     let w = 0;
   #|     for (const char of str) w += getCharWidth(char);
@@ -260,8 +336,10 @@ extern "js" fn js_start_inplace_input(
   #|   const findCursorPos = (lines, cursor) => {
   #|     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
   #|       const line = lines[lineIdx];
-  #|       const lineEnd = line.startIdx + line.chars.length;
-  #|       if (cursor <= lineEnd) {
+  #|       const nextStart = lineIdx + 1 < lines.length
+  #|         ? lines[lineIdx + 1].startIdx
+  #|         : line.startIdx + line.chars.length;
+  #|       if (cursor < nextStart) {
   #|         const posInLine = cursor - line.startIdx;
   #|         let colOffset = 0;
   #|         for (let i = 0; i < posInLine; i++) {
@@ -270,7 +348,6 @@ extern "js" fn js_start_inplace_input(
   #|         return { lineIdx, colOffset };
   #|       }
   #|     }
-  #|     // Cursor at end
   #|     const lastLine = lines[lines.length - 1];
   #|     let colOffset = 0;
   #|     for (const char of lastLine.chars) {
@@ -641,7 +718,9 @@ extern "js" fn js_start_inline_input_cooked(
   #|     }
   #|   }
   #|
-  #|   let buffer = initial || '';
+  #|   const initialText = initial || '';
+  #|   let chars = Array.from(initialText);
+  #|   let cursor = chars.length;
   #|   let done = false;
   #|
   #|   const shiftEnterSeqs = [
@@ -654,6 +733,67 @@ extern "js" fn js_start_inline_input_cooked(
   #|   const shiftEnterAt = (text, index) =>
   #|     shiftEnterSeqs.find((seq) => text.startsWith(seq, index));
   #|   const deleteSeq = '\x1b[3~';
+  #|
+  #|   const getCharWidth = (char) => {
+  #|     const code = char.codePointAt(0);
+  #|     if (code >= 0x1100 && (
+  #|       code <= 0x115F ||
+  #|       code === 0x2329 || code === 0x232A ||
+  #|       (code >= 0x2E80 && code <= 0x303E) ||
+  #|       (code >= 0x3040 && code <= 0x33FF) ||
+  #|       (code >= 0x3400 && code <= 0x4DBF) ||
+  #|       (code >= 0x4E00 && code <= 0x9FFF) ||
+  #|       (code >= 0xAC00 && code <= 0xD7A3) ||
+  #|       (code >= 0xF900 && code <= 0xFAFF) ||
+  #|       (code >= 0xFE10 && code <= 0xFE1F) ||
+  #|       (code >= 0xFE30 && code <= 0xFE6F) ||
+  #|       (code >= 0xFF00 && code <= 0xFF60) ||
+  #|       (code >= 0xFFE0 && code <= 0xFFE6) ||
+  #|       (code >= 0x20000 && code <= 0x2FFFF)
+  #|     )) {
+  #|       return 2;
+  #|     }
+  #|     return 1;
+  #|   };
+  #|
+  #|   const wrapText = (chars) => {
+  #|     const lines = [];
+  #|     let currentLine = [];
+  #|     let lineStartIdx = 0;
+  #|     for (let i = 0; i < chars.length; i++) {
+  #|       const char = chars[i];
+  #|       if (char === '\n') {
+  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
+  #|         currentLine = [];
+  #|         lineStartIdx = i + 1;
+  #|         continue;
+  #|       }
+  #|       currentLine.push(char);
+  #|     }
+  #|     lines.push({ chars: currentLine, startIdx: lineStartIdx });
+  #|     return lines;
+  #|   };
+  #|
+  #|   const findCursorPos = (lines, cursor) => {
+  #|     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+  #|       const line = lines[lineIdx];
+  #|       const lineEnd = line.startIdx + line.chars.length;
+  #|       if (cursor <= lineEnd) {
+  #|         const posInLine = cursor - line.startIdx;
+  #|         let colOffset = 0;
+  #|         for (let i = 0; i < posInLine; i++) {
+  #|           colOffset += getCharWidth(line.chars[i]);
+  #|         }
+  #|         return { lineIdx, colOffset };
+  #|       }
+  #|     }
+  #|     const lastLine = lines[lines.length - 1];
+  #|     let colOffset = 0;
+  #|     for (const char of lastLine.chars) {
+  #|       colOffset += getCharWidth(char);
+  #|     }
+  #|     return { lineIdx: lines.length - 1, colOffset };
+  #|   };
   #|
   #|   const readCursorPos = () => new Promise((resolve) => {
   #|     let buf = '';
@@ -677,9 +817,11 @@ extern "js" fn js_start_inline_input_cooked(
   #|   let startCol = 1;
   #|   let canRender = false;
   #|   let prefix = '';
-  #|   let renderedLines = Math.max(1, buffer.split('\n').length);
+  #|   let renderedLines = Math.max(1, initialText.split('\n').length);
   #|   let maxRows = null;
+  #|   let maxCols = null;
   #|   let cursorPending = false;
+  #|   let scrollOffset = 0;
   #|
   #|   const updatePrefix = () => {
   #|     prefix = startCol > 1 ? ' '.repeat(startCol - 1) : '';
@@ -694,16 +836,35 @@ extern "js" fn js_start_inline_input_cooked(
   #|       const available = stdout.rows - startRow + 1 - reserveRows;
   #|       maxRows = Math.max(1, available);
   #|     }
+  #|     if (stdout.columns) {
+  #|       const availableCols = stdout.columns - startCol + 1;
+  #|       maxCols = Math.max(1, availableCols);
+  #|     }
   #|     updatePrefix();
   #|     return true;
   #|   };
   #|
+  #|   const bufferString = () => chars.join('');
+  #|
   #|   const renderAll = () => {
   #|     if (!canRender) return false;
-  #|     const lines = buffer.split('\n');
-  #|     const visible = maxRows && lines.length > maxRows
-  #|       ? lines.slice(lines.length - maxRows)
-  #|       : lines;
+  #|     const lines = wrapText(chars);
+  #|     const cursorPos = findCursorPos(lines, cursor);
+  #|     const maxVisible = maxRows || lines.length;
+  #|
+  #|     if (lines.length <= maxVisible) {
+  #|       scrollOffset = 0;
+  #|     } else {
+  #|       if (cursorPos.lineIdx < scrollOffset) {
+  #|         scrollOffset = cursorPos.lineIdx;
+  #|       } else if (cursorPos.lineIdx >= scrollOffset + maxVisible) {
+  #|         scrollOffset = cursorPos.lineIdx - maxVisible + 1;
+  #|       }
+  #|       scrollOffset = Math.max(0, Math.min(scrollOffset, lines.length - maxVisible));
+  #|     }
+  #|
+  #|     const visible = lines.slice(scrollOffset, scrollOffset + maxVisible);
+  #|
   #|     stdout.write(`\x1b[${startRow};${startCol}H`);
   #|     const clearLines = maxRows ? Math.min(renderedLines, maxRows) : renderedLines;
   #|     for (let i = 0; i < clearLines; i++) {
@@ -717,11 +878,36 @@ extern "js" fn js_start_inline_input_cooked(
   #|       if (i > 0) {
   #|         stdout.write('\n' + prefix);
   #|       }
-  #|       stdout.write(visible[i]);
+  #|       stdout.write(visible[i].chars.join(''));
   #|     }
-  #|     const nextLines = maxRows ? Math.min(maxRows, visible.length) : visible.length;
-  #|     renderedLines = Math.max(1, nextLines);
+  #|
+  #|     renderedLines = Math.max(1, visible.length);
+  #|
+  #|     const cursorLineOffset = cursorPos.lineIdx - scrollOffset;
+  #|     const maxRowOffset = maxVisible - 1;
+  #|     const displayRow = startRow + Math.max(0, Math.min(cursorLineOffset, maxRowOffset));
+  #|     const displayCol = startCol + Math.max(0, cursorPos.colOffset);
+  #|     stdout.write(`\x1b[${displayRow};${displayCol}H`);
+  #|     stdout.write('\x1b[?25h');
   #|     return true;
+  #|   };
+  #|
+  #|   const lineBounds = (cursor) => {
+  #|     let start = 0;
+  #|     for (let i = cursor - 1; i >= 0; i--) {
+  #|       if (chars[i] === '\n') {
+  #|         start = i + 1;
+  #|         break;
+  #|       }
+  #|     }
+  #|     let end = chars.length;
+  #|     for (let i = cursor; i < chars.length; i++) {
+  #|       if (chars[i] === '\n') {
+  #|         end = i;
+  #|         break;
+  #|       }
+  #|     }
+  #|     return { start, end };
   #|   };
   #|
   #|   const requestCursorPos = () => {
@@ -738,12 +924,6 @@ extern "js" fn js_start_inline_input_cooked(
   #|   const initialPos = await readCursorPos();
   #|   applyCursorPos(initialPos);
   #|
-  #|   const removeLastChar = (text) => {
-  #|     if (text.length === 0) return text;
-  #|     const chars = Array.from(text);
-  #|     chars.pop();
-  #|     return chars.join('');
-  #|   };
   #|
   #|   const cleanup = () => {
   #|     if (stdin.__cookedHandler) {
@@ -784,8 +964,8 @@ extern "js" fn js_start_inline_input_cooked(
   #|
   #|   if (!renderAll()) {
   #|     requestCursorPos();
-  #|     if (buffer.length > 0) {
-  #|       stdout.write(buffer);
+  #|     if (chars.length > 0) {
+  #|       stdout.write(bufferString());
   #|     }
   #|   }
   #|
@@ -797,27 +977,63 @@ extern "js" fn js_start_inline_input_cooked(
   #|     }
   #|
   #|     let i = 0;
+  #|     let needRender = false;
   #|     while (i < chunk.length) {
   #|       if (chunk[i] === '\x1b') {
   #|         const seq = shiftEnterAt(chunk, i);
   #|         if (seq) {
-  #|           buffer += '\n';
-  #|           if (!renderAll()) {
-  #|             requestCursorPos();
-  #|             stdout.write('\n' + prefix);
-  #|           }
+  #|           chars.splice(cursor, 0, '\n');
+  #|           cursor += 1;
+  #|           needRender = true;
   #|           i += seq.length;
   #|           continue;
   #|         }
   #|         if (chunk.startsWith(deleteSeq, i)) {
-  #|           if (buffer.length > 0) {
-  #|             buffer = removeLastChar(buffer);
-  #|             if (!renderAll()) {
-  #|               requestCursorPos();
-  #|               stdout.write('\b \b');
-  #|             }
+  #|           if (cursor < chars.length) {
+  #|             chars.splice(cursor, 1);
+  #|             needRender = true;
   #|           }
   #|           i += deleteSeq.length;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[D', i)) {
+  #|           if (cursor > 0) {
+  #|             cursor -= 1;
+  #|             needRender = true;
+  #|           }
+  #|           i += 3;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[C', i)) {
+  #|           if (cursor < chars.length) {
+  #|             cursor += 1;
+  #|             needRender = true;
+  #|           }
+  #|           i += 3;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[H', i)) {
+  #|           cursor = 0;
+  #|           needRender = true;
+  #|           i += 3;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[1~', i)) {
+  #|           cursor = 0;
+  #|           needRender = true;
+  #|           i += 4;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[F', i)) {
+  #|           cursor = chars.length;
+  #|           needRender = true;
+  #|           i += 3;
+  #|           continue;
+  #|         }
+  #|         if (chunk.startsWith('\x1b[4~', i)) {
+  #|           cursor = chars.length;
+  #|           needRender = true;
+  #|           i += 4;
   #|           continue;
   #|         }
   #|         if (chunk.startsWith('\x1b[', i) || chunk.startsWith('\x1bO', i)) {
@@ -849,23 +1065,43 @@ extern "js" fn js_start_inline_input_cooked(
   #|         return;
   #|       }
   #|       if (ch === '\x7f' || ch === '\x08') {
-  #|         if (buffer.length > 0) {
-  #|           buffer = removeLastChar(buffer);
-  #|           if (!renderAll()) {
-  #|             requestCursorPos();
-  #|             stdout.write('\b \b');
-  #|           }
+  #|         if (cursor > 0) {
+  #|           chars.splice(cursor - 1, 1);
+  #|           cursor -= 1;
+  #|           needRender = true;
   #|         }
   #|         continue;
   #|       }
+  #|       if (ch === '\x01') {
+  #|         const bounds = lineBounds(cursor);
+  #|         cursor = bounds.start;
+  #|         needRender = true;
+  #|         continue;
+  #|       }
+  #|       if (ch === '\x05') {
+  #|         const bounds = lineBounds(cursor);
+  #|         cursor = bounds.end;
+  #|         needRender = true;
+  #|         continue;
+  #|       }
   #|       if (ch === '\r' || ch === '\n') {
-  #|         const result = buffer.length > 0 ? buffer : initial;
+  #|         const result = chars.length > 0 ? bufferString() : initialText;
   #|         finish(result);
   #|         return;
   #|       }
   #|
-  #|       buffer += ch;
-  #|       stdout.write(ch);
+  #|       chars.splice(cursor, 0, ch);
+  #|       cursor += 1;
+  #|       needRender = true;
+  #|     }
+  #|
+  #|     if (needRender) {
+  #|       if (!renderAll()) {
+  #|         requestCursorPos();
+  #|         if (chars.length > 0) {
+  #|           stdout.write(bufferString());
+  #|         }
+  #|       }
   #|     }
   #|   };
   #|

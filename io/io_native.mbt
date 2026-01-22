@@ -448,8 +448,12 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
 /// Find cursor line index and column offset
 fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
   for line_idx, line in lines {
-    let line_end = line.start_idx + line.chars.length()
-    if cursor <= line_end {
+    let next_start = if line_idx + 1 < lines.length() {
+      lines[line_idx + 1].start_idx
+    } else {
+      line.start_idx + line.chars.length()
+    }
+    if cursor < next_start {
       let pos_in_line = cursor - line.start_idx
       let mut col_offset = 0
       for i = 0; i < pos_in_line && i < line.chars.length(); i = i + 1 {
@@ -839,12 +843,18 @@ pub fn start_inline_input_cooked(
   let _ = field_name
   print_raw(@render.ansi_show_cursor())
 
-  let mut buffer = initial
+  let mut buf : Array[Char] = []
+  for c in initial {
+    buf.push(c)
+  }
+  let mut cursor_pos = buf.length()
   let mut start_row = 1
   let mut start_col = 1
   let mut can_render = false
   let mut rendered_lines = 1
   let mut max_rows = 1
+  let mut max_cols = 1
+  let mut scroll_offset = 0
   let reserve_rows = 1
 
   fn parse_cursor_pos(resp : String) -> (Int, Int)? {
@@ -893,37 +903,47 @@ pub fn start_inline_input_cooked(
       start_row = row
       start_col = col
       can_render = true
-      let (_, rows) = get_terminal_size()
+      let (cols, rows) = get_terminal_size()
       let available = rows - start_row + 1 - reserve_rows
       max_rows = if available > 0 { available } else { 1 }
+      let available_cols = cols - start_col + 1
+      max_cols = if available_cols > 0 { available_cols } else { 1 }
     }
     None => ()
-  }
-
-  fn split_lines(text : String) -> Array[String] {
-    let lines : Array[String] = []
-    for part in text.split("\n") {
-      lines.push(part.to_string())
-    }
-    if lines.length() == 0 {
-      lines.push("")
-    }
-    lines
   }
 
   fn render_all() -> Bool {
     if not(can_render) {
       return false
     }
-    let lines = split_lines(buffer)
-    let mut start_idx = 0
-    if lines.length() > max_rows {
-      start_idx = lines.length() - max_rows
+    let lines = wrap_text_to_lines(buf, max_cols)
+    let (cursor_line_idx, cursor_col_offset) = find_cursor_line(
+      lines,
+      cursor_pos,
+    )
+    let max_visible = if max_rows > 0 { max_rows } else { 1 }
+    if lines.length() <= max_visible {
+      scroll_offset = 0
+    } else {
+      if cursor_line_idx < scroll_offset {
+        scroll_offset = cursor_line_idx
+      } else if cursor_line_idx >= scroll_offset + max_visible {
+        scroll_offset = cursor_line_idx - max_visible + 1
+      }
+      if scroll_offset < 0 {
+        scroll_offset = 0
+      }
+      if scroll_offset > lines.length() - max_visible {
+        scroll_offset = lines.length() - max_visible
+      }
     }
-    let visible : Array[String] = []
-    for i = start_idx; i < lines.length(); i = i + 1 {
-      visible.push(lines[i])
+    let start_idx = scroll_offset
+    let end_idx = if start_idx + max_visible < lines.length() {
+      start_idx + max_visible
+    } else {
+      lines.length()
     }
+    let visible_len = end_idx - start_idx
     let clear_lines = if rendered_lines < max_rows {
       rendered_lines
     } else {
@@ -936,34 +956,32 @@ pub fn start_inline_input_cooked(
       )
       print_raw("\u001b[K")
     }
-    for i = 0; i < visible.length(); i = i + 1 {
-      let row = start_row + i
+    for i = start_idx; i < end_idx; i = i + 1 {
+      let row = start_row + (i - start_idx)
       print_raw(
         "\u001b[" + row.to_string() + ";" + start_col.to_string() + "H",
       )
-      print_raw(visible[i])
+      print_raw(buf_to_string(lines[i].chars))
     }
-    rendered_lines = if visible.length() > 0 { visible.length() } else { 1 }
+    rendered_lines = if visible_len > 0 { visible_len } else { 1 }
+    let mut row_offset = cursor_line_idx - scroll_offset
+    if row_offset < 0 {
+      row_offset = 0
+    }
+    if row_offset >= max_visible {
+      row_offset = max_visible - 1
+    }
+    let display_row = start_row + row_offset
+    let display_col = start_col + cursor_col_offset
+    print_raw(
+      "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
+    )
+    print_raw(@render.ansi_show_cursor())
     true
   }
 
-  fn remove_last_char(text : String) -> String {
-    if text.length() == 0 {
-      return text
-    }
-    let chars : Array[Char] = []
-    for c in text {
-      chars.push(c)
-    }
-    if chars.length() == 0 {
-      return text
-    }
-    let _ = chars.remove(chars.length() - 1)
-    buf_to_string(chars)
-  }
-
-  if not(render_all()) && buffer.length() > 0 {
-    print_raw(buffer)
+  if not(render_all()) && buf.length() > 0 {
+    print_raw(buf_to_string(buf))
   }
 
   for {
@@ -978,13 +996,30 @@ pub fn start_inline_input_cooked(
 
     if key.length() > 1 && key[0].to_int() == 0x1b {
       if is_shift_enter_sequence(key) {
-        buffer = buffer + "\n"
+        buf.insert(cursor_pos, '\n')
+        cursor_pos = cursor_pos + 1
         need_render = true
       } else if key == "\u001b[3~" {
-        if buffer.length() > 0 {
-          buffer = remove_last_char(buffer)
+        if cursor_pos < buf.length() {
+          let _ = buf.remove(cursor_pos)
           need_render = true
         }
+      } else if key == "\u001b[D" {
+        if cursor_pos > 0 {
+          cursor_pos = cursor_pos - 1
+          need_render = true
+        }
+      } else if key == "\u001b[C" {
+        if cursor_pos < buf.length() {
+          cursor_pos = cursor_pos + 1
+          need_render = true
+        }
+      } else if key == "\u001b[H" || key == "\u001b[1~" {
+        cursor_pos = 0
+        need_render = true
+      } else if key == "\u001b[F" || key == "\u001b[4~" {
+        cursor_pos = buf.length()
+        need_render = true
       } else {
         ()
       }
@@ -998,20 +1033,55 @@ pub fn start_inline_input_cooked(
         result = InputResult::ForceQuit
       } else if code == 13 || code == 10 {
         done = true
-        let value = if buffer.length() == 0 { initial } else { buffer }
+        let value = if buf.length() == 0 { initial } else { buf_to_string(buf) }
         result = InputResult::Confirmed(value)
       } else if code == 127 || code == 8 {
-        if buffer.length() > 0 {
-          buffer = remove_last_char(buffer)
+        if cursor_pos > 0 {
+          let _ = buf.remove(cursor_pos - 1)
+          cursor_pos = cursor_pos - 1
           need_render = true
         }
+      } else if code == 1 {
+        // Ctrl+A - move to start of current line
+        let mut new_pos = 0
+        if cursor_pos > 0 {
+          let mut i = cursor_pos - 1
+          for {
+            if buf[i] == '\n' {
+              new_pos = i + 1
+              break
+            }
+            if i == 0 {
+              break
+            }
+            i = i - 1
+          }
+        }
+        cursor_pos = new_pos
+        need_render = true
+      } else if code == 5 {
+        // Ctrl+E - move to end of current line
+        let mut new_pos = buf.length()
+        let mut i = cursor_pos
+        while i < buf.length() {
+          if buf[i] == '\n' {
+            new_pos = i
+            break
+          }
+          i = i + 1
+        }
+        cursor_pos = new_pos
+        need_render = true
       } else if code >= 32 {
-        buffer = buffer + key
+        let c = key[0]
+        buf.insert(cursor_pos, c)
+        cursor_pos = cursor_pos + 1
         need_render = true
       }
     } else {
       for c in key {
-        buffer = buffer + c.to_string()
+        buf.insert(cursor_pos, c)
+        cursor_pos = cursor_pos + 1
       }
       need_render = true
     }
