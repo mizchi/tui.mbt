@@ -649,7 +649,7 @@ pub fn start_inplace_input(
     print_raw(
       "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
     )
-    print_raw(ansi_show_cursor())
+    print_raw(@render.ansi_show_cursor())
   }
 
   // Initial render
@@ -672,11 +672,7 @@ pub fn start_inplace_input(
         // Shift+Tab - confirm and go to previous
         done = true
         result = InputResult::TabPrev(buf_to_string(buf))
-      } else if key == "\u001b[13;2u" ||
-        key == "\u001b[27;2;13~" ||
-        key == "\u001bOM" ||
-        key == "\u001b\r" ||
-        key == "\u001b\n" {
+      } else if is_shift_enter_sequence(key) {
         // Shift+Enter or Alt+Enter - insert newline
         // ESC CR or ESC LF is Alt+Enter in many terminals
         buf.insert(cursor_pos, '\n')
@@ -816,7 +812,7 @@ pub fn start_inplace_input(
     }
     if done {
       // Hide cursor before exiting
-      print_raw(ansi_hide_cursor())
+      print_raw(@render.ansi_hide_cursor())
       // Restore raw mode state if we changed it
       if not(was_raw) {
         cleanup_stdin()
@@ -828,45 +824,209 @@ pub fn start_inplace_input(
 }
 
 ///|
-/// Start inline input with cooked mode (stub)
+/// Start inline input with cooked mode (native implementation)
 pub fn start_inline_input_cooked(
   field_name : String,
   initial : String,
   on_result : (InputResult) -> Unit,
 ) -> Unit {
+  // Ensure raw mode is enabled for predictable key handling
   let was_raw = is_raw_mode()
-  if was_raw {
-    cleanup_stdin()
-  }
-
-  // Show cursor (stay in alt screen)
-  let _ = field_name
-  print_raw("\u001b[?25h")
-
-  // Read a single line in cooked mode
-  let buf = FixedArray::make(1, b'\x00')
-  let bytes : Array[Byte] = []
-  for {
-    let n = @stdio.stdin.read(buf, offset=0, max_len=1)
-    if n <= 0 {
-      break
-    }
-    let b = buf[0]
-    if b == b'\n' || b == b'\r' {
-      break
-    }
-    bytes.push(b)
-  }
-  let input = if bytes.length() == 0 {
-    ""
-  } else {
-    Bytes::from_array(bytes).to_unchecked_string()
-  }
-  let result = if input.length() == 0 { initial } else { input }
-  if was_raw {
+  if not(was_raw) {
     enable_raw_mode()
   }
-  on_result(InputResult::Confirmed(result))
+
+  let _ = field_name
+  print_raw(@render.ansi_show_cursor())
+
+  let mut buffer = initial
+  let mut start_row = 1
+  let mut start_col = 1
+  let mut can_render = false
+  let mut rendered_lines = 1
+  let mut max_rows = 1
+  let reserve_rows = 1
+
+  fn parse_cursor_pos(resp : String) -> (Int, Int)? {
+    if not(resp.has_prefix("\u001b[")) || not(resp.has_suffix("R")) {
+      return None
+    }
+    if resp.length() < 4 {
+      return None
+    }
+    let body = try! resp[2:resp.length() - 1]
+    let mut row = 0
+    let mut col = 0
+    let mut seen_sep = false
+    for c in body {
+      if c == ';' {
+        if seen_sep {
+          return None
+        }
+        seen_sep = true
+        continue
+      }
+      if not(c.is_ascii_digit()) {
+        return None
+      }
+      let digit = c.to_int() - '0'.to_int()
+      if not(seen_sep) {
+        row = row * 10 + digit
+      } else {
+        col = col * 10 + digit
+      }
+    }
+    if not(seen_sep) {
+      return None
+    }
+    Some((row, col))
+  }
+
+  fn read_cursor_pos() -> (Int, Int)? {
+    print_raw("\u001b[6n")
+    let resp = read_key()
+    parse_cursor_pos(resp)
+  }
+
+  match read_cursor_pos() {
+    Some((row, col)) => {
+      start_row = row
+      start_col = col
+      can_render = true
+      let (_, rows) = get_terminal_size()
+      let available = rows - start_row + 1 - reserve_rows
+      max_rows = if available > 0 { available } else { 1 }
+    }
+    None => ()
+  }
+
+  fn split_lines(text : String) -> Array[String] {
+    let lines : Array[String] = []
+    for part in text.split("\n") {
+      lines.push(part.to_string())
+    }
+    if lines.length() == 0 {
+      lines.push("")
+    }
+    lines
+  }
+
+  fn render_all() -> Bool {
+    if not(can_render) {
+      return false
+    }
+    let lines = split_lines(buffer)
+    let mut start_idx = 0
+    if lines.length() > max_rows {
+      start_idx = lines.length() - max_rows
+    }
+    let visible : Array[String] = []
+    for i = start_idx; i < lines.length(); i = i + 1 {
+      visible.push(lines[i])
+    }
+    let clear_lines = if rendered_lines < max_rows {
+      rendered_lines
+    } else {
+      max_rows
+    }
+    for i = 0; i < clear_lines; i = i + 1 {
+      let row = start_row + i
+      print_raw(
+        "\u001b[" + row.to_string() + ";" + start_col.to_string() + "H",
+      )
+      print_raw("\u001b[K")
+    }
+    for i = 0; i < visible.length(); i = i + 1 {
+      let row = start_row + i
+      print_raw(
+        "\u001b[" + row.to_string() + ";" + start_col.to_string() + "H",
+      )
+      print_raw(visible[i])
+    }
+    rendered_lines = if visible.length() > 0 { visible.length() } else { 1 }
+    true
+  }
+
+  fn remove_last_char(text : String) -> String {
+    if text.length() == 0 {
+      return text
+    }
+    let chars : Array[Char] = []
+    for c in text {
+      chars.push(c)
+    }
+    if chars.length() == 0 {
+      return text
+    }
+    let _ = chars.remove(chars.length() - 1)
+    buf_to_string(chars)
+  }
+
+  if not(render_all()) && buffer.length() > 0 {
+    print_raw(buffer)
+  }
+
+  for {
+    let key = read_key()
+    if key.length() == 0 {
+      sleep(10)
+      continue
+    }
+    let mut need_render = false
+    let mut done = false
+    let mut result : InputResult = InputResult::Cancelled
+
+    if key.length() > 1 && key[0].to_int() == 0x1b {
+      if is_shift_enter_sequence(key) {
+        buffer = buffer + "\n"
+        need_render = true
+      } else if key == "\u001b[3~" {
+        if buffer.length() > 0 {
+          buffer = remove_last_char(buffer)
+          need_render = true
+        }
+      } else {
+        ()
+      }
+    } else if key == "\u001b" {
+      done = true
+      result = InputResult::Cancelled
+    } else if key.length() == 1 {
+      let code = key[0].to_int()
+      if code == 3 {
+        done = true
+        result = InputResult::ForceQuit
+      } else if code == 13 || code == 10 {
+        done = true
+        let value = if buffer.length() == 0 { initial } else { buffer }
+        result = InputResult::Confirmed(value)
+      } else if code == 127 || code == 8 {
+        if buffer.length() > 0 {
+          buffer = remove_last_char(buffer)
+          need_render = true
+        }
+      } else if code >= 32 {
+        buffer = buffer + key
+        need_render = true
+      }
+    } else {
+      for c in key {
+        buffer = buffer + c.to_string()
+      }
+      need_render = true
+    }
+
+    if need_render {
+      let _ = render_all()
+    }
+    if done {
+      if not(was_raw) {
+        cleanup_stdin()
+      }
+      on_result(result)
+      return
+    }
+  }
 }
 
 // --- Functions for JS compatibility ---
@@ -901,6 +1061,18 @@ pub fn start_render_ticker(_ms : Int, _callback : () -> Unit) -> Int {
 ///|
 /// Stop render ticker (stub)
 pub fn stop_render_ticker(_ticker_id : Int) -> Unit {
+  // No-op for native
+}
+
+///|
+/// Start resize listener (stub - native does not emit resize events)
+pub fn start_resize_listener(_callback : (Int, Int) -> Unit) -> Unit {
+  // No-op for native
+}
+
+///|
+/// Stop resize listener (stub)
+pub fn stop_resize_listener() -> Unit {
   // No-op for native
 }
 

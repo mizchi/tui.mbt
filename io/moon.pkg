@@ -1,7 +1,11 @@
 import {
+  "mizchi/tui/render",
+  "moonbitlang/async",
   "moonbitlang/async/js_async",
+  "moonbitlang/async/stdio",
 }
 
 options(
   targets: { "io_js.mbt": [ "js" ], "io_native.mbt": [ "not", "js" ] },
+  link: { "native": { "cc-link-flags": "io/tui_native.c" } },
 )
