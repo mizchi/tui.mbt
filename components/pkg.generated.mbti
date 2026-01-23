@@ -54,6 +54,8 @@ pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
 
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
 
+pub fn build_scrollbar(Int, Int, Int, Int, track_char? : String, thumb_char? : String) -> Array[String]
+
 pub fn build_sparkline(Array[Double], width? : Int) -> String
 
 pub fn build_table_header(Array[TableColumn], separator? : String) -> String
@@ -209,6 +211,8 @@ pub fn scroll_indicator(ScrollIndicator, fg? : @core.Color) -> @core.Component
 pub fn scroll_indicator_text(ScrollIndicator) -> String
 
 pub fn scrollable_list(Array[@core.Component], ScrollState, Int, show_indicator? : Bool, indicator_fg? : @core.Color) -> Array[@core.Component]
+
+pub fn scrollbar(Int, Int, Int, Int, track_color? : @core.Color, thumb_color? : @core.Color, track_char? : String, thumb_char? : String) -> @core.Component
 
 pub fn select(Array[ComboboxOption], String, id? : String, focused_id? : String, open? : Bool, placeholder? : String, theme? : Theme, min_width? : Double, max_visible? : Int) -> @core.Component
 

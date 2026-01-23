@@ -237,3 +237,95 @@ pub fn scrollable_list(
     visible
   }
 }
+
+///|
+/// Build a vertical scrollbar string for the given height
+/// Returns an array of single-character strings, one per line
+pub fn build_scrollbar(
+  offset : Int,
+  total_items : Int,
+  visible_count : Int,
+  height : Int,
+  track_char? : String = "│",
+  thumb_char? : String = "┃",
+) -> Array[String] {
+  let result : Array[String] = []
+  if total_items <= visible_count || height <= 0 {
+    // No scrolling needed - return empty track
+    for _i = 0; _i < height; _i = _i + 1 {
+      result.push(track_char)
+    }
+    return result
+  }
+
+  // Calculate thumb size (minimum 1 line)
+  let thumb_height = {
+    let h = height * visible_count / total_items
+    if h < 1 {
+      1
+    } else {
+      h
+    }
+  }
+
+  // Calculate thumb position
+  let max_offset = total_items - visible_count
+  let scrollable_range = height - thumb_height
+  let thumb_pos = if max_offset > 0 {
+    offset * scrollable_range / max_offset
+  } else {
+    0
+  }
+
+  // Build the scrollbar
+  for i = 0; i < height; i = i + 1 {
+    if i >= thumb_pos && i < thumb_pos + thumb_height {
+      result.push(thumb_char)
+    } else {
+      result.push(track_char)
+    }
+  }
+  result
+}
+
+///|
+/// Scrollbar component - renders a vertical scrollbar as a text_box
+/// Note: track_color is kept for API compatibility but text_box uses single color
+pub fn scrollbar(
+  offset : Int,
+  total_items : Int,
+  visible_count : Int,
+  height : Int,
+  track_color? : @core.Color = @core.Color::rgb(60, 60, 60),
+  thumb_color? : @core.Color = @core.Color::rgb(120, 120, 120),
+  track_char? : String = "│",
+  thumb_char? : String = "█",
+) -> @core.Component {
+  let _ = track_color // Reserved for future per-line coloring
+  let lines = build_scrollbar(
+    offset,
+    total_items,
+    visible_count,
+    height,
+    track_char~,
+    thumb_char~,
+  )
+  // Join lines with newlines to create a multi-line string
+  let content = lines
+    .iter()
+    .fold(init="", fn(acc, s) {
+      if acc.length() == 0 {
+        s
+      } else {
+        acc + "\n" + s
+      }
+    })
+  // Use text_box for proper height/width handling
+  // Color the whole scrollbar with thumb_color for visibility
+  @core.text_box(
+    content,
+    fg=thumb_color,
+    width=@types.Dimension::Length(1.0),
+    height=@types.Dimension::Length(height.to_double()),
+  )
+}

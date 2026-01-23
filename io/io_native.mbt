@@ -172,7 +172,7 @@ pub fn read_key() -> String {
     // Other escape sequences: just return what we have
 
     // Convert to string
-    bytes_to_string(buf, len)
+    return bytes_to_string(buf, len)
   } else {
     // Single byte character
     let buf = FixedArray::make(4, b'\x00')
@@ -188,7 +188,7 @@ pub fn read_key() -> String {
         return b
       }
       // Retry a few times with small delays (IME may send bytes with slight delay)
-      for _ = 0; _ < 5; _ = _ + 1 {
+      for retry = 0; retry < 5; retry = retry + 1 {
         tui_sleep_ms(1) // 1ms delay
         let b = tui_read_byte()
         if b >= 0 {
@@ -872,11 +872,10 @@ pub fn start_inline_input_cooked(
 
   // Buffer to store any user input that was read while getting cursor position
   let pending_input : Array[String] = []
-
   fn read_cursor_pos_fn() -> (Int, Int)? {
     print_raw("\u001b[6n")
     // Try to read cursor position response, but save any user input
-    for _ = 0; _ < 10; _ = _ + 1 {
+    for attempt = 0; attempt < 10; attempt = attempt + 1 {
       let resp = read_key()
       if resp.length() == 0 {
         sleep(5)
@@ -975,18 +974,16 @@ pub fn start_inline_input_cooked(
     match action {
       @input.EditAction::Confirm
       | @input.EditAction::Cancel
-      | @input.EditAction::ForceQuit => {
-        // Don't process these from pending - they would exit immediately
-      }
+      | @input.EditAction::ForceQuit => ()
       _ => {
         let handled = controller.apply_action(action)
         if handled {
           let _ = render_all()
+
         }
       }
     }
   }
-
   for {
     let key = read_key()
     if key.length() == 0 {

@@ -13,40 +13,98 @@ fn run_headless() -> Unit {
 
   // Create state
   let messages : Array[@c.Message] = []
-  let streaming = @c.StreamingState::new()
-  let input_queue = @c.InputQueue::new()
 
-  // Simulate some messages
-  messages.push({ role: User, content: "Hello, how are you?" })
-  messages.push({
-    role: Assistant,
-    content: "I'm doing great! How can I help you today?",
-  })
-  messages.push({ role: User, content: "Tell me about MoonBit" })
+  // Simulate many messages to test scrolling
+  for i = 0; i < 10; i = i + 1 {
+    messages.push({ role: User, content: "Message " + i.to_string() })
+    messages.push({
+      role: Assistant,
+      content: "Response to message " + i.to_string(),
+    })
+  }
 
-  // Build message list
-  let all_items = @c.chat_message_list(
-    messages, streaming, input_queue, width, @c.streaming_message_height,
-  )
+  // Calculate visible count (same as in main)
+  let vh = @c.calc_visible_height(height)
+  let visible_count = if vh / 3 < 3 { 3 } else { vh / 3 }
+  let total_items = messages.length()
+  let max_offset = if total_items > visible_count {
+    total_items - visible_count
+  } else {
+    0
+  }
+
+  // Test scroller
+  let scroller = @c.ItemScroller::new()
+
+  // Simulate follow_bottom (what happens after messages are added)
+  scroller.follow_bottom(total_items, visible_count)
 
   // Output state as plain text (no ANSI escapes)
-  println("=== HEADLESS MODE ===")
-  println("Terminal size: " + width.to_string() + "x" + height.to_string())
-  println("Messages: " + messages.length().to_string())
-  println("")
-  println("--- Message Log ---")
-  for i, msg in messages {
-    let role_str = match msg.role {
-      User => "[User]"
-      Assistant => "[Assistant]"
-    }
-    println(i.to_string() + ". " + role_str + " " + msg.content)
+  println("=== HEADLESS MODE - SCROLL TEST ===")
+  println("Terminal: " + width.to_string() + "x" + height.to_string())
+  println(
+    "Messages: " +
+    total_items.to_string() +
+    ", Visible: " +
+    visible_count.to_string() +
+    ", MaxOffset: " +
+    max_offset.to_string(),
+  )
+  println(
+    "Initial: offset=" +
+    scroller.offset.get().to_string() +
+    ", auto_scroll=" +
+    scroller.auto_scroll.get().to_string(),
+  )
+
+  // Simulate pressing Up arrow
+  let up_result = scroller.up(1)
+  println(
+    "After UP: offset=" +
+    scroller.offset.get().to_string() +
+    ", returned=" +
+    up_result.to_string(),
+  )
+
+  // Simulate pressing Up 5 more times
+  for j = 0; j < 5; j = j + 1 {
+    ignore(scroller.up(1))
   }
-  println("")
-  println("--- UI Components ---")
-  println("Item count: " + all_items.length().to_string())
-  println("")
-  println("=== END HEADLESS ===")
+  println(
+    "After 5 more UPs: offset=" +
+    scroller.offset.get().to_string() +
+    ", can_up=" +
+    scroller.can_scroll_up().to_string() +
+    ", can_down=" +
+    scroller.can_scroll_down(total_items, visible_count).to_string(),
+  )
+
+  // Test scrollbar visibility condition
+  let is_streaming = false
+  let show_scrollbar = total_items > visible_count && not(is_streaming)
+  println(
+    "Scrollbar: show=" +
+    show_scrollbar.to_string() +
+    " (total=" +
+    total_items.to_string() +
+    " > visible=" +
+    visible_count.to_string() +
+    ")",
+  )
+
+  // Test scrollbar rendering
+  let scrollbar_lines = @c.build_scrollbar(
+    scroller.offset.get(),
+    total_items,
+    visible_count,
+    vh,
+  )
+  println("Scrollbar height: " + scrollbar_lines.length().to_string())
+  println(
+    "Scrollbar preview: " +
+    scrollbar_lines.iter().fold(init="", fn(acc, s) { acc + s }),
+  )
+  println("=== END ===")
 }
 
 ///|
@@ -130,36 +188,57 @@ fn main {
     }
   }
 
-  // Build the message area with scrolling and indicator
+  // Build the message area with scrolling and scrollbar
   fn build_message_area() -> @core.Component {
     let w = width.val
     let h = height.val
+    let visible_count = get_visible_count()
+    let visible_height = @c.calc_visible_height(h)
+    let total = get_item_count()
+    let is_streaming = streaming.is_streaming()
+
+    // Don't show scrollbar during streaming to avoid render conflicts with stream_buffer
+    let show_scrollbar = total > visible_count && not(is_streaming)
+    let content_width = if show_scrollbar { w - 1 } else { w }
     let all_items = @c.chat_message_list(
       messages.get(),
       streaming,
       input_queue,
-      w,
+      content_width,
       @c.streaming_message_height,
     )
-    let visible_count = get_visible_count()
     let visible_items = scroller.slice(all_items, visible_count)
 
-    // Add scroll indicator if needed
-    let indicator = scroller.indicator(get_item_count(), visible_count)
+    // Message content column
     let display_items : Array[@core.Component] = []
     for item in visible_items {
       display_items.push(item)
     }
-    match indicator {
-      @c.ScrollIndicator::None => ()
-      _ => display_items.push(@c.scroll_indicator(indicator))
-    }
-    let visible_height = @c.calc_visible_height(h)
-    @c.column(
+    let messages_column = @c.column(
       display_items,
+      width=@types.Dimension::Length(content_width.to_double()),
       height=@types.Dimension::Length(visible_height.to_double()),
       justify=@types.Alignment::FlexEnd, // Align messages to bottom
     )
+
+    // Scrollbar (only show when scrolling is possible and not streaming)
+    if show_scrollbar {
+      let scrollbar_component = @c.scrollbar(
+        scroller.offset.get(),
+        total,
+        visible_count,
+        visible_height,
+        track_color=@core.Color::rgb(60, 60, 60),
+        thumb_color=@core.Color::rgb(140, 140, 140),
+      )
+      @c.row(
+        [messages_column, scrollbar_component],
+        width=@types.Dimension::Length(w.to_double()),
+        height=@types.Dimension::Length(visible_height.to_double()),
+      )
+    } else {
+      messages_column
+    }
   }
 
   // Build the entire UI using crater layout
