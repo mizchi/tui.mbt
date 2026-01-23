@@ -74,43 +74,19 @@ fn find_completion(text : String, cursor : Int) -> String? {
 // =============================================================================
 
 ///|
-struct Command {
-  name : String
-  action : String
-}
-
-///|
-let commands : Array[Command] = [
-  { name: "New File", action: "file.new" },
-  { name: "Open File", action: "file.open" },
-  { name: "Save File", action: "file.save" },
-  { name: "Close File", action: "file.close" },
-  { name: "Undo", action: "edit.undo" },
-  { name: "Redo", action: "edit.redo" },
-  { name: "Cut", action: "edit.cut" },
-  { name: "Copy", action: "edit.copy" },
-  { name: "Paste", action: "edit.paste" },
-  { name: "Find", action: "edit.find" },
-  { name: "Find and Replace", action: "edit.replace" },
-  { name: "Go to Line", action: "edit.goto" },
-  { name: "Toggle Word Wrap", action: "view.wordwrap" },
-  { name: "Zoom In", action: "view.zoom-in" },
-  { name: "Zoom Out", action: "view.zoom-out" },
-  { name: "Show Settings", action: "settings.open" },
-  { name: "About", action: "help.about" },
+let commands : Array[String] = [
+  "New File", "Open File", "Save File", "Close File", "Undo", "Redo", "Cut", "Copy",
+  "Paste", "Find", "Find and Replace", "Go to Line", "Toggle Word Wrap", "Zoom In",
+  "Zoom Out", "Show Settings", "About",
 ]
 
 ///|
 fn filter_commands(query : String) -> Array[String] {
   if query.length() == 0 {
-    return commands.iter().map(fn(c) { c.name }).collect()
+    return commands.copy()
   }
   let lower_query = query.to_lower()
-  commands
-  .iter()
-  .filter(fn(c) { c.name.to_lower().contains(lower_query) })
-  .map(fn(c) { c.name })
-  .collect()
+  commands.iter().filter(fn(c) { c.to_lower().contains(lower_query) }).collect()
 }
 
 // =============================================================================

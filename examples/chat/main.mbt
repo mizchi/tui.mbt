@@ -146,6 +146,11 @@ fn main {
   // Input queue for batching inputs during task processing
   let input_queue = @composed.InputQueue::new()
 
+  // Claude API client (from ANTHROPIC_API_KEY env var)
+  let claude_client : @ai.ClaudeClient? = @ai.ClaudeClient::from_env(
+    system_prompt="You are a helpful coding assistant with access to file system tools. You can read files, write files, list directories, and run shell commands. Use these tools when the user asks about files or wants you to modify code. Keep responses concise.",
+  )
+
   // Create the app (mutable for resize support)
   let app : Ref[@render.App] = { val: @render.App::new(width.val, height.val) }
 
@@ -466,6 +471,97 @@ fn main {
     }
   }
 
+  // Convert UI messages to AI format (limit to last N messages to avoid token limits)
+  fn convert_messages_for_ai() -> Array[@ai.Message] {
+    let all_msgs = messages.get()
+    let max_history = 20 // Keep last 20 messages (10 exchanges)
+    let start_idx = if all_msgs.length() > max_history {
+      all_msgs.length() - max_history
+    } else {
+      0
+    }
+    let ai_messages : Array[@ai.Message] = []
+    for i = start_idx; i < all_msgs.length(); i = i + 1 {
+      let msg = all_msgs[i]
+      let role : @ai.Role = match msg.role {
+        @composed.MessageRole::User => @ai.Role::User
+        @composed.MessageRole::Assistant => @ai.Role::Assistant
+      }
+      ai_messages.push({ role, content: msg.content })
+    }
+    ai_messages
+  }
+
+  // Send messages to Claude API with streaming
+  fn send_to_claude() -> Unit {
+    match claude_client {
+      Some(client) => {
+        input_queue.start_processing()
+        stream_buffer.clear()
+        scroller.to_bottom(get_item_count(), get_visible_count())
+        // Start realtime streaming mode with loading indicator
+        ignore(streaming.start_realtime())
+        streaming.append("Thinking...")
+        if not(ime_session.is_editing()) {
+          do_render()
+        }
+        let ai_messages = convert_messages_for_ai()
+        let first_chunk = Ref::new(true)
+        client.stream_with_tools(
+          ai_messages,
+          fn(chunk) {
+            // Clear "Thinking..." on first real chunk
+            if first_chunk.val {
+              first_chunk.val = false
+              streaming.clear()
+              ignore(streaming.start_realtime())
+            }
+            // Append chunk and render
+            streaming.append(chunk)
+            scroller.follow_bottom(get_item_count(), get_visible_count())
+            render_message_area_stream()
+          },
+          fn(_tool_id, tool_name, input_json) {
+            // Execute tool and return result
+            @ai.execute_tool(tool_name, input_json)
+          },
+          fn() {
+            // Complete
+            finish_streaming()
+            input_queue.finish_processing()
+            let started_new = (process_queue_ref.val)()
+            if not(ime_session.is_editing()) && not(started_new) {
+              do_render()
+            }
+          },
+          fn(error) {
+            // Error - show as message
+            streaming.append("\n\n[Error: " + error + "]")
+            streaming.complete()
+            finish_streaming()
+            input_queue.finish_processing()
+            if not(ime_session.is_editing()) {
+              do_render()
+            }
+          },
+        )
+      }
+      None => {
+        // Fallback to simulated response when no API key
+        let last_msg = messages.get()
+        let user_text = if last_msg.length() > 0 {
+          last_msg[last_msg.length() - 1].content
+        } else {
+          ""
+        }
+        let response = "[No ANTHROPIC_API_KEY set]\nYou said: " +
+          user_text +
+          "\n\nSet ANTHROPIC_API_KEY environment variable to use Claude."
+        start_streaming(response)
+      }
+    }
+  }
+
   // Process all queued inputs and send as batch
   // Returns true if processing started (a new streaming was initiated)
   fn process_queue() -> Bool {
@@ -479,11 +575,8 @@ fn main {
       for msg in queued {
         add_message(User, msg)
       }
-      // Single response for all
-      let response = "Processed " +
-        queued.length().to_string() +
-        " queued message(s)."
-      start_streaming(response)
+      // Send to Claude (or fallback)
+      send_to_claude()
       return true
     }
     false
@@ -516,8 +609,7 @@ fn main {
         // No task running, send immediately
         scroller.auto_scroll.set(true)
         add_message(User, text)
-        let response = "You said: " + text + ". This is a simulated response."
-        start_streaming(response)
+        send_to_claude()
       }
     }
     @io.print_raw(@render.ansi_full_reset())

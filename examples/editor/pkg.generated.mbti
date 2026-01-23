@@ -6,7 +6,6 @@ package "mizchi/tui/examples/editor"
 // Errors
 
 // Types and methods
-type Command
 
 // Type aliases
 

@@ -592,6 +592,7 @@ pub(all) struct StreamingState {
   position : @signals.Signal[Int]
   ticker_id : Ref[Int]
 }
+pub fn StreamingState::append(Self, String) -> Unit
 pub fn StreamingState::clear(Self) -> Unit
 pub fn StreamingState::complete(Self) -> Unit
 pub fn StreamingState::get_partial(Self) -> String
@@ -602,6 +603,7 @@ pub fn StreamingState::has_content(Self) -> Bool
 pub fn StreamingState::is_streaming(Self) -> Bool
 pub fn StreamingState::new() -> Self
 pub fn StreamingState::start(Self, String, Int, () -> Unit, () -> Unit) -> Bool
+pub fn StreamingState::start_realtime(Self) -> Bool
 pub fn StreamingState::stop(Self) -> Unit
 pub fn StreamingState::take(Self) -> String
 pub fn StreamingState::take_partial(Self) -> String

@@ -172,7 +172,10 @@ fn render_input(state : DemoState) -> Unit {
   } else if visible && selected < items.length() {
     let completion = items[selected]
     if completion.length() > current.length() {
-      let suffix = completion.substring(start=current.length())
+      let suffix = completion.unsafe_substring(
+        start=current.length(),
+        end=completion.length(),
+      )
       pr(dim() + suffix + reset())
     }
   }
@@ -219,7 +222,10 @@ fn render_popup(state : DemoState) -> Unit {
     if i == selected {
       pr(bg_highlight() + bold() + cyan() + query + reset() + bg_highlight())
       if item.length() > query.length() {
-        pr(white() + item.substring(start=query.length()))
+        pr(
+          white() +
+          item.unsafe_substring(start=query.length(), end=item.length()),
+        )
       }
       if item.length() < popup_width {
         pr(" ".repeat(popup_width - item.length()))
@@ -228,7 +234,9 @@ fn render_popup(state : DemoState) -> Unit {
     } else {
       pr(bg_dark() + white() + query)
       if item.length() > query.length() {
-        pr(dim() + item.substring(start=query.length()))
+        pr(
+          dim() + item.unsafe_substring(start=query.length(), end=item.length()),
+        )
       }
       if item.length() < popup_width {
         pr(" ".repeat(popup_width - item.length()))

@@ -103,6 +103,32 @@ pub fn all_stories() -> Array[Story] {
   for s in modal_stories() {
     stories.push(s)
   }
+
+  // Complex layouts (regression tests)
+  for s in nested_layout_stories() {
+    stories.push(s)
+  }
+  for s in flex_layout_stories() {
+    stories.push(s)
+  }
+  for s in sidebar_layout_stories() {
+    stories.push(s)
+  }
+  for s in header_footer_stories() {
+    stories.push(s)
+  }
+  for s in cjk_layout_stories() {
+    stories.push(s)
+  }
+  for s in grid_layout_stories() {
+    stories.push(s)
+  }
+  for s in edge_case_stories() {
+    stories.push(s)
+  }
+  for s in dashboard_layout_stories() {
+    stories.push(s)
+  }
   stories
 }
 

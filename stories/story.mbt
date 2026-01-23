@@ -41,14 +41,19 @@ pub fn Story::to_plain(self : Story) -> String {
   let plain = @testing.strip_ansi(frame)
 
   // ANSI uses cursor positioning, not newlines, so we need to split by width
+  // Account for CJK characters which take 2 terminal columns but 1 character
   let chars = plain.to_array()
   let lines : Array[String] = []
   let mut pos = 0
   for row = 0; row < self.height; row = row + 1 {
     let line_chars : Array[Char] = []
-    for col = 0; col < self.width && pos < chars.length(); col = col + 1 {
-      line_chars.push(chars[pos])
+    let mut col = 0
+    while col < self.width && pos < chars.length() {
+      let c = chars[pos]
+      line_chars.push(c)
       pos = pos + 1
+      // Wide characters advance column by 2
+      col = col + @core.char_display_width(c)
     }
     lines.push(trim_end(String::from_array(line_chars)))
   }

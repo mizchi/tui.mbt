@@ -1,0 +1,69 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/ai"
+
+// Values
+pub fn execute_tool(String, String) -> String
+
+pub fn get_tool_definitions() -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct ClaudeClient {
+  config : ClaudeConfig
+}
+pub fn ClaudeClient::from_env(model? : String, max_tokens? : Int, system_prompt? : String) -> Self?
+pub fn ClaudeClient::new(ClaudeConfig) -> Self
+pub fn ClaudeClient::stream(Self, Array[Message], (String) -> Unit, () -> Unit, (String) -> Unit) -> Unit
+pub fn ClaudeClient::stream_with_tools(Self, Array[Message], (String) -> Unit, (String, String, String) -> String, () -> Unit, (String) -> Unit) -> Unit
+
+pub(all) struct ClaudeConfig {
+  api_key : String
+  model : String
+  max_tokens : Int
+  system_prompt : String
+}
+pub fn ClaudeConfig::new(String, model? : String, max_tokens? : Int, system_prompt? : String) -> Self
+
+pub(all) struct Message {
+  role : Role
+  content : String
+}
+
+pub(all) enum Role {
+  User
+  Assistant
+}
+pub fn Role::to_string(Self) -> String
+
+pub(all) enum StreamEvent {
+  TextDelta(String)
+  ToolUse(ToolCall)
+  MessageStop
+  Error(String)
+}
+
+pub(all) struct ToolCall {
+  id : String
+  name : String
+  input_json : String
+}
+
+pub(all) struct ToolResult {
+  tool_use_id : String
+  content : String
+  is_error : Bool
+}
+
+pub(all) enum ToolType {
+  ReadFile
+  WriteFile
+  ListDir
+  RunCommand
+}
+pub fn ToolType::name(Self) -> String
+
+// Type aliases
+
+// Traits
+

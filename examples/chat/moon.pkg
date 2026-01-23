@@ -5,6 +5,7 @@ import {
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
   "mizchi/tui/composed" as @composed,
+  "mizchi/tui/ai" as @ai,
   "mizchi/crater/types",
   "mizchi/signals",
 }

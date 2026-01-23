@@ -49,3 +49,7 @@ lint:
 
 # Pre-release check
 release-check: fmt info check test lint
+
+# Hot reload dev server
+dev example="chat":
+    node scripts/dev.js {{example}} --target {{target}}
