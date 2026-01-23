@@ -3,11 +3,59 @@
 /// Provides ink-like API for building reactive UI trees
 
 ///|
+/// Click handler type for component-level event handling
+pub(all) struct ClickHandler(() -> Unit)
+
+///|
+/// Create a new click handler
+pub fn ClickHandler::new(handler : () -> Unit) -> ClickHandler {
+  ClickHandler(handler)
+}
+
+///|
+/// Invoke click handler
+pub fn ClickHandler::invoke(self : ClickHandler) -> Unit {
+  let ClickHandler(handler) = self
+  handler()
+}
+
+///|
+/// Click handlers map (component ID -> handler)
+pub(all) struct ClickHandlers(Map[String, ClickHandler])
+
+///|
+pub fn ClickHandlers::new() -> ClickHandlers {
+  ClickHandlers(Map::new())
+}
+
+///|
+pub fn ClickHandlers::set(
+  self : ClickHandlers,
+  id : String,
+  handler : ClickHandler,
+) -> Unit {
+  self.0.set(id, handler)
+}
+
+///|
+pub fn ClickHandlers::get(self : ClickHandlers, id : String) -> ClickHandler? {
+  self.0.get(id)
+}
+
+///|
+pub fn ClickHandlers::iter(
+  self : ClickHandlers,
+) -> Iter[(String, ClickHandler)] {
+  self.0.iter()
+}
+
+///|
 /// Component represents a renderable UI element with its layout, style, and content
 pub struct Component {
   node : @node.Node
   styles : RenderStyleMap
   texts : TextContentMap
+  click_handlers : ClickHandlers
 }
 
 // Global ID counter for unique component IDs
@@ -26,9 +74,10 @@ fn next_id() -> String {
 /// Merge two components (for combining children)
 fn merge_components(
   comps : Array[Component],
-) -> (RenderStyleMap, TextContentMap) {
+) -> (RenderStyleMap, TextContentMap, ClickHandlers) {
   let styles = RenderStyleMap::new()
   let texts = TextContentMap::new()
+  let click_handlers = ClickHandlers::new()
   for comp in comps {
     // Copy styles
     for entry in comp.styles.0 {
@@ -38,8 +87,12 @@ fn merge_components(
     for entry in comp.texts.0 {
       texts.set(entry.0, entry.1)
     }
+    // Copy click handlers
+    for entry in comp.click_handlers.iter() {
+      click_handlers.set(entry.0, entry.1)
+    }
   }
-  (styles, texts)
+  (styles, texts, click_handlers)
 }
 
 ///|
@@ -81,11 +134,19 @@ pub fn box(
   border_color? : Color = Color::white(),
   bg? : Color = Color::transparent(),
   fg? : Color = Color::white(),
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> Component {
   let actual_id = if id == "" { next_id() } else { id }
 
   // Merge children's styles and texts
-  let (styles, texts) = merge_components(children)
+  let (styles, texts, click_handlers) = merge_components(children)
+
+  // Register click handler if provided
+  match on_click {
+    Some(handler) => click_handlers.set(actual_id, ClickHandler::new(handler))
+    None => ()
+  }
 
   // Calculate padding (with x/y overrides)
   let pad_left = if padding_x > 0.0 { padding_x } else { padding }
@@ -158,7 +219,7 @@ pub fn box(
     border,
     border_fg: border_color,
   })
-  { node, styles, texts }
+  { node, styles, texts, click_handlers }
 }
 
 ///|
@@ -190,7 +251,7 @@ pub fn text(
     border_fg: Color::white(),
   })
   texts.set(id, content)
-  { node, styles, texts }
+  { node, styles, texts, click_handlers: ClickHandlers::new() }
 }
 
 ///|
@@ -288,7 +349,7 @@ pub fn text_box(
     border_fg: border_color,
   })
   texts.set(actual_id, content)
-  { node, styles, texts }
+  { node, styles, texts, click_handlers: ClickHandlers::new() }
 }
 
 ///|
@@ -298,5 +359,10 @@ pub fn spacer(flex_grow? : Double = 1.0) -> Component {
   let style = @style.Style::default()
   style.flex_grow = flex_grow
   let node = @node.Node::new(id, style, [])
-  { node, styles: RenderStyleMap::new(), texts: TextContentMap::new() }
+  {
+    node,
+    styles: RenderStyleMap::new(),
+    texts: TextContentMap::new(),
+    click_handlers: ClickHandlers::new(),
+  }
 }

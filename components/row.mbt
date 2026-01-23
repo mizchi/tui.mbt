@@ -35,6 +35,8 @@ pub fn row(
   border_color? : @core.Color = @core.Color::white(),
   bg? : @core.Color = @core.Color::transparent(),
   fg? : @core.Color = @core.Color::white(),
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> @core.Component {
   @core.box(
     children,
@@ -63,5 +65,6 @@ pub fn row(
     border_color~,
     bg~,
     fg~,
+    on_click~,
   )
 }

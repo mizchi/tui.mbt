@@ -212,6 +212,26 @@ test "min_width vs width with justify center" {
 }
 
 ///|
+test "button on_click handler is registered" {
+  let clicked = { val: false }
+  let btn = button(
+    "OK",
+    id="my-btn",
+    on_click=Some(fn() { clicked.val = true }),
+  )
+
+  // Check that click handler is registered
+  match btn.click_handlers.get("my-btn") {
+    Some(handler) => {
+      // Invoke handler
+      handler.invoke()
+      inspect(clicked.val, content="true")
+    }
+    None => @test.fail("Click handler not found")
+  }
+}
+
+///|
 test "button texts map" {
   let btn = button("OK", min_width=10.0)
 

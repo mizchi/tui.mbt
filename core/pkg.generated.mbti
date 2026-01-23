@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @types.Position, inset_top? : @types.Dimension, inset_right? : @types.Dimension, inset_bottom? : @types.Dimension, inset_left? : @types.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color) -> Component
+pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @types.Position, inset_top? : @types.Dimension, inset_right? : @types.Dimension, inset_bottom? : @types.Dimension, inset_left? : @types.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?) -> Component
 
 pub fn char_display_width(Char) -> Int
 
@@ -39,6 +39,20 @@ pub fn BorderChars::double() -> Self
 pub fn BorderChars::rounded() -> Self
 pub fn BorderChars::single() -> Self
 
+pub(all) struct ClickHandler(() -> Unit)
+#deprecated
+pub fn ClickHandler::inner(Self) -> () -> Unit
+pub fn ClickHandler::invoke(Self) -> Unit
+pub fn ClickHandler::new(() -> Unit) -> Self
+
+pub(all) struct ClickHandlers(Map[String, ClickHandler])
+pub fn ClickHandlers::get(Self, String) -> ClickHandler?
+#deprecated
+pub fn ClickHandlers::inner(Self) -> Map[String, ClickHandler]
+pub fn ClickHandlers::iter(Self) -> Iter[(String, ClickHandler)]
+pub fn ClickHandlers::new() -> Self
+pub fn ClickHandlers::set(Self, String, ClickHandler) -> Unit
+
 pub(all) struct Color {
   r : Int
   g : Int
@@ -64,6 +78,7 @@ pub struct Component {
   node : @node.Node
   styles : RenderStyleMap
   texts : TextContentMap
+  click_handlers : ClickHandlers
 }
 
 pub(all) struct RenderStyle {

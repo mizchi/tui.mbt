@@ -77,6 +77,8 @@ pub fn accordion_header(
   collapsed_icon? : String = "▶",
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> @core.Component {
   let icon = if expanded { expanded_icon } else { collapsed_icon }
   let fg = if focused {
@@ -91,5 +93,6 @@ pub fn accordion_header(
     id~,
     padding_x~,
     padding_y~,
+    on_click~,
   )
 }

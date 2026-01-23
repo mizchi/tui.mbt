@@ -29,6 +29,8 @@ pub fn button(
   min_width? : Double = 0.0,
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> @core.Component {
   // Determine colors based on state and theme
   let (actual_fg, actual_border) = match state {
@@ -53,6 +55,7 @@ pub fn button(
     border=Some(@core.BorderChars::rounded()),
     border_color=actual_border,
     bg=@core.Color::transparent(),
+    on_click~,
   )
 }
 

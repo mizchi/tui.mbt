@@ -223,3 +223,28 @@ pub fn App::dispatch_click_with_result(
     _ => None
   }
 }
+
+///|
+/// Dispatch a click event using Component's click_handlers
+/// Returns the clicked component ID if found and handler was invoked, None otherwise
+pub fn App::dispatch_click_from_component(
+  self : App,
+  event : @events.MouseEvent,
+  component : @core.Component,
+) -> String? {
+  // Only handle left click press
+  match (event.event_type, event.button) {
+    (@events.MouseEventType::Press, @events.MouseButton::Left) =>
+      match self.hit_test(event.x, event.y) {
+        Some(hit) => {
+          match component.click_handlers.get(hit.id) {
+            Some(handler) => handler.invoke()
+            None => ()
+          }
+          Some(hit.id)
+        }
+        None => None
+      }
+    _ => None
+  }
+}

@@ -12,7 +12,7 @@ import {
 // Values
 pub fn accordion(Array[AccordionItem], id? : String, focused_id? : String, theme? : Theme, expanded_icon? : String, collapsed_icon? : String, content_padding? : Double, gap? : Double) -> @core.Component
 
-pub fn accordion_header(String, Bool, id? : String, focused? : Bool, theme? : Theme, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn accordion_header(String, Bool, id? : String, focused? : Bool, theme? : Theme, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
 
@@ -52,7 +52,7 @@ pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : B
 
 pub fn build_scrollbar(Int, Int, Int, Int, track_char? : String, thumb_char? : String) -> Array[String]
 
-pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
 
@@ -62,11 +62,11 @@ pub fn card(Array[@core.Component], id? : String, border_color? : @core.Color, b
 
 pub fn center(Array[@core.Component]) -> @core.Component
 
-pub fn checkbox(Bool, focused? : Bool, disabled? : Bool, theme? : Theme, checked_icon? : String, unchecked_icon? : String) -> @core.Component
+pub fn checkbox(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, checked_icon? : String, unchecked_icon? : String, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn colored(String, @core.Color) -> @core.Component
 
-pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
+pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn combobox(Array[ComboboxOption], String, id? : String, focused_id? : String, state? : ComboboxState, filter? : String, placeholder? : String, theme? : Theme, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
 
@@ -130,9 +130,9 @@ pub fn labeled_block_success_color() -> @core.Color
 
 pub fn labeled_block_user_color() -> @core.Color
 
-pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double) -> @core.Component
+pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
-pub fn labeled_switch(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double) -> @core.Component
+pub fn labeled_switch(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
 
@@ -178,7 +178,7 @@ pub fn radiogroup(Array[RadioOption], String, id? : String, focused_id? : String
 
 pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
 
-pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
+pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn scroll_indicator(ScrollIndicator, fg? : @core.Color) -> @core.Component
 
@@ -214,7 +214,7 @@ pub fn streaming_block(String, String, String, is_streaming? : Bool, label_color
 
 pub fn streaming_text(String, is_streaming? : Bool, cursor_char? : String, fg? : @core.Color, width? : Int, height? : Int) -> @core.Component
 
-pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, track_on? : String, track_off? : String) -> @core.Component
+pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, track_on? : String, track_off? : String, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
