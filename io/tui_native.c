@@ -15,6 +15,7 @@ static struct termios orig_termios;
 static int raw_mode_enabled = 0;
 
 // Enable raw mode for character-by-character input
+// Uses TCSADRAIN instead of TCSAFLUSH to preserve pending input
 int tui_enable_raw_mode(void) {
     if (raw_mode_enabled) return 0;
 
@@ -35,17 +36,18 @@ int tui_enable_raw_mode(void) {
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1; // 100ms timeout
 
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) return -1;
+    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &raw) == -1) return -1;
 
     raw_mode_enabled = 1;
     return 0;
 }
 
 // Disable raw mode and restore original settings
+// Uses TCSADRAIN instead of TCSAFLUSH to preserve pending input
 int tui_disable_raw_mode(void) {
     if (!raw_mode_enabled) return 0;
 
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) return -1;
+    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &orig_termios) == -1) return -1;
 
     raw_mode_enabled = 0;
     return 0;

@@ -407,7 +407,10 @@ test "interpret_key - Enter with default config returns Confirm not NewLine" {
 test "interpret_key - Enter with confirm_on_shift_enter=true returns NewLine" {
   // Config where Enter inserts newline, Shift+Enter confirms
   let config = TextInputConfig::new(
-    80, 10, multiline=true, confirm_on_shift_enter=true,
+    80,
+    10,
+    multiline=true,
+    confirm_on_shift_enter=true,
   )
 
   // Simulate Enter key (no shift)
@@ -456,7 +459,10 @@ test "user scenario - Enter on Mac does NOT insert newline with default config" 
 /// Test: User scenario - with correct config, Enter inserts newline
 test "user scenario - Enter inserts newline with confirm_on_shift_enter=true" {
   let config = TextInputConfig::new(
-    80, 10, multiline=true, confirm_on_shift_enter=true,
+    80,
+    10,
+    multiline=true,
+    confirm_on_shift_enter=true,
   )
   let ctrl = TextInputController::new(config, "")
 
@@ -485,4 +491,174 @@ test "user scenario - Enter inserts newline with confirm_on_shift_enter=true" {
   // Now Ctrl+A goes to line start (position 6), not buffer start
   let _ = ctrl.apply_action(MoveToLineStart)
   assert_eq(ctrl.get_cursor_pos(), 6)
+}
+
+///|
+/// Test: Insert multiple Unicode characters at line start (single Insert action)
+test "insert multiple unicode chars at line start - single action" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert "日本語" as a single action (like paste or IME commit)
+  let _ = ctrl.apply_action(Insert("日本語"))
+  assert_eq(ctrl.get_text(), "日本語")
+  assert_eq(ctrl.get_cursor_pos(), 3)
+}
+
+///|
+/// Test: Insert multiple Unicode characters at line start (one by one, like IME in raw mode)
+test "insert multiple unicode chars at line start - one by one" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert each character separately (like read_key processes IME input)
+  let _ = ctrl.apply_action(Insert("日"))
+  assert_eq(ctrl.get_text(), "日")
+  assert_eq(ctrl.get_cursor_pos(), 1)
+  let _ = ctrl.apply_action(Insert("本"))
+  assert_eq(ctrl.get_text(), "日本")
+  assert_eq(ctrl.get_cursor_pos(), 2)
+  let _ = ctrl.apply_action(Insert("語"))
+  assert_eq(ctrl.get_text(), "日本語")
+  assert_eq(ctrl.get_cursor_pos(), 3)
+}
+
+///|
+/// Test: Insert Unicode at cursor position 0 in non-empty buffer
+test "insert unicode at position 0 in non-empty buffer" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "abc")
+
+  // Move to start
+  ctrl.set_cursor_pos(0)
+  assert_eq(ctrl.get_cursor_pos(), 0)
+
+  // Insert "日" at position 0
+  let _ = ctrl.apply_action(Insert("日"))
+  assert_eq(ctrl.get_text(), "日abc")
+  assert_eq(ctrl.get_cursor_pos(), 1)
+
+  // Move to start again
+  ctrl.set_cursor_pos(0)
+
+  // Insert "本"
+  let _ = ctrl.apply_action(Insert("本"))
+  assert_eq(ctrl.get_text(), "本日abc")
+  assert_eq(ctrl.get_cursor_pos(), 1)
+}
+
+///|
+/// Test: Insert emoji (surrogate pair) at line start
+test "insert emoji at line start" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert emoji (4-byte UTF-8)
+  let _ = ctrl.apply_action(Insert("😀"))
+
+  // The emoji should be inserted correctly
+  assert_eq(ctrl.get_text(), "😀")
+  // MoonBit's to_array() returns Unicode scalar values, not UTF-16 code units
+  // So "😀".to_array().length() == 1
+  assert_eq(ctrl.get_cursor_pos(), 1)
+}
+
+///|
+/// Test: Insert multiple emojis at line start
+test "insert multiple emojis at line start" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+  let _ = ctrl.apply_action(Insert("😀"))
+  assert_eq(ctrl.get_cursor_pos(), 1) // 1 emoji = 1 char in MoonBit
+  let _ = ctrl.apply_action(Insert("🎉"))
+  assert_eq(ctrl.get_cursor_pos(), 2)
+  assert_eq(ctrl.get_text(), "😀🎉")
+}
+
+///|
+/// Test: String length for CJK characters
+test "string length for CJK chars" {
+  // Verify MoonBit string behavior with CJK
+  assert_eq("日".length(), 1)
+  assert_eq("日本語".length(), 3)
+  assert_eq("日".to_array().length(), 1)
+  assert_eq("日本語".to_array().length(), 3)
+  // Emoji (4-byte UTF-8, but single Unicode code point)
+  assert_eq("😀".length(), 2) // UTF-16 surrogate pair
+  assert_eq("😀".to_array().length(), 1) // Single Unicode scalar value
+}
+
+///|
+/// Test: String iteration and char conversion
+test "string iter for emoji" {
+  let emoji = "😀"
+  // Iterate over the string
+  let mut count = 0
+  let chars : Array[Char] = []
+  for c in emoji {
+    count = count + 1
+    chars.push(c)
+  }
+  // iter() should return 1 Unicode scalar value, not 2 UTF-16 code units
+  assert_eq(count, 1)
+  assert_eq(chars.length(), 1)
+  // The char should be the full emoji
+  assert_eq(chars[0].to_string(), "😀")
+}
+
+///|
+/// Test: parse_raw_key handling of emoji would work if we could import it
+test "char to_string for emoji roundtrip" {
+  let emoji_char = "😀".to_array()[0]
+  let back_to_string = emoji_char.to_string()
+  assert_eq(back_to_string, "😀")
+}
+
+///|
+/// Test: Display state with empty buffer
+test "display state with empty buffer" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Get display state for empty buffer
+  let state = ctrl.get_display_state()
+  assert_eq(state.lines.length(), 1) // One empty line
+  assert_eq(state.cursor_line, 0)
+  assert_eq(state.cursor_col, 0)
+  assert_eq(state.scroll_offset, 0)
+}
+
+///|
+/// Test: Display state after inserting at position 0
+test "display state after insert at position 0" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert first character
+  let _ = ctrl.apply_action(Insert("日"))
+  let state = ctrl.get_display_state()
+  assert_eq(state.lines.length(), 1)
+  assert_eq(state.cursor_line, 0)
+  assert_eq(state.cursor_col, 2) // CJK width = 2
+  assert_eq(state.lines[0].chars.length(), 1)
+}
+
+///|
+/// Test: Rapid sequential inserts at position 0 (simulating IME)
+test "rapid sequential inserts simulating IME" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Simulate IME sending characters one by one rapidly
+  let chars = ["日", "本", "語"]
+  for i = 0; i < chars.length(); i = i + 1 {
+    let _ = ctrl.apply_action(Insert(chars[i]))
+    // Verify state after each insert
+    let state = ctrl.get_display_state()
+    assert_eq(state.lines[0].chars.length(), i + 1)
+  }
+
+  // Final verification
+  assert_eq(ctrl.get_text(), "日本語")
+  assert_eq(ctrl.get_cursor_pos(), 3)
 }

@@ -1,14 +1,17 @@
 # TODO
 
-## Pending
+## IME 入力で複数文字が失われる問題
 
-(none)
+### 症状
+- Enter を押さずに IME で入力を開始すると、最初の一文字しか反映されない
+- 例: "日本語" と入力しても "日" のみが反映される
 
-## Done
+### 調査済み
+1. `TCSAFLUSH` → `TCSADRAIN` に変更済み（入力バッファ破棄を防ぐ）
+2. UTF-8 継続バイトのリトライロジック追加済み
+3. カーソル位置取得時の pending_input 保存ロジック追加済み
 
-- [x] Async completion engine with version-based stale prevention
-- [x] Modal stories for snapshot testing
-- [x] crater の flex center 周りの修正を取り込む
-  - `dim_percent` の修正 (100.0 → 1.0 への正規化)
-  - `center` 関数に `flex_grow=1.0` を追加
-  - modal_stories にセンタリングテストを追加
+### 残りの調査ポイント
+- `stop_keypress_listener()` のタイミング
+- 編集モード開始時のフロー全体の見直し
+- キーイベントの伝搬経路の確認

@@ -179,10 +179,29 @@ pub fn read_key() -> String {
     buf[0] = first.to_byte()
     let mut len = 1
 
+    // Helper to read a continuation byte with retry
+    // Returns the byte value, or -1 if still not available after retries
+    fn read_continuation_byte() -> Int {
+      // First try without delay
+      let b = tui_read_byte()
+      if b >= 0 {
+        return b
+      }
+      // Retry a few times with small delays (IME may send bytes with slight delay)
+      for _ = 0; _ < 5; _ = _ + 1 {
+        tui_sleep_ms(1) // 1ms delay
+        let b = tui_read_byte()
+        if b >= 0 {
+          return b
+        }
+      }
+      -1
+    }
+
     // Check for UTF-8 multi-byte sequence
     if (first & 0xe0) == 0xc0 {
       // 2-byte sequence
-      let b = tui_read_byte()
+      let b = read_continuation_byte()
       if b >= 0 {
         buf[1] = b.to_byte()
         len = 2
@@ -190,7 +209,7 @@ pub fn read_key() -> String {
     } else if (first & 0xf0) == 0xe0 {
       // 3-byte sequence
       for i = 1; i < 3; i = i + 1 {
-        let b = tui_read_byte()
+        let b = read_continuation_byte()
         if b < 0 {
           break
         }
@@ -200,7 +219,7 @@ pub fn read_key() -> String {
     } else if (first & 0xf8) == 0xf0 {
       // 4-byte sequence
       for i = 1; i < 4; i = i + 1 {
-        let b = tui_read_byte()
+        let b = read_continuation_byte()
         if b < 0 {
           break
         }
@@ -851,10 +870,29 @@ pub fn start_inline_input_cooked(
     Some((row, col))
   }
 
+  // Buffer to store any user input that was read while getting cursor position
+  let pending_input : Array[String] = []
+
   fn read_cursor_pos_fn() -> (Int, Int)? {
     print_raw("\u001b[6n")
-    let resp = read_key()
-    parse_cursor_pos(resp)
+    // Try to read cursor position response, but save any user input
+    for _ = 0; _ < 10; _ = _ + 1 {
+      let resp = read_key()
+      if resp.length() == 0 {
+        sleep(5)
+        continue
+      }
+      match parse_cursor_pos(resp) {
+        Some(pos) => return Some(pos)
+        None => {
+          // Not a cursor position response - it's user input, save it
+          pending_input.push(resp)
+          // Keep trying for a bit in case cursor response comes later
+          continue
+        }
+      }
+    }
+    None
   }
 
   match read_cursor_pos_fn() {
@@ -929,6 +967,26 @@ pub fn start_inline_input_cooked(
   if not(render_all()) && controller.get_text().length() > 0 {
     print_raw(controller.get_text())
   }
+
+  // Process any pending input that was captured during cursor position query
+  for pending in pending_input {
+    let event = parse_raw_key_to_event(pending)
+    let action = @input.interpret_key(event, config)
+    match action {
+      @input.EditAction::Confirm
+      | @input.EditAction::Cancel
+      | @input.EditAction::ForceQuit => {
+        // Don't process these from pending - they would exit immediately
+      }
+      _ => {
+        let handled = controller.apply_action(action)
+        if handled {
+          let _ = render_all()
+        }
+      }
+    }
+  }
+
   for {
     let key = read_key()
     if key.length() == 0 {
