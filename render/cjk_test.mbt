@@ -17,12 +17,12 @@ test "CJK characters render correctly without spaces" {
 
   // Check buffer contents
   // [0] = 日, [1] = NUL, [2] = 本, [3] = NUL, [4] = 語, [5] = NUL, [6] = a, [7] = b, [8] = c
-  inspect(buf.get_cell(0, 0).char.to_int(), content="26085")  // 日
-  inspect(buf.get_cell(1, 0).char.to_int(), content="0")      // NUL placeholder
-  inspect(buf.get_cell(2, 0).char.to_int(), content="26412")  // 本
-  inspect(buf.get_cell(3, 0).char.to_int(), content="0")      // NUL placeholder
-  inspect(buf.get_cell(4, 0).char.to_int(), content="35486")  // 語
-  inspect(buf.get_cell(5, 0).char.to_int(), content="0")      // NUL placeholder
+  inspect(buf.get_cell(0, 0).char.to_int(), content="26085") // 日
+  inspect(buf.get_cell(1, 0).char.to_int(), content="0") // NUL placeholder
+  inspect(buf.get_cell(2, 0).char.to_int(), content="26412") // 本
+  inspect(buf.get_cell(3, 0).char.to_int(), content="0") // NUL placeholder
+  inspect(buf.get_cell(4, 0).char.to_int(), content="35486") // 語
+  inspect(buf.get_cell(5, 0).char.to_int(), content="0") // NUL placeholder
   inspect(buf.get_cell(6, 0).char, content="a")
   inspect(buf.get_cell(7, 0).char, content="b")
   inspect(buf.get_cell(8, 0).char, content="c")
@@ -93,7 +93,6 @@ test "CJK with parent fill_bg then child fill_bg (nested layout simulation)" {
   // Check row 1 still has CJK placeholders preserved
   inspect(buf.get_cell(0, 1).char.to_int(), content="26085") // 日
   inspect(buf.get_cell(1, 1).char.to_int(), content="0") // NUL placeholder
-
   let ansi = buffer_to_ansi(buf)
   println("Nested layout ANSI:")
   println(ansi)

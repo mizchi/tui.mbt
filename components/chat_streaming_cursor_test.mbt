@@ -39,7 +39,6 @@ test "stream_buffer_streaming_snapshot" {
   // First render should be full (not empty) - contains "H" and cursor
   inspect(output1.contains("H"), content="true")
   inspect(output1.contains("▌"), content="true")
-
   streaming.position.set(5)
   let items2 = chat_message_list(
     messages, streaming, queue, 24, streaming_message_height,
@@ -78,8 +77,9 @@ test "stream_buffer_streaming_to_message_transition" {
   // Phase 1: Start streaming a response
   streaming.full_text.set("This is a simulated response.")
   streaming.position.set(30) // Fully streamed
-
-  let items1 = chat_message_list(messages, streaming, queue, 40, streaming_message_height)
+  let items1 = chat_message_list(
+    messages, streaming, queue, 40, streaming_message_height,
+  )
   let area1 = column(
     items1,
     width=@types.Dimension::Length(40.0),
@@ -102,8 +102,9 @@ test "stream_buffer_streaming_to_message_transition" {
 
   // Clear buffer to simulate fresh render after transition
   buffer.clear()
-
-  let items2 = chat_message_list(messages, streaming, queue, 40, streaming_message_height)
+  let items2 = chat_message_list(
+    messages, streaming, queue, 40, streaming_message_height,
+  )
   let area2 = column(
     items2,
     width=@types.Dimension::Length(40.0),
@@ -127,7 +128,6 @@ test "buffer_diff_clears_old_content_on_layout_change" {
   // Simulate the exact scenario: longer text followed by shorter text
   let buf1 = @render.CharBuffer::new(40, 3)
   let buf2 = @render.CharBuffer::new(40, 3)
-
   let style : @render.TextStyle = {
     fg: @core.Color::white(),
     bg: @core.Color::transparent(),
@@ -167,13 +167,14 @@ test "streaming_completion_main_buffer_sync" {
 
   // Stream buffer (used for streaming updates)
   let stream_buffer = StreamBuffer::new(width, height)
-
   let messages : Array[Message] = [Message::{ role: User, content: "test" }]
   let queue = InputQueue::new()
   let streaming = StreamingState::new()
 
   // Phase 1: Initial render with main app (before streaming)
-  let items0 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items0 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area0 = column(
     items0,
     width=@types.Dimension::Length(width.to_double()),
@@ -185,8 +186,9 @@ test "streaming_completion_main_buffer_sync" {
   // Phase 2: Start streaming - render with stream_buffer
   streaming.full_text.set("You said: test. This is a simulated response.")
   streaming.position.set(45) // Fully streamed
-
-  let items1 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items1 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area1 = column(
     items1,
     width=@types.Dimension::Length(width.to_double()),
@@ -205,15 +207,15 @@ test "streaming_completion_main_buffer_sync" {
   // FIX: Clear main_app's prev_buffer to force full render
   // (This is what finish_streaming() now does in chat example)
   main_app.clear_prev_buffer()
-
-  let items2 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items2 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area2 = column(
     items2,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
     justify=@types.Alignment::FlexEnd,
   )
-
   let output = main_app.render(area2)
   println("Final output after streaming completion:")
   println(output)
@@ -227,16 +229,16 @@ test "streaming_completion_main_buffer_sync" {
 test "streaming_completion_without_clear_shows_bug" {
   let width = 50
   let height = 10
-
   let main_app = @render.App::new(width, height)
   let stream_buffer = StreamBuffer::new(width, height)
-
   let messages : Array[Message] = [Message::{ role: User, content: "test" }]
   let queue = InputQueue::new()
   let streaming = StreamingState::new()
 
   // Phase 1: Initial render
-  let items0 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items0 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area0 = column(
     items0,
     width=@types.Dimension::Length(width.to_double()),
@@ -248,7 +250,9 @@ test "streaming_completion_without_clear_shows_bug" {
   // Phase 2: Streaming updates via stream_buffer
   streaming.full_text.set("You said: test. This is a simulated response.")
   streaming.position.set(45)
-  let items1 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items1 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area1 = column(
     items1,
     width=@types.Dimension::Length(width.to_double()),
@@ -266,14 +270,15 @@ test "streaming_completion_without_clear_shows_bug" {
   // BUG DEMO: NOT clearing prev_buffer - diff will be incorrect
   // main_app.clear_prev_buffer()  // <-- Intentionally commented out
 
-  let items2 = chat_message_list(messages, streaming, queue, width, streaming_message_height)
+  let items2 = chat_message_list(
+    messages, streaming, queue, width, streaming_message_height,
+  )
   let area2 = column(
     items2,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
     justify=@types.Alignment::FlexEnd,
   )
-
   let output = main_app.render(area2)
 
   // Without the fix, this test would show the bug - diff output may be partial

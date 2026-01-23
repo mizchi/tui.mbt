@@ -75,7 +75,9 @@ struct AppState {
 ///|
 fn AppState::new(width : Int, height : Int) -> AppState {
   {
-    manager: @comp.AsyncCompletionManager::new(50, filter_commands, @io.get_time_ms),
+    manager: @comp.AsyncCompletionManager::new(
+      50, filter_commands, @io.get_time_ms,
+    ),
     input: "",
     launcher_open: false,
     running: @signals.signal(true),
@@ -208,13 +210,40 @@ fn render_background(state : AppState) -> Unit {
   pr(move_to(1, 2))
   pr(bold() + cyan() + "Command Launcher Demo" + reset())
   pr(move_to(3, 2))
-  pr(dim() + "Press " + reset() + yellow() + "Ctrl+P" + reset() + dim() + " to open command palette" + reset())
+  pr(
+    dim() +
+    "Press " +
+    reset() +
+    yellow() +
+    "Ctrl+P" +
+    reset() +
+    dim() +
+    " to open command palette" +
+    reset(),
+  )
   pr(move_to(4, 2))
-  pr(dim() + "Press " + reset() + yellow() + "Ctrl+C" + reset() + dim() + " to quit" + reset())
+  pr(
+    dim() +
+    "Press " +
+    reset() +
+    yellow() +
+    "Ctrl+C" +
+    reset() +
+    dim() +
+    " to quit" +
+    reset(),
+  )
   // Show last executed command
   if state.last_command.length() > 0 {
     pr(move_to(6, 2))
-    pr(green() + "Last command: " + reset() + white() + state.last_command + reset())
+    pr(
+      green() +
+      "Last command: " +
+      reset() +
+      white() +
+      state.last_command +
+      reset(),
+    )
   }
   // Draw fake app content
   pr(move_to(8, 2))
@@ -246,7 +275,9 @@ fn render_launcher(state : AppState) -> Unit {
   let launcher_left = (state.screen_width - launcher_width) / 2
   let launcher_top = 4
   // Draw overlay background
-  for row = launcher_top - 1; row <= launcher_top + max_visible_items + 4; row = row + 1 {
+  for row = launcher_top - 1
+      row <= launcher_top + max_visible_items + 4
+      row = row + 1 {
     pr(move_to(row, launcher_left - 1))
     pr(bg_overlay() + " ".repeat(launcher_width + 2) + reset())
   }

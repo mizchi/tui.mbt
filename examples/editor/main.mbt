@@ -7,13 +7,12 @@
 
 ///|
 let word_candidates : Array[String] = [
-  "function", "return", "const", "let", "var", "if", "else", "for", "while",
-  "break", "continue", "switch", "case", "default", "try", "catch", "finally",
-  "throw", "class", "extends", "implements", "interface", "type", "enum",
-  "import", "export", "from", "async", "await", "yield", "new", "this",
-  "super", "static", "public", "private", "protected", "readonly",
-  "true", "false", "null", "undefined", "void", "never", "any", "unknown",
-  "string", "number", "boolean", "object", "array", "map", "set",
+  "function", "return", "const", "let", "var", "if", "else", "for", "while", "break",
+  "continue", "switch", "case", "default", "try", "catch", "finally", "throw", "class",
+  "extends", "implements", "interface", "type", "enum", "import", "export", "from",
+  "async", "await", "yield", "new", "this", "super", "static", "public", "private",
+  "protected", "readonly", "true", "false", "null", "undefined", "void", "never",
+  "any", "unknown", "string", "number", "boolean", "object", "array", "map", "set",
 ]
 
 ///|
@@ -24,8 +23,17 @@ fn get_current_word(text : String, cursor : Int) -> String {
   // Walk backwards to find word start
   while start > 0 {
     let c = chars[start - 1]
-    if c == ' ' || c == '\n' || c == '\t' || c == '(' || c == ')' ||
-      c == '{' || c == '}' || c == '[' || c == ']' || c == ';' || c == ',' {
+    if c == ' ' ||
+      c == '\n' ||
+      c == '\t' ||
+      c == '(' ||
+      c == ')' ||
+      c == '{' ||
+      c == '}' ||
+      c == '[' ||
+      c == ']' ||
+      c == ';' ||
+      c == ',' {
       break
     }
     start = start - 1
@@ -47,7 +55,8 @@ fn find_completion(text : String, cursor : Int) -> String? {
   }
   let lower_word = word.to_lower()
   for candidate in word_candidates {
-    if candidate.to_lower().has_prefix(lower_word) && candidate.length() > word.length() {
+    if candidate.to_lower().has_prefix(lower_word) &&
+      candidate.length() > word.length() {
       // Build the suffix to append
       let suffix = StringBuilder::new()
       let chars : Array[Char] = candidate.iter().collect()
@@ -121,12 +130,9 @@ fn main {
   let palette_open = @signals.signal(false)
   let palette_input : Ref[String] = { val: "" }
   let completion_manager = @comp.AsyncCompletionManager::new(
-    50,
-    filter_commands,
-    @io.get_time_ms,
+    50, filter_commands, @io.get_time_ms,
   )
   let last_command : Ref[String] = { val: "" }
-
   fn editor_box_size() -> (Int, Int) {
     let header_lines = 2 // header + last command
     let footer_lines = 1
@@ -138,7 +144,6 @@ fn main {
   // Palette dimensions
   let palette_width = 40
   let palette_max_items = 8
-
   fn render_palette() -> @core.Component {
     let engine = completion_manager.get_engine()
     let items = engine.get_items()
@@ -182,7 +187,12 @@ fn main {
 
     // Separator line
     let separator = @c.row(
-      [@c.text("─".repeat(palette_width - 4), fg=@core.Color::rgb(60, 60, 60))],
+      [
+        @c.text(
+          "─".repeat(palette_width - 4),
+          fg=@core.Color::rgb(60, 60, 60),
+        ),
+      ],
       height=@types.Dimension::Length(1.0),
     )
 
@@ -246,7 +256,7 @@ fn main {
       fg~,
     )
     let footer_text = if editing.get() {
-      "Tab: complete | Shift+Enter: newline | Enter: confirm | Esc: cancel"
+      "Tab: complete | Enter: newline | Shift+Enter: confirm | Esc: cancel"
     } else {
       "Enter: edit | q: quit | p/Ctrl+P: palette"
     }
@@ -296,7 +306,9 @@ fn main {
         Some(bounds) => {
           // bounds.x/y are 0-indexed, ANSI is 1-indexed
           // Position cursor at the end of the input text
-          let input_display_width = @core.string_display_width(palette_input.val)
+          let input_display_width = @core.string_display_width(
+            palette_input.val,
+          )
           let cursor_row = bounds.y + 1
           let cursor_col = bounds.x + 1 + 2 + input_display_width // +2 for "> "
           @io.print_raw(
@@ -392,6 +404,7 @@ fn main {
           bounds,
           true,
           restore_tui,
+          confirm_on_shift_enter=true, // Enter=newline, Shift+Enter=confirm
           on_completion=Some(find_completion),
         )
       }
@@ -410,7 +423,6 @@ fn main {
     if completion_manager.check_pending() {
       do_render()
     }
-
     let event = @events.parse_input(key)
 
     // Handle palette mode
@@ -507,7 +519,6 @@ fn main {
       do_render()
     }
   })
-
   @io.print_raw(@render.App::init_terminal())
   do_render()
   @io.start_resize_listener(handle_resize)

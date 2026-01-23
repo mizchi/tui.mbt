@@ -394,7 +394,10 @@ fn main {
     @io.print_raw(@render.ansi_full_reset())
     @io.print_raw(@render.enable_mouse())
     app.val.clear_prev_buffer()
-    stream_buffer.clear()
+    // Only clear stream buffer if not currently streaming
+    if not(streaming.is_streaming()) {
+      stream_buffer.clear()
+    }
     do_render()
     @io.start_resize_listener(handle_resize)
     @io.start_keypress_listener(handle_key)

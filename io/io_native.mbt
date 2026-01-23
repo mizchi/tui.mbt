@@ -223,6 +223,121 @@ fn is_shift_enter_sequence(key : String) -> Bool {
 }
 
 ///|
+/// Parse a raw key string into a KeyEvent
+fn parse_raw_key_to_event(key : String) -> @events.KeyEvent {
+  // Check for escape sequences first
+  if key.length() > 1 && key[0].to_int() == 0x1b {
+    // Escape sequences
+    if key == "\u001b[Z" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::BackTab,
+        @events.KeyModifier::Shift,
+      )
+    } else if is_shift_enter_sequence(key) {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Enter,
+        @events.KeyModifier::Shift,
+      )
+    } else if key == "\u001b[D" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Left,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[C" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Right,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[A" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Up,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[B" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Down,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[H" || key == "\u001b[1~" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Home,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[F" || key == "\u001b[4~" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::End,
+        @events.KeyModifier::None,
+      )
+    } else if key == "\u001b[3~" {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Delete,
+        @events.KeyModifier::None,
+      )
+    } else {
+      // Unknown escape sequence
+      return @events.KeyEvent::Char('\u001b', @events.KeyModifier::None)
+    }
+  } else if key == "\u001b" {
+    // Just Escape
+    return @events.KeyEvent::Special(
+      @events.SpecialKey::Escape,
+      @events.KeyModifier::None,
+    )
+  } else if key.length() == 1 {
+    let code = key[0].to_int()
+    // Control characters
+    if code == 9 {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Tab,
+        @events.KeyModifier::None,
+      )
+    } else if code == 13 {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Enter,
+        @events.KeyModifier::None,
+      )
+    } else if code == 10 {
+      // Ctrl+J (LF)
+      return @events.KeyEvent::Char('j', @events.KeyModifier::Ctrl)
+    } else if code == 127 || code == 8 {
+      return @events.KeyEvent::Special(
+        @events.SpecialKey::Backspace,
+        @events.KeyModifier::None,
+      )
+    } else if code == 1 {
+      return @events.KeyEvent::Char('a', @events.KeyModifier::Ctrl)
+    } else if code == 3 {
+      return @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl)
+    } else if code == 4 {
+      return @events.KeyEvent::Char('d', @events.KeyModifier::Ctrl)
+    } else if code == 5 {
+      return @events.KeyEvent::Char('e', @events.KeyModifier::Ctrl)
+    } else if code == 11 {
+      return @events.KeyEvent::Char('k', @events.KeyModifier::Ctrl)
+    } else if code == 21 {
+      return @events.KeyEvent::Char('u', @events.KeyModifier::Ctrl)
+    } else if code >= 32 {
+      // Printable character
+      let c = Int::unsafe_to_char(code)
+      return @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    } else {
+      // Other control character
+      return @events.KeyEvent::Char(
+        Int::unsafe_to_char(code),
+        @events.KeyModifier::Ctrl,
+      )
+    }
+  } else {
+    // Multi-byte UTF-8 character
+    let chars = key.iter()
+    match chars.next() {
+      Some(c) => @events.KeyEvent::Char(c, @events.KeyModifier::None)
+      None => @events.KeyEvent::Char(' ', @events.KeyModifier::None)
+    }
+  }
+}
+
+///|
 /// Encode a Unicode code point to UTF-8 bytes
 fn encode_utf8(code : Int, buf : FixedArray[Byte], pos : Int) -> Int {
   if code < 0x80 {
@@ -412,16 +527,14 @@ pub fn poll_keypress() -> Bool {
 }
 
 ///|
-/// Render buffer with scroll support
-fn render_inplace_buffer_scroll(
-  buf : Array[Char],
+/// Render display state with scroll support
+fn render_display_state(
+  state : @input.DisplayState,
   start_row : Int,
   start_col : Int,
   max_width : Int,
   max_height : Int,
-  scroll_offset : Int,
 ) -> Unit {
-  let lines = wrap_text_to_lines(buf, max_width)
   let mut output = ""
   // Clear area
   for r = 0; r < max_height; r = r + 1 {
@@ -436,14 +549,12 @@ fn render_inplace_buffer_scroll(
     }
   }
   // Draw visible lines
-  let has_more_above = scroll_offset > 0
-  let has_more_below = lines.length() > scroll_offset + max_height
   for i = 0; i < max_height; i = i + 1 {
-    let line_idx = scroll_offset + i
-    if line_idx >= lines.length() {
+    let line_idx = state.scroll_offset + i
+    if line_idx >= state.lines.length() {
       break
     }
-    let line = lines[line_idx]
+    let line = state.lines[line_idx]
     output = output +
       "\u001b[" +
       (start_row + i).to_string() +
@@ -451,23 +562,23 @@ fn render_inplace_buffer_scroll(
       start_col.to_string() +
       "H"
     // Show ellipsis for overflow
-    if i == 0 && has_more_above {
+    if i == 0 && state.has_more_above {
       output = output + "…"
       // Show remaining chars that fit
       let mut w = 1
       for c in line.chars {
-        let cw = char_width_code(c.to_int())
+        let cw = @input.char_width_code(c.to_int())
         if w + cw > max_width {
           break
         }
         output = output + c.to_string()
         w = w + cw
       }
-    } else if i == max_height - 1 && has_more_below {
+    } else if i == max_height - 1 && state.has_more_below {
       // Show chars that fit, then ellipsis
       let mut w = 0
       for c in line.chars {
-        let cw = char_width_code(c.to_int())
+        let cw = @input.char_width_code(c.to_int())
         if w + cw > max_width - 1 {
           break
         }
@@ -514,38 +625,34 @@ pub fn start_inplace_input(
     enable_raw_mode()
   }
 
-  // Initialize buffer with initial value
-  let buf : Array[Char] = []
-  for i = 0; i < initial.length(); i = i + 1 {
-    buf.push(Int::unsafe_to_char(initial[i].to_int()))
-  }
+  // Create controller with configuration
+  let config = @input.TextInputConfig::new(
+    width,
+    height,
+    multiline~,
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
+  let controller = @input.TextInputController::new(config, initial)
 
-  // Cursor position within buffer
-  let mut cursor_pos = buf.length()
-  // Scroll offset for multiline
-  let mut scroll_offset = 0
   // Current height (can change dynamically)
   let mut current_height = height
   // Base row is the bottom of input area (fixed)
-  // Input grows upward from this position
   let base_row = row + height - 1
 
   // Helper to render and position cursor with scroll
   fn do_render() {
-    let lines = wrap_text_to_lines(buf, width)
-    let (cursor_line_idx, cursor_col_offset) = find_cursor_line(
-      lines, cursor_pos,
-    )
+    let state = controller.get_display_state()
     // Calculate current start row (grows upward)
     let old_height = current_height
     let old_start_row = base_row - old_height + 1
     // Update height if callback provided
     match on_lines_change {
       Some(callback) => {
-        let new_height = callback(lines.length())
+        let new_height = callback(state.total_lines)
         if new_height != current_height {
           current_height = new_height
-          scroll_offset = 0
+          controller.resize(width, new_height)
         }
       }
       None => ()
@@ -554,7 +661,6 @@ pub fn start_inplace_input(
     let start_row = base_row - current_height + 1
     // Clear old area if height changed
     if old_height != current_height {
-      // Clear the area that's no longer used
       if current_height < old_height {
         // Shrinking: clear above
         for r = old_start_row; r < start_row; r = r + 1 {
@@ -581,20 +687,13 @@ pub fn start_inplace_input(
         }
       }
     }
-    // Adjust scroll to keep cursor visible
-    scroll_offset = adjust_scroll_offset(
-      scroll_offset,
-      cursor_line_idx,
-      current_height,
-      lines.length(),
-    )
+    // Get updated state after potential resize
+    let state = controller.get_display_state()
     // Render with scroll (at calculated start row)
-    render_inplace_buffer_scroll(
-      buf, start_row, col, width, current_height, scroll_offset,
-    )
+    render_display_state(state, start_row, col, width, current_height)
     // Position cursor
-    let display_row = start_row + cursor_line_idx - scroll_offset
-    let display_col = col + cursor_col_offset
+    let display_row = start_row + state.cursor_line - state.scroll_offset
+    let display_col = col + state.cursor_col
     print_raw(
       "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
     )
@@ -615,84 +714,28 @@ pub fn start_inplace_input(
     let mut done = false
     let mut result : InputResult = InputResult::Cancelled
 
-    // Check for escape sequences
-    if key.length() > 1 && key[0].to_int() == 0x1b {
-      if key == "\u001b[Z" {
-        // Shift+Tab - confirm and go to previous
-        done = true
-        result = InputResult::TabPrev(buf_to_string(buf))
-      } else if is_shift_enter_sequence(key) {
-        // Shift+Enter or Alt+Enter
-        if confirm_on_shift_enter {
-          done = true
-          result = InputResult::Confirmed(buf_to_string(buf))
-        } else {
-          buf.insert(cursor_pos, '\n')
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        }
-      } else if key == "\u001b[D" {
-        // Left arrow - move cursor left
-        if cursor_pos > 0 {
-          cursor_pos = cursor_pos - 1
-          need_render = true
-        }
-      } else if key == "\u001b[C" {
-        // Right arrow - move cursor right
-        if cursor_pos < buf.length() {
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        }
-      } else if key == "\u001b[A" {
-        let lines = wrap_text_to_lines(buf, width)
-        let new_cursor = cursor_up(lines, cursor_pos)
-        if new_cursor != cursor_pos {
-          cursor_pos = new_cursor
-          need_render = true
-        }
-      } else if key == "\u001b[B" {
-        let lines = wrap_text_to_lines(buf, width)
-        let new_cursor = cursor_down(lines, cursor_pos)
-        if new_cursor != cursor_pos {
-          cursor_pos = new_cursor
-          need_render = true
-        }
-      } else if key == "\u001b[H" {
-        // Home - move to start
-        cursor_pos = 0
-        need_render = true
-      } else if key == "\u001b[F" {
-        // End - move to end
-        cursor_pos = buf.length()
-        need_render = true
-      }
-    } else if key == "\u001b" {
-      // Escape - cancel
-      if esc_cancels {
-        done = true
-        result = InputResult::Cancelled
-      }
-    } else if key.length() == 1 {
-      let code = key[0].to_int()
-      if code == 9 {
+    // Parse key and interpret as action
+    let event = parse_raw_key_to_event(key)
+    let action = @input.interpret_key(event, config)
+
+    // Handle special actions that require custom logic
+    match action {
+      @input.EditAction::Tab => {
         // Tab - try completion first, then confirm and go to next
         let mut handled_by_completion = false
         match on_completion {
           Some(provider) => {
-            let text = buf_to_string(buf)
-            let completion_result = provider(text, cursor_pos)
+            let text = controller.get_text()
+            let completion_result = provider(text, controller.get_cursor_pos())
             match completion_result {
-              Some(suffix) => {
+              Some(suffix) =>
                 if suffix.length() > 0 {
-                  // Insert completion suffix at cursor
-                  for c in suffix {
-                    buf.insert(cursor_pos, c)
-                    cursor_pos = cursor_pos + 1
-                  }
+                  let _ = controller.apply_action(
+                    @input.EditAction::Insert(suffix),
+                  )
                   need_render = true
                   handled_by_completion = true
                 }
-              }
               None => ()
             }
           }
@@ -700,108 +743,39 @@ pub fn start_inplace_input(
         }
         if not(handled_by_completion) {
           done = true
-          result = InputResult::TabNext(buf_to_string(buf))
+          result = InputResult::TabNext(controller.get_text())
         }
-      } else if code == 13 {
-        if confirm_on_shift_enter && multiline {
-          buf.insert(cursor_pos, '\n')
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        } else {
-          // Enter (CR) - confirm
-          done = true
-          result = InputResult::Confirmed(buf_to_string(buf))
-        }
-      } else if code == 10 {
-        // Ctrl+J (LF) - newline in multiline, confirm in single line
-        if multiline {
-          buf.insert(cursor_pos, '\n')
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        } else {
-          done = true
-          result = InputResult::Confirmed(buf_to_string(buf))
-        }
-      } else if code == 4 {
-        // Ctrl+D - also confirm
+      }
+      @input.EditAction::BackTab => {
         done = true
-        result = InputResult::Confirmed(buf_to_string(buf))
-      } else if code == 3 {
-        // Ctrl+C - cancel
+        result = InputResult::TabPrev(controller.get_text())
+      }
+      @input.EditAction::Confirm => {
+        done = true
+        result = InputResult::Confirmed(controller.get_text())
+      }
+      @input.EditAction::Cancel => {
         done = true
         result = InputResult::Cancelled
-      } else if code == 127 || code == 8 {
-        // Backspace - delete char before cursor
-        if cursor_pos > 0 {
-          let _ = buf.remove(cursor_pos - 1)
-          cursor_pos = cursor_pos - 1
+      }
+      @input.EditAction::ForceQuit => {
+        done = true
+        result = InputResult::ForceQuit
+      }
+      @input.EditAction::None => ()
+      _ => {
+        // Apply edit action to controller
+        let handled = controller.apply_action(action)
+        if handled {
           need_render = true
         }
-      } else if code == 1 {
-        // Ctrl+A - move to start of current line
-        let mut new_pos = 0
-        for i = cursor_pos - 1; i >= 0; i = i - 1 {
-          if buf[i] == '\n' {
-            new_pos = i + 1
-            break
-          }
-        }
-        cursor_pos = new_pos
-        need_render = true
-      } else if code == 5 {
-        // Ctrl+E - move to end of current line
-        let mut new_pos = buf.length()
-        for i = cursor_pos; i < buf.length(); i = i + 1 {
-          if buf[i] == '\n' {
-            new_pos = i
-            break
-          }
-        }
-        cursor_pos = new_pos
-        need_render = true
-      } else if code == 11 {
-        // Ctrl+K - delete from cursor to end of current line
-        let mut end_pos = buf.length()
-        for i = cursor_pos; i < buf.length(); i = i + 1 {
-          if buf[i] == '\n' {
-            end_pos = i
-            break
-          }
-        }
-        while cursor_pos < end_pos && buf.length() > cursor_pos {
-          let _ = buf.remove(cursor_pos)
-          end_pos = end_pos - 1
-        }
-        need_render = true
-      } else if code == 21 {
-        // Ctrl+U - delete from start of current line to cursor
-        let mut start_pos = 0
-        for i = cursor_pos - 1; i >= 0; i = i - 1 {
-          if buf[i] == '\n' {
-            start_pos = i + 1
-            break
-          }
-        }
-        while cursor_pos > start_pos {
-          let _ = buf.remove(start_pos)
-          cursor_pos = cursor_pos - 1
-        }
-        need_render = true
-      } else if code >= 32 {
-        // Printable character - insert at cursor (no limit with scroll)
-        let c = Int::unsafe_to_char(code)
-        buf.insert(cursor_pos, c)
-        cursor_pos = cursor_pos + 1
-        need_render = true
       }
-    } else {
-      // Multi-byte UTF-8 character - insert at cursor
-      // Use iterator to properly handle Unicode codepoints
-      for c in key {
-        buf.insert(cursor_pos, c)
-        cursor_pos = cursor_pos + 1
-      }
-      need_render = true
+    }
+
+    // Handle Ctrl+D (confirm) - not captured by interpret_key
+    if key.length() == 1 && key[0].to_int() == 4 {
+      done = true
+      result = InputResult::Confirmed(controller.get_text())
     }
     if need_render {
       do_render()
@@ -835,18 +809,12 @@ pub fn start_inline_input_cooked(
   }
   let _ = field_name
   print_raw(@render.ansi_show_cursor())
-  let buf : Array[Char] = []
-  for c in initial {
-    buf.push(c)
-  }
-  let mut cursor_pos = buf.length()
   let mut start_row = 1
   let mut start_col = 1
   let mut can_render = false
   let mut rendered_lines = 1
   let mut max_rows = 1
   let mut max_cols = 1
-  let mut scroll_offset = 0
   let reserve_rows = 1
   fn parse_cursor_pos(resp : String) -> (Int, Int)? {
     if not(resp.has_prefix("\u001b[")) || not(resp.has_suffix("R")) {
@@ -883,13 +851,13 @@ pub fn start_inline_input_cooked(
     Some((row, col))
   }
 
-  fn read_cursor_pos() -> (Int, Int)? {
+  fn read_cursor_pos_fn() -> (Int, Int)? {
     print_raw("\u001b[6n")
     let resp = read_key()
     parse_cursor_pos(resp)
   }
 
-  match read_cursor_pos() {
+  match read_cursor_pos_fn() {
     Some((row, col)) => {
       start_row = row
       start_col = col
@@ -902,36 +870,28 @@ pub fn start_inline_input_cooked(
     }
     None => ()
   }
+
+  // Create controller with configuration
+  // For cooked mode, we use multiline mode with confirm_on_shift_enter logic
+  let config = @input.TextInputConfig::new(
+    max_cols,
+    max_rows,
+    multiline=true,
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
+  let controller = @input.TextInputController::new(config, initial)
   fn render_all() -> Bool {
     if not(can_render) {
       return false
     }
-    let lines = wrap_text_to_lines(buf, max_cols)
-    let (cursor_line_idx, cursor_col_offset) = find_cursor_line(
-      lines, cursor_pos,
-    )
+    let state = controller.get_display_state()
     let max_visible = if max_rows > 0 { max_rows } else { 1 }
-    if lines.length() <= max_visible {
-      scroll_offset = 0
-    } else {
-      scroll_offset = adjust_scroll_offset(
-        scroll_offset,
-        cursor_line_idx,
-        max_visible,
-        lines.length(),
-      )
-      if scroll_offset < 0 {
-        scroll_offset = 0
-      }
-      if scroll_offset > lines.length() - max_visible {
-        scroll_offset = lines.length() - max_visible
-      }
-    }
-    let start_idx = scroll_offset
-    let end_idx = if start_idx + max_visible < lines.length() {
+    let start_idx = state.scroll_offset
+    let end_idx = if start_idx + max_visible < state.lines.length() {
       start_idx + max_visible
     } else {
-      lines.length()
+      state.lines.length()
     }
     let visible_len = end_idx - start_idx
     let clear_lines = if rendered_lines < max_rows {
@@ -947,10 +907,10 @@ pub fn start_inline_input_cooked(
     for i = start_idx; i < end_idx; i = i + 1 {
       let row = start_row + (i - start_idx)
       print_raw("\u001b[" + row.to_string() + ";" + start_col.to_string() + "H")
-      print_raw(buf_to_string(lines[i].chars))
+      print_raw(buf_to_string(state.lines[i].chars))
     }
     rendered_lines = if visible_len > 0 { visible_len } else { 1 }
-    let mut row_offset = cursor_line_idx - scroll_offset
+    let mut row_offset = state.cursor_line - state.scroll_offset
     if row_offset < 0 {
       row_offset = 0
     }
@@ -958,7 +918,7 @@ pub fn start_inline_input_cooked(
       row_offset = max_visible - 1
     }
     let display_row = start_row + row_offset
-    let display_col = start_col + cursor_col_offset
+    let display_col = start_col + state.cursor_col
     print_raw(
       "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
     )
@@ -966,8 +926,8 @@ pub fn start_inline_input_cooked(
     true
   }
 
-  if not(render_all()) && buf.length() > 0 {
-    print_raw(buf_to_string(buf))
+  if not(render_all()) && controller.get_text().length() > 0 {
+    print_raw(controller.get_text())
   }
   for {
     let key = read_key()
@@ -978,132 +938,40 @@ pub fn start_inline_input_cooked(
     let mut need_render = false
     let mut done = false
     let mut result : InputResult = InputResult::Cancelled
-    if key.length() > 1 && key[0].to_int() == 0x1b {
-      if is_shift_enter_sequence(key) {
-        if confirm_on_shift_enter {
-          done = true
-          let value = if buf.length() == 0 {
+
+    // Parse key and interpret as action
+    let event = parse_raw_key_to_event(key)
+    let action = @input.interpret_key(event, config)
+
+    // Handle special actions
+    match action {
+      @input.EditAction::Confirm => {
+        done = true
+        let value = controller.get_text()
+        result = InputResult::Confirmed(
+          if value.length() == 0 {
             initial
           } else {
-            buf_to_string(buf)
-          }
-          result = InputResult::Confirmed(value)
-        } else {
-          buf.insert(cursor_pos, '\n')
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        }
-      } else if key == "\u001b[3~" {
-        if cursor_pos < buf.length() {
-          let _ = buf.remove(cursor_pos)
-          need_render = true
-        }
-      } else if key == "\u001b[D" {
-        if cursor_pos > 0 {
-          cursor_pos = cursor_pos - 1
-          need_render = true
-        }
-      } else if key == "\u001b[C" {
-        if cursor_pos < buf.length() {
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        }
-      } else if key == "\u001b[A" {
-        let lines = wrap_text_to_lines(buf, max_cols)
-        let new_cursor = cursor_up(lines, cursor_pos)
-        if new_cursor != cursor_pos {
-          cursor_pos = new_cursor
-          need_render = true
-        }
-      } else if key == "\u001b[B" {
-        let lines = wrap_text_to_lines(buf, max_cols)
-        let new_cursor = cursor_down(lines, cursor_pos)
-        if new_cursor != cursor_pos {
-          cursor_pos = new_cursor
-          need_render = true
-        }
-      } else if key == "\u001b[H" || key == "\u001b[1~" {
-        cursor_pos = 0
-        need_render = true
-      } else if key == "\u001b[F" || key == "\u001b[4~" {
-        cursor_pos = buf.length()
-        need_render = true
-      } else {
-        ()
+            value
+          },
+        )
       }
-    } else if key == "\u001b" {
-      if esc_cancels {
+      @input.EditAction::Cancel => {
         done = true
         result = InputResult::Cancelled
       }
-    } else if key.length() == 1 {
-      let code = key[0].to_int()
-      if code == 3 {
+      @input.EditAction::ForceQuit => {
         done = true
         result = InputResult::ForceQuit
-      } else if code == 13 || code == 10 {
-        if confirm_on_shift_enter {
-          buf.insert(cursor_pos, '\n')
-          cursor_pos = cursor_pos + 1
-          need_render = true
-        } else {
-          done = true
-          let value = if buf.length() == 0 {
-            initial
-          } else {
-            buf_to_string(buf)
-          }
-          result = InputResult::Confirmed(value)
-        }
-      } else if code == 127 || code == 8 {
-        if cursor_pos > 0 {
-          let _ = buf.remove(cursor_pos - 1)
-          cursor_pos = cursor_pos - 1
+      }
+      @input.EditAction::None => ()
+      _ => {
+        // Apply edit action to controller
+        let handled = controller.apply_action(action)
+        if handled {
           need_render = true
         }
-      } else if code == 1 {
-        // Ctrl+A - move to start of current line
-        let mut new_pos = 0
-        if cursor_pos > 0 {
-          let mut i = cursor_pos - 1
-          for {
-            if buf[i] == '\n' {
-              new_pos = i + 1
-              break
-            }
-            if i == 0 {
-              break
-            }
-            i = i - 1
-          }
-        }
-        cursor_pos = new_pos
-        need_render = true
-      } else if code == 5 {
-        // Ctrl+E - move to end of current line
-        let mut new_pos = buf.length()
-        let mut i = cursor_pos
-        while i < buf.length() {
-          if buf[i] == '\n' {
-            new_pos = i
-            break
-          }
-          i = i + 1
-        }
-        cursor_pos = new_pos
-        need_render = true
-      } else if code >= 32 {
-        let c = Int::unsafe_to_char(key[0].to_int())
-        buf.insert(cursor_pos, c)
-        cursor_pos = cursor_pos + 1
-        need_render = true
       }
-    } else {
-      for c in key {
-        buf.insert(cursor_pos, c)
-        cursor_pos = cursor_pos + 1
-      }
-      need_render = true
     }
     if need_render {
       let _ = render_all()

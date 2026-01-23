@@ -1,4 +1,6 @@
 import {
+  "mizchi/tui/events",
+  "mizchi/tui/input",
   "mizchi/tui/render",
   "moonbitlang/async",
   "moonbitlang/async/js_async",
@@ -7,10 +9,5 @@ import {
 
 options(
   link: { "native": { "cc-link-flags": "io/tui_native.c" } },
-  targets: {
-    "input_nav.mbt": [ "not", "js" ],
-    "input_nav_wbtest.mbt": [ "not", "js" ],
-    "io_js.mbt": [ "js" ],
-    "io_native.mbt": [ "not", "js" ],
-  },
+  targets: { "io_js.mbt": [ "js" ], "io_native.mbt": [ "not", "js" ] },
 )

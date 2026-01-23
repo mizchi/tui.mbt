@@ -71,7 +71,7 @@ pub fn CharBuffer::fill_bg(
         // Preserve wide char placeholders (NUL) to avoid breaking CJK rendering
         if existing.char == '\u0000' {
           // Only update background, keep the placeholder
-          self.set_cell(col, row, { ..existing, bg })
+          self.set_cell(col, row, { ..existing, bg, })
         } else {
           // Overwrite cell completely with space to cover underlying content
           self.set_cell(col, row, { ..CharCell::default(), char: ' ', bg })

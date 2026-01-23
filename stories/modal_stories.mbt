@@ -256,21 +256,19 @@ pub fn modal_stories() -> Array[Story] {
                 // Centered modal dialog
                 @core.box(
                   [
-                    @components.column(
-                      [
-                        @components.text(" Confirm ", bold=true),
-                        @components.text(""),
-                        @components.text(" Save changes? "),
-                        @components.text(""),
-                        @components.row(
-                          [
-                            @components.text(" [Yes] "),
-                            @components.text(" [No] "),
-                          ],
-                          gap=2.0,
-                        ),
-                      ],
-                    ),
+                    @components.column([
+                      @components.text(" Confirm ", bold=true),
+                      @components.text(""),
+                      @components.text(" Save changes? "),
+                      @components.text(""),
+                      @components.row(
+                        [
+                          @components.text(" [Yes] "),
+                          @components.text(" [No] "),
+                        ],
+                        gap=2.0,
+                      ),
+                    ]),
                   ],
                   border=Some(@core.BorderChars::rounded()),
                   bg=@core.Color::rgb(40, 40, 60),
@@ -303,10 +301,7 @@ pub fn modal_stories() -> Array[Story] {
           [
             // App content
             @components.column(
-              [
-                @components.text("Dashboard"),
-                @components.text("Status: OK"),
-              ],
+              [@components.text("Dashboard"), @components.text("Status: OK")],
               width=@components.dim_percent(100.0),
               height=@components.dim_percent(100.0),
             ),
@@ -315,15 +310,17 @@ pub fn modal_stories() -> Array[Story] {
               [
                 @core.box(
                   [
-                    @components.column(
-                      [
-                        @components.text("! Error !", bold=true, fg=@core.Color::red()),
-                        @components.text(""),
-                        @components.text("Connection lost"),
-                        @components.text(""),
-                        @components.text("   [OK]   "),
-                      ],
-                    ),
+                    @components.column([
+                      @components.text(
+                        "! Error !",
+                        bold=true,
+                        fg=@core.Color::red(),
+                      ),
+                      @components.text(""),
+                      @components.text("Connection lost"),
+                      @components.text(""),
+                      @components.text("   [OK]   "),
+                    ]),
                   ],
                   border=Some(@core.BorderChars::rounded()),
                   border_color=@core.Color::red(),
@@ -359,7 +356,9 @@ pub fn modal_stories() -> Array[Story] {
             @components.column(
               [
                 @components.text("Editor"),
-                @components.text("──────────────────"),
+                @components.text(
+                  "──────────────────",
+                ),
                 @components.text("fn main { }"),
               ],
               width=@components.dim_percent(100.0),

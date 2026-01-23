@@ -335,11 +335,22 @@ fn handle_input_key(
   state : WizardState,
 ) -> Unit {
   match event {
-    @events.InputEvent::Key(@events.KeyEvent::Char(c, _)) => {
-      state.input_buffer.set(state.input_buffer.get() + c.to_string())
-      pr("\r" + clear_line())
-      render_active_prompt(prompt, state)
-    }
+    @events.InputEvent::Key(@events.KeyEvent::Char(c, modifier)) =>
+      match modifier {
+        @events.KeyModifier::Ctrl =>
+          // Ctrl+A: move to start, Ctrl+E: move to end (no-op for simple input)
+          // Ctrl+U: clear input
+          if c == 'u' || c == 'U' {
+            state.input_buffer.set("")
+            pr("\r" + clear_line())
+            render_active_prompt(prompt, state)
+          }
+        _ => {
+          state.input_buffer.set(state.input_buffer.get() + c.to_string())
+          pr("\r" + clear_line())
+          render_active_prompt(prompt, state)
+        }
+      }
     @events.InputEvent::Key(
       @events.KeyEvent::Special(@events.SpecialKey::Backspace, _)
     ) => {
@@ -354,6 +365,19 @@ fn handle_input_key(
         render_active_prompt(prompt, state)
       }
     }
+    @events.InputEvent::Key(
+      @events.KeyEvent::Special(@events.SpecialKey::Tab, _)
+    ) =>
+      // Tab to complete placeholder
+      match prompt.prompt_type {
+        PromptType::Input(placeholder) =>
+          if state.input_buffer.get() == "" {
+            state.input_buffer.set(placeholder)
+            pr("\r" + clear_line())
+            render_active_prompt(prompt, state)
+          }
+        _ => ()
+      }
     _ => ()
   }
 }

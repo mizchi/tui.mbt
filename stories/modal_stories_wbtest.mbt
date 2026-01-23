@@ -51,7 +51,9 @@ test "centered_modal layout has correct vertical centering" {
       // y = (9 - 5) / 2 = 2
       // x = (21 - 9) / 2 = 6
       let modal = center.children[0]
-      println("Modal: x=\{modal.x}, y=\{modal.y}, w=\{modal.width}, h=\{modal.height}")
+      println(
+        "Modal: x=\{modal.x}, y=\{modal.y}, w=\{modal.width}, h=\{modal.height}",
+      )
       inspect(modal.y, content="2")
       return
     }

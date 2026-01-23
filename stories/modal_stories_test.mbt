@@ -103,13 +103,16 @@ test "modal/centered_modal story snapshot" {
       println("=== centered_modal (21x9) ===")
       println(plain)
       println("=== end ===")
-      inspect(plain, content=(
-        #|      ╭───────╮
-        #|      │       │
-        #|      │ Modal │
-        #|      │       │
-        #|      ╰───────╯
-      ))
+      inspect(
+        plain,
+        content=(
+          #|      ╭───────╮
+          #|      │       │
+          #|      │ Modal │
+          #|      │       │
+          #|      ╰───────╯
+        ),
+      )
       return
     }
   }
@@ -125,17 +128,18 @@ test "modal/stacked_modal story snapshot" {
       println(plain)
       println("=== end ===")
       // Modal overlay should cover background content
-      inspect(plain, content=(
-        #|Background
-        #|Content Here
-        #|       ╭────────╮
-        #|.......│        │
-        #|       │ Dialog │
-        #|       │        │
-        #|       ╰────────╯
-
-
-      ))
+      inspect(
+        plain,
+        content=(
+          #|Background
+          #|Content Here
+          #|       ╭────────╮
+          #|.......│        │
+          #|       │ Dialog │
+          #|       │        │
+          #|       ╰────────╯
+        ),
+      )
       return
     }
   }
@@ -151,17 +155,18 @@ test "modal/nested_modals story snapshot" {
       println(plain)
       println("=== end ===")
       // Second modal (Confirm?) should be on top
-      inspect(plain, content=(
-        #|App Content
-        #|
-        #|      ╭──────────╮
-        #|      │          │
-        #|      │ Confirm? │
-        #|      │          │
-        #|      ╰──────────╯
-
-
-      ))
+      inspect(
+        plain,
+        content=(
+          #|App Content
+          #|
+          #|      ╭──────────╮
+          #|      │          │
+          #|      │ Confirm? │
+          #|      │          │
+          #|      ╰──────────╯
+        ),
+      )
       return
     }
   }
@@ -177,18 +182,20 @@ test "modal/full_overlay story snapshot" {
       println(plain)
       println("=== end ===")
       // Full overlay with dark backdrop and centered dialog
-      inspect(plain, content=(
-        #|      ╭─────────────────╮
-        #|      │                 │
-        #|      │  Confirm        │
-        #|      │                 │
-        #|      │                 │
-        #|      │  Save changes?  │
-        #|      │                 │
-        #|      │                 │
-        #|      ╰─ [Yes] ── [No] ─╯
-
-      ))
+      inspect(
+        plain,
+        content=(
+          #|      ╭─────────────────╮
+          #|      │                 │
+          #|      │  Confirm        │
+          #|      │                 │
+          #|      │                 │
+          #|      │  Save changes?  │
+          #|      │                 │
+          #|      │                 │
+          #|      ╰─ [Yes] ── [No] ─╯
+        ),
+      )
       return
     }
   }
@@ -204,18 +211,20 @@ test "modal/alert_modal story snapshot" {
       println(plain)
       println("=== end ===")
       // Alert modal with error styling
-      inspect(plain, content=(
-        #|   ╭─────────────────╮
-        #|   │                 │
-        #|   │ ! Error !       │
-        #|   │                 │
-        #|   │                 │
-        #|   │ Connection lost │
-        #|   │                 │
-        #|   │                 │
-        #|   ╰─   [OK]   ──────╯
-
-      ))
+      inspect(
+        plain,
+        content=(
+          #|   ╭─────────────────╮
+          #|   │                 │
+          #|   │ ! Error !       │
+          #|   │                 │
+          #|   │                 │
+          #|   │ Connection lost │
+          #|   │                 │
+          #|   │                 │
+          #|   ╰─   [OK]   ──────╯
+        ),
+      )
       return
     }
   }
@@ -231,14 +240,17 @@ test "modal/command_launcher story snapshot" {
       println(plain)
       println("=== end ===")
       // Command launcher overlay
-      inspect(plain, content=(
-        #|       ╭────────╮
-        #|       │        │
-        #|       │ > open │
-        #|       │        │
-        #|       │ * Open │
-        #|       ╰────────╯
-      ))
+      inspect(
+        plain,
+        content=(
+          #|       ╭────────╮
+          #|       │        │
+          #|       │ > open │
+          #|       │        │
+          #|       │ * Open │
+          #|       ╰────────╯
+        ),
+      )
       return
     }
   }

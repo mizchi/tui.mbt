@@ -129,7 +129,7 @@ pub fn start_edit_inplace(
     confirm_on_shift_enter~,
     esc_cancels~,
     on_lines_change~,
-    on_completion=on_completion,
+    on_completion~,
   )
 }
 

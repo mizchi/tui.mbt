@@ -400,12 +400,11 @@ fn handle_key(key : String, state : DemoState) -> Unit {
     ) => {
       if not(state.input.delete_char()) {
         // Current was empty, try to restore previous word
-        if state.input.restore_previous_word() {
-          state.manager.request(state.input.get_current())
-        }
-      } else {
-        state.manager.request(state.input.get_current())
+        ignore(state.input.restore_previous_word())
       }
+      // Hide completion on delete (don't trigger new completion)
+      state.manager.get_engine().clear()
+      state.manager.clear_pending()
       // Clear popup area before re-render
       let popup_row = state.cursor_row + 1
       for i = 0; i < max_popup_items + 3; i = i + 1 {

@@ -1,9 +1,9 @@
 ///|
-/// Input navigation helpers (shared)
+/// Input navigation helpers (moved from io/input_nav.mbt)
 
 ///|
 /// Get character display width (simplified: ASCII=1, CJK=2)
-fn char_width_code(code : Int) -> Int {
+pub fn char_width_code(code : Int) -> Int {
   if code < 0x80 {
     1
   } else if code >= 0x1100 &&
@@ -26,15 +26,11 @@ fn char_width_code(code : Int) -> Int {
 }
 
 ///|
-/// Line info for scrolling
-priv struct LineInfo {
-  start_idx : Int
-  chars : Array[Char]
-}
-
-///|
 /// Wrap text into lines (considering newlines and max_width)
-fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
+pub fn wrap_text_to_lines(
+  buf : Array[Char],
+  max_width : Int,
+) -> Array[LineInfo] {
   let lines : Array[LineInfo] = []
   let mut current_chars : Array[Char] = []
   let mut current_width = 0
@@ -65,7 +61,7 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
 
 ///|
 /// Find cursor line index and column offset
-fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
+pub fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
   for line_idx, line in lines {
     let next_start = if line_idx + 1 < lines.length() {
       lines[line_idx + 1].start_idx
@@ -92,7 +88,7 @@ fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
 
 ///|
 /// Move cursor to previous wrapped line (keeps column offset when possible)
-fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
+pub fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
   let (line_idx, col_offset) = find_cursor_line(lines, cursor)
   if line_idx <= 0 {
     return cursor
@@ -118,7 +114,7 @@ fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
 
 ///|
 /// Move cursor to next wrapped line (keeps column offset when possible)
-fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
+pub fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
   let (line_idx, col_offset) = find_cursor_line(lines, cursor)
   if line_idx + 1 >= lines.length() {
     return cursor
@@ -144,7 +140,7 @@ fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
 
 ///|
 /// Adjust scroll offset to keep cursor visible
-fn adjust_scroll_offset(
+pub fn adjust_scroll_offset(
   scroll_offset : Int,
   cursor_line_idx : Int,
   max_height : Int,

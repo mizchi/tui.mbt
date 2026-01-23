@@ -141,7 +141,9 @@ pub fn box(
   }
   // Position and inset for overlay support
   style.position = position
-  style.inset = @types.Rect::new(inset_top, inset_right, inset_bottom, inset_left)
+  style.inset = @types.Rect::new(
+    inset_top, inset_right, inset_bottom, inset_left,
+  )
 
   // Build node
   let child_nodes = children.map(fn(c) { c.node })
