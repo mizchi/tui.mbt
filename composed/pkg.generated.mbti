@@ -1,0 +1,111 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/composed"
+
+import {
+  "mizchi/tui/components",
+  "mizchi/tui/core",
+}
+
+// Values
+pub let buffer_lines : Int
+
+pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
+
+pub fn build_sparkline(Array[Double], width? : Int) -> String
+
+pub fn build_table_header(Array[TableColumn], separator? : String) -> String
+
+pub fn build_table_row(Array[TableColumn], Array[String], separator? : String) -> String
+
+pub fn build_titled_border_top(String, Int, border? : @core.BorderChars) -> String
+
+pub fn calc_input_row(Int) -> Int
+
+pub fn calc_total_lines(Int, Bool) -> Int
+
+pub fn calc_visible_height(Int) -> Int
+
+pub fn chat_message(Message, Int) -> @core.Component
+
+pub fn chat_message_list(Array[Message], @components.StreamingState, InputQueue, Int, Int) -> Array[@core.Component]
+
+pub fn chat_queued_message(String, Int, Int, Int) -> @core.Component
+
+pub fn chat_streaming_message(@components.StreamingState, Int, Int) -> @core.Component
+
+pub fn clamp_input_lines(Int) -> Int
+
+pub let divider_height : Int
+
+pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool, style? : GaugeStyle, theme? : @components.Theme) -> @core.Component
+
+pub let input_area_height : Int
+
+pub let max_input_rows : Int
+
+pub fn meter(String, Double, width? : Int, label_width? : Int, theme? : @components.Theme) -> @core.Component
+
+pub fn sparkline(Array[Double], width? : Int, fg? : @core.Color, theme? : @components.Theme) -> @core.Component
+
+pub fn stat(String, String, label_width? : Int, theme? : @components.Theme) -> @core.Component
+
+pub let streaming_message_height : Int
+
+pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int, theme? : @components.Theme) -> @core.Component
+
+pub fn table_header(Array[TableColumn], separator? : String, theme? : @components.Theme) -> @core.Component
+
+pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool, theme? : @components.Theme) -> @core.Component
+
+pub fn titled_box(String, Array[@core.Component], width? : Int, border? : @core.BorderChars, border_color? : @core.Color, title_color? : @core.Color, theme? : @components.Theme) -> @core.Component
+
+// Errors
+
+// Types and methods
+pub(all) enum ColumnAlign {
+  Left
+  Right
+  Center
+}
+
+pub(all) enum GaugeStyle {
+  Bar
+  Thin
+  Blocks
+}
+
+pub(all) struct InputQueue(@components.Queue[String])
+pub fn InputQueue::dequeue_all(Self) -> Array[String]
+pub fn InputQueue::enqueue(Self, String) -> Unit
+pub fn InputQueue::finish_processing(Self) -> Unit
+#deprecated
+pub fn InputQueue::inner(Self) -> @components.Queue[String]
+pub fn InputQueue::is_busy(Self) -> Bool
+pub fn InputQueue::is_empty(Self) -> Bool
+pub fn InputQueue::items(Self) -> Array[String]
+pub fn InputQueue::length(Self) -> Int
+pub fn InputQueue::new() -> Self
+pub fn InputQueue::start_processing(Self) -> Unit
+
+pub(all) struct Message {
+  role : MessageRole
+  content : String
+}
+
+pub(all) enum MessageRole {
+  User
+  Assistant
+}
+pub impl Eq for MessageRole
+
+pub(all) struct TableColumn {
+  header : String
+  width : Int
+  align : ColumnAlign
+}
+pub fn TableColumn::new(String, width? : Int, align? : ColumnAlign) -> Self
+
+// Type aliases
+
+// Traits
+

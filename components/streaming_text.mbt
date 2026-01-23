@@ -68,10 +68,6 @@ pub fn streaming_block(
       height=@types.Dimension::Length(height.to_double()),
     )
   } else {
-    column(
-      items,
-      gap=0.0,
-      width=@types.Dimension::Length(width.to_double()),
-    )
+    column(items, gap=0.0, width=@types.Dimension::Length(width.to_double()))
   }
 }

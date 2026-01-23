@@ -3,7 +3,7 @@
 
 ///|
 test "stream_buffer_initial_size" {
-  let buffer = StreamBuffer::new(80, 16)
+  let buffer = @components.StreamBuffer::new(80, 16)
   let (w, h) = buffer.size()
   inspect(w, content="80")
   inspect(h, content="16")
@@ -11,7 +11,7 @@ test "stream_buffer_initial_size" {
 
 ///|
 test "stream_buffer_resize_updates_size" {
-  let buffer = StreamBuffer::new(80, 16)
+  let buffer = @components.StreamBuffer::new(80, 16)
   buffer.resize(100, 20)
   let (w, h) = buffer.size()
   inspect(w, content="100")
@@ -20,16 +20,16 @@ test "stream_buffer_resize_updates_size" {
 
 ///|
 test "stream_buffer_streaming_snapshot" {
-  let buffer = StreamBuffer::new(24, 6)
+  let buffer = @components.StreamBuffer::new(24, 6)
   let messages : Array[Message] = [Message::{ role: User, content: "Hi" }]
   let queue = InputQueue::new()
-  let streaming = StreamingState::new()
+  let streaming = @components.StreamingState::new()
   streaming.full_text.set("Hello")
   streaming.position.set(1)
   let items1 = chat_message_list(
     messages, streaming, queue, 24, streaming_message_height,
   )
-  let area1 = column(
+  let area1 = @components.column(
     items1,
     width=@types.Dimension::Length(24.0),
     height=@types.Dimension::Length(6.0),
@@ -43,7 +43,7 @@ test "stream_buffer_streaming_snapshot" {
   let items2 = chat_message_list(
     messages, streaming, queue, 24, streaming_message_height,
   )
-  let area2 = column(
+  let area2 = @components.column(
     items2,
     width=@types.Dimension::Length(24.0),
     height=@types.Dimension::Length(6.0),
@@ -56,9 +56,9 @@ test "stream_buffer_streaming_snapshot" {
 
 ///|
 test "stream_buffer_respects_offset" {
-  let buffer = StreamBuffer::new(8, 2)
-  ignore(buffer.render_output(text("A"), row=2, col=4))
-  let output = buffer.render_output(text("B"), row=2, col=4)
+  let buffer = @components.StreamBuffer::new(8, 2)
+  ignore(buffer.render_output(@components.text("A"), row=2, col=4))
+  let output = buffer.render_output(@components.text("B"), row=2, col=4)
   inspect(
     output,
     content="\u{1b}[s\u{1b}[3;5H\u{1b}[38;5;231mB\u{1b}[0m\u{1b}[u",
@@ -69,10 +69,10 @@ test "stream_buffer_respects_offset" {
 /// Test: streaming completion followed by new message and new streaming
 /// This simulates the bug where old streaming content mixes with new content
 test "stream_buffer_streaming_to_message_transition" {
-  let buffer = StreamBuffer::new(40, 8)
+  let buffer = @components.StreamBuffer::new(40, 8)
   let messages : Array[Message] = [Message::{ role: User, content: "Hello" }]
   let queue = InputQueue::new()
-  let streaming = StreamingState::new()
+  let streaming = @components.StreamingState::new()
 
   // Phase 1: Start streaming a response
   streaming.full_text.set("This is a simulated response.")
@@ -80,7 +80,7 @@ test "stream_buffer_streaming_to_message_transition" {
   let items1 = chat_message_list(
     messages, streaming, queue, 40, streaming_message_height,
   )
-  let area1 = column(
+  let area1 = @components.column(
     items1,
     width=@types.Dimension::Length(40.0),
     height=@types.Dimension::Length(8.0),
@@ -105,7 +105,7 @@ test "stream_buffer_streaming_to_message_transition" {
   let items2 = chat_message_list(
     messages, streaming, queue, 40, streaming_message_height,
   )
-  let area2 = column(
+  let area2 = @components.column(
     items2,
     width=@types.Dimension::Length(40.0),
     height=@types.Dimension::Length(8.0),
@@ -166,16 +166,16 @@ test "streaming_completion_main_buffer_sync" {
   let main_app = @render.App::new(width, height)
 
   // Stream buffer (used for streaming updates)
-  let stream_buffer = StreamBuffer::new(width, height)
+  let stream_buffer = @components.StreamBuffer::new(width, height)
   let messages : Array[Message] = [Message::{ role: User, content: "test" }]
   let queue = InputQueue::new()
-  let streaming = StreamingState::new()
+  let streaming = @components.StreamingState::new()
 
   // Phase 1: Initial render with main app (before streaming)
   let items0 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area0 = column(
+  let area0 = @components.column(
     items0,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
@@ -189,7 +189,7 @@ test "streaming_completion_main_buffer_sync" {
   let items1 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area1 = column(
+  let area1 = @components.column(
     items1,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
@@ -210,7 +210,7 @@ test "streaming_completion_main_buffer_sync" {
   let items2 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area2 = column(
+  let area2 = @components.column(
     items2,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
@@ -230,16 +230,16 @@ test "streaming_completion_without_clear_shows_bug" {
   let width = 50
   let height = 10
   let main_app = @render.App::new(width, height)
-  let stream_buffer = StreamBuffer::new(width, height)
+  let stream_buffer = @components.StreamBuffer::new(width, height)
   let messages : Array[Message] = [Message::{ role: User, content: "test" }]
   let queue = InputQueue::new()
-  let streaming = StreamingState::new()
+  let streaming = @components.StreamingState::new()
 
   // Phase 1: Initial render
   let items0 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area0 = column(
+  let area0 = @components.column(
     items0,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
@@ -253,7 +253,7 @@ test "streaming_completion_without_clear_shows_bug" {
   let items1 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area1 = column(
+  let area1 = @components.column(
     items1,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),
@@ -273,7 +273,7 @@ test "streaming_completion_without_clear_shows_bug" {
   let items2 = chat_message_list(
     messages, streaming, queue, width, streaming_message_height,
   )
-  let area2 = column(
+  let area2 = @components.column(
     items2,
     width=@types.Dimension::Length(width.to_double()),
     height=@types.Dimension::Length(height.to_double()),

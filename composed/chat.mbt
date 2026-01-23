@@ -128,13 +128,7 @@ fn role_style(role : MessageRole) -> (String, String, @core.Color) {
 /// Build a single chat message component using labeled_block
 pub fn chat_message(msg : Message, width : Int) -> @core.Component {
   let (icon, label, color) = role_style(msg.role)
-  @components.labeled_block(
-    icon,
-    label,
-    msg.content,
-    label_color=color,
-    width~,
-  )
+  @components.labeled_block(icon, label, msg.content, label_color=color, width~)
 }
 
 ///|

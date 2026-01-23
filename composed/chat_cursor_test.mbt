@@ -30,9 +30,9 @@ test "status line position" {
 
 ///|
 test "ansi_cursor_sequences" {
-  let save_seq = ansi_save_cursor()
-  let restore_seq = ansi_restore_cursor()
-  let move_seq = ansi_move_to(18, 1)
+  let save_seq = @components.ansi_save_cursor()
+  let restore_seq = @components.ansi_restore_cursor()
+  let move_seq = @components.ansi_move_to(18, 1)
   inspect(save_seq, content="\u{1b}[s")
   inspect(restore_seq, content="\u{1b}[u")
   inspect(move_seq, content="\u{1b}[19;2H") // 0-indexed (18,1) -> 1-indexed (19,2)

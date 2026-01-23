@@ -128,9 +128,9 @@ test "start_edit_inplace coordinates" {
 ///|
 test "ansi_move_to converts 0-indexed to 1-indexed" {
   // ansi_move_to takes 0-indexed and outputs 1-indexed ANSI
-  let escape = ansi_move_to(0, 0)
+  let escape = @components.ansi_move_to(0, 0)
   inspect(escape, content="\u{1b}[1;1H")
-  let escape2 = ansi_move_to(18, 1)
+  let escape2 = @components.ansi_move_to(18, 1)
   inspect(escape2, content="\u{1b}[19;2H")
 }
 

@@ -11,7 +11,9 @@
 
 ///|
 /// Sparkline characters from lowest to highest
-let sparkline_chars : Array[String] = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+let sparkline_chars : Array[String] = [
+  "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█",
+]
 
 ///|
 /// Build sparkline string from data values
@@ -129,7 +131,6 @@ pub fn gauge(
   } else {
     ""
   }
-
   let bar_color = if ratio > 0.9 {
     theme.error
   } else if ratio > 0.7 {
@@ -284,7 +285,11 @@ pub fn table_row(
 ) -> @core.Component {
   let parts : Array[@core.Component] = []
   let fg_color = if selected { theme.bg } else { theme.fg }
-  let bg_color = if selected { theme.primary } else { @core.Color::transparent() }
+  let bg_color = if selected {
+    theme.primary
+  } else {
+    @core.Color::transparent()
+  }
   for i = 0; i < columns.length(); i = i + 1 {
     let col = columns[i]
     let value = if i < values.length() { values[i] } else { "" }
@@ -363,7 +368,6 @@ pub fn titled_box(
   } else {
     title_color
   }
-
   let all_children : Array[@core.Component] = []
   all_children.push(@components.text(title, fg=actual_title_color, bold=true))
   for child in children {
@@ -394,20 +398,17 @@ pub fn meter(
   } else {
     ratio
   }
-
   let padded_label = if label.length() < label_width {
     label + " ".repeat(label_width - label.length())
   } else {
     @components.truncate_text(label, label_width)
   }
-
   let bar_width = width - label_width - 1 - 5
   if bar_width <= 0 {
     return @components.text(padded_label, fg=theme.fg)
   }
   let filled = (bar_width.to_double() * clamped).to_int()
   let empty = bar_width - filled
-
   let bar_color = if ratio > 0.9 {
     theme.error
   } else if ratio > 0.7 {

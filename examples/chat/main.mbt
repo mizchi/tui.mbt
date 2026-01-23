@@ -12,7 +12,7 @@ fn run_headless() -> Unit {
   let height = 24
 
   // Create state
-  let messages : Array[@chat.Message] = []
+  let messages : Array[@composed.Message] = []
 
   // Simulate many messages to test scrolling
   for i = 0; i < 10; i = i + 1 {
@@ -24,7 +24,7 @@ fn run_headless() -> Unit {
   }
 
   // Calculate visible count (same as in main)
-  let vh = @chat.calc_visible_height(height)
+  let vh = @composed.calc_visible_height(height)
   let visible_count = if vh / 3 < 3 { 3 } else { vh / 3 }
   let total_items = messages.length()
   let max_offset = if total_items > visible_count {
@@ -120,7 +120,7 @@ fn main {
   let height : Ref[Int] = { val: rows }
 
   // Create reactive state
-  let messages : @signals.Signal[Array[@chat.Message]] = @signals.signal([])
+  let messages : @signals.Signal[Array[@composed.Message]] = @signals.signal([])
   let input_value = @signals.signal("")
   let ime_session = @c.ImeSession::new()
   let running = @signals.signal(true)
@@ -138,10 +138,13 @@ fn main {
   let streaming = @c.StreamingState::new()
 
   // Cursor-safe stream buffer for message area updates
-  let stream_buffer = @c.StreamBuffer::new(cols, @chat.calc_visible_height(rows))
+  let stream_buffer = @c.StreamBuffer::new(
+    cols,
+    @composed.calc_visible_height(rows),
+  )
 
   // Input queue for batching inputs during task processing
-  let input_queue = @chat.InputQueue::new()
+  let input_queue = @composed.InputQueue::new()
 
   // Create the app (mutable for resize support)
   let app : Ref[@render.App] = { val: @render.App::new(width.val, height.val) }
@@ -178,7 +181,7 @@ fn main {
   // Calculate visible item count based on terminal height
   // Each message takes roughly 2-3 lines, so we estimate
   fn get_visible_count() -> Int {
-    let vh = @chat.calc_visible_height(height.val)
+    let vh = @composed.calc_visible_height(height.val)
     // Estimate: each item takes about 3 lines on average
     let count = vh / 3
     if count < 3 {
@@ -198,14 +201,14 @@ fn main {
     let w = width.val
     let h = height.val
     let visible_count = get_visible_count()
-    let visible_height = @chat.calc_visible_height(h)
+    let visible_height = @composed.calc_visible_height(h)
     let content_width = if should_show_scrollbar() { w - 1 } else { w }
-    let all_items = @chat.chat_message_list(
+    let all_items = @composed.chat_message_list(
       messages.get(),
       streaming,
       input_queue,
       content_width,
-      @chat.streaming_message_height,
+      @composed.streaming_message_height,
     )
     let visible_items = scroller.slice(all_items, visible_count)
 
@@ -227,7 +230,7 @@ fn main {
     let w = width.val
     let h = height.val
     let visible_count = get_visible_count()
-    let visible_height = @chat.calc_visible_height(h)
+    let visible_height = @composed.calc_visible_height(h)
     let total = get_item_count()
     let messages_column = build_message_content()
 
@@ -296,20 +299,20 @@ fn main {
     let input_content = @core.text_box(
       " " + display_text + cursor,
       fg=input_color,
-      height=@types.Dimension::Length(@chat.max_input_rows.to_double()),
+      height=@types.Dimension::Length(@composed.max_input_rows.to_double()),
     )
     let input_area = @c.column(
       [
         input_content,
         @c.text(" " + status_text, fg=@core.Color::rgb(80, 80, 80)),
       ],
-      height=@types.Dimension::Length(@chat.input_area_height.to_double()),
+      height=@types.Dimension::Length(@composed.input_area_height.to_double()),
     )
 
     // Buffer line to prevent layout interference
     let buffer = @c.column(
       [],
-      height=@types.Dimension::Length(@chat.buffer_lines.to_double()),
+      height=@types.Dimension::Length(@composed.buffer_lines.to_double()),
     )
 
     // Main layout - vertical split
@@ -335,7 +338,7 @@ fn main {
     let w = width.val
     let h = height.val
     let visible_count = get_visible_count()
-    let visible_height = @chat.calc_visible_height(h)
+    let visible_height = @composed.calc_visible_height(h)
     let total = get_item_count()
     let offset = scroller.offset.get()
 
@@ -385,7 +388,7 @@ fn main {
       @io.print_raw(@c.ansi_restore_cursor())
     } else {
       // Keep cursor in input area when not editing
-      @io.print_raw(@c.ansi_move_to(@chat.calc_input_row(height.val), 0))
+      @io.print_raw(@c.ansi_move_to(@composed.calc_input_row(height.val), 0))
     }
     stream_buffer.sync(build_message_content())
   }
@@ -403,7 +406,7 @@ fn main {
   }
 
   // Add a message
-  fn add_message(role : @chat.MessageRole, content : String) -> Unit {
+  fn add_message(role : @composed.MessageRole, content : String) -> Unit {
     let current = messages.get()
     current.push({ role, content })
     messages.set(current)
@@ -494,7 +497,7 @@ fn main {
     height.val = new_height
     // Recreate apps with new dimensions
     app.val = @render.App::new(new_width, new_height)
-    stream_buffer.resize(new_width, @chat.calc_visible_height(new_height))
+    stream_buffer.resize(new_width, @composed.calc_visible_height(new_height))
     // Clear screen and re-render
     @io.print_raw(@render.ansi_clear_screen())
     do_render()
@@ -539,7 +542,7 @@ fn main {
       }),
       on_force_quit=Some(fn() { do_quit() }),
     )
-    let row = @chat.calc_input_row(height.val)
+    let row = @composed.calc_input_row(height.val)
     @io.print_raw(@c.ansi_move_to(row, 0) + " ".repeat(width.val))
     @io.print_raw(@c.ansi_move_to(row, 1))
     ime_session.start(config, input_value.get(), restore_tui_and_send)

@@ -48,49 +48,21 @@ pub fn bold(String) -> @core.Component
 
 pub fn bordered(Array[@core.Component], style? : @core.BorderChars, color? : @core.Color) -> @core.Component
 
-pub let buffer_lines : Int
-
-pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
-
 pub fn build_progress_bar(Double, Int, style? : ProgressStyle, show_percent? : Bool) -> String
 
 pub fn build_scrollbar(Int, Int, Int, Int, track_char? : String, thumb_char? : String) -> Array[String]
 
-pub fn build_sparkline(Array[Double], width? : Int) -> String
-
-pub fn build_table_header(Array[TableColumn], separator? : String) -> String
-
-pub fn build_table_row(Array[TableColumn], Array[String], separator? : String) -> String
-
-pub fn build_titled_border_top(String, Int, border? : @core.BorderChars) -> String
-
 pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
-
-pub fn calc_input_row(Int) -> Int
 
 pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
 
 pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int, Int)
 
-pub fn calc_total_lines(Int, Bool) -> Int
-
-pub fn calc_visible_height(Int) -> Int
-
 pub fn card(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
 
 pub fn center(Array[@core.Component]) -> @core.Component
 
-pub fn chat_message(Message, Int) -> @core.Component
-
-pub fn chat_message_list(Array[Message], StreamingState, InputQueue, Int, Int) -> Array[@core.Component]
-
-pub fn chat_queued_message(String, Int, Int, Int) -> @core.Component
-
-pub fn chat_streaming_message(StreamingState, Int, Int) -> @core.Component
-
 pub fn checkbox(Bool, focused? : Bool, disabled? : Bool, theme? : Theme, checked_icon? : String, unchecked_icon? : String) -> @core.Component
-
-pub fn clamp_input_lines(Int) -> Int
 
 pub fn colored(String, @core.Color) -> @core.Component
 
@@ -110,8 +82,6 @@ pub fn dim_length(Double) -> @types.Dimension
 
 pub fn dim_percent(Double) -> @types.Dimension
 
-pub let divider_height : Int
-
 pub fn editor(EditorState, @core.Color, @core.Color, @core.Color, @core.Color, @core.Color, Double, Double, Bool, String) -> @core.Component
 
 pub fn fill(Array[@core.Component]) -> @core.Component
@@ -123,8 +93,6 @@ pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() ->
 pub fn fraction_text(Int, Int, theme? : Theme) -> @core.Component
 
 pub fn fullscreen(Array[@core.Component], Int, Int, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double) -> @core.Component
-
-pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool, style? : GaugeStyle, theme? : Theme) -> @core.Component
 
 pub fn get_spinner_frame(Int) -> String
 
@@ -148,9 +116,19 @@ pub fn ime_textarea(String, Bool, focused? : Bool, disabled? : Bool, id? : Strin
 
 pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub let input_area_height : Int
-
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
+
+pub fn labeled_block(String, String, String, label_color? : @core.Color, content_color? : @core.Color, bold_label? : Bool, width? : Int, height? : Int, indent? : String) -> @core.Component
+
+pub fn labeled_block_assistant_color() -> @core.Color
+
+pub fn labeled_block_error_color() -> @core.Color
+
+pub fn labeled_block_pending_color() -> @core.Color
+
+pub fn labeled_block_success_color() -> @core.Color
+
+pub fn labeled_block_user_color() -> @core.Color
 
 pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double) -> @core.Component
 
@@ -163,8 +141,6 @@ pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientati
 pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
 pub fn loading_dots(Int, label? : String, theme? : Theme) -> @core.Component
-
-pub let max_input_rows : Int
 
 pub fn menu(Array[MenuItem], focused_id? : String, id? : String, theme? : Theme, min_width? : Double) -> @core.Component
 
@@ -179,8 +155,6 @@ pub fn menu_separator() -> MenuItem
 pub fn menu_submenu(String, String, Array[MenuItem], disabled? : Bool) -> MenuItem
 
 pub fn menubar(Array[MenubarItem], MenubarState, id? : String, theme? : Theme, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
-
-pub fn meter(String, Double, width? : Int, label_width? : Int, theme? : Theme) -> @core.Component
 
 pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
@@ -224,8 +198,6 @@ pub fn snapshot(HeadlessApp, String) -> Unit
 
 pub fn spacer(flex_grow? : Double) -> @core.Component
 
-pub fn sparkline(Array[Double], width? : Int, fg? : @core.Color, theme? : Theme) -> @core.Component
-
 pub fn spinner(Int, label? : String, theme? : Theme) -> @core.Component
 
 pub fn split_lines(String) -> Array[String]
@@ -238,21 +210,15 @@ pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Un
 
 pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
-pub fn stat(String, String, label_width? : Int, theme? : Theme) -> @core.Component
+pub fn streaming_block(String, String, String, is_streaming? : Bool, label_color? : @core.Color, content_color? : @core.Color, bold_label? : Bool, width? : Int, height? : Int, indent? : String, cursor_char? : String) -> @core.Component
 
-pub let streaming_message_height : Int
+pub fn streaming_text(String, is_streaming? : Bool, cursor_char? : String, fg? : @core.Color, width? : Int, height? : Int) -> @core.Component
 
 pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : Theme, track_on? : String, track_off? : String) -> @core.Component
 
 pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
 pub fn tab_panel(@core.Component, id? : String, theme? : Theme, border? : @core.BorderChars?, padding? : Double) -> @core.Component
-
-pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int, theme? : Theme) -> @core.Component
-
-pub fn table_header(Array[TableColumn], separator? : String, theme? : Theme) -> @core.Component
-
-pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool, theme? : Theme) -> @core.Component
 
 pub fn tabs(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
@@ -267,8 +233,6 @@ pub fn text_button(String, state? : ButtonState, theme? : Theme, underline? : Bo
 pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
 pub fn title_bar(String, fg? : @core.Color) -> @core.Component
-
-pub fn titled_box(String, Array[@core.Component], width? : Int, border? : @core.BorderChars, border_color? : @core.Color, title_color? : @core.Color, theme? : Theme) -> @core.Component
 
 pub fn truncate_text(String, Int) -> String
 
@@ -326,12 +290,6 @@ pub(all) enum ButtonState {
   Pressed
   Focused
   Disabled
-}
-
-pub(all) enum ColumnAlign {
-  Left
-  Right
-  Center
 }
 
 pub(all) struct ComboboxOption {
@@ -400,12 +358,6 @@ pub fn FocusNav::set(Self, String) -> Unit
 pub fn FocusNav::textarea_state(Self, String) -> TextareaState
 pub fn FocusNav::with_initial(Array[String], String) -> Self
 
-pub(all) enum GaugeStyle {
-  Bar
-  Thin
-  Blocks
-}
-
 pub(all) struct HeadlessApp {
   width : Int
   height : Int
@@ -423,20 +375,6 @@ pub(all) struct ImeSession {
 pub fn ImeSession::is_editing(Self) -> Bool
 pub fn ImeSession::new() -> Self
 pub fn ImeSession::start(Self, EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
-
-pub(all) struct InputQueue {
-  queue : Array[String]
-  is_processing : Ref[Bool]
-}
-pub fn InputQueue::dequeue_all(Self) -> Array[String]
-pub fn InputQueue::enqueue(Self, String) -> Unit
-pub fn InputQueue::finish_processing(Self) -> Unit
-pub fn InputQueue::is_busy(Self) -> Bool
-pub fn InputQueue::is_empty(Self) -> Bool
-pub fn InputQueue::items(Self) -> Array[String]
-pub fn InputQueue::length(Self) -> Int
-pub fn InputQueue::new() -> Self
-pub fn InputQueue::start_processing(Self) -> Unit
 
 pub(all) enum InputState {
   Idle
@@ -527,17 +465,6 @@ pub(all) struct MenubarState {
 }
 pub fn MenubarState::new() -> Self
 
-pub(all) struct Message {
-  role : MessageRole
-  content : String
-}
-
-pub(all) enum MessageRole {
-  User
-  Assistant
-}
-pub impl Eq for MessageRole
-
 pub(all) struct ModalState {
   is_open : @signals.Signal[Bool]
 }
@@ -561,6 +488,21 @@ pub(all) enum ProgressStyle {
   Blocks
   Spinner
 }
+
+pub(all) struct Queue[T] {
+  items : Array[T]
+  is_processing : Ref[Bool]
+}
+pub fn[T] Queue::clear(Self[T]) -> Unit
+pub fn[T] Queue::dequeue_all(Self[T]) -> Array[T]
+pub fn[T] Queue::enqueue(Self[T], T) -> Unit
+pub fn[T] Queue::finish_processing(Self[T]) -> Unit
+pub fn[T] Queue::is_busy(Self[T]) -> Bool
+pub fn[T] Queue::is_empty(Self[T]) -> Bool
+pub fn[T] Queue::length(Self[T]) -> Int
+pub fn[T] Queue::new() -> Self[T]
+pub fn[T] Queue::peek_all(Self[T]) -> Array[T]
+pub fn[T] Queue::start_processing(Self[T]) -> Unit
 
 pub(all) struct RadioOption {
   id : String
@@ -681,13 +623,6 @@ pub(all) enum TabOrientation {
   Horizontal
   Vertical
 }
-
-pub(all) struct TableColumn {
-  header : String
-  width : Int
-  align : ColumnAlign
-}
-pub fn TableColumn::new(String, width? : Int, align? : ColumnAlign) -> Self
 
 pub(all) enum TextAlign {
   Left
