@@ -72,12 +72,8 @@ pub fn StreamBuffer::render_output(
   if preserve_cursor {
     output = output + ansi_save_cursor()
   }
-  if self.app.val.prev_buffer is None {
-    // Initialize buffer without emitting clear_screen
-    ignore(
-      self.app.val.render_with_offset(component, row_offset=row, col_offset=col),
-    )
-  }
+  // render_with_offset handles both full render (when prev_buffer is None)
+  // and diff render (when prev_buffer exists)
   output = output +
     self.app.val.render_with_offset(component, row_offset=row, col_offset=col)
   if preserve_cursor {

@@ -292,14 +292,19 @@ fn main {
       add_message(Assistant, text)
     }
     scroller.follow_bottom(get_item_count(), get_visible_count())
+    // Clear main app's prev_buffer to force full render after streaming
+    // (stream_buffer was updating screen independently, main app's buffer is stale)
+    app.val.clear_prev_buffer()
   }
 
   // Forward reference for process_queue
-  let process_queue_ref : Ref[() -> Unit] = { val: fn() { () } }
+  let process_queue_ref : Ref[() -> Bool] = { val: fn() { false } }
 
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
     input_queue.start_processing()
+    // Clear stream buffer to avoid stale content from previous streaming
+    stream_buffer.clear()
     // Force scroll to bottom when starting output
     scroller.to_bottom(get_item_count(), get_visible_count())
     fn on_tick() {
@@ -311,9 +316,10 @@ fn main {
       finish_streaming()
       input_queue.finish_processing()
       // Process any queued inputs after task completion
-      (process_queue_ref.val)()
-      // Only render if not editing
-      if not(ime_session.is_editing()) {
+      // If a new streaming started, skip do_render (start_streaming already called it)
+      let started_new = (process_queue_ref.val)()
+      // Only render if not editing and no new streaming started
+      if not(ime_session.is_editing()) && not(started_new) {
         do_render()
       }
     }
@@ -324,7 +330,7 @@ fn main {
     if not(started) {
       add_message(Assistant, response)
       input_queue.finish_processing()
-      (process_queue_ref.val)()
+      ignore((process_queue_ref.val)())
     }
     if not(ime_session.is_editing()) {
       do_render()
@@ -332,9 +338,10 @@ fn main {
   }
 
   // Process all queued inputs and send as batch
-  fn process_queue() -> Unit {
+  // Returns true if processing started (a new streaming was initiated)
+  fn process_queue() -> Bool {
     if input_queue.is_busy() || input_queue.is_empty() {
-      return
+      return false
     }
     let queued = input_queue.dequeue_all()
     if queued.length() > 0 {
@@ -348,7 +355,9 @@ fn main {
         queued.length().to_string() +
         " queued message(s)."
       start_streaming(response)
+      return true
     }
+    false
   }
 
   process_queue_ref.val = process_queue
