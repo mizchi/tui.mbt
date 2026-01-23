@@ -1,5 +1,112 @@
 ///|
-/// Inplace text editor prototype (generalized input demo)
+/// Inplace text editor with command palette (Ctrl+P) and Tab completion
+
+// =============================================================================
+// Word Completion
+// =============================================================================
+
+///|
+let word_candidates : Array[String] = [
+  "function", "return", "const", "let", "var", "if", "else", "for", "while",
+  "break", "continue", "switch", "case", "default", "try", "catch", "finally",
+  "throw", "class", "extends", "implements", "interface", "type", "enum",
+  "import", "export", "from", "async", "await", "yield", "new", "this",
+  "super", "static", "public", "private", "protected", "readonly",
+  "true", "false", "null", "undefined", "void", "never", "any", "unknown",
+  "string", "number", "boolean", "object", "array", "map", "set",
+]
+
+///|
+/// Extract the current word at cursor position
+fn get_current_word(text : String, cursor : Int) -> String {
+  let chars : Array[Char] = text.iter().collect()
+  let mut start = cursor
+  // Walk backwards to find word start
+  while start > 0 {
+    let c = chars[start - 1]
+    if c == ' ' || c == '\n' || c == '\t' || c == '(' || c == ')' ||
+      c == '{' || c == '}' || c == '[' || c == ']' || c == ';' || c == ',' {
+      break
+    }
+    start = start - 1
+  }
+  // Build word
+  let buf = StringBuilder::new()
+  for i = start; i < cursor; i = i + 1 {
+    buf.write_char(chars[i])
+  }
+  buf.to_string()
+}
+
+///|
+/// Find completion suffix for current word
+fn find_completion(text : String, cursor : Int) -> String? {
+  let word = get_current_word(text, cursor)
+  if word.length() == 0 {
+    return None
+  }
+  let lower_word = word.to_lower()
+  for candidate in word_candidates {
+    if candidate.to_lower().has_prefix(lower_word) && candidate.length() > word.length() {
+      // Build the suffix to append
+      let suffix = StringBuilder::new()
+      let chars : Array[Char] = candidate.iter().collect()
+      for i = word.length(); i < chars.length(); i = i + 1 {
+        suffix.write_char(chars[i])
+      }
+      return Some(suffix.to_string())
+    }
+  }
+  None
+}
+
+// =============================================================================
+// Commands
+// =============================================================================
+
+///|
+struct Command {
+  name : String
+  action : String
+}
+
+///|
+let commands : Array[Command] = [
+  { name: "New File", action: "file.new" },
+  { name: "Open File", action: "file.open" },
+  { name: "Save File", action: "file.save" },
+  { name: "Close File", action: "file.close" },
+  { name: "Undo", action: "edit.undo" },
+  { name: "Redo", action: "edit.redo" },
+  { name: "Cut", action: "edit.cut" },
+  { name: "Copy", action: "edit.copy" },
+  { name: "Paste", action: "edit.paste" },
+  { name: "Find", action: "edit.find" },
+  { name: "Find and Replace", action: "edit.replace" },
+  { name: "Go to Line", action: "edit.goto" },
+  { name: "Toggle Word Wrap", action: "view.wordwrap" },
+  { name: "Zoom In", action: "view.zoom-in" },
+  { name: "Zoom Out", action: "view.zoom-out" },
+  { name: "Show Settings", action: "settings.open" },
+  { name: "About", action: "help.about" },
+]
+
+///|
+fn filter_commands(query : String) -> Array[String] {
+  if query.length() == 0 {
+    return commands.iter().map(fn(c) { c.name }).collect()
+  }
+  let lower_query = query.to_lower()
+  commands
+  .iter()
+  .filter(fn(c) { c.name.to_lower().contains(lower_query) })
+  .map(fn(c) { c.name })
+  .collect()
+}
+
+// =============================================================================
+// Main
+// =============================================================================
 
 ///|
 fn main {
@@ -9,12 +116,97 @@ fn main {
   let editing = @signals.signal(false)
   let text_value = @signals.signal("")
   let app : Ref[@render.App] = { val: @render.App::new(cols, rows) }
+
+  // Command palette state
+  let palette_open = @signals.signal(false)
+  let palette_input : Ref[String] = { val: "" }
+  let completion_manager = @comp.AsyncCompletionManager::new(
+    50,
+    filter_commands,
+    @io.get_time_ms,
+  )
+  let last_command : Ref[String] = { val: "" }
+
   fn editor_box_size() -> (Int, Int) {
-    let header_lines = 1
+    let header_lines = 2 // header + last command
     let footer_lines = 1
     let raw_height = height.val - header_lines - footer_lines
     let box_height = if raw_height > 1 { raw_height } else { 1 }
     (width.val, box_height)
+  }
+
+  // Fixed palette dimensions for Spotlight-like behavior
+  let palette_width = 40
+  let palette_max_items = 8
+  let palette_height = palette_max_items + 4 // items + input + separator + padding/border
+
+  fn render_palette() -> @core.Component {
+    let engine = completion_manager.get_engine()
+    let items = engine.get_items()
+    let selected = engine.get_selected_idx()
+
+    // Build item list (always max_items slots for fixed height)
+    let item_components : Array[@core.Component] = []
+    for i = 0; i < palette_max_items; i = i + 1 {
+      if i < items.length() {
+        let item = items[i]
+        let is_selected = i == selected
+        let fg = if is_selected {
+          @core.Color::cyan()
+        } else {
+          @core.Color::white()
+        }
+        let bg = if is_selected {
+          @core.Color::rgb(40, 60, 80)
+        } else {
+          @core.Color::rgb(20, 20, 30)
+        }
+        item_components.push(
+          @c.row(
+            [@c.text((if is_selected { "> " } else { "  " }) + item, fg~)],
+            bg~,
+            width=@types.Dimension::Length(palette_width.to_double() - 4.0),
+          ),
+        )
+      } else {
+        // Empty slot to maintain fixed height
+        item_components.push(
+          @c.row(
+            [@c.text("", fg=@core.Color::rgb(20, 20, 30))],
+            bg=@core.Color::rgb(20, 20, 30),
+            width=@types.Dimension::Length(palette_width.to_double() - 4.0),
+          ),
+        )
+      }
+    }
+
+    // Input row
+    let input_row = @c.row(
+      [
+        @c.text(
+          "> " + palette_input.val,
+          fg=@core.Color::yellow(),
+          bold=true,
+        ),
+      ],
+      id="palette-input",
+      width=@types.Dimension::Length(palette_width.to_double() - 4.0),
+    )
+
+    // Palette box with fixed size
+    let separator = @c.text(
+      "─".repeat(palette_width - 4),
+      fg=@core.Color::rgb(80, 80, 80),
+    )
+    @c.column(
+      [input_row, separator] + item_components,
+      border=Some(@core.BorderChars::rounded()),
+      border_color=@core.Color::cyan(),
+      bg=@core.Color::rgb(20, 20, 30),
+      padding=1.0,
+      width=@types.Dimension::Length(palette_width.to_double()),
+      height=@types.Dimension::Length(palette_height.to_double()),
+    )
   }
 
   fn render_ui() -> @core.Component {
@@ -26,10 +218,35 @@ fn main {
     } else {
       @c.TextareaState::Idle
     }
+    // Debug: show palette input in header
+    let header_text = if palette_open.get() {
+      "Input[" +
+      palette_input.val.length().to_string() +
+      "]: " +
+      palette_input.val
+    } else {
+      "Editor Prototype"
+    }
     let header = @c.row(
-      [@c.text("Editor Prototype", fg=@core.Color::yellow(), bold=true)],
+      [@c.text(header_text, fg=@core.Color::yellow(), bold=true)],
       justify=@types.Alignment::Center,
     )
+    let last_cmd_row = if last_command.val.length() > 0 {
+      @c.row(
+        [
+          @c.text(
+            "Last: " + last_command.val,
+            fg=@core.Color::rgb(100, 180, 100),
+          ),
+        ],
+        justify=@types.Alignment::Center,
+      )
+    } else {
+      @c.row(
+        [@c.text("Ctrl+P: Command Palette", fg=@core.Color::rgb(80, 80, 80))],
+        justify=@types.Alignment::Center,
+      )
+    }
     let editor_box = @c.multiline_input(
       value,
       id="editor-box",
@@ -42,25 +259,71 @@ fn main {
       fg~,
     )
     let footer_text = if editing.get() {
-      "Editing: Shift+Enter newline | Enter confirm | Esc cancel"
+      "Tab: complete | Shift+Enter: newline | Enter: confirm | Esc: cancel"
     } else {
-      "Enter: edit | q: quit | Ctrl+C: quit"
+      "Enter: edit | q: quit | p/Ctrl+P: palette"
     }
     let footer = @c.row(
       [@c.text(footer_text, fg=@core.Color::rgb(120, 120, 120))],
       justify=@types.Alignment::Center,
     )
-    @c.column(
-      [header, editor_box, footer],
+    let base_ui = @c.column(
+      [header, last_cmd_row, editor_box, footer],
       width=@types.Dimension::Length(width.val.to_double()),
       height=@types.Dimension::Length(height.val.to_double()),
       justify=@types.Alignment::Start,
       align=@types.Alignment::Start,
     )
+
+    // If palette is open, overlay at center-top (Spotlight-like)
+    if palette_open.get() {
+      @core.box(
+        [
+          base_ui,
+          // Overlay fills screen, palette positioned at top-center
+          @core.box(
+            [render_palette()],
+            position=@types.Position::Absolute,
+            inset_top=@c.dim_length(3.0), // 3 lines from top
+            inset_left=@c.dim_length(0.0),
+            inset_right=@c.dim_length(0.0),
+            inset_bottom=@c.dim_length(0.0), // Required for align_items to work
+            justify_content=@types.Alignment::Center, // horizontal center
+            align_items=@types.Alignment::Start, // top align
+          ),
+        ],
+        width=@c.dim_length(width.val.to_double()),
+        height=@c.dim_length(height.val.to_double()),
+      )
+    } else {
+      base_ui
+    }
   }
 
   fn do_render() -> Unit {
     @io.print_raw(app.val.render_frame(render_ui()))
+    // Position cursor for IME when palette is open
+    if palette_open.get() {
+      // Use find_by_id to get actual rendered position
+      match app.val.find_by_id("palette-input") {
+        Some(bounds) => {
+          // bounds.x/y are 0-indexed, ANSI is 1-indexed
+          // Position cursor at the end of the input text
+          let input_display_width = @core.string_display_width(palette_input.val)
+          let cursor_row = bounds.y + 1
+          let cursor_col = bounds.x + 1 + 2 + input_display_width // +2 for "> "
+          @io.print_raw(
+            "\u001b[" +
+            cursor_row.to_string() +
+            ";" +
+            cursor_col.to_string() +
+            "H",
+          )
+          @io.print_raw(@render.ansi_show_cursor())
+        }
+        None => ()
+      }
+    }
   }
 
   fn do_quit() -> Unit {
@@ -77,6 +340,40 @@ fn main {
     app.val = @render.App::new(new_width, new_height)
     @io.print_raw(@render.ansi_clear_screen())
     do_render()
+  }
+
+  fn open_palette() -> Unit {
+    palette_open.set(true)
+    palette_input.val = ""
+    completion_manager.get_engine().clear()
+    completion_manager.request("")
+    do_render()
+  }
+
+  fn close_palette() -> Unit {
+    palette_open.set(false)
+    palette_input.val = ""
+    completion_manager.get_engine().clear()
+    do_render()
+  }
+
+  fn execute_palette_command() -> Unit {
+    let engine = completion_manager.get_engine()
+    match engine.get_selected_item() {
+      Some(name) => {
+        last_command.val = name
+        // Insert command name into text
+        let current = text_value.get()
+        let new_text = if current.length() > 0 {
+          current + "\n" + name
+        } else {
+          name
+        }
+        text_value.set(new_text)
+        close_palette()
+      }
+      None => ()
+    }
   }
 
   letrec restore_tui: () -> Unit = fn() {
@@ -108,6 +405,7 @@ fn main {
           bounds,
           true,
           restore_tui,
+          on_completion=Some(find_completion),
         )
       }
       None => {
@@ -120,12 +418,92 @@ fn main {
     if key.length() == 0 {
       return
     }
+
+    // Check for pending completion
+    if completion_manager.check_pending() {
+      do_render()
+    }
+
     let event = @events.parse_input(key)
+
+    // Handle palette mode
+    if palette_open.get() {
+      if @events.is_ctrl(event, 'c') {
+        close_palette()
+        do_quit()
+        return
+      }
+      let engine = completion_manager.get_engine()
+      // Check for special keys first
+      match event {
+        @events.InputEvent::Key(key_event) =>
+          match key_event {
+            @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
+              close_palette()
+              return
+            }
+            @events.KeyEvent::Special(@events.SpecialKey::Enter, _) => {
+              execute_palette_command()
+              return
+            }
+            @events.KeyEvent::Special(@events.SpecialKey::Up, _) => {
+              engine.select_prev()
+              do_render()
+              return
+            }
+            @events.KeyEvent::Special(@events.SpecialKey::Down, _) => {
+              engine.select_next()
+              do_render()
+              return
+            }
+            @events.KeyEvent::Special(@events.SpecialKey::Backspace, _) => {
+              if palette_input.val.length() > 0 {
+                let chars : Array[Char] = palette_input.val.iter().collect()
+                let new_len = chars.length() - 1
+                let buf = StringBuilder::new()
+                for i = 0; i < new_len; i = i + 1 {
+                  buf.write_char(chars[i])
+                }
+                palette_input.val = buf.to_string()
+                completion_manager.request(palette_input.val)
+              }
+              do_render()
+              return
+            }
+            _ => ()
+          }
+        _ => ()
+      }
+      // Handle printable input (including multi-character IME input)
+      // If not an escape sequence, add all characters to input
+      if key.length() > 0 && key[0].to_int() != 0x1b {
+        // Check if it's a control character (< 0x20) or single printable
+        let first_code = key[0].to_int()
+        if first_code >= 0x20 {
+          // Printable character(s) - add entire string (handles IME)
+          palette_input.val = palette_input.val + key
+          completion_manager.request(palette_input.val)
+          do_render()
+        }
+      }
+      return
+    }
+
+    // Normal mode
+    if @events.is_ctrl(event, 'c') {
+      do_quit()
+      return
+    }
+    if @events.is_ctrl(event, 'p') {
+      open_palette()
+      return
+    }
     match event {
       @events.InputEvent::Key(key_event) =>
         match key_event {
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => do_quit()
           @events.KeyEvent::Char('q', @events.KeyModifier::None) => do_quit()
+          @events.KeyEvent::Char('p', @events.KeyModifier::None) =>
+            open_palette()
           @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
             start_editing()
           @events.KeyEvent::Char('e', @events.KeyModifier::None) =>
@@ -135,6 +513,13 @@ fn main {
       _ => ()
     }
   }
+
+  // Set idle handler for async completion
+  @io.set_idle_handler(fn() {
+    if palette_open.get() && completion_manager.check_pending() {
+      do_render()
+    }
+  })
 
   @io.print_raw(@render.App::init_terminal())
   do_render()

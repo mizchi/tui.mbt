@@ -210,11 +210,18 @@ pub fn buffer_to_ansi(buf : CharBuffer) -> String {
   let mut last_underline = false
   for row = 0; row < buf.height; row = row + 1 {
     sb.write_string(ansi_move_to(row, 0))
+    let mut expected_col = 0
     for col = 0; col < buf.width; col = col + 1 {
       let cell = buf.get_cell(col, row)
       if cell.char == '\u0000' {
+        // Skip wide char placeholder, but track that cursor should not advance
         continue
       }
+      // If cursor position doesn't match expected, reposition
+      if col != expected_col {
+        sb.write_string(ansi_move_to(row, col))
+      }
+      expected_col = col + @core.char_display_width(cell.char)
       let fg_idx = if cell.fg.is_transparent() {
         7
       } else {
@@ -275,11 +282,17 @@ pub fn buffer_to_ansi_offset(
   let mut last_underline = false
   for row = 0; row < buf.height; row = row + 1 {
     sb.write_string(ansi_move_to(row + row_offset, col_offset))
+    let mut expected_col = 0
     for col = 0; col < buf.width; col = col + 1 {
       let cell = buf.get_cell(col, row)
       if cell.char == '\u0000' {
         continue
       }
+      // If cursor position doesn't match expected, reposition
+      if col != expected_col {
+        sb.write_string(ansi_move_to(row + row_offset, col + col_offset))
+      }
+      expected_col = col + @core.char_display_width(cell.char)
       let fg_idx = if cell.fg.is_transparent() {
         7
       } else {
@@ -331,7 +344,7 @@ pub fn buffer_to_ansi_offset(
 pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
   let sb = StringBuilder::new()
   let mut last_row = -1
-  let mut last_col = -1
+  let mut expected_col = -1 // Track expected cursor position (considering char width)
   let mut last_fg = -1
   let mut last_bg = -1
   let mut last_bold = false
@@ -343,15 +356,12 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
       if cell == prev_cell {
         continue
       }
-      let mut ch = cell.char
+      let ch = cell.char
+      // Skip wide char placeholder - the wide character before it already covers this column
       if ch == '\u0000' {
-        if prev_cell.char == '\u0000' {
-          continue
-        }
-        // Clear placeholder cell from wide chars
-        ch = ' '
+        continue
       }
-      if row != last_row || col != last_col + 1 {
+      if row != last_row || col != expected_col {
         sb.write_string(ansi_move_to(row, col))
       }
       let fg_idx = if cell.fg.is_transparent() {
@@ -395,7 +405,8 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
       }
       sb.write_char(ch)
       last_row = row
-      last_col = col
+      // Wide characters advance cursor by 2, narrow by 1
+      expected_col = col + @core.char_display_width(ch)
     }
   }
   sb.write_string(ansi_reset())
@@ -412,7 +423,7 @@ pub fn buffer_diff_to_ansi_offset(
 ) -> String {
   let sb = StringBuilder::new()
   let mut last_row = -1
-  let mut last_col = -1
+  let mut expected_col = -1 // Track expected cursor position (considering char width)
   let mut last_fg = -1
   let mut last_bg = -1
   let mut last_bold = false
@@ -424,16 +435,14 @@ pub fn buffer_diff_to_ansi_offset(
       if cell == prev_cell {
         continue
       }
-      let mut ch = cell.char
+      let ch = cell.char
+      // Skip wide char placeholder - the wide character before it already covers this column
       if ch == '\u0000' {
-        if prev_cell.char == '\u0000' {
-          continue
-        }
-        ch = ' '
+        continue
       }
       let out_row = row + row_offset
       let out_col = col + col_offset
-      if out_row != last_row || out_col != last_col + 1 {
+      if out_row != last_row || out_col != expected_col {
         sb.write_string(ansi_move_to(out_row, out_col))
       }
       let fg_idx = if cell.fg.is_transparent() {
@@ -477,7 +486,8 @@ pub fn buffer_diff_to_ansi_offset(
       }
       sb.write_char(ch)
       last_row = out_row
-      last_col = out_col
+      // Wide characters advance cursor by 2, narrow by 1
+      expected_col = out_col + @core.char_display_width(ch)
     }
   }
   sb.write_string(ansi_reset())

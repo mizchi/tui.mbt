@@ -1,11 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/editor"
+package "mizchi/tui/examples/command-launcher"
 
 // Values
 
 // Errors
 
 // Types and methods
+type AppState
+
 type Command
 
 // Type aliases

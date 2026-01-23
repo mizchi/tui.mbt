@@ -1,0 +1,82 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/completion"
+
+import {
+  "mizchi/signals",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct AsyncCompletionManager {
+  engine : CompletionEngine
+  pending : @signals.Signal[PendingRequest?]
+  delay_ms : Int
+  filter_fn : (String) -> Array[String]
+  time_fn : () -> Int
+}
+pub fn AsyncCompletionManager::check_pending(Self) -> Bool
+pub fn AsyncCompletionManager::clear_pending(Self) -> Unit
+pub fn AsyncCompletionManager::get_engine(Self) -> CompletionEngine
+pub fn AsyncCompletionManager::get_pending(Self) -> PendingRequest?
+pub fn AsyncCompletionManager::has_pending(Self) -> Bool
+pub fn AsyncCompletionManager::new(Int, (String) -> Array[String], () -> Int) -> Self
+pub fn AsyncCompletionManager::request(Self, String) -> Unit
+
+pub(all) struct CompletionEngine {
+  input : @signals.Signal[String]
+  request_version : @signals.Signal[Int]
+  items : @signals.Signal[Array[String]]
+  loading : @signals.Signal[Bool]
+  selected_idx : @signals.Signal[Int]
+  visible : @signals.Signal[Bool]
+}
+pub fn CompletionEngine::apply_result(Self, CompletionResult) -> Bool
+pub fn CompletionEngine::clear(Self) -> Unit
+pub fn CompletionEngine::get_input(Self) -> String
+pub fn CompletionEngine::get_items(Self) -> Array[String]
+pub fn CompletionEngine::get_selected_idx(Self) -> Int
+pub fn CompletionEngine::get_selected_item(Self) -> String?
+pub fn CompletionEngine::get_version(Self) -> Int
+pub fn CompletionEngine::hide(Self) -> Unit
+pub fn CompletionEngine::is_loading(Self) -> Bool
+pub fn CompletionEngine::is_visible(Self) -> Bool
+pub fn CompletionEngine::new() -> Self
+pub fn CompletionEngine::select_next(Self) -> Unit
+pub fn CompletionEngine::select_prev(Self) -> Unit
+pub fn CompletionEngine::set_input(Self, String) -> Int
+pub fn CompletionEngine::set_loading(Self, Bool) -> Unit
+pub fn CompletionEngine::set_selected_idx(Self, Int) -> Unit
+
+pub(all) struct CompletionResult {
+  items : Array[String]
+  request_version : Int
+}
+
+pub(all) struct PendingRequest {
+  version : Int
+  target_time : Int
+  query : String
+}
+
+pub(all) struct WordInputState {
+  confirmed : @signals.Signal[String]
+  current : @signals.Signal[String]
+}
+pub fn WordInputState::append_char(Self, Char) -> Unit
+pub fn WordInputState::clear(Self) -> Unit
+pub fn WordInputState::confirm_word(Self, String, String) -> Unit
+pub fn WordInputState::delete_char(Self) -> Bool
+pub fn WordInputState::get_confirmed(Self) -> String
+pub fn WordInputState::get_current(Self) -> String
+pub fn WordInputState::get_full_text(Self) -> String
+pub fn WordInputState::new() -> Self
+pub fn WordInputState::restore_previous_word(Self) -> Bool
+pub fn WordInputState::set_current(Self, String) -> Unit
+
+// Type aliases
+
+// Traits
+

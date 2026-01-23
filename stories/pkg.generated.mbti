@@ -44,6 +44,8 @@ pub fn menu_stories() -> Array[Story]
 
 pub fn meter_stories() -> Array[Story]
 
+pub fn modal_stories() -> Array[Story]
+
 pub fn panel_stories() -> Array[Story]
 
 pub fn progress_stories() -> Array[Story]

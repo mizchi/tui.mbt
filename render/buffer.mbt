@@ -54,6 +54,8 @@ pub fn CharBuffer::fill_rect(
 }
 
 ///|
+/// Fill background color and overwrite content with spaces
+/// This allows overlays to properly cover underlying content
 pub fn CharBuffer::fill_bg(
   self : CharBuffer,
   x : Int,
@@ -66,7 +68,14 @@ pub fn CharBuffer::fill_bg(
     for col = x; col < x + w; col = col + 1 {
       if col >= 0 && col < self.width && row >= 0 && row < self.height {
         let existing = self.get_cell(col, row)
-        self.set_cell(col, row, { ..existing, bg, })
+        // Preserve wide char placeholders (NUL) to avoid breaking CJK rendering
+        if existing.char == '\u0000' {
+          // Only update background, keep the placeholder
+          self.set_cell(col, row, { ..existing, bg })
+        } else {
+          // Overwrite cell completely with space to cover underlying content
+          self.set_cell(col, row, { ..CharCell::default(), char: ' ', bg })
+        }
       }
     }
   }

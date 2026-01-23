@@ -46,7 +46,10 @@ pub fn CompletionEngine::new() -> CompletionEngine {
 
 ///|
 /// Update input and increment request version
-pub fn CompletionEngine::set_input(self : CompletionEngine, input : String) -> Int {
+pub fn CompletionEngine::set_input(
+  self : CompletionEngine,
+  input : String,
+) -> Int {
   self.input.set(input)
   let new_version = self.request_version.get() + 1
   self.request_version.set(new_version)
@@ -68,7 +71,10 @@ pub fn CompletionEngine::get_input(self : CompletionEngine) -> String {
 
 ///|
 /// Set loading state
-pub fn CompletionEngine::set_loading(self : CompletionEngine, loading : Bool) -> Unit {
+pub fn CompletionEngine::set_loading(
+  self : CompletionEngine,
+  loading : Bool,
+) -> Unit {
   self.loading.set(loading)
 }
 
@@ -225,16 +231,18 @@ pub fn AsyncCompletionManager::request(
   input : String,
 ) -> Unit {
   let version = self.engine.set_input(input)
-
   if input.length() == 0 {
     self.engine.clear()
     self.pending.set(None)
     return
   }
-
   let now = (self.time_fn)()
   self.pending.set(
-    Some(PendingRequest::{ version, target_time: now + self.delay_ms, query: input }),
+    Some(PendingRequest::{
+      version,
+      target_time: now + self.delay_ms,
+      query: input,
+    }),
   )
   self.engine.set_loading(true)
 }
@@ -334,7 +342,10 @@ pub fn WordInputState::get_full_text(self : WordInputState) -> String {
 
 ///|
 /// Set current word
-pub fn WordInputState::set_current(self : WordInputState, word : String) -> Unit {
+pub fn WordInputState::set_current(
+  self : WordInputState,
+  word : String,
+) -> Unit {
   self.current.set(word)
 }
 
@@ -382,7 +393,6 @@ pub fn WordInputState::restore_previous_word(self : WordInputState) -> Bool {
   if confirmed.length() == 0 {
     return false
   }
-
   let chars : Array[Char] = confirmed.iter().collect()
   let mut last_space = -1
   for i = 0; i < chars.length() - 1; i = i + 1 {
@@ -390,7 +400,6 @@ pub fn WordInputState::restore_previous_word(self : WordInputState) -> Bool {
       last_space = i
     }
   }
-
   if last_space >= 0 {
     let new_confirmed : Array[Char] = []
     for i = 0; i <= last_space; i = i + 1 {

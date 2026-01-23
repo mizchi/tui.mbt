@@ -5,4 +5,5 @@ import {
   "mizchi/signals",
   "mizchi/tui/core",
   "mizchi/tui/events",
+  "moonbitlang/core/bench",
 }

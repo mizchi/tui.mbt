@@ -70,6 +70,12 @@ pub fn box(
   margin? : Double = 0.0,
   margin_x? : Double = 0.0,
   margin_y? : Double = 0.0,
+  // Position (for overlay support)
+  position? : @types.Position = @types.Position::Static,
+  inset_top? : @types.Dimension = @types.Dimension::Auto,
+  inset_right? : @types.Dimension = @types.Dimension::Auto,
+  inset_bottom? : @types.Dimension = @types.Dimension::Auto,
+  inset_left? : @types.Dimension = @types.Dimension::Auto,
   // Style
   border? : BorderChars? = None,
   border_color? : Color = Color::white(),
@@ -133,6 +139,9 @@ pub fn box(
       @types.Dimension::Length(1.0),
     )
   }
+  // Position and inset for overlay support
+  style.position = position
+  style.inset = @types.Rect::new(inset_top, inset_right, inset_bottom, inset_left)
 
   // Build node
   let child_nodes = children.map(fn(c) { c.node })

@@ -28,6 +28,8 @@ pub fn get_env(String) -> String
 
 pub fn get_terminal_size() -> (Int, Int)
 
+pub fn get_time_ms() -> Int
+
 pub fn is_headless() -> Bool
 
 pub fn is_raw_mode() -> Bool
@@ -42,13 +44,15 @@ pub fn print_raw(String) -> Unit
 
 pub async fn read_key() -> String
 
+pub fn set_idle_handler(() -> Unit) -> Unit
+
 pub async fn sleep(Int) -> Unit
 
 pub fn start_inline_input(String, String, Int, Int, Int, Int, (InputResult) -> Unit) -> Unit
 
 pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?) -> Unit
+pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
 pub async fn start_input_session(Int, Int, String) -> InputResult
 

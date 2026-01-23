@@ -4,11 +4,10 @@
 
 // Completion candidates
 let candidates : Array[String] = [
-  "apple", "apricot", "avocado", "banana", "blueberry", "blackberry", "cherry",
-  "coconut", "cranberry", "date", "elderberry", "fig", "grape", "grapefruit",
-  "guava", "kiwi", "lemon", "lime", "mango", "melon", "nectarine", "orange",
-  "papaya", "peach", "pear", "pineapple", "plum", "pomegranate", "raspberry",
-  "strawberry", "tangerine", "watermelon",
+  "apple", "apricot", "avocado", "banana", "blueberry", "blackberry", "cherry", "coconut",
+  "cranberry", "date", "elderberry", "fig", "grape", "grapefruit", "guava", "kiwi",
+  "lemon", "lime", "mango", "melon", "nectarine", "orange", "papaya", "peach", "pear",
+  "pineapple", "plum", "pomegranate", "raspberry", "strawberry", "tangerine", "watermelon",
 ]
 
 ///|
@@ -38,9 +37,7 @@ struct DemoState {
 fn DemoState::new(start_row : Int, start_col : Int) -> DemoState {
   {
     manager: @comp.AsyncCompletionManager::new(
-      100,
-      filter_candidates,
-      @io.get_time_ms,
+      100, filter_candidates, @io.get_time_ms,
     ),
     input: @comp.WordInputState::new(),
     running: @signals.signal(true),
@@ -132,7 +129,10 @@ fn clear_to_end() -> String {
 // UI Constants
 // =============================================================================
 
+///|
 let max_popup_items : Int = 5
+
+///|
 let popup_width : Int = 20
 
 ///|
@@ -157,7 +157,6 @@ fn render_input(state : DemoState) -> Unit {
   let selected = engine.get_selected_idx()
   let visible = engine.is_visible()
   let loading = engine.is_loading()
-
   pr(move_to(state.cursor_row, state.cursor_col))
   pr(clear_to_end())
 
@@ -177,7 +176,6 @@ fn render_input(state : DemoState) -> Unit {
       pr(dim() + suffix + reset())
     }
   }
-
   let full_len = confirmed.length() + current.length()
   pr(move_to(state.cursor_row, state.cursor_col + full_len))
 }
@@ -192,7 +190,6 @@ fn render_popup(state : DemoState) -> Unit {
   let confirmed = state.input.get_confirmed()
   let loading = engine.is_loading()
   let current = state.input.get_current()
-
   let popup_row = state.cursor_row + 1
   let popup_col = state.cursor_col + confirmed.length()
 
@@ -208,21 +205,17 @@ fn render_popup(state : DemoState) -> Unit {
     pr(bg_dark() + yellow() + pad_right(" Loading...", popup_width) + reset())
     return
   }
-
   if not(visible) || items.length() == 0 {
     return
   }
-
   let item_count = if items.length() > max_popup_items {
     max_popup_items
   } else {
     items.length()
   }
-
   for i = 0; i < item_count; i = i + 1 {
     pr(move_to(popup_row + i, popup_col))
     let item = items[i]
-
     if i == selected {
       pr(bg_highlight() + bold() + cyan() + query + reset() + bg_highlight())
       if item.length() > query.length() {
@@ -243,7 +236,6 @@ fn render_popup(state : DemoState) -> Unit {
       pr(reset())
     }
   }
-
   if items.length() > max_popup_items {
     pr(move_to(popup_row + item_count, popup_col))
     let more_text = "..." +
@@ -327,10 +319,8 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   if state.manager.check_pending() {
     render_all(state)
   }
-
   let event = @events.parse_input(key)
   let engine = state.manager.get_engine()
-
   if @events.is_ctrl_c(event) {
     @io.stop_keypress_listener()
     pr(show_cursor())
@@ -344,7 +334,6 @@ fn handle_key(key : String, state : DemoState) -> Unit {
     state.running.set(false)
     return
   }
-
   if @events.is_escape(event) {
     if engine.is_visible() {
       engine.hide()
@@ -392,7 +381,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
 
   // Character input
   match event {
-    @events.InputEvent::Key(@events.KeyEvent::Char(c, _)) => {
+    @events.InputEvent::Key(@events.KeyEvent::Char(c, _)) =>
       if c == ' ' {
         if state.input.get_current().length() > 0 {
           confirm_word(state, " ")
@@ -406,9 +395,8 @@ fn handle_key(key : String, state : DemoState) -> Unit {
         state.manager.request(state.input.get_current())
         render_all(state)
       }
-    }
     @events.InputEvent::Key(
-      @events.KeyEvent::Special(@events.SpecialKey::Backspace, _),
+      @events.KeyEvent::Special(@events.SpecialKey::Backspace, _)
     ) => {
       if not(state.input.delete_char()) {
         // Current was empty, try to restore previous word
@@ -438,18 +426,18 @@ fn handle_key(key : String, state : DemoState) -> Unit {
 fn main {
   let start_row = 3
   let start_col = 3
-
   let state = DemoState::new(start_row, start_col)
-
   pr(enter_alt_screen())
   pr(hide_cursor())
-
   pr("\u001b[2J")
   pr(move_to(1, start_col))
   pr(bold() + cyan() + "◆ Async Completion Demo" + reset())
   pr(move_to(2, start_col))
-  pr(dim() + "Type to search fruits - completion appears after 100ms delay" + reset())
-
+  pr(
+    dim() +
+    "Type to search fruits - completion appears after 100ms delay" +
+    reset(),
+  )
   render_all(state)
 
   // Set idle handler for async completion checks
@@ -458,6 +446,5 @@ fn main {
       render_all(state)
     }
   })
-
   @io.start_keypress_listener(fn(key) { handle_key(key, state) })
 }

@@ -200,3 +200,13 @@ test "parse_input: unknown sequences" {
     _ => fail("Expected Unknown event")
   }
 }
+
+///|
+test "parse_input: Ctrl+P" {
+  // Ctrl+P (byte 16)
+  let event = @events.parse_input("\u0010")
+  inspect(event, content="Key(Char('p', Ctrl))")
+  // Verify is_ctrl helper
+  assert_true(@events.is_ctrl(event, 'p'))
+  assert_false(@events.is_ctrl(event, 'c'))
+}

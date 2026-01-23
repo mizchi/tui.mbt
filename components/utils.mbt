@@ -87,12 +87,14 @@ pub fn padded(
 }
 
 ///|
-/// Center content
+/// Center content within available space
+/// Uses flex_grow=1.0 to fill parent container
 pub fn center(children : Array[@core.Component]) -> @core.Component {
   @core.box(
     children,
     justify_content=@types.Alignment::Center,
     align_items=@types.Alignment::Center,
+    flex_grow=1.0,
   )
 }
 

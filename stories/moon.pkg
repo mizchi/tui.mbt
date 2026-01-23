@@ -3,4 +3,6 @@ import {
   "mizchi/tui/components",
   "mizchi/tui/render",
   "mizchi/tui/testing",
+  "mizchi/crater",
+  "mizchi/crater/types",
 }

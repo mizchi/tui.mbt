@@ -30,6 +30,8 @@ pub fn align_start() -> @types.Alignment
 
 pub fn align_stretch() -> @types.Alignment
 
+pub fn align_text(String, Int, align? : TextAlign) -> String
+
 pub fn ansi_move_to(Int, Int) -> String
 
 pub fn ansi_restore_cursor() -> String
@@ -228,9 +230,9 @@ pub fn splitter_handle(SplitterOrientation, focused? : Bool, id? : String, fg? :
 
 pub fn start_edit(EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?) -> Unit
+pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
-pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?) -> Unit
+pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
 pub fn stat(String, String, label_width? : Int, theme? : Theme) -> @core.Component
 
@@ -263,6 +265,8 @@ pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state?
 pub fn title_bar(String, fg? : @core.Color) -> @core.Component
 
 pub fn titled_box(String, Array[@core.Component], width? : Int, border? : @core.BorderChars, border_color? : @core.Color, title_color? : @core.Color, theme? : Theme) -> @core.Component
+
+pub fn truncate_text(String, Int) -> String
 
 pub fn vdivider(char? : Char, fg? : @core.Color) -> @core.Component
 
@@ -680,6 +684,12 @@ pub(all) struct TableColumn {
   align : ColumnAlign
 }
 pub fn TableColumn::new(String, width? : Int, align? : ColumnAlign) -> Self
+
+pub(all) enum TextAlign {
+  Left
+  Right
+  Center
+}
 
 pub(all) struct TextBuffer {
   lines : Array[String]

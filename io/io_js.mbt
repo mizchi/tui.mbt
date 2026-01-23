@@ -1357,9 +1357,11 @@ pub fn start_inplace_input(
   confirm_on_shift_enter? : Bool = false,
   esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
 ) -> Unit {
-  // Note: on_lines_change is currently ignored in JS version (uses scroll)
+  // Note: on_lines_change and on_completion are currently ignored in JS version
   let _ = on_lines_change
+  let _ = on_completion
   js_start_inplace_input(
     row,
     col,

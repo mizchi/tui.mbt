@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/editor"
+package "mizchi/tui/examples/completion"
 
 // Values
 
 // Errors
 
 // Types and methods
-type Command
+type DemoState
 
 // Type aliases
 

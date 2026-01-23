@@ -142,13 +142,7 @@ fn render_completed(prompt : Prompt, result : PromptResult) -> Unit {
         cyan() +
         result.values
         .iter()
-        .fold(init="", fn(acc, v) {
-          if acc == "" {
-            v
-          } else {
-            acc + ", " + v
-          }
-        }) +
+        .fold(init="", fn(acc, v) { if acc == "" { v } else { acc + ", " + v } }) +
         reset()
       }
     PromptType::Confirm =>
@@ -164,10 +158,7 @@ fn render_completed(prompt : Prompt, result : PromptResult) -> Unit {
 
 ///|
 /// Render current active prompt
-fn render_active_prompt(
-  prompt : Prompt,
-  state : WizardState,
-) -> Unit {
+fn render_active_prompt(prompt : Prompt, state : WizardState) -> Unit {
   let arrow = yellow() + "?" + reset()
   pr(arrow + " " + bold() + prompt.message + reset() + " ")
   match prompt.prompt_type {
@@ -296,13 +287,7 @@ fn show_summary(state : WizardState) -> Unit {
     let val = if r.values.length() > 0 {
       r.values
       .iter()
-      .fold(init="", fn(acc, v) {
-        if acc == "" {
-          v
-        } else {
-          acc + ", " + v
-        }
-      })
+      .fold(init="", fn(acc, v) { if acc == "" { v } else { acc + ", " + v } })
     } else {
       r.value
     }
@@ -321,10 +306,8 @@ fn submit_answer(state : WizardState) -> Unit {
   let prompt = state.prompts[idx]
   let result = create_result(prompt, state)
   state.results[prompt.key] = result
-
   clear_active_prompt(prompt)
   render_completed(prompt, result)
-
   let next_idx = idx + 1
   if next_idx >= state.prompts.length() {
     show_summary(state)
@@ -333,12 +316,12 @@ fn submit_answer(state : WizardState) -> Unit {
     state.running.set(false)
     return
   }
-
   state.current_idx.set(next_idx)
   state.cursor_idx.set(0)
   state.input_buffer.set("")
   match state.prompts[next_idx].prompt_type {
-    PromptType::MultiSelect(options) => init_multiselect(state, options.length())
+    PromptType::MultiSelect(options) =>
+      init_multiselect(state, options.length())
     _ => state.selected_items.clear()
   }
   render_active_prompt(state.prompts[next_idx], state)
@@ -481,7 +464,6 @@ fn handle_key(key : String, state : WizardState) -> Unit {
     return
   }
   let prompt = state.prompts[idx]
-
   if @events.is_ctrl_c(event) {
     @io.stop_keypress_listener()
     pr(show_cursor())
@@ -489,7 +471,6 @@ fn handle_key(key : String, state : WizardState) -> Unit {
     state.running.set(false)
     return
   }
-
   if @events.is_enter(event) {
     pr(hide_cursor())
     submit_answer(state)
@@ -541,21 +522,16 @@ fn main {
       default_value: "yes",
     },
   ]
-
   let state = WizardState::new(prompts)
-
   pr(hide_cursor())
   prln("")
-
   prln(bold() + cyan() + "◆ Project Setup Wizard" + reset())
   prln("")
-
   match state.prompts[0].prompt_type {
-    PromptType::MultiSelect(options) => init_multiselect(state, options.length())
+    PromptType::MultiSelect(options) =>
+      init_multiselect(state, options.length())
     _ => ()
   }
-
   render_active_prompt(state.prompts[0], state)
-
   @io.start_keypress_listener(fn(key) { handle_key(key, state) })
 }

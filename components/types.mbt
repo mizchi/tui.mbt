@@ -13,8 +13,9 @@ pub fn dim_length(value : Double) -> @types.Dimension {
 
 ///|
 /// Create a percentage-based dimension (0.0 to 100.0)
+/// Converts user-friendly percentage (e.g., 100.0 = 100%) to crater's normalized form (1.0 = 100%)
 pub fn dim_percent(value : Double) -> @types.Dimension {
-  @types.Dimension::Percent(value)
+  @types.Dimension::Percent(value / 100.0)
 }
 
 ///|

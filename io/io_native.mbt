@@ -493,6 +493,8 @@ fn buf_to_string(buf : Array[Char]) -> String {
 ///|
 /// Start inplace input (native implementation with raw mode editing)
 /// Blocks until user confirms, cancels, or tabs
+/// on_completion: Optional callback (text, cursor_pos) -> completion_suffix
+///                If provided and returns Some, Tab inserts the completion
 pub fn start_inplace_input(
   row : Int,
   col : Int,
@@ -504,6 +506,7 @@ pub fn start_inplace_input(
   confirm_on_shift_enter? : Bool = false,
   esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
 ) -> Unit {
   // Ensure raw mode is enabled
   let was_raw = is_raw_mode()
@@ -672,9 +675,33 @@ pub fn start_inplace_input(
     } else if key.length() == 1 {
       let code = key[0].to_int()
       if code == 9 {
-        // Tab - confirm and go to next
-        done = true
-        result = InputResult::TabNext(buf_to_string(buf))
+        // Tab - try completion first, then confirm and go to next
+        let mut handled_by_completion = false
+        match on_completion {
+          Some(provider) => {
+            let text = buf_to_string(buf)
+            let completion_result = provider(text, cursor_pos)
+            match completion_result {
+              Some(suffix) => {
+                if suffix.length() > 0 {
+                  // Insert completion suffix at cursor
+                  for c in suffix {
+                    buf.insert(cursor_pos, c)
+                    cursor_pos = cursor_pos + 1
+                  }
+                  need_render = true
+                  handled_by_completion = true
+                }
+              }
+              None => ()
+            }
+          }
+          None => ()
+        }
+        if not(handled_by_completion) {
+          done = true
+          result = InputResult::TabNext(buf_to_string(buf))
+        }
       } else if code == 13 {
         if confirm_on_shift_enter && multiline {
           buf.insert(cursor_pos, '\n')

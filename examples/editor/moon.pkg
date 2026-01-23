@@ -4,6 +4,7 @@ import {
   "mizchi/tui/events" as @events,
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
+  "mizchi/tui/completion" as @comp,
   "mizchi/crater/types",
   "mizchi/signals",
 }

@@ -17,6 +17,7 @@ fn bounds_to_inplace_area(
 ///|
 /// Start editing within bounds (HitTestResult) with border adjustment.
 /// bounds.x/y are 0-indexed; row/col for ANSI are 1-indexed.
+/// on_completion: optional callback (text, cursor_pos) -> completion_suffix for Tab completion
 pub fn start_edit_inplace_in_bounds(
   config : EditConfig,
   current_value : String,
@@ -27,6 +28,7 @@ pub fn start_edit_inplace_in_bounds(
   esc_cancels? : Bool = true,
   border? : Int = 1,
   on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
 ) -> Unit {
   let (row, col, width, height) = bounds_to_inplace_area(bounds, border)
   start_edit_inplace(
@@ -41,5 +43,6 @@ pub fn start_edit_inplace_in_bounds(
     confirm_on_shift_enter~,
     esc_cancels~,
     on_lines_change~,
+    on_completion=on_completion,
   )
 }

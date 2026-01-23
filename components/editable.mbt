@@ -74,6 +74,7 @@ pub fn start_edit(
 /// confirm_on_shift_enter: if true, Shift+Enter confirms
 /// esc_cancels: if false, Esc is ignored
 /// on_lines_change: optional callback (line_count) -> new_height for dynamic resizing
+/// on_completion: optional callback (text, cursor_pos) -> completion_suffix for Tab completion
 pub fn start_edit_inplace(
   config : EditConfig,
   current_value : String,
@@ -86,6 +87,7 @@ pub fn start_edit_inplace(
   confirm_on_shift_enter? : Bool = false,
   esc_cancels? : Bool = true,
   on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
 ) -> Unit {
   // Call optional setup callback
   match config.on_edit_start {
@@ -127,6 +129,7 @@ pub fn start_edit_inplace(
     confirm_on_shift_enter~,
     esc_cancels~,
     on_lines_change~,
+    on_completion=on_completion,
   )
 }
 

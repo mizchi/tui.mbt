@@ -21,11 +21,31 @@ pub fn ansi_clear_line() -> String
 
 pub fn ansi_clear_screen() -> String
 
+pub fn ansi_dim() -> String
+
 pub fn ansi_enter_alt_screen() -> String
 
 pub fn ansi_fg_256(Int) -> String
 
+pub fn ansi_fg_black() -> String
+
+pub fn ansi_fg_blue() -> String
+
 pub fn ansi_fg_color(@core.Color) -> String
+
+pub fn ansi_fg_cyan() -> String
+
+pub fn ansi_fg_gray() -> String
+
+pub fn ansi_fg_green() -> String
+
+pub fn ansi_fg_magenta() -> String
+
+pub fn ansi_fg_red() -> String
+
+pub fn ansi_fg_white() -> String
+
+pub fn ansi_fg_yellow() -> String
 
 pub fn ansi_full_reset() -> String
 
@@ -33,7 +53,15 @@ pub fn ansi_hide_cursor() -> String
 
 pub fn ansi_leave_alt_screen() -> String
 
+pub fn ansi_move_down(n? : Int) -> String
+
+pub fn ansi_move_left(n? : Int) -> String
+
+pub fn ansi_move_right(n? : Int) -> String
+
 pub fn ansi_move_to(Int, Int) -> String
+
+pub fn ansi_move_up(n? : Int) -> String
 
 pub fn ansi_reset() -> String
 
