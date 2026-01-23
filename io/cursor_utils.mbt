@@ -2,31 +2,6 @@
 /// Cursor utilities for display width and line bounds
 
 ///|
-/// Display width (ASCII=1, CJK=2)
-fn char_display_width(c : Char) -> Int {
-  let code = c.to_int()
-  if code < 0x80 {
-    1
-  } else if code >= 0x1100 &&
-    (
-      code <= 0x115F ||
-      code == 0x2329 ||
-      code == 0x232A ||
-      (code >= 0x2E80 && code <= 0x9FFF) ||
-      (code >= 0xAC00 && code <= 0xD7A3) ||
-      (code >= 0xF900 && code <= 0xFAFF) ||
-      (code >= 0xFE10 && code <= 0xFE1F) ||
-      (code >= 0xFE30 && code <= 0xFE6F) ||
-      (code >= 0xFF00 && code <= 0xFF60) ||
-      (code >= 0xFFE0 && code <= 0xFFE6)
-    ) {
-    2
-  } else {
-    1
-  }
-}
-
-///|
 /// Get (start, end) indices of the current line (newline-delimited)
 pub fn cursor_line_bounds(chars : Array[Char], cursor : Int) -> (Int, Int) {
   let mut start = 0
@@ -62,7 +37,7 @@ pub fn cursor_col_offset(chars : Array[Char], cursor : Int) -> Int {
   let mut col = 0
   let mut i = start
   while i < cursor && i < chars.length() {
-    col = col + char_display_width(chars[i])
+    col = col + @input.char_width(chars[i])
     i = i + 1
   }
   col
@@ -90,7 +65,7 @@ pub fn cursor_position_wrapped(
       i = i + 1
       continue
     }
-    let w = char_display_width(c)
+    let w = @input.char_width(c)
     if col + w > width {
       line_idx = line_idx + 1
       col = 0

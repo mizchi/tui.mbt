@@ -1725,3 +1725,220 @@ pub fn is_headless() -> Bool {
   }
   false
 }
+
+// ===== TextInputController-based implementation =====
+
+///|
+/// Render display state with scroll support (shared with native)
+fn render_display_state(
+  state : @input.DisplayState,
+  start_row : Int,
+  start_col : Int,
+  max_width : Int,
+  max_height : Int,
+) -> Unit {
+  let mut output = ""
+  // Clear area
+  for r = 0; r < max_height; r = r + 1 {
+    output = output +
+      "\u001b[" +
+      (start_row + r).to_string() +
+      ";" +
+      start_col.to_string() +
+      "H"
+    for w = 0; w < max_width; w = w + 1 {
+      output = output + " "
+    }
+  }
+  // Draw visible lines
+  for i = 0; i < max_height; i = i + 1 {
+    let line_idx = state.scroll_offset + i
+    if line_idx >= state.lines.length() {
+      break
+    }
+    let line = state.lines[line_idx]
+    output = output +
+      "\u001b[" +
+      (start_row + i).to_string() +
+      ";" +
+      start_col.to_string() +
+      "H"
+    // Show ellipsis for overflow
+    if i == 0 && state.has_more_above {
+      output = output + "…"
+      let mut w = 1
+      for c in line.chars {
+        let cw = @input.char_width_code(c.to_int())
+        if w + cw > max_width {
+          break
+        }
+        output = output + c.to_string()
+        w = w + cw
+      }
+    } else if i == max_height - 1 && state.has_more_below {
+      let mut w = 0
+      for c in line.chars {
+        let cw = @input.char_width_code(c.to_int())
+        if w + cw > max_width - 1 {
+          break
+        }
+        output = output + c.to_string()
+        w = w + cw
+      }
+      output = output + "…"
+    } else {
+      for c in line.chars {
+        output = output + c.to_string()
+      }
+    }
+  }
+  print_raw(output)
+}
+
+///|
+/// Setup raw input listener that calls onKey callback for each keystroke
+extern "js" fn js_setup_raw_input_listener(
+  on_key : (String) -> Unit,
+  on_cleanup : () -> Unit,
+) -> Unit =
+  #| async (onKey, onCleanup) => {
+  #|   const { stdin, stdout } = await import('node:process');
+  #|
+  #|   // Clean up existing handlers
+  #|   if (stdin.__rawInputHandler) {
+  #|     stdin.removeListener('data', stdin.__rawInputHandler);
+  #|     stdin.__rawInputHandler = null;
+  #|   }
+  #|
+  #|   if (stdin.isTTY) {
+  #|     stdin.setRawMode(true);
+  #|   }
+  #|   stdin.resume();
+  #|   stdin.setEncoding('utf8');
+  #|
+  #|   const handler = (data) => {
+  #|     onKey(data);
+  #|   };
+  #|
+  #|   stdin.__rawInputHandler = handler;
+  #|   stdin.__rawInputCleanup = onCleanup;
+  #|   stdin.on('data', handler);
+  #| }
+
+///|
+/// Cleanup raw input listener
+extern "js" fn js_cleanup_raw_input_listener() =
+  #| async () => {
+  #|   const { stdin } = await import('node:process');
+  #|
+  #|   if (stdin.__rawInputHandler) {
+  #|     stdin.removeListener('data', stdin.__rawInputHandler);
+  #|     stdin.__rawInputHandler = null;
+  #|   }
+  #|   if (stdin.__rawInputCleanup) {
+  #|     stdin.__rawInputCleanup();
+  #|     stdin.__rawInputCleanup = null;
+  #|   }
+  #|   if (stdin.isTTY) {
+  #|     stdin.setRawMode(false);
+  #|   }
+  #| }
+
+///|
+/// Start inplace input using TextInputController (new implementation)
+/// This uses MoonBit-side logic for editing, JS only handles I/O
+pub fn start_inplace_input_controller(
+  row : Int,
+  col : Int,
+  width : Int,
+  height : Int,
+  multiline : Bool,
+  initial : String,
+  on_result : (InputResult) -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
+) -> Unit {
+  // Create controller
+  let config = @input.TextInputConfig::new(
+    width,
+    height,
+    multiline~,
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
+  let controller = @input.TextInputController::new(config, initial)
+
+  // Helper to render
+  fn do_render() {
+    let state = controller.get_display_state()
+    render_display_state(state, row, col, width, height)
+    // Position cursor
+    let display_row = row + state.cursor_line - state.scroll_offset
+    let display_col = col + state.cursor_col
+    print_raw(
+      "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
+    )
+    print_raw(@render.ansi_show_cursor())
+  }
+
+  // Initial render
+  do_render()
+
+  // Track if done
+  let done = Ref::new(false)
+
+  // Key handler
+  let handle_key : (String) -> Unit = fn(key) {
+    if done.val {
+      return
+    }
+
+    // Parse input and extract KeyEvent
+    let input_event = @events.parse_input(key)
+    let action = match input_event {
+      @events.InputEvent::Key(key_event) =>
+        @input.interpret_key(key_event, config)
+      _ => @input.EditAction::None
+    }
+    match action {
+      @input.EditAction::Confirm => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::Confirmed(controller.get_text()))
+      }
+      @input.EditAction::Cancel => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::Cancelled)
+      }
+      @input.EditAction::ForceQuit => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::ForceQuit)
+      }
+      @input.EditAction::Tab => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::TabNext(controller.get_text()))
+      }
+      @input.EditAction::BackTab => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::TabPrev(controller.get_text()))
+      }
+      @input.EditAction::None => ()
+      _ => {
+        let _ = controller.apply_action(action)
+        do_render()
+      }
+    }
+  }
+
+  // Cleanup handler
+  let cleanup_handler : () -> Unit = fn() {
+    print_raw(@render.ansi_show_cursor())
+  }
+
+  // Setup listener
+  js_setup_raw_input_listener(handle_key, cleanup_handler)
+}

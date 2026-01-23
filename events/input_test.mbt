@@ -210,3 +210,212 @@ test "parse_input: Ctrl+P" {
   assert_true(@events.is_ctrl(event, 'p'))
   assert_false(@events.is_ctrl(event, 'c'))
 }
+
+///|
+test "parse_input: empty input returns Unknown" {
+  let event = @events.parse_input("")
+  match event {
+    @events.InputEvent::Unknown(s) => inspect(s, content="")
+    _ => fail("Expected Unknown event for empty input")
+  }
+}
+
+///|
+test "parse_input: Alt+key" {
+  // Alt+a (ESC followed by 'a')
+  let event = @events.parse_input("\u001ba")
+  inspect(event, content="Key(Char('a', Alt))")
+  // Alt+Z
+  let event2 = @events.parse_input("\u001bZ")
+  inspect(event2, content="Key(Char('Z', Alt))")
+}
+
+///|
+test "parse_input: Insert key" {
+  let event = @events.parse_input("\u001b[2~")
+  inspect(event, content="Key(Special(Insert, None))")
+}
+
+///|
+test "parse_input: F5-F12 keys" {
+  inspect(@events.parse_input("\u001b[15~"), content="Key(Special(F(5), None))")
+  inspect(@events.parse_input("\u001b[17~"), content="Key(Special(F(6), None))")
+  inspect(@events.parse_input("\u001b[18~"), content="Key(Special(F(7), None))")
+  inspect(@events.parse_input("\u001b[19~"), content="Key(Special(F(8), None))")
+  inspect(@events.parse_input("\u001b[20~"), content="Key(Special(F(9), None))")
+  inspect(
+    @events.parse_input("\u001b[21~"),
+    content="Key(Special(F(10), None))",
+  )
+  inspect(
+    @events.parse_input("\u001b[23~"),
+    content="Key(Special(F(11), None))",
+  )
+  inspect(
+    @events.parse_input("\u001b[24~"),
+    content="Key(Special(F(12), None))",
+  )
+}
+
+///|
+test "parse_input: short CSI sequence" {
+  // ESC[ alone (length 2)
+  let event = @events.parse_input("\u001b[")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown for incomplete CSI")
+  }
+}
+
+///|
+test "parse_input: mouse with shift modifier" {
+  // Shift+click (button code 4)
+  let event = @events.parse_input("\u001b[<4;10;20M")
+  match event {
+    @events.InputEvent::Mouse(mouse) => {
+      inspect(mouse.modifier, content="Shift")
+      inspect(mouse.event_type, content="Press")
+    }
+    _ => fail("Expected Mouse event")
+  }
+}
+
+///|
+test "parse_input: mouse with alt modifier" {
+  // Alt+click (button code 8)
+  let event = @events.parse_input("\u001b[<8;10;20M")
+  match event {
+    @events.InputEvent::Mouse(mouse) => inspect(mouse.modifier, content="Alt")
+    _ => fail("Expected Mouse event")
+  }
+}
+
+///|
+test "parse_input: mouse with ctrl modifier" {
+  // Ctrl+click (button code 16)
+  let event = @events.parse_input("\u001b[<16;10;20M")
+  match event {
+    @events.InputEvent::Mouse(mouse) => inspect(mouse.modifier, content="Ctrl")
+    _ => fail("Expected Mouse event")
+  }
+}
+
+///|
+test "parse_input: multi-character printable input (pasted text)" {
+  // Simulates pasted text - should return first character
+  let event = @events.parse_input("abc")
+  inspect(event, content="Key(Char('a', None))")
+}
+
+///|
+test "parse_input: urxvt mouse format (M final char)" {
+  // urxvt format: ESC [ button ; x ; y M
+  // This triggers the 'M' => parse_mouse_x10 path but returns Unknown
+  // because parse_mouse_x10 expects X10 6-byte format
+  let event = @events.parse_input("\u001b[0;10;20M")
+  // Current implementation returns Unknown because the format doesn't match X10
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    @events.InputEvent::Mouse(_) => ()
+    _ => fail("Expected Unknown or Mouse event")
+  }
+}
+
+///|
+test "parse_input: tilde Home/End variants" {
+  // ESC[1~ = Home (alternative format)
+  inspect(@events.parse_input("\u001b[1~"), content="Key(Special(Home, None))")
+  // ESC[4~ = End (alternative format)
+  inspect(@events.parse_input("\u001b[4~"), content="Key(Special(End, None))")
+  // ESC[7~ = Home (alternative format)
+  inspect(@events.parse_input("\u001b[7~"), content="Key(Special(Home, None))")
+  // ESC[8~ = End (alternative format)
+  inspect(@events.parse_input("\u001b[8~"), content="Key(Special(End, None))")
+}
+
+///|
+test "parse_input: unknown tilde sequence" {
+  // Unknown tilde sequence number
+  let event = @events.parse_input("\u001b[99~")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown event")
+  }
+}
+
+///|
+test "parse_input: tilde sequence without number" {
+  // Invalid tilde sequence (no number)
+  let event = @events.parse_input("\u001b[~")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown event")
+  }
+}
+
+///|
+test "parse_input: short SS3 sequence" {
+  // ESC O alone (length 2) - incomplete
+  let event = @events.parse_input("\u001bO")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown for incomplete SS3")
+  }
+}
+
+///|
+test "parse_input: unknown SS3 sequence" {
+  // Unknown SS3 character
+  let event = @events.parse_input("\u001bOZ")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown for unknown SS3")
+  }
+}
+
+///|
+test "parse_input: CSI params with semicolons" {
+  // Mouse SGR with semicolons (already tested but ensures semicolon parsing)
+  let event = @events.parse_input("\u001b[<0;100;200M")
+  match event {
+    @events.InputEvent::Mouse(mouse) => {
+      inspect(mouse.x, content="100")
+      inspect(mouse.y, content="200")
+    }
+    _ => fail("Expected Mouse event")
+  }
+}
+
+///|
+test "parse_input: X10 mouse short sequence" {
+  // X10 mouse too short (less than 6 chars)
+  let event = @events.parse_input("\u001b[M ")
+  match event {
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Unknown for short X10 sequence")
+  }
+}
+
+///|
+test "parse_input: non-SGR m final char" {
+  // ESC [ ... m without '<' (not SGR) - triggers line 120
+  let event = @events.parse_input("\u001b[0;10;20m")
+  match event {
+    @events.InputEvent::Mouse(_) => ()
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Mouse or Unknown event")
+  }
+}
+
+///|
+test "parse_input: tilde with modifier params (semicolon in params)" {
+  // Some terminals send ESC[3;5~ for Ctrl+Delete (code;modifier format)
+  // This tests the semicolon parsing in extract_csi_params
+  let event = @events.parse_input("\u001b[3;5~")
+  match event {
+    // Returns Delete (first param is 3) - modifier handling may vary
+    @events.InputEvent::Key(_) => ()
+    @events.InputEvent::Unknown(_) => ()
+    _ => fail("Expected Key or Unknown event")
+  }
+}

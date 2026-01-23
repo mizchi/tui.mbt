@@ -2,27 +2,34 @@
 /// Input navigation helpers (moved from io/input_nav.mbt)
 
 ///|
-/// Get character display width (simplified: ASCII=1, CJK=2)
+/// Get character display width from code point (ASCII=1, CJK/fullwidth=2)
+/// Delegates to @core.char_display_width
 pub fn char_width_code(code : Int) -> Int {
-  if code < 0x80 {
-    1
-  } else if code >= 0x1100 &&
-    (
-      code <= 0x115F ||
-      code == 0x2329 ||
-      code == 0x232A ||
-      (code >= 0x2E80 && code <= 0x9FFF) ||
-      (code >= 0xAC00 && code <= 0xD7A3) ||
-      (code >= 0xF900 && code <= 0xFAFF) ||
-      (code >= 0xFE10 && code <= 0xFE1F) ||
-      (code >= 0xFE30 && code <= 0xFE6F) ||
-      (code >= 0xFF00 && code <= 0xFF60) ||
-      (code >= 0xFFE0 && code <= 0xFFE6)
-    ) {
-    2
-  } else {
-    1
+  @core.char_display_width(code.unsafe_to_char())
+}
+
+///|
+/// Get character display width from Char
+/// Delegates to @core.char_display_width
+pub fn char_width(c : Char) -> Int {
+  @core.char_display_width(c)
+}
+
+///|
+/// Get display width of a string
+/// Delegates to @core.string_display_width
+pub fn string_width(s : String) -> Int {
+  @core.string_display_width(s)
+}
+
+///|
+/// Get display width of char array
+pub fn chars_width(chars : Array[Char]) -> Int {
+  let mut w = 0
+  for c in chars {
+    w = w + @core.char_display_width(c)
   }
+  w
 }
 
 ///|

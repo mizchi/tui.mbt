@@ -1,5 +1,49 @@
 ///|
-/// Tests for TextInputController
+/// Tests for TextInputController and navigation utilities
+
+// ===== Character width tests =====
+
+///|
+test "char_width_code: ASCII characters" {
+  inspect(char_width_code('a'.to_int()), content="1")
+  inspect(char_width_code(' '.to_int()), content="1")
+  inspect(char_width_code('Z'.to_int()), content="1")
+}
+
+///|
+test "char_width_code: CJK characters" {
+  inspect(char_width_code('日'.to_int()), content="2")
+  inspect(char_width_code('本'.to_int()), content="2")
+  inspect(char_width_code('あ'.to_int()), content="2")
+  inspect(char_width_code('ア'.to_int()), content="2")
+}
+
+///|
+test "char_width_code: fullwidth symbols" {
+  inspect(char_width_code('！'.to_int()), content="2") // U+FF01 fullwidth !
+  inspect(char_width_code('Ａ'.to_int()), content="2") // U+FF21 fullwidth A
+}
+
+///|
+test "char_width: convenience function" {
+  inspect(char_width('a'), content="1")
+  inspect(char_width('日'), content="2")
+}
+
+///|
+test "string_width: mixed content" {
+  inspect(string_width("abc"), content="3")
+  inspect(string_width("日本語"), content="6")
+  inspect(string_width("hello日本"), content="9")
+}
+
+///|
+test "chars_width: array of chars" {
+  inspect(chars_width(['a', 'b', 'c']), content="3")
+  inspect(chars_width(['日', '本']), content="4")
+}
+
+// ===== TextInputController tests =====
 
 ///|
 test "new controller with initial text" {

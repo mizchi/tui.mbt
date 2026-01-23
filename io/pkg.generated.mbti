@@ -54,6 +54,8 @@ pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit, confirm_
 
 pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
+pub fn start_inplace_input_controller(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
+
 pub async fn start_input_session(Int, Int, String) -> InputResult
 
 pub fn start_input_session_cb(String, (InputResult) -> Unit) -> Unit
