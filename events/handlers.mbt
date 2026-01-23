@@ -66,7 +66,7 @@ pub fn hit_test(
       }
     }
     // No child matched, return this node
-    Some({ id: layout.id, x, y, width: w, height: h })
+    Some({ id: layout.id, x, y, width: w, height: h, role: None })
   } else {
     None
   }
@@ -120,7 +120,7 @@ pub fn find_layout_by_id(
 
   // Check if this is the target
   if layout.id == target_id {
-    return Some({ id: layout.id, x, y, width: w, height: h })
+    return Some({ id: layout.id, x, y, width: w, height: h, role: None })
   }
 
   // Search children

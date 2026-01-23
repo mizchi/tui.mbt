@@ -71,6 +71,7 @@ pub fn textarea(
     border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
+    role=Some(@core.Role::Textbox),
   )
 }
 

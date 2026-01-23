@@ -3,6 +3,7 @@ package "mizchi/tui/events"
 
 import {
   "mizchi/crater/types",
+  "mizchi/tui/core",
 }
 
 // Values
@@ -100,6 +101,7 @@ pub(all) struct HitTestResult {
   y : Int
   width : Int
   height : Int
+  role : @core.Role?
 }
 
 pub(all) enum InputEvent {

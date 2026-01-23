@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @types.Position, inset_top? : @types.Dimension, inset_right? : @types.Dimension, inset_bottom? : @types.Dimension, inset_left? : @types.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?) -> Component
+pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @types.Position, inset_top? : @types.Dimension, inset_right? : @types.Dimension, inset_bottom? : @types.Dimension, inset_left? : @types.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?, role? : Role?) -> Component
 
 pub fn char_display_width(Char) -> Int
 
@@ -79,6 +79,7 @@ pub struct Component {
   styles : RenderStyleMap
   texts : TextContentMap
   click_handlers : ClickHandlers
+  roles : RoleMap
 }
 
 pub(all) struct RenderStyle {
@@ -97,6 +98,69 @@ pub fn RenderStyleMap::get(Self, String) -> RenderStyle
 pub fn RenderStyleMap::inner(Self) -> Map[String, RenderStyle]
 pub fn RenderStyleMap::new() -> Self
 pub fn RenderStyleMap::set(Self, String, RenderStyle) -> Unit
+
+pub(all) enum Role {
+  Button
+  Checkbox
+  Link
+  Menuitem
+  Option
+  Radio
+  Slider
+  Switch
+  Tab
+  Textbox
+  Listbox
+  Menu
+  Menubar
+  Radiogroup
+  Tablist
+  Tree
+  Treegrid
+  Article
+  Cell
+  Columnheader
+  Definition
+  Directory
+  Document
+  Group
+  Heading
+  Img
+  List
+  Listitem
+  Row
+  Rowgroup
+  Rowheader
+  Separator
+  Table
+  Term
+  Banner
+  Complementary
+  Contentinfo
+  Form
+  Main
+  Navigation
+  Region
+  Search
+  Alert
+  Log
+  Marquee
+  Status
+  Timer
+  Alertdialog
+  Dialog
+  Custom(String)
+}
+pub impl Eq for Role
+pub impl Show for Role
+
+pub(all) struct RoleMap(Map[String, Role])
+pub fn RoleMap::get(Self, String) -> Role?
+#deprecated
+pub fn RoleMap::inner(Self) -> Map[String, Role]
+pub fn RoleMap::iter(Self) -> Iter[(String, Role)]
+pub fn RoleMap::new() -> Self
+pub fn RoleMap::set(Self, String, Role) -> Unit
 
 pub struct TextContentMap(Map[String, String])
 pub fn TextContentMap::get(Self, String) -> String?

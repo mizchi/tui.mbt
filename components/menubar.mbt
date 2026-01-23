@@ -120,12 +120,13 @@ pub fn menubar(
       [text(menu_item.label, fg=item_fg)],
       id=menu_item.id,
       padding_x=item_padding_x,
+      role=Some(@core.Role::Menuitem),
     )
     bar_items.push(item_component)
   }
 
   // Build the menubar row
-  let bar = row(bar_items, id=id + "-bar")
+  let bar = row(bar_items, id=id + "-bar", role=Some(@core.Role::Menubar))
 
   // Find open menu and build dropdown
   let open_menu = items.iter().find_first(fn(m) { m.id == state.open_menu_id })
@@ -171,6 +172,7 @@ fn build_menu_themed(
             [text(icon + " " + item.label, fg=item_fg)],
             id=item.id,
             padding_x=1.0,
+            role=Some(@core.Role::Menuitem),
           ),
         )
       }
@@ -182,6 +184,7 @@ fn build_menu_themed(
             [text(icon + " " + item.label, fg=item_fg)],
             id=item.id,
             padding_x=1.0,
+            role=Some(@core.Role::Menuitem),
           ),
         )
       }
@@ -194,6 +197,7 @@ fn build_menu_themed(
           [text(label_with_arrow, fg=item_fg)],
           id=item.id,
           padding_x=1.0,
+          role=Some(@core.Role::Menuitem),
         )
         menu_items.push(submenu_row)
 
@@ -215,7 +219,12 @@ fn build_menu_themed(
       MenuItemType::Action => {
         let item_fg = get_item_color_themed(item, state, theme)
         menu_items.push(
-          row([text(item.label, fg=item_fg)], id=item.id, padding_x=1.0),
+          row(
+            [text(item.label, fg=item_fg)],
+            id=item.id,
+            padding_x=1.0,
+            role=Some(@core.Role::Menuitem),
+          ),
         )
       }
     }
@@ -226,6 +235,7 @@ fn build_menu_themed(
     min_width=@types.Dimension::Length(dropdown_min_width),
     border=Some(@core.BorderChars::single()),
     border_color=theme.border,
+    role=Some(@core.Role::Menu),
   )
 }
 

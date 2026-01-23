@@ -45,6 +45,7 @@ pub fn radiogroup(
     let item = row(
       [text(icon, fg=color), hspace(item_gap), text(option.label, fg=color)],
       id=option.id,
+      role=Some(@core.Role::Radio),
     )
     items.push(item)
   }
@@ -52,9 +53,10 @@ pub fn radiogroup(
     RadioOrientation::Horizontal => {
       // Use larger gap for horizontal layout if not specified
       let actual_gap = if gap == 0.0 { 2.0 } else { gap }
-      row(items, id~, gap=actual_gap)
+      row(items, id~, gap=actual_gap, role=Some(@core.Role::Radiogroup))
     }
-    RadioOrientation::Vertical => column(items, id~, gap~)
+    RadioOrientation::Vertical =>
+      column(items, id~, gap~, role=Some(@core.Role::Radiogroup))
   }
 }
 
@@ -78,5 +80,9 @@ pub fn radio(
   } else {
     theme.fg
   }
-  row([text(icon, fg=color), hspace(gap), text(label, fg=color)], id~)
+  row(
+    [text(icon, fg=color), hspace(gap), text(label, fg=color)],
+    id~,
+    role=Some(@core.Role::Radio),
+  )
 }

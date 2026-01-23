@@ -38,10 +38,15 @@ pub fn tabs(
       theme.fg
     }
     tab_components.push(
-      row([text(item.label, fg=tab_fg, bold=is_active)], id=item.id, padding_x~),
+      row(
+        [text(item.label, fg=tab_fg, bold=is_active)],
+        id=item.id,
+        padding_x~,
+        role=Some(@core.Role::Tab),
+      ),
     )
   }
-  row(tab_components, id~)
+  row(tab_components, id~, role=Some(@core.Role::Tablist))
 }
 
 ///|
@@ -188,12 +193,13 @@ pub fn tabs_underline(
           [text(item.label, fg=tab_fg, bold=is_active)],
           id=item.id,
           padding_x~,
+          role=Some(@core.Role::Tab),
         ),
         text(underline_char.repeat(underline_len), fg=underline_color),
       ]),
     )
   }
-  row(tab_components, id~)
+  row(tab_components, id~, role=Some(@core.Role::Tablist))
 }
 
 ///|
@@ -226,8 +232,9 @@ pub fn tabs_boxed(
         padding_x~,
         border=Some(@core.BorderChars::rounded()),
         border_color=tab_border,
+        role=Some(@core.Role::Tab),
       ),
     )
   }
-  row(tab_components, id~, gap=1.0)
+  row(tab_components, id~, gap=1.0, role=Some(@core.Role::Tablist))
 }

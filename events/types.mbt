@@ -89,6 +89,7 @@ pub(all) struct HitTestResult {
   y : Int
   width : Int
   height : Int
+  role : @core.Role?
 }
 
 ///|

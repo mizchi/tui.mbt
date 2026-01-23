@@ -56,6 +56,7 @@ pub fn button(
     border_color=actual_border,
     bg=@core.Color::transparent(),
     on_click~,
+    role=Some(@core.Role::Button),
   )
 }
 

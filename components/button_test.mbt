@@ -232,6 +232,17 @@ test "button on_click handler is registered" {
 }
 
 ///|
+test "button has role Button" {
+  let btn = button("OK", id="my-btn")
+
+  // Check that button has Role::Button
+  match btn.roles.get("my-btn") {
+    Some(role) => inspect(role, content="Button")
+    None => @test.fail("Role not found for button")
+  }
+}
+
+///|
 test "button texts map" {
   let btn = button("OK", min_width=10.0)
 

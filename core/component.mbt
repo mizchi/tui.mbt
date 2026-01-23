@@ -3,6 +3,93 @@
 /// Provides ink-like API for building reactive UI trees
 
 ///|
+/// ARIA role for accessibility
+/// Based on WAI-ARIA 1.2 roles
+pub(all) enum Role {
+  // Widget roles
+  Button
+  Checkbox
+  Link
+  Menuitem
+  Option
+  Radio
+  Slider
+  Switch
+  Tab
+  Textbox
+  // Composite widget roles
+  Listbox
+  Menu
+  Menubar
+  Radiogroup
+  Tablist
+  Tree
+  Treegrid
+  // Document structure roles
+  Article
+  Cell
+  Columnheader
+  Definition
+  Directory
+  Document
+  Group
+  Heading
+  Img
+  List
+  Listitem
+  Row
+  Rowgroup
+  Rowheader
+  Separator
+  Table
+  Term
+  // Landmark roles
+  Banner
+  Complementary
+  Contentinfo
+  Form
+  Main
+  Navigation
+  Region
+  Search
+  // Live region roles
+  Alert
+  Log
+  Marquee
+  Status
+  Timer
+  // Window roles
+  Alertdialog
+  Dialog
+  // Custom role
+  Custom(String)
+} derive(Show, Eq)
+
+///|
+/// Role map (component ID -> role)
+pub(all) struct RoleMap(Map[String, Role])
+
+///|
+pub fn RoleMap::new() -> RoleMap {
+  RoleMap(Map::new())
+}
+
+///|
+pub fn RoleMap::set(self : RoleMap, id : String, role : Role) -> Unit {
+  self.0.set(id, role)
+}
+
+///|
+pub fn RoleMap::get(self : RoleMap, id : String) -> Role? {
+  self.0.get(id)
+}
+
+///|
+pub fn RoleMap::iter(self : RoleMap) -> Iter[(String, Role)] {
+  self.0.iter()
+}
+
+///|
 /// Click handler type for component-level event handling
 pub(all) struct ClickHandler(() -> Unit)
 
@@ -56,6 +143,7 @@ pub struct Component {
   styles : RenderStyleMap
   texts : TextContentMap
   click_handlers : ClickHandlers
+  roles : RoleMap
 }
 
 // Global ID counter for unique component IDs
@@ -74,10 +162,11 @@ fn next_id() -> String {
 /// Merge two components (for combining children)
 fn merge_components(
   comps : Array[Component],
-) -> (RenderStyleMap, TextContentMap, ClickHandlers) {
+) -> (RenderStyleMap, TextContentMap, ClickHandlers, RoleMap) {
   let styles = RenderStyleMap::new()
   let texts = TextContentMap::new()
   let click_handlers = ClickHandlers::new()
+  let roles = RoleMap::new()
   for comp in comps {
     // Copy styles
     for entry in comp.styles.0 {
@@ -91,8 +180,12 @@ fn merge_components(
     for entry in comp.click_handlers.iter() {
       click_handlers.set(entry.0, entry.1)
     }
+    // Copy roles
+    for entry in comp.roles.iter() {
+      roles.set(entry.0, entry.1)
+    }
   }
-  (styles, texts, click_handlers)
+  (styles, texts, click_handlers, roles)
 }
 
 ///|
@@ -136,15 +229,23 @@ pub fn box(
   fg? : Color = Color::white(),
   // Event handler
   on_click? : (() -> Unit)? = None,
+  // Accessibility
+  role? : Role? = None,
 ) -> Component {
   let actual_id = if id == "" { next_id() } else { id }
 
-  // Merge children's styles and texts
-  let (styles, texts, click_handlers) = merge_components(children)
+  // Merge children's styles, texts, handlers, and roles
+  let (styles, texts, click_handlers, roles) = merge_components(children)
 
   // Register click handler if provided
   match on_click {
     Some(handler) => click_handlers.set(actual_id, ClickHandler::new(handler))
+    None => ()
+  }
+
+  // Register role if provided
+  match role {
+    Some(r) => roles.set(actual_id, r)
     None => ()
   }
 
@@ -219,7 +320,7 @@ pub fn box(
     border,
     border_fg: border_color,
   })
-  { node, styles, texts, click_handlers }
+  { node, styles, texts, click_handlers, roles }
 }
 
 ///|
@@ -251,7 +352,13 @@ pub fn text(
     border_fg: Color::white(),
   })
   texts.set(id, content)
-  { node, styles, texts, click_handlers: ClickHandlers::new() }
+  {
+    node,
+    styles,
+    texts,
+    click_handlers: ClickHandlers::new(),
+    roles: RoleMap::new(),
+  }
 }
 
 ///|
@@ -349,7 +456,13 @@ pub fn text_box(
     border_fg: border_color,
   })
   texts.set(actual_id, content)
-  { node, styles, texts, click_handlers: ClickHandlers::new() }
+  {
+    node,
+    styles,
+    texts,
+    click_handlers: ClickHandlers::new(),
+    roles: RoleMap::new(),
+  }
 }
 
 ///|
@@ -364,5 +477,6 @@ pub fn spacer(flex_grow? : Double = 1.0) -> Component {
     styles: RenderStyleMap::new(),
     texts: TextContentMap::new(),
     click_handlers: ClickHandlers::new(),
+    roles: RoleMap::new(),
   }
 }

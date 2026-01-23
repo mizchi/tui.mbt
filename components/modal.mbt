@@ -92,6 +92,7 @@ pub fn modal(
     padding~,
     padding_x~,
     padding_y~,
+    role=Some(@core.Role::Dialog),
   )
 
   // Full-screen container that centers the modal
@@ -149,6 +150,7 @@ pub fn modal_with_backdrop(
     padding~,
     padding_x~,
     padding_y~,
+    role=Some(@core.Role::Dialog),
   )
 
   // Full-screen container with backdrop color that centers the modal

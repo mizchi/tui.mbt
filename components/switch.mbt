@@ -34,7 +34,13 @@ pub fn switch(
   } else {
     theme.muted
   }
-  row([text(track, fg~)], id~, padding_x=1.0, on_click~)
+  row(
+    [text(track, fg~)],
+    id~,
+    padding_x=1.0,
+    on_click~,
+    role=Some(@core.Role::Switch),
+  )
 }
 
 ///|
@@ -56,9 +62,19 @@ pub fn labeled_switch(
   let label_component = text(label, fg=label_fg)
   match label_position {
     LabelPosition::Left =>
-      row([label_component, hspace(gap), switch_component], id~, on_click~)
+      row(
+        [label_component, hspace(gap), switch_component],
+        id~,
+        on_click~,
+        role=Some(@core.Role::Switch),
+      )
     LabelPosition::Right =>
-      row([switch_component, hspace(gap), label_component], id~, on_click~)
+      row(
+        [switch_component, hspace(gap), label_component],
+        id~,
+        on_click~,
+        role=Some(@core.Role::Switch),
+      )
   }
 }
 
@@ -92,7 +108,7 @@ pub fn checkbox(
   } else {
     theme.fg
   }
-  row([text(icon, fg~)], id~, on_click~)
+  row([text(icon, fg~)], id~, on_click~, role=Some(@core.Role::Checkbox))
 }
 
 ///|
@@ -114,8 +130,18 @@ pub fn labeled_checkbox(
   let label_component = text(label, fg=label_fg)
   match label_position {
     LabelPosition::Left =>
-      row([label_component, hspace(gap), checkbox_component], id~, on_click~)
+      row(
+        [label_component, hspace(gap), checkbox_component],
+        id~,
+        on_click~,
+        role=Some(@core.Role::Checkbox),
+      )
     LabelPosition::Right =>
-      row([checkbox_component, hspace(gap), label_component], id~, on_click~)
+      row(
+        [checkbox_component, hspace(gap), label_component],
+        id~,
+        on_click~,
+        role=Some(@core.Role::Checkbox),
+      )
   }
 }

@@ -93,6 +93,7 @@ pub fn input(
     border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
+    role=Some(@core.Role::Textbox),
   )
   // Set text content directly on the component for write_text_wrapped to handle
   component.texts.set(component.node.id, text_with_cursor)

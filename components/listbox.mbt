@@ -144,6 +144,7 @@ fn build_listbox(
       [padded_text],
       id=opt.id,
       height=@types.Dimension::Length(1.0),
+      role=Some(@core.Role::Option),
     )
     items.push(item)
   }
@@ -171,6 +172,7 @@ fn build_listbox(
         // Auto-size to content
         border=Some(@core.BorderChars::single()),
         border_color=theme.border,
+        role=Some(@core.Role::Listbox),
       )
     ListboxOrientation::Horizontal =>
       row(
@@ -179,6 +181,7 @@ fn build_listbox(
         min_width=@types.Dimension::Length(min_width),
         border=Some(@core.BorderChars::single()),
         border_color=theme.border,
+        role=Some(@core.Role::Listbox),
       )
   }
 }
@@ -212,9 +215,15 @@ pub fn option_list(
       opt.label
     }
     let focus_prefix = if is_focused { "▸ " } else { "  " }
-    items.push(row([text(focus_prefix + label_text, fg=item_fg)], id=opt.id))
+    items.push(
+      row(
+        [text(focus_prefix + label_text, fg=item_fg)],
+        id=opt.id,
+        role=Some(@core.Role::Option),
+      ),
+    )
   }
-  column(items)
+  column(items, role=Some(@core.Role::Listbox))
 }
 
 ///|

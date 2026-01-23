@@ -94,5 +94,6 @@ pub fn accordion_header(
     padding_x~,
     padding_y~,
     on_click~,
+    role=Some(@core.Role::Button),
   )
 }

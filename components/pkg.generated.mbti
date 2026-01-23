@@ -66,7 +66,7 @@ pub fn checkbox(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : 
 
 pub fn colored(String, @core.Color) -> @core.Component
 
-pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?) -> @core.Component
+pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
 
 pub fn combobox(Array[ComboboxOption], String, id? : String, focused_id? : String, state? : ComboboxState, filter? : String, placeholder? : String, theme? : Theme, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
 
@@ -178,7 +178,7 @@ pub fn radiogroup(Array[RadioOption], String, id? : String, focused_id? : String
 
 pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
 
-pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?) -> @core.Component
+pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
 
 pub fn scroll_indicator(ScrollIndicator, fg? : @core.Color) -> @core.Component
 
