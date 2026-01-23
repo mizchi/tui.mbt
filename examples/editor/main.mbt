@@ -135,77 +135,64 @@ fn main {
     (width.val, box_height)
   }
 
-  // Fixed palette dimensions for Spotlight-like behavior
+  // Palette dimensions
   let palette_width = 40
   let palette_max_items = 8
-  let palette_height = palette_max_items + 4 // items + input + separator + padding/border
 
   fn render_palette() -> @core.Component {
     let engine = completion_manager.get_engine()
     let items = engine.get_items()
     let selected = engine.get_selected_idx()
 
-    // Build item list (always max_items slots for fixed height)
+    // Build item list (only show actual items, each with fixed height=1)
     let item_components : Array[@core.Component] = []
-    for i = 0; i < palette_max_items; i = i + 1 {
-      if i < items.length() {
-        let item = items[i]
-        let is_selected = i == selected
-        let fg = if is_selected {
-          @core.Color::cyan()
-        } else {
-          @core.Color::white()
-        }
-        let bg = if is_selected {
-          @core.Color::rgb(40, 60, 80)
-        } else {
-          @core.Color::rgb(20, 20, 30)
-        }
-        item_components.push(
-          @c.row(
-            [@c.text((if is_selected { "> " } else { "  " }) + item, fg~)],
-            bg~,
-            width=@types.Dimension::Length(palette_width.to_double() - 4.0),
-          ),
-        )
+    for i = 0; i < items.length() && i < palette_max_items; i = i + 1 {
+      let item = items[i]
+      let is_selected = i == selected
+      let prefix = if is_selected { "› " } else { "  " }
+      let fg = if is_selected {
+        @core.Color::cyan()
       } else {
-        // Empty slot to maintain fixed height
-        item_components.push(
-          @c.row(
-            [@c.text("", fg=@core.Color::rgb(20, 20, 30))],
-            bg=@core.Color::rgb(20, 20, 30),
-            width=@types.Dimension::Length(palette_width.to_double() - 4.0),
-          ),
-        )
+        @core.Color::rgb(180, 180, 180)
       }
+      item_components.push(
+        @c.row(
+          [@c.text(prefix + item, fg~, bold=is_selected)],
+          height=@types.Dimension::Length(1.0),
+        ),
+      )
+    }
+
+    // Show placeholder when no results
+    if items.length() == 0 {
+      item_components.push(
+        @c.row(
+          [@c.text("  No results", fg=@core.Color::rgb(100, 100, 100))],
+          height=@types.Dimension::Length(1.0),
+        ),
+      )
     }
 
     // Input row
     let input_row = @c.row(
-      [
-        @c.text(
-          "> " + palette_input.val,
-          fg=@core.Color::yellow(),
-          bold=true,
-        ),
-      ],
+      [@c.text("> " + palette_input.val, fg=@core.Color::yellow(), bold=true)],
       id="palette-input",
-      width=@types.Dimension::Length(palette_width.to_double() - 4.0),
+      height=@types.Dimension::Length(1.0),
     )
 
-    // Palette box with fixed size
-    let separator = @c.text(
-      "─".repeat(palette_width - 4),
-      fg=@core.Color::rgb(80, 80, 80),
+    // Separator line
+    let separator = @c.row(
+      [@c.text("─".repeat(palette_width - 4), fg=@core.Color::rgb(60, 60, 60))],
+      height=@types.Dimension::Length(1.0),
     )
+
+    // Palette box
     @c.column(
       [input_row, separator] + item_components,
       border=Some(@core.BorderChars::rounded()),
       border_color=@core.Color::cyan(),
-      bg=@core.Color::rgb(20, 20, 30),
+      bg=@core.Color::rgb(25, 25, 35),
       padding=1.0,
-      width=@types.Dimension::Length(palette_width.to_double()),
-      height=@types.Dimension::Length(palette_height.to_double()),
     )
   }
 
