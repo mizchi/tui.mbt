@@ -188,18 +188,18 @@ fn main {
     }
   }
 
-  // Build the message area with scrolling and scrollbar
-  fn build_message_area() -> @core.Component {
+  // Check if scrollbar should be shown
+  fn should_show_scrollbar() -> Bool {
+    get_item_count() > get_visible_count()
+  }
+
+  // Build message content only (without scrollbar) - for streaming
+  fn build_message_content() -> @core.Component {
     let w = width.val
     let h = height.val
     let visible_count = get_visible_count()
     let visible_height = @c.calc_visible_height(h)
-    let total = get_item_count()
-    let is_streaming = streaming.is_streaming()
-
-    // Don't show scrollbar during streaming to avoid render conflicts with stream_buffer
-    let show_scrollbar = total > visible_count && not(is_streaming)
-    let content_width = if show_scrollbar { w - 1 } else { w }
+    let content_width = if should_show_scrollbar() { w - 1 } else { w }
     let all_items = @c.chat_message_list(
       messages.get(),
       streaming,
@@ -214,15 +214,25 @@ fn main {
     for item in visible_items {
       display_items.push(item)
     }
-    let messages_column = @c.column(
+    @c.column(
       display_items,
       width=@types.Dimension::Length(content_width.to_double()),
       height=@types.Dimension::Length(visible_height.to_double()),
       justify=@types.Alignment::FlexEnd, // Align messages to bottom
     )
+  }
 
-    // Scrollbar (only show when scrolling is possible and not streaming)
-    if show_scrollbar {
+  // Build the message area with scrolling and scrollbar
+  fn build_message_area() -> @core.Component {
+    let w = width.val
+    let h = height.val
+    let visible_count = get_visible_count()
+    let visible_height = @c.calc_visible_height(h)
+    let total = get_item_count()
+    let messages_column = build_message_content()
+
+    // Scrollbar (show when scrolling is possible)
+    if should_show_scrollbar() {
       let scrollbar_component = @c.scrollbar(
         scroller.offset.get(),
         total,
@@ -317,10 +327,47 @@ fn main {
     }
   }
 
+  // Render scrollbar directly at fixed position (rightmost column)
+  fn render_scrollbar_direct() -> Unit {
+    if not(should_show_scrollbar()) {
+      return
+    }
+    let w = width.val
+    let h = height.val
+    let visible_count = get_visible_count()
+    let visible_height = @c.calc_visible_height(h)
+    let total = get_item_count()
+    let offset = scroller.offset.get()
+
+    // Build scrollbar lines
+    let lines = @c.build_scrollbar(
+      offset,
+      total,
+      visible_count,
+      visible_height,
+      track_char="│",
+      thumb_char="┃",
+    )
+
+    // Render each line at rightmost column
+    let mut output = @c.ansi_save_cursor()
+    let color = @core.Color::rgb(140, 140, 140)
+    for i, line in lines {
+      // Move to row i+1 (1-indexed), column w (rightmost)
+      output = output + @c.ansi_move_to(i + 1, w)
+      output = output + @render.ansi_fg_color(color) + line
+    }
+    output = output + @render.ansi_reset() + @c.ansi_restore_cursor()
+    @io.print_raw(output)
+  }
+
   // Render message area with cursor-safe stream buffer
   fn render_message_area_stream() -> Unit {
-    let message_area = build_message_area()
-    stream_buffer.render(message_area)
+    // Render only message content (without scrollbar) to stream buffer
+    let message_content = build_message_content()
+    stream_buffer.render(message_content)
+    // Render scrollbar separately at fixed position
+    render_scrollbar_direct()
   }
 
   // Render helper
@@ -340,7 +387,7 @@ fn main {
       // Keep cursor in input area when not editing
       @io.print_raw(@c.ansi_move_to(@c.calc_input_row(height.val), 0))
     }
-    stream_buffer.sync(build_message_area())
+    stream_buffer.sync(build_message_content())
   }
 
   // Quit helper

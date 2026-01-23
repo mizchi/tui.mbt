@@ -299,7 +299,7 @@ pub fn scrollbar(
   track_color? : @core.Color = @core.Color::rgb(60, 60, 60),
   thumb_color? : @core.Color = @core.Color::rgb(120, 120, 120),
   track_char? : String = "│",
-  thumb_char? : String = "█",
+  thumb_char? : String = "┃",
 ) -> @core.Component {
   let _ = track_color // Reserved for future per-line coloring
   let lines = build_scrollbar(
