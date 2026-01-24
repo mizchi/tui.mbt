@@ -22,6 +22,9 @@ fn main {
         @c.title_bar("Simple TUI App"),
         // Main content
         @c.column(
+          flex_grow=1.0,
+          justify=@c.align_center(),
+          align=@c.align_center(),
           [
             @c.text("Press +/- to change count, q to quit"),
             @c.row(
@@ -40,9 +43,6 @@ fn main {
               justify=@c.align_center(),
             ),
           ],
-          flex_grow=1.0,
-          justify=@c.align_center(),
-          align=@c.align_center(),
         ),
         // Footer
         @c.footer([@c.text("q: quit | +/-: change count")]),
@@ -87,7 +87,6 @@ fn main {
     } else if event.is_char('-') {
       count.set(count.get() - 1)
     }
-
     do_render()
   }
 
