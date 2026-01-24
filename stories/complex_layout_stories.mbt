@@ -459,6 +459,631 @@ pub fn edge_case_stories() -> Array[Story] {
 }
 
 ///|
+/// Deep nesting patterns (4+ levels)
+pub fn deep_nesting_stories() -> Array[Story] {
+  [
+    // 4 levels of nested borders
+    Story::new(
+      "deep",
+      "nested_borders_4",
+      fn() {
+        @components.bordered([
+          @components.bordered([
+            @components.bordered([
+              @components.bordered([@components.text("Deep")]),
+            ]),
+          ]),
+        ])
+      },
+      width=20,
+      height=9,
+    ),
+    // Alternating row/column nesting
+    Story::new(
+      "deep",
+      "alternating_5_levels",
+      fn() {
+        @components.column([
+          @components.row(
+            [
+              @components.column([
+                @components.row(
+                  [
+                    @components.column([@components.text("X")]),
+                    @components.column([@components.text("Y")]),
+                  ],
+                  height=@components.dim_length(1.0),
+                ),
+              ]),
+            ],
+            height=@components.dim_length(2.0),
+          ),
+        ])
+      },
+      width=15,
+      height=4,
+    ),
+    // Complex tree-like structure
+    Story::new(
+      "deep",
+      "tree_structure",
+      fn() {
+        @components.column([
+          @components.text("root/"),
+          @components.row(
+            [
+              @components.text("  "),
+              @components.column([
+                @components.text("├─ src/"),
+                @components.row(
+                  [
+                    @components.text("│  "),
+                    @components.column([
+                      @components.text("├─ main.mbt"),
+                      @components.text("└─ lib.mbt"),
+                    ]),
+                  ],
+                  height=@components.dim_length(2.0),
+                ),
+                @components.text("└─ test/"),
+              ]),
+            ],
+            flex_grow=1.0,
+          ),
+        ])
+      },
+      width=25,
+      height=7,
+    ),
+  ]
+}
+
+///|
+/// IDE-like layout patterns
+pub fn ide_layout_stories() -> Array[Story] {
+  [
+    // VSCode-like 3-pane layout
+    Story::new(
+      "ide",
+      "three_pane",
+      fn() {
+        @components.column([
+          // Menu bar
+          @components.row(
+            [@components.text(" File  Edit  View ")],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(50, 50, 50),
+          ),
+          // Main area
+          @components.row(
+            [
+              // File tree
+              @components.column(
+                [
+                  @components.text("Explorer"),
+                  @components.text("─────────"),
+                  @components.text(" src/"),
+                  @components.text("   main"),
+                ],
+                width=@components.dim_length(12.0),
+              ),
+              // Editor
+              @components.column(
+                [
+                  @components.text("main.mbt"),
+                  @components.text("─────────────"),
+                  @components.text("fn main {"),
+                  @components.text("  println()"),
+                  @components.text("}"),
+                ],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+            ],
+            flex_grow=1.0,
+          ),
+          // Status bar
+          @components.row(
+            [@components.text(" Ln 1, Col 1 | UTF-8 | MoonBit")],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(0, 122, 204),
+          ),
+        ])
+      },
+      width=40,
+      height=12,
+    ),
+    // Terminal split
+    Story::new(
+      "ide",
+      "editor_terminal",
+      fn() {
+        @components.column([
+          @components.column(
+            [@components.text("// Editor"), @components.text("let x = 42")],
+            border=Some(@core.BorderChars::single()),
+            flex_grow=2.0,
+          ),
+          @components.column(
+            [@components.text("$ moon run"), @components.text("Hello, World!")],
+            border=Some(@core.BorderChars::single()),
+            flex_grow=1.0,
+          ),
+        ])
+      },
+      width=30,
+      height=10,
+    ),
+  ]
+}
+
+///|
+/// Form and dialog layouts
+pub fn form_layout_stories() -> Array[Story] {
+  [
+    // Login form
+    Story::new(
+      "form",
+      "login_dialog",
+      fn() {
+        @components.bordered([
+          @components.column(
+            [
+              @components.text("  Login  "),
+              @components.hdivider(),
+              @components.row(
+                [@components.text("User: "), @components.text("[_______]")],
+                height=@components.dim_length(1.0),
+              ),
+              @components.row(
+                [@components.text("Pass: "), @components.text("[*******]")],
+                height=@components.dim_length(1.0),
+              ),
+              @components.hdivider(),
+              @components.row(
+                [@components.text(" [Cancel] "), @components.text(" [ OK ] ")],
+                height=@components.dim_length(1.0),
+              ),
+            ],
+            padding=1.0,
+          ),
+        ])
+      },
+      width=25,
+      height=10,
+    ),
+    // Settings panel
+    Story::new(
+      "form",
+      "settings",
+      fn() {
+        @components.column([
+          @components.text("Settings"),
+          @components.hdivider(),
+          @components.row(
+            [
+              @components.text("Theme:"),
+              @components.text("    "),
+              @components.text("[Dark  ▼]"),
+            ],
+            height=@components.dim_length(1.0),
+          ),
+          @components.row(
+            [
+              @components.text("Font:"),
+              @components.text("     "),
+              @components.text("[Mono  ▼]"),
+            ],
+            height=@components.dim_length(1.0),
+          ),
+          @components.row(
+            [
+              @components.text("Size:"),
+              @components.text("     "),
+              @components.text("[14    ▼]"),
+            ],
+            height=@components.dim_length(1.0),
+          ),
+          @components.row(
+            [@components.checkbox(true), @components.text(" Auto-save")],
+            height=@components.dim_length(1.0),
+          ),
+        ])
+      },
+      width=25,
+      height=9,
+    ),
+  ]
+}
+
+///|
+/// Split pane variations
+pub fn split_pane_stories() -> Array[Story] {
+  [
+    // Horizontal split (top/bottom)
+    Story::new(
+      "split",
+      "horizontal",
+      fn() {
+        @components.column([
+          @components.column(
+            [@components.text("Top Pane")],
+            border=Some(@core.BorderChars::single()),
+            flex_grow=1.0,
+          ),
+          @components.column(
+            [@components.text("Bottom Pane")],
+            border=Some(@core.BorderChars::single()),
+            flex_grow=1.0,
+          ),
+        ])
+      },
+      width=20,
+      height=8,
+    ),
+    // Vertical split (left/right)
+    Story::new(
+      "split",
+      "vertical",
+      fn() {
+        @components.row(
+          [
+            @components.column(
+              [@components.text("Left")],
+              border=Some(@core.BorderChars::single()),
+              flex_grow=1.0,
+            ),
+            @components.column(
+              [@components.text("Right")],
+              border=Some(@core.BorderChars::single()),
+              flex_grow=1.0,
+            ),
+          ],
+          height=@components.dim_length(6.0),
+        )
+      },
+      width=24,
+      height=7,
+    ),
+    // Quad split (2x2)
+    Story::new(
+      "split",
+      "quad",
+      fn() {
+        @components.column([
+          @components.row(
+            [
+              @components.column(
+                [@components.text("TL")],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+              @components.column(
+                [@components.text("TR")],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+            ],
+            flex_grow=1.0,
+          ),
+          @components.row(
+            [
+              @components.column(
+                [@components.text("BL")],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+              @components.column(
+                [@components.text("BR")],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+            ],
+            flex_grow=1.0,
+          ),
+        ])
+      },
+      width=20,
+      height=8,
+    ),
+    // Asymmetric split (30/70)
+    Story::new(
+      "split",
+      "asymmetric",
+      fn() {
+        @components.row(
+          [
+            @components.column(
+              [@components.text("30%")],
+              border=Some(@core.BorderChars::single()),
+              flex_grow=0.3,
+            ),
+            @components.column(
+              [@components.text("70%")],
+              border=Some(@core.BorderChars::single()),
+              flex_grow=0.7,
+            ),
+          ],
+          height=@components.dim_length(5.0),
+        )
+      },
+      width=30,
+      height=6,
+    ),
+  ]
+}
+
+///|
+/// Card and list patterns
+pub fn card_list_stories() -> Array[Story] {
+  [
+    // Horizontal card list
+    Story::new(
+      "cards",
+      "horizontal_list",
+      fn() {
+        @components.row(
+          [
+            @components.card([@components.text("Card 1")], padding=0.5),
+            @components.card([@components.text("Card 2")], padding=0.5),
+            @components.card([@components.text("Card 3")], padding=0.5),
+          ],
+          height=@components.dim_length(4.0),
+          gap=1.0,
+        )
+      },
+      width=35,
+      height=5,
+    ),
+    // Vertical card list
+    Story::new(
+      "cards",
+      "vertical_list",
+      fn() {
+        @components.column(
+          [
+            @components.card(
+              [@components.text("Item 1"), @components.text("Description")],
+              padding=0.5,
+            ),
+            @components.card(
+              [@components.text("Item 2"), @components.text("Description")],
+              padding=0.5,
+            ),
+          ],
+          gap=1.0,
+        )
+      },
+      width=20,
+      height=10,
+    ),
+    // Card with sections
+    Story::new(
+      "cards",
+      "sectioned",
+      fn() {
+        @components.card([
+          @components.bold("Title"),
+          @components.hdivider(),
+          @components.text("Content here"),
+          @components.text("More content"),
+          @components.hdivider(),
+          @components.text("[Actions]", fg=@core.Color::rgb(128, 128, 128)),
+        ])
+      },
+      width=20,
+      height=9,
+    ),
+  ]
+}
+
+///|
+/// Status bar patterns
+pub fn status_bar_stories() -> Array[Story] {
+  [
+    // Simple status bar
+    Story::new(
+      "status",
+      "simple",
+      fn() {
+        @components.column([
+          @components.column([@components.text("Content")], flex_grow=1.0),
+          @components.row(
+            [@components.text("Ready")],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(50, 50, 50),
+          ),
+        ])
+      },
+      width=20,
+      height=5,
+    ),
+    // Multi-section status bar
+    Story::new(
+      "status",
+      "multi_section",
+      fn() {
+        @components.column([
+          @components.column([@components.text("Editor")], flex_grow=1.0),
+          @components.row(
+            [
+              @components.text(" INSERT "),
+              @components.text("│"),
+              @components.text(" main.mbt "),
+              @components.text("│"),
+              @components.text(" 42:10 "),
+            ],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(30, 30, 30),
+          ),
+        ])
+      },
+      width=35,
+      height=5,
+    ),
+    // Vim-like status
+    Story::new(
+      "status",
+      "vim_style",
+      fn() {
+        @components.column([
+          @components.column(
+            [
+              @components.text("~ VIM"),
+              @components.text("~"),
+              @components.text("~"),
+            ],
+            flex_grow=1.0,
+          ),
+          @components.row(
+            [@components.text(":wq")],
+            height=@components.dim_length(1.0),
+          ),
+        ])
+      },
+      width=20,
+      height=6,
+    ),
+  ]
+}
+
+///|
+/// Complex real-world layouts
+pub fn real_world_stories() -> Array[Story] {
+  [
+    // htop-like layout
+    Story::new(
+      "real",
+      "htop",
+      fn() {
+        @components.column([
+          // CPU meters
+          @components.row(
+            [
+              @composed.meter("1", 0.35, width=15),
+              @composed.meter("2", 0.62, width=15),
+            ],
+            height=@components.dim_length(1.0),
+          ),
+          @components.row(
+            [
+              @composed.meter("3", 0.18, width=15),
+              @composed.meter("4", 0.91, width=15),
+            ],
+            height=@components.dim_length(1.0),
+          ),
+          // Memory/Swap
+          @components.row(
+            [@components.text("Mem"), @composed.gauge("", 0.42, bar_width=20)],
+            height=@components.dim_length(1.0),
+          ),
+          @components.hdivider(),
+          // Process list header
+          @components.row(
+            [
+              @components.text("PID   "),
+              @components.text("CPU%  "),
+              @components.text("MEM%  "),
+              @components.text("CMD"),
+            ],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(0, 100, 0),
+          ),
+          // Process entries
+          @components.text(" 1234  12.3   4.5  node"),
+          @components.text(" 5678   8.1   2.3  moon"),
+        ])
+      },
+      width=40,
+      height=10,
+    ),
+    // Chat app layout
+    Story::new(
+      "real",
+      "chat_app",
+      fn() {
+        @components.column([
+          // Header
+          @components.row(
+            [@components.text("  # general")],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(50, 50, 50),
+          ),
+          // Messages
+          @components.column(
+            [
+              @components.text("Alice: Hello!"),
+              @components.text("Bob: Hi there"),
+              @components.text("Alice: How are you?"),
+            ],
+            flex_grow=1.0,
+            padding=1.0,
+          ),
+          // Input
+          @components.row(
+            [@components.text("> Type message...")],
+            height=@components.dim_length(1.0),
+            border=Some(@core.BorderChars::single()),
+          ),
+        ])
+      },
+      width=30,
+      height=10,
+    ),
+    // File manager layout
+    Story::new(
+      "real",
+      "file_manager",
+      fn() {
+        @components.column([
+          // Path bar
+          @components.row(
+            [@components.text(" /home/user/projects ")],
+            height=@components.dim_length(1.0),
+            bg=@core.Color::rgb(40, 40, 40),
+          ),
+          // Dual pane
+          @components.row(
+            [
+              @components.column(
+                [
+                  @components.text("Left Pane"),
+                  @components.text("─────────"),
+                  @components.text(" docs/"),
+                  @components.text(" src/"),
+                  @components.text("> main.mbt"),
+                ],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+              @components.column(
+                [
+                  @components.text("Right Pane"),
+                  @components.text("──────────"),
+                  @components.text(" test/"),
+                  @components.text(" build/"),
+                  @components.text(" README"),
+                ],
+                border=Some(@core.BorderChars::single()),
+                flex_grow=1.0,
+              ),
+            ],
+            flex_grow=1.0,
+          ),
+          // Status
+          @components.row(
+            [@components.text(" 5 items | 1 selected ")],
+            height=@components.dim_length(1.0),
+          ),
+        ])
+      },
+      width=40,
+      height=12,
+    ),
+  ]
+}
+
+///|
 /// Dashboard-style composite layouts
 pub fn dashboard_layout_stories() -> Array[Story] {
   [

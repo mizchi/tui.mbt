@@ -129,6 +129,29 @@ pub fn all_stories() -> Array[Story] {
   for s in dashboard_layout_stories() {
     stories.push(s)
   }
+
+  // Advanced complex layouts
+  for s in deep_nesting_stories() {
+    stories.push(s)
+  }
+  for s in ide_layout_stories() {
+    stories.push(s)
+  }
+  for s in form_layout_stories() {
+    stories.push(s)
+  }
+  for s in split_pane_stories() {
+    stories.push(s)
+  }
+  for s in card_list_stories() {
+    stories.push(s)
+  }
+  for s in status_bar_stories() {
+    stories.push(s)
+  }
+  for s in real_world_stories() {
+    stories.push(s)
+  }
   stories
 }
 
