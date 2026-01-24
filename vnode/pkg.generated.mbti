@@ -1,0 +1,214 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/vnode"
+
+import {
+  "mizchi/crater/layout/node",
+  "mizchi/crater/types",
+  "mizchi/tui/events",
+  "mizchi/tui/render",
+}
+
+// Values
+pub fn attr(TuiAttrValue) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
+
+pub fn attr_dyn(() -> TuiAttrValue) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
+
+pub fn attr_to_string(TuiAttrValue) -> (String, String)
+
+pub fn box_node(BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn box_to_crater(TypedRenderContext, BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @node.Node
+
+pub fn column(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn component(() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn for_each(() -> Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn fragment(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn hspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn on((TuiEvent) -> Unit) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
+
+pub fn render_to_lines(@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> Array[String]
+
+pub fn render_vnode_once(Int, Int, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
+
+pub fn row(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn run_vnode_app(Int, Int, () -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
+
+pub fn show(() -> Bool, () -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn spacer() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn text_node(TextProps) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn to_crater_node(RenderContext, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @node.Node
+
+pub fn vspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+// Errors
+
+// Types and methods
+pub(all) enum AlignmentValue {
+  Start
+  Center
+  End
+  Stretch
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+  FlexStart
+  FlexEnd
+}
+pub fn AlignmentValue::to_alignment(Self) -> @types.Alignment
+
+pub(all) enum BorderValue {
+  None
+  Single
+  Double
+  Rounded
+  Ascii
+}
+pub fn BorderValue::to_border_chars(Self) -> @mizchi/tui/core.BorderChars?
+
+pub struct BoxProps {
+  id : String
+  direction : DirectionValue
+  width : DimensionValue
+  height : DimensionValue
+  min_width : DimensionValue
+  min_height : DimensionValue
+  flex_grow : Double
+  flex_shrink : Double
+  gap : Double
+  padding : Double
+  padding_x : Double
+  padding_y : Double
+  margin : Double
+  margin_x : Double
+  margin_y : Double
+  justify : AlignmentValue?
+  align : AlignmentValue?
+  border : BorderValue
+  border_color : ColorValue?
+  bg : ColorValue?
+}
+pub fn BoxProps::default() -> Self
+pub fn BoxProps::to_attrs(Self) -> Array[TuiAttrValue]
+
+pub(all) enum ColorValue {
+  Transparent
+  Named(String)
+  Rgb(Int, Int, Int)
+}
+pub fn ColorValue::to_color(Self) -> @mizchi/tui/core.Color
+
+pub(all) enum DimensionValue {
+  Auto
+  Length(Double)
+  Percent(Double)
+}
+pub fn DimensionValue::to_dimension(Self) -> @types.Dimension
+
+pub(all) enum DirectionValue {
+  Row
+  Column
+}
+pub fn DirectionValue::to_flex_direction(Self) -> @types.FlexDirection
+
+pub(all) enum MouseButton {
+  Left
+  Right
+  Middle
+}
+
+pub struct RenderContext {
+  styles : Map[String, @mizchi/tui/core.RenderStyle]
+  texts : Map[String, String]
+  handlers : Map[String, (TuiEvent) -> Unit]
+  mut id_counter : Int
+}
+pub fn RenderContext::new() -> Self
+
+pub struct TextProps {
+  content : String
+  fg : ColorValue?
+  bold : Bool
+  underline : Bool
+}
+pub fn TextProps::default(String) -> Self
+pub fn TextProps::to_attrs(Self) -> Array[TuiAttrValue]
+
+pub(all) enum TuiAttrValue {
+  Direction(DirectionValue)
+  Width(DimensionValue)
+  Height(DimensionValue)
+  MinWidth(DimensionValue)
+  MinHeight(DimensionValue)
+  FlexGrow(Double)
+  FlexShrink(Double)
+  Gap(Double)
+  Padding(Double)
+  PaddingX(Double)
+  PaddingY(Double)
+  Margin(Double)
+  MarginX(Double)
+  MarginY(Double)
+  Justify(AlignmentValue)
+  Align(AlignmentValue)
+  Border(BorderValue)
+  BorderColor(ColorValue)
+  Fg(ColorValue)
+  Bg(ColorValue)
+  Bold(Bool)
+  Underline(Bool)
+  Id(String)
+}
+
+pub(all) enum TuiEvent {
+  Click(x~ : Int, y~ : Int, button~ : MouseButton)
+  Key(key~ : String, modifiers~ : Int)
+}
+
+pub struct TypedRenderContext {
+  styles : Map[String, @mizchi/tui/core.RenderStyle]
+  texts : Map[String, String]
+  handlers : Map[String, (TuiEvent) -> Unit]
+  mut id_counter : Int
+}
+pub fn TypedRenderContext::new() -> Self
+
+pub struct VNodeApp {
+  width : Int
+  height : Int
+  mut prev_buffer : @render.CharBuffer?
+  mut last_layout : @types.Layout?
+  mut render_ctx : RenderContext
+}
+pub fn VNodeApp::clear_prev_buffer(Self) -> Unit
+pub fn VNodeApp::create_render_effect(Self, () -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
+pub fn VNodeApp::find_by_id(Self, String) -> @events.HitTestResult?
+pub fn VNodeApp::handle_click(Self, @events.MouseEvent) -> String?
+pub fn VNodeApp::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn VNodeApp::init_terminal() -> String
+pub fn VNodeApp::new(Int, Int) -> Self
+pub fn VNodeApp::render(Self, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn VNodeApp::render_frame(Self, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn VNodeApp::restore_terminal() -> String
+
+// Type aliases
+pub type TuiAttr = @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
+
+pub type TuiHandler = @mizchi/luna/core.EventHandler[TuiEvent]
+
+pub type TuiNode = @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+// Traits
+

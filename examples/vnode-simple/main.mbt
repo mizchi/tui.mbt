@@ -1,0 +1,108 @@
+///|
+/// Simple VNode TUI Starter Template
+/// Run with: moon run examples/vnode-simple
+
+///|
+/// Render the simple counter UI
+fn render_simple_ui(width : Int, height : Int, count : Int) -> @vnode.TuiNode {
+  @vnode.column(
+    [
+      // Header - matches @tui.title_bar (margin_y=1.0, fg=yellow, bold)
+      @vnode.row(
+        [@vnode.text("Simple TUI App", fg="yellow", bold=true)],
+        justify="center",
+        margin_y=1.0,
+      ),
+      // Main content area - centered both ways
+      @vnode.column(
+        [
+          @vnode.text("Press +/- to change count, q to quit"),
+          @vnode.row(
+            [
+              @vnode.text("Count: "),
+              @vnode.text(
+                count.to_string(),
+                fg=if count >= 0 { "green" } else { "red" },
+                bold=true,
+              ),
+            ],
+            justify="center",
+          ),
+        ],
+        flex_grow=1.0,
+        justify="center",
+        align="center",
+      ),
+      // Footer - matches @tui.footer (justify=center, fg=gray)
+      @vnode.row(
+        [@vnode.text("q: quit | +/-: change count", fg="rgb(128,128,128)")],
+        justify="center",
+      ),
+    ],
+    width=width.to_double(),
+    height=height.to_double(),
+    border="rounded",
+    border_color="cyan",
+  )
+}
+
+///|
+async fn main {
+  // Get terminal size
+  let (width, height) = @tui.get_terminal_size()
+
+  // Create reactive state
+  let count = @signals.signal(0)
+
+  // Create the vnode app
+  let app = @vnode.VNodeApp::new(width, height)
+
+  // Render function wrapper
+  fn render_ui() -> @vnode.TuiNode {
+    render_simple_ui(width, height, count.get())
+  }
+
+  // Initialize terminal
+  @tui.print_raw(@vnode.VNodeApp::init_terminal())
+  @tui.enable_raw_mode()
+
+  // Initial render
+  @tui.print_raw(app.render_frame(render_ui()))
+
+  // Event loop
+  let mut running = true
+  while running {
+    let key = @tui.read_key()
+    if key.length() == 0 {
+      continue
+    }
+    let event = @tui.parse_input(key)
+    let mut need_render = true
+    match event {
+      @tui.InputEvent::Key(key_event) =>
+        match key_event {
+          // Quit on 'q' or Ctrl+C or Escape
+          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => running = false
+          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => running = false
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => running = false
+          // Increment
+          @tui.KeyEvent::Char('+', _) => count.set(count.get() + 1)
+          @tui.KeyEvent::Char('=', _) => count.set(count.get() + 1)
+          // Decrement
+          @tui.KeyEvent::Char('-', _) => count.set(count.get() - 1)
+          @tui.KeyEvent::Char('_', _) => count.set(count.get() - 1)
+          _ => need_render = false
+        }
+      _ => need_render = false
+    }
+    // Re-render only when state changed
+    if need_render && running {
+      @tui.print_raw(app.render_frame(render_ui()))
+    }
+  }
+
+  // Restore terminal
+  @tui.cleanup_stdin()
+  @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+  println("Goodbye!")
+}

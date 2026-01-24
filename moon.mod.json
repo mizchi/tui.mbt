@@ -5,6 +5,7 @@
   "deps": {
     "mizchi/crater": "0.2.2",
     "mizchi/signals": "0.5.0",
+    "mizchi/luna": "0.8.1",
     "moonbitlang/async": "0.16.0"
   },
   "readme": "README.md",

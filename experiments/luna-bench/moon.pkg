@@ -1,0 +1,7 @@
+import {
+  "mizchi/tui",
+  "mizchi/tui/vnode" as @vnode,
+  "mizchi/luna/core" as @luna,
+  "mizchi/crater/types" as @types,
+  "moonbitlang/core/bench" as @bench,
+}

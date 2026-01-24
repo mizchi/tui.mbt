@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/experiments/luna-bench"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum TuiEvent2 {
+  Click(x~ : Int, y~ : Int)
+  Key(key~ : String)
+}
+
+// Type aliases
+
+// Traits
+

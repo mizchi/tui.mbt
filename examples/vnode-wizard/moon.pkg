@@ -1,0 +1,11 @@
+import {
+  "mizchi/tui",
+  "mizchi/tui/vnode",
+  "mizchi/tui/render",
+  "mizchi/signals",
+  "moonbitlang/async",
+}
+
+options(
+  "is-main": true,
+)
