@@ -12,5 +12,8 @@ import {
 
 options(
   "is-main": true,
-  link: { "native": { "cc-link-flags": "io/tui_native.c" } },
+  targets: {
+    "main.mbt": ["js"],
+    "main_native.mbt": ["not", "js"],
+  },
 )

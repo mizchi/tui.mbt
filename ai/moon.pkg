@@ -3,5 +3,8 @@ import {
 }
 
 options(
-  targets: { "client.mbt": [ "js" ] },
+  targets: {
+    "client.mbt": ["js"],
+    "tools.mbt": ["js"],
+  },
 )
