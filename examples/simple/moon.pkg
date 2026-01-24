@@ -1,0 +1,12 @@
+import {
+  "mizchi/tui/render" as @render,
+  "mizchi/tui/core" as @core,
+  "mizchi/tui/events" as @events,
+  "mizchi/tui/io" as @io,
+  "mizchi/tui/components" as @c,
+  "mizchi/signals" as @signals,
+}
+
+options(
+  "is-main": true,
+)

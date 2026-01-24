@@ -213,7 +213,7 @@ test "min_width vs width with justify center" {
 
 ///|
 test "button on_click handler is registered" {
-  let clicked = { val: false }
+  let clicked = Ref::new(false)
   let btn = button(
     "OK",
     id="my-btn",
@@ -227,7 +227,7 @@ test "button on_click handler is registered" {
       handler.invoke()
       inspect(clicked.val, content="true")
     }
-    None => @test.fail("Click handler not found")
+    None => fail("Click handler not found")
   }
 }
 
@@ -238,7 +238,7 @@ test "button has role Button" {
   // Check that button has Role::Button
   match btn.roles.get("my-btn") {
     Some(role) => inspect(role, content="Button")
-    None => @test.fail("Role not found for button")
+    None => fail("Role not found for button")
   }
 }
 

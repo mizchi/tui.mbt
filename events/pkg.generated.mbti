@@ -19,40 +19,6 @@ pub fn hit_test(@types.Layout, Int, Int, Int, Int) -> HitTestResult?
 
 pub fn hit_test_root(@types.Layout, Int, Int) -> HitTestResult?
 
-pub fn is_arrow(InputEvent) -> SpecialKey?
-
-pub fn is_backtab(InputEvent) -> Bool
-
-pub fn is_char(InputEvent, Char) -> Bool
-
-pub fn is_ctrl(InputEvent, Char) -> Bool
-
-pub fn is_ctrl_c(InputEvent) -> Bool
-
-pub fn is_enter(InputEvent) -> Bool
-
-pub fn is_escape(InputEvent) -> Bool
-
-pub fn is_left_click(InputEvent) -> MouseEvent?
-
-pub fn is_quit(InputEvent) -> Bool
-
-pub fn is_right_click(InputEvent) -> MouseEvent?
-
-pub fn is_scroll_down(InputEvent) -> Bool
-
-pub fn is_scroll_up(InputEvent) -> Bool
-
-pub fn is_tab(InputEvent) -> Bool
-
-pub fn key_is_char(KeyEvent, Char) -> Bool
-
-pub fn key_is_ctrl_c(KeyEvent) -> Bool
-
-pub fn key_is_ctrl_q(KeyEvent) -> Bool
-
-pub fn key_is_special(KeyEvent, SpecialKey) -> Bool
-
 pub fn parse_input(String) -> InputEvent
 
 // Errors
@@ -110,6 +76,19 @@ pub(all) enum InputEvent {
   Resize(Int, Int)
   Unknown(String)
 }
+pub fn InputEvent::is_arrow(Self) -> SpecialKey?
+pub fn InputEvent::is_backtab(Self) -> Bool
+pub fn InputEvent::is_char(Self, Char) -> Bool
+pub fn InputEvent::is_ctrl(Self, Char) -> Bool
+pub fn InputEvent::is_ctrl_c(Self) -> Bool
+pub fn InputEvent::is_enter(Self) -> Bool
+pub fn InputEvent::is_escape(Self) -> Bool
+pub fn InputEvent::is_left_click(Self) -> MouseEvent?
+pub fn InputEvent::is_quit(Self) -> Bool
+pub fn InputEvent::is_right_click(Self) -> MouseEvent?
+pub fn InputEvent::is_scroll_down(Self) -> Bool
+pub fn InputEvent::is_scroll_up(Self) -> Bool
+pub fn InputEvent::is_tab(Self) -> Bool
 pub impl Show for InputEvent
 
 pub(all) enum InputMode {
@@ -121,6 +100,10 @@ pub(all) enum KeyEvent {
   Char(Char, KeyModifier)
   Special(SpecialKey, KeyModifier)
 }
+pub fn KeyEvent::is_char(Self, Char) -> Bool
+pub fn KeyEvent::is_ctrl_c(Self) -> Bool
+pub fn KeyEvent::is_ctrl_q(Self) -> Bool
+pub fn KeyEvent::is_special(Self, SpecialKey) -> Bool
 pub impl Show for KeyEvent
 
 pub(all) enum KeyModifier {

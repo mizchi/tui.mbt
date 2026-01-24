@@ -128,5 +128,5 @@ pub fn render_to_ansi(
 ) -> String {
   let buf = CharBuffer::new(width, height)
   render_layout(buf, layout, styles, texts, 0, 0)
-  buffer_to_ansi(buf)
+  buf.to_ansi()
 }

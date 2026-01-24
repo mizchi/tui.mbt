@@ -56,10 +56,24 @@ pub fn streaming_block(
   cursor_char? : String = "▌",
 ) -> @core.Component {
   let display = if is_streaming { content + cursor_char } else { content }
-  let items : Array[@core.Component] = [
-    text(icon + " " + label, fg=label_color, bold=bold_label),
-    text(indent + display, fg=content_color),
-  ]
+  let label_component = text(
+    icon + " " + label,
+    fg=label_color,
+    bold=bold_label,
+  )
+  // When height is specified, constrain content to fit within remaining space
+  // Label takes 1 row, so content gets (height - 1) rows
+  let content_component = if height > 1 {
+    @core.text_box(
+      indent + display,
+      fg=content_color,
+      width=@types.Dimension::Length(width.to_double()),
+      height=@types.Dimension::Length((height - 1).to_double()),
+    )
+  } else {
+    text(indent + display, fg=content_color)
+  }
+  let items : Array[@core.Component] = [label_component, content_component]
   if height > 0 {
     column(
       items,

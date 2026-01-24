@@ -390,7 +390,7 @@ fn handle_select_key(
   options : Array[String],
   state : WizardState,
 ) -> Unit {
-  let arrow = @events.is_arrow(event)
+  let arrow = event.is_arrow()
   match arrow {
     Some(@events.SpecialKey::Up) => {
       let cur = state.cursor_idx.get()
@@ -418,7 +418,7 @@ fn handle_multiselect_key(
   options : Array[String],
   state : WizardState,
 ) -> Unit {
-  let arrow = @events.is_arrow(event)
+  let arrow = event.is_arrow()
   match arrow {
     Some(@events.SpecialKey::Up) => {
       let cur = state.cursor_idx.get()
@@ -435,7 +435,7 @@ fn handle_multiselect_key(
       render_active_prompt(prompt, state)
     }
     _ =>
-      if @events.is_char(event, ' ') {
+      if event.is_char(' ') {
         let cur = state.cursor_idx.get()
         if cur < state.selected_items.length() {
           state.selected_items[cur] = not(state.selected_items[cur])
@@ -453,7 +453,7 @@ fn handle_confirm_key(
   prompt : Prompt,
   state : WizardState,
 ) -> Unit {
-  let arrow = @events.is_arrow(event)
+  let arrow = event.is_arrow()
   match arrow {
     Some(@events.SpecialKey::Left) => {
       state.cursor_idx.set(0)
@@ -466,10 +466,10 @@ fn handle_confirm_key(
       render_active_prompt(prompt, state)
     }
     _ =>
-      if @events.is_char(event, 'y') || @events.is_char(event, 'Y') {
+      if event.is_char('y') || event.is_char('Y') {
         state.cursor_idx.set(0)
         submit_answer(state)
-      } else if @events.is_char(event, 'n') || @events.is_char(event, 'N') {
+      } else if event.is_char('n') || event.is_char('N') {
         state.cursor_idx.set(1)
         submit_answer(state)
       }
@@ -488,14 +488,14 @@ fn handle_key(key : String, state : WizardState) -> Unit {
     return
   }
   let prompt = state.prompts[idx]
-  if @events.is_ctrl_c(event) {
+  if event.is_ctrl_c() {
     @io.stop_keypress_listener()
     pr(show_cursor())
     prln("\n" + red() + "Aborted." + reset())
     state.running.set(false)
     return
   }
-  if @events.is_enter(event) {
+  if event.is_enter() {
     pr(hide_cursor())
     submit_answer(state)
     return

@@ -202,425 +202,6 @@ pub fn set_idle_handler(handler : () -> Unit) -> Unit {
 }
 
 ///|
-/// Start an inplace input session with raw mode
-/// Stays in alternate screen, edits at specified position
-/// row/col are 1-indexed ANSI coordinates
-/// Enter confirms, Esc cancels, Ctrl+C force quits
-/// Supports arrow keys, Home, End, Delete for cursor movement
-extern "js" fn js_start_inplace_input(
-  row : Int,
-  col : Int,
-  width : Int,
-  height : Int,
-  multiline : Bool,
-  initial : String,
-  confirm_on_shift_enter : Bool,
-  esc_cancels : Bool,
-  on_confirmed : (String) -> Unit,
-  on_cancelled : () -> Unit,
-  on_force_quit : () -> Unit,
-) -> Unit =
-  #| async (row, col, width, height, multiline, initial, confirmOnShiftEnter, escCancels, onConfirmed, onCancelled, onForceQuit) => {
-  #|   const { stdin, stdout, stderr } = await import('node:process');
-  #|   const { execSync } = await import('node:child_process');
-  #|   const debug = process.env.TUI_DEBUG_COOKED === '1';
-  #|   const toHex = (text) => Array.from(text)
-  #|     .map((ch) => ch.codePointAt(0).toString(16).padStart(4, '0'))
-  #|     .join(' ');
-  #|   const show = (text) => {
-  #|     try {
-  #|       return JSON.stringify(text);
-  #|     } catch {
-  #|       return '[unprintable]';
-  #|     }
-  #|   };
-  #|
-  #|   // Helper to get display width of a character
-  #|   const getCharWidth = (char) => {
-  #|     const code = char.codePointAt(0);
-  #|     if (code >= 0x1100 && (
-  #|       code <= 0x115F ||
-  #|       code === 0x2329 || code === 0x232A ||
-  #|       (code >= 0x2E80 && code <= 0x303E) ||
-  #|       (code >= 0x3040 && code <= 0x33FF) ||
-  #|       (code >= 0x3400 && code <= 0x4DBF) ||
-  #|       (code >= 0x4E00 && code <= 0x9FFF) ||
-  #|       (code >= 0xAC00 && code <= 0xD7A3) ||
-  #|       (code >= 0xF900 && code <= 0xFAFF) ||
-  #|       (code >= 0xFE10 && code <= 0xFE1F) ||
-  #|       (code >= 0xFE30 && code <= 0xFE6F) ||
-  #|       (code >= 0xFF00 && code <= 0xFF60) ||
-  #|       (code >= 0xFFE0 && code <= 0xFFE6) ||
-  #|       (code >= 0x20000 && code <= 0x2FFFF)
-  #|     )) {
-  #|       return 2;
-  #|     }
-  #|     return 1;
-  #|   };
-  #|
-  #|   const getStringWidth = (str) => {
-  #|     let w = 0;
-  #|     for (const char of str) w += getCharWidth(char);
-  #|     return w;
-  #|   };
-  #|
-  #|   // Wrap text into lines based on width, handling newlines
-  #|   const wrapText = (chars) => {
-  #|     const lines = [];
-  #|     let currentLine = [];
-  #|     let currentWidth = 0;
-  #|     let lineStartIdx = 0;
-  #|
-  #|     for (let i = 0; i < chars.length; i++) {
-  #|       const char = chars[i];
-  #|
-  #|       // Handle explicit newline character
-  #|       if (char === '\n') {
-  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|         currentLine = [];
-  #|         currentWidth = 0;
-  #|         lineStartIdx = i + 1; // Next line starts after the newline
-  #|         continue;
-  #|       }
-  #|
-  #|       const charWidth = getCharWidth(char);
-  #|
-  #|       if (currentWidth + charWidth > width) {
-  #|         lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|         currentLine = [char];
-  #|         currentWidth = charWidth;
-  #|         lineStartIdx = i;
-  #|       } else {
-  #|         currentLine.push(char);
-  #|         currentWidth += charWidth;
-  #|       }
-  #|     }
-  #|     lines.push({ chars: currentLine, startIdx: lineStartIdx });
-  #|     return lines;
-  #|   };
-  #|
-  #|   // Find cursor position in wrapped lines
-  #|   const findCursorPos = (lines, cursor) => {
-  #|     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-  #|       const line = lines[lineIdx];
-  #|       const nextStart = lineIdx + 1 < lines.length
-  #|         ? lines[lineIdx + 1].startIdx
-  #|         : line.startIdx + line.chars.length;
-  #|       if (cursor < nextStart) {
-  #|         const posInLine = cursor - line.startIdx;
-  #|         let colOffset = 0;
-  #|         for (let i = 0; i < posInLine; i++) {
-  #|           colOffset += getCharWidth(line.chars[i]);
-  #|         }
-  #|         return { lineIdx, colOffset };
-  #|       }
-  #|     }
-  #|     const lastLine = lines[lines.length - 1];
-  #|     let colOffset = 0;
-  #|     for (const char of lastLine.chars) {
-  #|       colOffset += getCharWidth(char);
-  #|     }
-  #|     return { lineIdx: lines.length - 1, colOffset };
-  #|   };
-  #|
-  #|   // Clean up any existing handlers
-  #|   if (stdin.__dataHandler) {
-  #|     stdin.removeListener('data', stdin.__dataHandler);
-  #|     stdin.__dataHandler = null;
-  #|   }
-  #|
-  #|   // Keep raw mode for character-by-character input
-  #|   if (stdin.isTTY) {
-  #|     stdin.setRawMode(true);
-  #|   }
-  #|   stdin.pause();
-  #|   stdin.resume();
-  #|   stdin.setEncoding('utf8');
-  #|
-  #|   let chars = [...initial];
-  #|   let cursor = chars.length;
-  #|   let done = false;
-  #|   let scrollOffset = 0; // First visible line index
-  #|
-  #|   const redraw = () => {
-  #|     const lines = wrapText(chars);
-  #|     const cursorPos = findCursorPos(lines, cursor);
-  #|
-  #|     // Adjust scroll to keep cursor visible
-  #|     if (cursorPos.lineIdx < scrollOffset) {
-  #|       scrollOffset = cursorPos.lineIdx;
-  #|     } else if (cursorPos.lineIdx >= scrollOffset + height) {
-  #|       scrollOffset = cursorPos.lineIdx - height + 1;
-  #|     }
-  #|
-  #|     // Clear all lines
-  #|     for (let i = 0; i < height; i++) {
-  #|       stdout.write(`\x1b[${row + i};${col}H`);
-  #|       stdout.write(' '.repeat(width));
-  #|     }
-  #|
-  #|     // Determine if we need ellipsis
-  #|     const hasMoreAbove = scrollOffset > 0;
-  #|     const hasMoreBelow = lines.length > scrollOffset + height;
-  #|
-  #|     // Helper to truncate text to fit within width
-  #|     const truncateToWidth = (text, maxWidth) => {
-  #|       let w = 0;
-  #|       let result = '';
-  #|       for (const char of text) {
-  #|         const cw = getCharWidth(char);
-  #|         if (w + cw > maxWidth) break;
-  #|         result += char;
-  #|         w += cw;
-  #|       }
-  #|       return result;
-  #|     };
-  #|
-  #|     // Draw visible lines
-  #|     for (let i = 0; i < height; i++) {
-  #|       const lineIdx = scrollOffset + i;
-  #|       if (lineIdx >= lines.length) break;
-  #|
-  #|       const line = lines[lineIdx];
-  #|       let lineText = line.chars.join('');
-  #|
-  #|       stdout.write(`\x1b[${row + i};${col}H`);
-  #|
-  #|       // Show ellipsis for overflow
-  #|       if (i === 0 && hasMoreAbove) {
-  #|         // First visible line with content above
-  #|         const displayWidth = getStringWidth(lineText);
-  #|         if (displayWidth > width - 1) {
-  #|           // Truncate and add ellipsis at start
-  #|           let w = 0;
-  #|           let startIdx = 0;
-  #|           for (let j = line.chars.length - 1; j >= 0; j--) {
-  #|             const cw = getCharWidth(line.chars[j]);
-  #|             if (w + cw > width - 1) break;
-  #|             w += cw;
-  #|             startIdx = j;
-  #|           }
-  #|           lineText = '…' + line.chars.slice(startIdx).join('');
-  #|         }
-  #|       } else if (i === height - 1 && hasMoreBelow) {
-  #|         // Last visible line with content below - show ellipsis at end
-  #|         const displayWidth = getStringWidth(lineText);
-  #|         if (displayWidth > width - 1) {
-  #|           let w = 0;
-  #|           let endIdx = line.chars.length;
-  #|           for (let j = 0; j < line.chars.length; j++) {
-  #|             const cw = getCharWidth(line.chars[j]);
-  #|             if (w + cw > width - 1) {
-  #|               endIdx = j;
-  #|               break;
-  #|             }
-  #|             w += cw;
-  #|           }
-  #|           lineText = line.chars.slice(0, endIdx).join('') + '…';
-  #|         } else {
-  #|           lineText = lineText + '…';
-  #|         }
-  #|       }
-  #|
-  #|       // Ensure text doesn't exceed width (safety measure)
-  #|       lineText = truncateToWidth(lineText, width);
-  #|       stdout.write(lineText);
-  #|     }
-  #|
-  #|     // Position cursor (clamped to valid range)
-  #|     const cursorLineOffset = cursorPos.lineIdx - scrollOffset;
-  #|     const displayRow = row + Math.max(0, Math.min(cursorLineOffset, height - 1));
-  #|     const displayCol = col + Math.max(0, Math.min(cursorPos.colOffset, width - 1));
-  #|     stdout.write(`\x1b[${displayRow};${displayCol}H`);
-  #|     stdout.write('\x1b[?25h');
-  #|   };
-  #|
-  #|   // Initial display
-  #|   redraw();
-  #|
-  #|   const cleanup = () => {
-  #|     if (stdin.__inplaceHandler) {
-  #|       stdin.removeListener('data', stdin.__inplaceHandler);
-  #|       stdin.__inplaceHandler = null;
-  #|     }
-  #|     stdout.write('\x1b[?25l');
-  #|   };
-  #|
-  #|   const finish = (result) => {
-  #|     if (done) return;
-  #|     done = true;
-  #|     cleanup();
-  #|     setImmediate(() => onConfirmed(result));
-  #|   };
-  #|
-  #|   const cancel = () => {
-  #|     if (done) return;
-  #|     done = true;
-  #|     cleanup();
-  #|     setImmediate(() => onCancelled());
-  #|   };
-  #|
-  #|   const onData = (chunk) => {
-  #|     if (done) return;
-  #|
-  #|     // Handle escape sequences
-  #|     if (chunk === '\x1b') {
-  #|       if (escCancels) {
-  #|         cancel();
-  #|       }
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[A') {
-  #|       // Up arrow - move to previous line
-  #|       const lines = wrapText(chars);
-  #|       const pos = findCursorPos(lines, cursor);
-  #|       if (pos.lineIdx > 0) {
-  #|         const prevLine = lines[pos.lineIdx - 1];
-  #|         // Find position in previous line at same column offset
-  #|         let targetCol = pos.colOffset;
-  #|         let newCursor = prevLine.startIdx;
-  #|         let w = 0;
-  #|         for (let i = 0; i < prevLine.chars.length; i++) {
-  #|           const cw = getCharWidth(prevLine.chars[i]);
-  #|           if (w + cw > targetCol) break;
-  #|           w += cw;
-  #|           newCursor = prevLine.startIdx + i + 1;
-  #|         }
-  #|         cursor = Math.min(newCursor, prevLine.startIdx + prevLine.chars.length);
-  #|         redraw();
-  #|       }
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[B') {
-  #|       // Down arrow - move to next line
-  #|       const lines = wrapText(chars);
-  #|       const pos = findCursorPos(lines, cursor);
-  #|       if (pos.lineIdx < lines.length - 1) {
-  #|         const nextLine = lines[pos.lineIdx + 1];
-  #|         let targetCol = pos.colOffset;
-  #|         let newCursor = nextLine.startIdx;
-  #|         let w = 0;
-  #|         for (let i = 0; i < nextLine.chars.length; i++) {
-  #|           const cw = getCharWidth(nextLine.chars[i]);
-  #|           if (w + cw > targetCol) break;
-  #|           w += cw;
-  #|           newCursor = nextLine.startIdx + i + 1;
-  #|         }
-  #|         cursor = Math.min(newCursor, nextLine.startIdx + nextLine.chars.length);
-  #|         redraw();
-  #|       }
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[D') {
-  #|       if (cursor > 0) {
-  #|         cursor--;
-  #|         redraw();
-  #|       }
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[C') {
-  #|       if (cursor < chars.length) {
-  #|         cursor++;
-  #|         redraw();
-  #|       }
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[H' || chunk === '\x1b[1~') {
-  #|       cursor = 0;
-  #|       redraw();
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[F' || chunk === '\x1b[4~') {
-  #|       cursor = chars.length;
-  #|       redraw();
-  #|       return;
-  #|     }
-  #|     if (chunk === '\x1b[3~') {
-  #|       if (cursor < chars.length) {
-  #|         chars.splice(cursor, 1);
-  #|         redraw();
-  #|       }
-  #|       return;
-  #|     }
-  #|     // Check for Shift+Enter or Alt+Enter
-  #|     if (chunk === '\x1b[13;2u' || chunk === '\x1b[27;2;13~' || chunk === '\x1bOM' || chunk === '\x1b\r' || chunk === '\x1b\n') {
-  #|       if (confirmOnShiftEnter) {
-  #|         finish(chars.join(''));
-  #|         return;
-  #|       }
-  #|       // Shift+Enter or Alt+Enter - insert newline
-  #|       chars.splice(cursor, 0, '\n');
-  #|       cursor++;
-  #|       redraw();
-  #|       return;
-  #|     }
-  #|     if (chunk.startsWith('\x1b[')) {
-  #|       return;
-  #|     }
-  #|
-  #|     for (const char of chunk) {
-  #|       const code = char.charCodeAt(0);
-  #|
-  #|       if (code === 3) {
-  #|         // Ctrl+C - force quit
-  #|         if (done) return;
-  #|         done = true;
-  #|         cleanup();
-  #|         setImmediate(() => onForceQuit());
-  #|         return;
-  #|       } else if (code === 4 || code === 10) {
-  #|         // Ctrl+D or Ctrl+J - insert newline in multiline mode
-  #|         if (multiline) {
-  #|           chars.splice(cursor, 0, '\n');
-  #|           cursor++;
-  #|           redraw();
-  #|         }
-  #|       } else if (code === 1) {
-  #|         // Ctrl+A - Home
-  #|         cursor = 0;
-  #|         redraw();
-  #|       } else if (code === 5) {
-  #|         // Ctrl+E - End
-  #|         cursor = chars.length;
-  #|         redraw();
-  #|       } else if (code === 11) {
-  #|         // Ctrl+K - delete from cursor to end
-  #|         chars.splice(cursor, chars.length - cursor);
-  #|         redraw();
-  #|       } else if (code === 21) {
-  #|         // Ctrl+U - delete from start to cursor
-  #|         chars.splice(0, cursor);
-  #|         cursor = 0;
-  #|         redraw();
-  #|       } else if (code === 13) {
-  #|         if (confirmOnShiftEnter && multiline) {
-  #|           chars.splice(cursor, 0, '\n');
-  #|           cursor++;
-  #|           redraw();
-  #|         } else {
-  #|           // Enter confirms
-  #|           finish(chars.join(''));
-  #|           return;
-  #|         }
-  #|       } else if (code === 127 || code === 8) {
-  #|         if (cursor > 0) {
-  #|           chars.splice(cursor - 1, 1);
-  #|           cursor--;
-  #|           redraw();
-  #|         }
-  #|       } else if (code >= 32) {
-  #|         chars.splice(cursor, 0, char);
-  #|         cursor++;
-  #|         redraw();
-  #|       }
-  #|     }
-  #|   };
-  #|
-  #|   stdin.__inplaceHandler = onData;
-  #|   stdin.on('data', onData);
-  #| }
-
-///|
 /// Start an inline input session with cooked mode (IME enabled)
 /// Exits alternate screen temporarily for proper IME support
 /// Enter confirms, Escape cancels, Ctrl+C force quits
@@ -1359,22 +940,168 @@ pub fn start_inplace_input(
   on_lines_change? : ((Int) -> Int)? = None,
   on_completion? : ((String, Int) -> String?)? = None,
 ) -> Unit {
-  // Note: on_lines_change and on_completion are currently ignored in JS version
-  let _ = on_lines_change
-  let _ = on_completion
-  js_start_inplace_input(
-    row,
-    col,
+  // Create controller with configuration
+  let config = @input.TextInputConfig::new(
     width,
     height,
-    multiline,
-    initial,
-    confirm_on_shift_enter,
-    esc_cancels,
-    fn(value) { on_result(InputResult::Confirmed(value)) },
-    fn() { on_result(InputResult::Cancelled) },
-    fn() { on_result(InputResult::ForceQuit) },
+    multiline~,
+    confirm_on_shift_enter~,
+    esc_cancels~,
   )
+  let controller = @input.TextInputController::new(config, initial)
+
+  // Current height (can change dynamically)
+  let current_height = Ref::new(height)
+  // Base row is the bottom of input area (fixed)
+  let base_row = row + height - 1
+
+  // Helper to render and position cursor with scroll
+  fn do_render() {
+    let state = controller.get_display_state()
+    // Calculate current start row (grows upward)
+    let old_height = current_height.val
+    let old_start_row = base_row - old_height + 1
+    // Update height if callback provided
+    match on_lines_change {
+      Some(callback) => {
+        let new_height = callback(state.total_lines)
+        if new_height != current_height.val {
+          current_height.val = new_height
+          controller.resize(width, new_height)
+        }
+      }
+      None => ()
+    }
+    // Calculate new start row
+    let start_row = base_row - current_height.val + 1
+    // Clear old area if height changed
+    if old_height != current_height.val {
+      if current_height.val < old_height {
+        // Shrinking: clear above
+        for r = old_start_row; r < start_row; r = r + 1 {
+          print_raw(
+            "\u001b[" +
+            r.to_string() +
+            ";" +
+            col.to_string() +
+            "H" +
+            " ".repeat(width),
+          )
+        }
+      } else {
+        // Growing: clear new area above
+        for r = start_row; r < old_start_row; r = r + 1 {
+          print_raw(
+            "\u001b[" +
+            r.to_string() +
+            ";" +
+            col.to_string() +
+            "H" +
+            " ".repeat(width),
+          )
+        }
+      }
+    }
+    // Get updated state after potential resize
+    let state = controller.get_display_state()
+    // Render with scroll (at calculated start row)
+    render_display_state(state, start_row, col, width, current_height.val)
+    // Position cursor
+    let display_row = start_row + state.cursor_line - state.scroll_offset
+    let display_col = col + state.cursor_col
+    print_raw(
+      "\u001b[" + display_row.to_string() + ";" + display_col.to_string() + "H",
+    )
+    print_raw(@render.ansi_show_cursor())
+  }
+
+  // Initial render
+  do_render()
+
+  // Track if done
+  let done = Ref::new(false)
+
+  // Key handler
+  let handle_key : (String) -> Unit = fn(key) {
+    if done.val {
+      return
+    }
+
+    // Parse input and extract KeyEvent
+    let input_event = @events.parse_input(key)
+    let action = match input_event {
+      @events.InputEvent::Key(key_event) =>
+        @input.interpret_key(key_event, config)
+      _ => @input.EditAction::None
+    }
+
+    // Handle special actions that require custom logic
+    match action {
+      @input.EditAction::Tab => {
+        // Tab - try completion first, then confirm and go to next
+        let mut handled_by_completion = false
+        match on_completion {
+          Some(provider) => {
+            let text = controller.get_text()
+            let completion_result = provider(text, controller.get_cursor_pos())
+            match completion_result {
+              Some(suffix) =>
+                if suffix.length() > 0 {
+                  let _ = controller.apply_action(
+                    @input.EditAction::Insert(suffix),
+                  )
+                  do_render()
+                  handled_by_completion = true
+                }
+              None => ()
+            }
+          }
+          None => ()
+        }
+        if not(handled_by_completion) {
+          done.val = true
+          js_cleanup_raw_input_listener()
+          on_result(InputResult::TabNext(controller.get_text()))
+        }
+      }
+      @input.EditAction::BackTab => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::TabPrev(controller.get_text()))
+      }
+      @input.EditAction::Confirm => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::Confirmed(controller.get_text()))
+      }
+      @input.EditAction::Cancel => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::Cancelled)
+      }
+      @input.EditAction::ForceQuit => {
+        done.val = true
+        js_cleanup_raw_input_listener()
+        on_result(InputResult::ForceQuit)
+      }
+      @input.EditAction::None => ()
+      _ => {
+        // Apply edit action to controller
+        let handled = controller.apply_action(action)
+        if handled {
+          do_render()
+        }
+      }
+    }
+  }
+
+  // Cleanup handler
+  let cleanup_handler : () -> Unit = fn() {
+    print_raw(@render.ansi_hide_cursor())
+  }
+
+  // Setup listener
+  js_setup_raw_input_listener(handle_key, cleanup_handler)
 }
 
 ///|
@@ -1725,3 +1452,121 @@ pub fn is_headless() -> Bool {
   }
   false
 }
+
+// ===== TextInputController-based implementation =====
+
+///|
+/// Render display state with scroll support (shared with native)
+fn render_display_state(
+  state : @input.DisplayState,
+  start_row : Int,
+  start_col : Int,
+  max_width : Int,
+  max_height : Int,
+) -> Unit {
+  let mut output = ""
+  // Clear area
+  for r = 0; r < max_height; r = r + 1 {
+    output = output +
+      "\u001b[" +
+      (start_row + r).to_string() +
+      ";" +
+      start_col.to_string() +
+      "H"
+    for w = 0; w < max_width; w = w + 1 {
+      output = output + " "
+    }
+  }
+  // Draw visible lines
+  for i = 0; i < max_height; i = i + 1 {
+    let line_idx = state.scroll_offset + i
+    if line_idx >= state.lines.length() {
+      break
+    }
+    let line = state.lines[line_idx]
+    output = output +
+      "\u001b[" +
+      (start_row + i).to_string() +
+      ";" +
+      start_col.to_string() +
+      "H"
+    // Show ellipsis for overflow
+    if i == 0 && state.has_more_above {
+      output = output + "…"
+      let mut w = 1
+      for c in line.chars {
+        let cw = @core.char_display_width(c)
+        if w + cw > max_width {
+          break
+        }
+        output = output + c.to_string()
+        w = w + cw
+      }
+    } else if i == max_height - 1 && state.has_more_below {
+      let mut w = 0
+      for c in line.chars {
+        let cw = @core.char_display_width(c)
+        if w + cw > max_width - 1 {
+          break
+        }
+        output = output + c.to_string()
+        w = w + cw
+      }
+      output = output + "…"
+    } else {
+      for c in line.chars {
+        output = output + c.to_string()
+      }
+    }
+  }
+  print_raw(output)
+}
+
+///|
+/// Setup raw input listener that calls onKey callback for each keystroke
+extern "js" fn js_setup_raw_input_listener(
+  on_key : (String) -> Unit,
+  on_cleanup : () -> Unit,
+) -> Unit =
+  #| async (onKey, onCleanup) => {
+  #|   const { stdin, stdout } = await import('node:process');
+  #|
+  #|   // Clean up existing handlers
+  #|   if (stdin.__rawInputHandler) {
+  #|     stdin.removeListener('data', stdin.__rawInputHandler);
+  #|     stdin.__rawInputHandler = null;
+  #|   }
+  #|
+  #|   if (stdin.isTTY) {
+  #|     stdin.setRawMode(true);
+  #|   }
+  #|   stdin.resume();
+  #|   stdin.setEncoding('utf8');
+  #|
+  #|   const handler = (data) => {
+  #|     onKey(data);
+  #|   };
+  #|
+  #|   stdin.__rawInputHandler = handler;
+  #|   stdin.__rawInputCleanup = onCleanup;
+  #|   stdin.on('data', handler);
+  #| }
+
+///|
+/// Cleanup raw input listener
+extern "js" fn js_cleanup_raw_input_listener() =
+  #| async () => {
+  #|   const { stdin } = await import('node:process');
+  #|
+  #|   if (stdin.__rawInputHandler) {
+  #|     stdin.removeListener('data', stdin.__rawInputHandler);
+  #|     stdin.__rawInputHandler = null;
+  #|   }
+  #|   if (stdin.__rawInputCleanup) {
+  #|     stdin.__rawInputCleanup();
+  #|     stdin.__rawInputCleanup = null;
+  #|   }
+  #|   if (stdin.isTTY) {
+  #|     stdin.setRawMode(false);
+  #|   }
+  #| }

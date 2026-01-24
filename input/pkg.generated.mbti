@@ -6,19 +6,7 @@ import {
 }
 
 // Values
-pub fn adjust_scroll_offset(Int, Int, Int, Int) -> Int
-
-pub fn char_width_code(Int) -> Int
-
-pub fn cursor_down(Array[LineInfo], Int) -> Int
-
-pub fn cursor_up(Array[LineInfo], Int) -> Int
-
-pub fn find_cursor_line(Array[LineInfo], Int) -> (Int, Int)
-
 pub fn interpret_key(@events.KeyEvent, TextInputConfig) -> EditAction
-
-pub fn wrap_text_to_lines(Array[Char], Int) -> Array[LineInfo]
 
 // Errors
 

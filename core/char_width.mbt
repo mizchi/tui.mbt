@@ -2,21 +2,39 @@
 /// Character width utilities for CJK and wide character support
 
 ///|
-fn is_wide_char(c : Char) -> Bool {
-  let cp = c.to_int()
-  (cp >= 0x4E00 && cp <= 0x9FFF) ||
-  (cp >= 0x3400 && cp <= 0x4DBF) ||
-  (cp >= 0x3040 && cp <= 0x309F) ||
-  (cp >= 0x30A0 && cp <= 0x30FF) ||
-  (cp >= 0xAC00 && cp <= 0xD7AF) ||
-  (cp >= 0xFF00 && cp <= 0xFFEF) ||
-  (cp >= 0x3000 && cp <= 0x303F)
+/// Check if code point is wide (CJK/fullwidth)
+/// Covers Unicode East Asian Width property for common cases
+fn is_wide_char_code(code : Int) -> Bool {
+  code >= 0x1100 &&
+  (
+    code <= 0x115F || // Hangul Jamo
+    code == 0x2329 ||
+    code == 0x232A || // Angle brackets
+    (code >= 0x2E80 && code <= 0x303E) || // CJK Radicals, Kangxi, etc
+    (code >= 0x3040 && code <= 0x33FF) || // Hiragana, Katakana, CJK symbols
+    (code >= 0x3400 && code <= 0x4DBF) || // CJK Extension A
+    (code >= 0x4E00 && code <= 0x9FFF) || // CJK Unified Ideographs
+    (code >= 0xAC00 && code <= 0xD7A3) || // Hangul Syllables
+    (code >= 0xF900 && code <= 0xFAFF) || // CJK Compatibility Ideographs
+    (code >= 0xFE10 && code <= 0xFE1F) || // Vertical forms
+    (code >= 0xFE30 && code <= 0xFE6F) || // CJK Compatibility Forms
+    (code >= 0xFF00 && code <= 0xFF60) || // Fullwidth forms
+    (code >= 0xFFE0 && code <= 0xFFE6) || // Fullwidth symbols
+    (
+      code >= 0x20000 &&
+      code <= // CJK Extension B-F
+      0x2FFFF
+    )
+  )
 }
 
 ///|
 /// Get display width of a character (1 for normal, 2 for wide/CJK)
 pub fn char_display_width(c : Char) -> Int {
-  if is_wide_char(c) {
+  let code = c.to_int()
+  if code < 0x80 {
+    1
+  } else if is_wide_char_code(code) {
     2
   } else {
     1

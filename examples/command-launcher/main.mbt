@@ -4,33 +4,32 @@
 
 // Available commands
 let commands : Array[Command] = [
-  { id: "file.new", name: "New File", icon: "+" },
-  { id: "file.open", name: "Open File", icon: "O" },
-  { id: "file.save", name: "Save File", icon: "S" },
-  { id: "file.close", name: "Close File", icon: "X" },
-  { id: "edit.undo", name: "Undo", icon: "U" },
-  { id: "edit.redo", name: "Redo", icon: "R" },
-  { id: "edit.cut", name: "Cut", icon: "X" },
-  { id: "edit.copy", name: "Copy", icon: "C" },
-  { id: "edit.paste", name: "Paste", icon: "V" },
-  { id: "edit.find", name: "Find", icon: "F" },
-  { id: "edit.replace", name: "Find and Replace", icon: "H" },
-  { id: "view.zoom-in", name: "Zoom In", icon: "+" },
-  { id: "view.zoom-out", name: "Zoom Out", icon: "-" },
-  { id: "view.sidebar", name: "Toggle Sidebar", icon: "|" },
-  { id: "git.commit", name: "Git Commit", icon: "G" },
-  { id: "git.push", name: "Git Push", icon: "P" },
-  { id: "git.pull", name: "Git Pull", icon: "D" },
-  { id: "terminal.new", name: "New Terminal", icon: "T" },
-  { id: "terminal.clear", name: "Clear Terminal", icon: "C" },
-  { id: "settings.open", name: "Open Settings", icon: "*" },
-  { id: "help.docs", name: "Open Documentation", icon: "?" },
-  { id: "help.about", name: "About", icon: "i" },
+  { name: "New File", icon: "+" },
+  { name: "Open File", icon: "O" },
+  { name: "Save File", icon: "S" },
+  { name: "Close File", icon: "X" },
+  { name: "Undo", icon: "U" },
+  { name: "Redo", icon: "R" },
+  { name: "Cut", icon: "X" },
+  { name: "Copy", icon: "C" },
+  { name: "Paste", icon: "V" },
+  { name: "Find", icon: "F" },
+  { name: "Find and Replace", icon: "H" },
+  { name: "Zoom In", icon: "+" },
+  { name: "Zoom Out", icon: "-" },
+  { name: "Toggle Sidebar", icon: "|" },
+  { name: "Git Commit", icon: "G" },
+  { name: "Git Push", icon: "P" },
+  { name: "Git Pull", icon: "D" },
+  { name: "New Terminal", icon: "T" },
+  { name: "Clear Terminal", icon: "C" },
+  { name: "Open Settings", icon: "*" },
+  { name: "Open Documentation", icon: "?" },
+  { name: "About", icon: "i" },
 ]
 
 ///|
 struct Command {
-  id : String
   name : String
   icon : String
 }
@@ -176,11 +175,6 @@ fn clear_screen() -> String {
   "\u001b[2J"
 }
 
-///|
-fn clear_to_end() -> String {
-  "\u001b[K"
-}
-
 // =============================================================================
 // UI Constants
 // =============================================================================
@@ -190,15 +184,6 @@ let launcher_width : Int = 50
 
 ///|
 let max_visible_items : Int = 10
-
-///|
-fn pad_right(s : String, width : Int) -> String {
-  if s.length() >= width {
-    s
-  } else {
-    s + " ".repeat(width - s.length())
-  }
-}
 
 // =============================================================================
 // Rendering
@@ -425,7 +410,7 @@ fn handle_key(key : String, state : AppState) -> Unit {
   let event = @events.parse_input(key)
   let engine = state.manager.get_engine()
   // Ctrl+C: quit
-  if @events.is_ctrl_c(event) {
+  if event.is_ctrl_c() {
     @io.stop_keypress_listener()
     pr(show_cursor())
     pr(exit_alt_screen())
@@ -434,7 +419,7 @@ fn handle_key(key : String, state : AppState) -> Unit {
     return
   }
   // Ctrl+P: toggle launcher
-  if @events.is_ctrl(event, 'p') {
+  if event.is_ctrl('p') {
     if state.launcher_open {
       close_launcher(state)
     } else {
@@ -446,13 +431,13 @@ fn handle_key(key : String, state : AppState) -> Unit {
   // Launcher-specific keys
   if state.launcher_open {
     // Escape: close launcher
-    if @events.is_escape(event) {
+    if event.is_escape() {
       close_launcher(state)
       render_all(state)
       return
     }
     // Arrow keys: navigate
-    match @events.is_arrow(event) {
+    match event.is_arrow() {
       Some(@events.SpecialKey::Up) => {
         engine.select_prev()
         render_all(state)
@@ -466,13 +451,13 @@ fn handle_key(key : String, state : AppState) -> Unit {
       _ => ()
     }
     // Enter: execute
-    if @events.is_enter(event) {
+    if event.is_enter() {
       execute_command(state)
       render_all(state)
       return
     }
     // Tab: select and keep open
-    if @events.is_tab(event) {
+    if event.is_tab() {
       match engine.get_selected_item() {
         Some(item) => {
           state.input = item

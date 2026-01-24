@@ -5,3 +5,7 @@ import {
   "mizchi/crater/types",
   "mizchi/signals" as @signals,
 }
+
+import "test" {
+  "mizchi/tui/testing" as @testing,
+}

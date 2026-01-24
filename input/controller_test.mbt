@@ -1,6 +1,8 @@
 ///|
 /// Tests for TextInputController
 
+// ===== TextInputController tests =====
+
 ///|
 test "new controller with initial text" {
   let config = TextInputConfig::new(80, 10)
@@ -344,7 +346,7 @@ test "move to line start - cursor at start of line already" {
 }
 
 ///|
-test "wrap_text_to_lines with narrow width" {
+test "narrow width wrapping and MoveToLineStart" {
   // Simulate narrow editor width
   let config = TextInputConfig::new(10, 5, multiline=true)
   let ctrl = TextInputController::new(config, "")
@@ -355,18 +357,11 @@ test "wrap_text_to_lines with narrow width" {
   assert_eq(text, "abcdefghijklmnop")
   assert_eq(ctrl.get_cursor_pos(), 16)
 
-  // Check wrap_text_to_lines
-  let chars : Array[Char] = text.iter().collect()
-  let lines = wrap_text_to_lines(chars, 10)
-  assert_eq(lines.length(), 2)
-  assert_eq(lines[0].start_idx, 0)
-  assert_eq(lines[1].start_idx, 10)
+  // Verify display state shows wrapped lines
+  let state = ctrl.get_display_state()
+  assert_eq(state.lines.length(), 2)
 
-  // Cursor at position 16 (end of second line)
-  let (line_idx, _) = find_cursor_line(lines, 16)
-  assert_eq(line_idx, 1)
-
-  // MoveToLineStart should go to position 10 (start of second line)
+  // MoveToLineStart should go to position 10 (start of second wrapped line)
   let _ = ctrl.apply_action(MoveToLineStart)
   assert_eq(ctrl.get_cursor_pos(), 10)
 }

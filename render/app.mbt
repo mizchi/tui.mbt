@@ -38,11 +38,11 @@ pub fn App::render(self : App, component : @core.Component) -> String {
 
   // Generate output with diff if possible
   let output = match self.prev_buffer {
-    Some(prev) => buffer_diff_to_ansi(buf, prev)
+    Some(prev) => buf.diff_to_ansi(prev)
     None =>
       // First render: clear screen and render full
-      // buffer_to_ansi already handles cursor positioning, so no need for explicit move
-      ansi_clear_screen() + buffer_to_ansi(buf)
+      // to_ansi already handles cursor positioning, so no need for explicit move
+      ansi_clear_screen() + buf.to_ansi()
   }
 
   // Save current buffer for next diff
@@ -63,8 +63,8 @@ pub fn App::render_with_offset(
   let buf = CharBuffer::new(self.width, self.height)
   render_layout(buf, layout, component.styles, component.texts, 0, 0)
   let output = match self.prev_buffer {
-    Some(prev) => buffer_diff_to_ansi_offset(buf, prev, row_offset, col_offset)
-    None => buffer_to_ansi_offset(buf, row_offset, col_offset)
+    Some(prev) => buf.diff_to_ansi_offset(prev, row_offset, col_offset)
+    None => buf.to_ansi_offset(row_offset, col_offset)
   }
   self.prev_buffer = Some(buf)
   output

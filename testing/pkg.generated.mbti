@@ -109,6 +109,38 @@ pub fn TestHarness::new(width? : Int, height? : Int) -> Self
 pub fn TestHarness::parse_key(Self, String) -> @events.InputEvent
 pub fn TestHarness::render(Self, @core.Component) -> String
 
+pub(all) struct VirtualTerminal {
+  width : Int
+  height : Int
+  buffer : @render.CharBuffer
+  mut cursor_x : Int
+  mut cursor_y : Int
+  mut current_fg : @core.Color
+  mut current_bg : @core.Color
+  mut current_bold : Bool
+  mut current_underline : Bool
+  mut saved_cursor_x : Int
+  mut saved_cursor_y : Int
+  input_queue : Array[String]
+  cursor_history : Array[(Int, Int)]
+}
+pub fn VirtualTerminal::clear(Self) -> Unit
+pub fn VirtualTerminal::contains(Self, String) -> Bool
+pub fn VirtualTerminal::get_buffer(Self) -> @render.CharBuffer
+pub fn VirtualTerminal::get_cell(Self, Int, Int) -> @render.CharCell
+pub fn VirtualTerminal::get_cursor(Self) -> (Int, Int)
+pub fn VirtualTerminal::get_line(Self, Int) -> String
+pub fn VirtualTerminal::get_line_trimmed(Self, Int) -> String
+pub fn VirtualTerminal::get_screen(Self) -> String
+pub fn VirtualTerminal::get_visible_lines(Self) -> Array[String]
+pub fn VirtualTerminal::has_input(Self) -> Bool
+pub fn VirtualTerminal::inject_input(Self, String) -> Unit
+pub fn VirtualTerminal::line_contains(Self, Int, String) -> Bool
+pub fn VirtualTerminal::matches(Self, String) -> Bool
+pub fn VirtualTerminal::new(Int, Int) -> Self
+pub fn VirtualTerminal::read_input(Self) -> String?
+pub fn VirtualTerminal::write(Self, String) -> Unit
+
 // Type aliases
 
 // Traits

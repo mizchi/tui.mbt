@@ -73,14 +73,6 @@ pub fn ansi_show_cursor() -> String
 
 pub fn ansi_underline() -> String
 
-pub fn buffer_diff_to_ansi(CharBuffer, CharBuffer) -> String
-
-pub fn buffer_diff_to_ansi_offset(CharBuffer, CharBuffer, Int, Int) -> String
-
-pub fn buffer_to_ansi(CharBuffer) -> String
-
-pub fn buffer_to_ansi_offset(CharBuffer, Int, Int) -> String
-
 pub fn color_to_256(@core.Color) -> Int
 
 pub fn compute_layout(@node.Node, Int, Int) -> @types.Layout
@@ -132,11 +124,15 @@ pub struct CharBuffer {
 }
 pub fn CharBuffer::clear(Self) -> Unit
 pub fn CharBuffer::clone(Self) -> Self
+pub fn CharBuffer::diff_to_ansi(Self, Self) -> String
+pub fn CharBuffer::diff_to_ansi_offset(Self, Self, Int, Int) -> String
 pub fn CharBuffer::fill_bg(Self, Int, Int, Int, Int, @core.Color) -> Unit
 pub fn CharBuffer::fill_rect(Self, Int, Int, Int, Int, CharCell) -> Unit
 pub fn CharBuffer::get_cell(Self, Int, Int) -> CharCell
 pub fn CharBuffer::new(Int, Int) -> Self
 pub fn CharBuffer::set_cell(Self, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::to_ansi(Self) -> String
+pub fn CharBuffer::to_ansi_offset(Self, Int, Int) -> String
 pub fn CharBuffer::write_text(Self, Int, Int, String, TextStyle, Int) -> Int
 pub fn CharBuffer::write_text_wrapped(Self, Int, Int, String, TextStyle, Int, Int) -> Int
 

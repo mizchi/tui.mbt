@@ -86,25 +86,25 @@ test "Input states produce different renders" {
 ///|
 test "key_enter parses to Enter event" {
   let event = @events.parse_input(key_enter())
-  assert_true(@events.is_enter(event))
+  assert_true(event.is_enter())
 }
 
 ///|
 test "key_tab parses to Tab event" {
   let event = @events.parse_input(key_tab())
-  assert_true(@events.is_tab(event))
+  assert_true(event.is_tab())
 }
 
 ///|
 test "key_backtab parses to BackTab event" {
   let event = @events.parse_input(key_backtab())
-  assert_true(@events.is_backtab(event))
+  assert_true(event.is_backtab())
 }
 
 ///|
 test "ctrl+c parses correctly" {
   let event = @events.parse_input(ctrl('c'))
-  assert_true(@events.is_ctrl_c(event))
+  assert_true(event.is_ctrl_c())
 }
 
 ///|
@@ -115,17 +115,17 @@ test "arrow keys parse correctly" {
   let right = @events.parse_input(key_right())
 
   // All should be arrow events
-  assert_true(@events.is_arrow(up) is Some(_))
-  assert_true(@events.is_arrow(down) is Some(_))
-  assert_true(@events.is_arrow(left) is Some(_))
-  assert_true(@events.is_arrow(right) is Some(_))
+  assert_true(up.is_arrow() is Some(_))
+  assert_true(down.is_arrow() is Some(_))
+  assert_true(left.is_arrow() is Some(_))
+  assert_true(right.is_arrow() is Some(_))
 
   // Check specific directions
-  match @events.is_arrow(up) {
+  match up.is_arrow() {
     Some(@events.SpecialKey::Up) => ()
     _ => fail("Expected Up arrow")
   }
-  match @events.is_arrow(down) {
+  match down.is_arrow() {
     Some(@events.SpecialKey::Down) => ()
     _ => fail("Expected Down arrow")
   }
@@ -136,9 +136,9 @@ test "character input parses correctly" {
   let a = @events.parse_input("a")
   let z = @events.parse_input("z")
   let num = @events.parse_input("5")
-  assert_true(@events.is_char(a, 'a'))
-  assert_true(@events.is_char(z, 'z'))
-  assert_true(@events.is_char(num, '5'))
+  assert_true(a.is_char('a'))
+  assert_true(z.is_char('z'))
+  assert_true(num.is_char('5'))
 }
 
 ///|

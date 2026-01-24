@@ -5,11 +5,12 @@ import {
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
   "mizchi/tui/composed" as @composed,
+  "mizchi/tui/ai" as @ai,
   "mizchi/crater/types",
   "mizchi/signals",
 }
 
 options(
   "is-main": true,
-  link: { "native": { "cc-link-flags": "io/tui_native.c" } },
+  targets: { "main.mbt": [ "js" ], "main_native.mbt": [ "not", "js" ] },
 )

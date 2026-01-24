@@ -9,6 +9,8 @@ import {
 // Values
 pub let buffer_lines : Int
 
+pub fn build_chat_lines(Array[Message], @components.StreamingState, InputQueue, Int) -> Array[@components.StyledLine]
+
 pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
 
 pub fn build_sparkline(Array[Double], width? : Int) -> String
@@ -19,7 +21,13 @@ pub fn build_table_row(Array[TableColumn], Array[String], separator? : String) -
 
 pub fn build_titled_border_top(String, Int, border? : @core.BorderChars) -> String
 
+pub fn calc_chat_heights(Array[Message], @components.StreamingState, InputQueue, Int, Int) -> Array[Int]
+
+pub fn calc_chat_total_lines(Array[Message], @components.StreamingState, InputQueue, Int, Int) -> Int
+
 pub fn calc_input_row(Int) -> Int
+
+pub fn calc_message_height(Message, Int) -> Int
 
 pub fn calc_total_lines(Int, Bool) -> Int
 

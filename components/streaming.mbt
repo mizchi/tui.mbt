@@ -156,6 +156,30 @@ pub fn StreamingState::complete(self : StreamingState) -> Unit {
   self.position.set(full.length())
 }
 
+///|
+/// Append text chunk for real-time streaming (e.g., from API)
+/// Unlike start(), this immediately shows appended text
+pub fn StreamingState::append(self : StreamingState, chunk : String) -> Unit {
+  let current = self.full_text.get()
+  let new_text = current + chunk
+  self.full_text.set(new_text)
+  // Show all text immediately (no animation delay)
+  self.position.set(new_text.length())
+}
+
+///|
+/// Start real-time streaming mode (for API streaming)
+/// Call append() to add chunks, then call complete() when done
+pub fn StreamingState::start_realtime(self : StreamingState) -> Bool {
+  // Don't start if already has content
+  if self.has_content() {
+    return false
+  }
+  self.full_text.set("")
+  self.position.set(0)
+  true
+}
+
 // Helper function to get substring by iterating characters
 
 ///|

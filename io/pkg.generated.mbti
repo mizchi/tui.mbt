@@ -10,12 +10,6 @@ pub fn abort_input_session() -> Unit
 
 pub fn cleanup_stdin() -> Unit
 
-pub fn cursor_col_offset(Array[Char], Int) -> Int
-
-pub fn cursor_line_bounds(Array[Char], Int) -> (Int, Int)
-
-pub fn cursor_position_wrapped(Array[Char], Int, Int) -> (Int, Int)
-
 pub fn debug_stderr(String) -> Unit
 
 pub fn debug_stdin_state(String) -> Unit

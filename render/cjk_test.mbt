@@ -28,7 +28,7 @@ test "CJK characters render correctly without spaces" {
   inspect(buf.get_cell(8, 0).char, content="c")
 
   // Generate ANSI and check it doesn't have unexpected spaces between CJK
-  let ansi = buffer_to_ansi(buf)
+  let ansi = buf.to_ansi()
   println("ANSI output:")
   println(ansi)
   // Check consecutive CJK without spaces in ANSI (ignoring escape codes)
@@ -60,7 +60,7 @@ test "CJK with background fill before text (simulates render_layout)" {
   inspect(buf.get_cell(3, 0).char.to_int(), content="0") // NUL placeholder
 
   // Generate ANSI and check
-  let ansi = buffer_to_ansi(buf)
+  let ansi = buf.to_ansi()
   println("ANSI with bg fill:")
   println(ansi)
   inspect(ansi.contains("日本語abc"), content="true")
@@ -93,7 +93,7 @@ test "CJK with parent fill_bg then child fill_bg (nested layout simulation)" {
   // Check row 1 still has CJK placeholders preserved
   inspect(buf.get_cell(0, 1).char.to_int(), content="26085") // 日
   inspect(buf.get_cell(1, 1).char.to_int(), content="0") // NUL placeholder
-  let ansi = buffer_to_ansi(buf)
+  let ansi = buf.to_ansi()
   println("Nested layout ANSI:")
   println(ansi)
   inspect(ansi.contains("日本語"), content="true")
@@ -116,7 +116,7 @@ test "CJK diff rendering: ASCII to CJK transition" {
   let _ = current.write_text_wrapped(0, 0, "日本語", style, 20, 1)
 
   // Generate diff
-  let diff_ansi = buffer_diff_to_ansi(current, prev)
+  let diff_ansi = current.diff_to_ansi(prev)
   println("Diff ANSI (abc -> 日本語):")
   println(diff_ansi)
 
@@ -141,7 +141,7 @@ test "CJK diff rendering: CJK to ASCII transition" {
   let _ = current.write_text_wrapped(0, 0, "abcdef", style, 20, 1)
 
   // Generate diff
-  let diff_ansi = buffer_diff_to_ansi(current, prev)
+  let diff_ansi = current.diff_to_ansi(prev)
   println("Diff ANSI (日本語 -> abcdef):")
   println(diff_ansi)
 
