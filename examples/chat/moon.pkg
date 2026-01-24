@@ -1,12 +1,11 @@
 import {
+  "mizchi/tui",
   "mizchi/tui/render" as @render,
   "mizchi/tui/core" as @core,
-  "mizchi/tui/events" as @events,
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
   "mizchi/tui/composed" as @composed,
   "mizchi/tui/ai" as @ai,
-  "mizchi/crater/types",
   "mizchi/signals",
 }
 

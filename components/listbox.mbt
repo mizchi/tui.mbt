@@ -55,6 +55,8 @@ pub fn listbox(
   min_width? : Double = 20.0,
   max_height? : Int = 10,
   padding_x? : Double = 1.0,
+  // Event handler
+  on_select? : ((String) -> Unit)? = None,
 ) -> @core.Component {
   let state : ListboxState = {
     focused_id,
@@ -63,6 +65,7 @@ pub fn listbox(
   }
   build_listbox(
     options, state, false, orientation, id, theme, min_width, max_height, padding_x,
+    on_select,
   )
 }
 
@@ -78,9 +81,12 @@ pub fn listbox_multi(
   min_width? : Double = 20.0,
   max_height? : Int = 10,
   padding_x? : Double = 1.0,
+  // Event handler
+  on_select? : ((String) -> Unit)? = None,
 ) -> @core.Component {
   build_listbox(
     options, state, true, orientation, id, theme, min_width, max_height, padding_x,
+    on_select,
   )
 }
 
@@ -95,6 +101,7 @@ fn build_listbox(
   min_width : Double,
   max_height : Int,
   padding_x : Double,
+  on_select : ((String) -> Unit)?,
 ) -> @core.Component {
   let items : Array[@core.Component] = []
   let visible_count = if options.length() > max_height {
@@ -140,10 +147,22 @@ fn build_listbox(
       " ".repeat(padding_x.to_int()) + prefix + label_text,
       fg=item_fg,
     )
+    // Create click handler for this option
+    let opt_id = opt.id
+    let item_on_click : (() -> Unit)? = match on_select {
+      Some(handler) =>
+        if opt.disabled {
+          None
+        } else {
+          Some(fn() { handler(opt_id) })
+        }
+      None => None
+    }
     let item = row(
       [padded_text],
       id=opt.id,
       height=@types.Dimension::Length(1.0),
+      on_click=item_on_click,
       role=Some(@core.Role::Option),
     )
     items.push(item)

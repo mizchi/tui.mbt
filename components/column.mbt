@@ -3,21 +3,22 @@
 
 ///|
 /// Create a vertical column container
+/// Size parameters accept Double, Int, or Dimension directly via ToDimension trait
 pub fn column(
   children : Array[@core.Component],
   // ID
   id? : String = "",
-  // Size
-  width? : @types.Dimension = @types.Dimension::Auto,
-  height? : @types.Dimension = @types.Dimension::Auto,
-  min_width? : @types.Dimension = @types.Dimension::Auto,
-  min_height? : @types.Dimension = @types.Dimension::Auto,
-  max_width? : @types.Dimension = @types.Dimension::Auto,
-  max_height? : @types.Dimension = @types.Dimension::Auto,
+  // Size - accepts Double, Int, or Dimension
+  width? : &ToDimension = @types.Dimension::Auto,
+  height? : &ToDimension = @types.Dimension::Auto,
+  min_width? : &ToDimension = @types.Dimension::Auto,
+  min_height? : &ToDimension = @types.Dimension::Auto,
+  max_width? : &ToDimension = @types.Dimension::Auto,
+  max_height? : &ToDimension = @types.Dimension::Auto,
   // Flex item properties
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
-  flex_basis? : @types.Dimension = @types.Dimension::Auto,
+  flex_basis? : &ToDimension = @types.Dimension::Auto,
   // Alignment
   justify? : @types.Alignment = @types.Alignment::FlexStart,
   align? : @types.Alignment = @types.Alignment::Stretch,
@@ -45,15 +46,15 @@ pub fn column(
     id~,
     flex_direction=@types.FlexDirection::Column,
     flex_wrap=if wrap { @types.FlexWrap::Wrap } else { @types.FlexWrap::NoWrap },
-    width~,
-    height~,
-    min_width~,
-    min_height~,
-    max_width~,
-    max_height~,
+    width=width.to_dimension(),
+    height=height.to_dimension(),
+    min_width=min_width.to_dimension(),
+    min_height=min_height.to_dimension(),
+    max_width=max_width.to_dimension(),
+    max_height=max_height.to_dimension(),
     flex_grow~,
     flex_shrink~,
-    flex_basis~,
+    flex_basis=flex_basis.to_dimension(),
     justify_content=justify,
     align_items=align,
     gap~,

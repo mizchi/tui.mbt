@@ -237,8 +237,8 @@ fn main {
             styled_line.content,
             fg=styled_line.fg,
             bold=styled_line.bold,
-            width=@types.Dimension::Length(content_width.to_double()),
-            height=@types.Dimension::Length(1.0),
+            width=@tui.dim_length(content_width.to_double()),
+            height=@tui.dim_length(1.0),
           ),
         )
       } else {
@@ -246,16 +246,16 @@ fn main {
         line_components.push(
           @core.text_box(
             "",
-            width=@types.Dimension::Length(content_width.to_double()),
-            height=@types.Dimension::Length(1.0),
+            width=@tui.dim_length(content_width.to_double()),
+            height=@tui.dim_length(1.0),
           ),
         )
       }
     }
     let messages_column = @c.column(
       line_components,
-      width=@types.Dimension::Length(content_width.to_double()),
-      height=@types.Dimension::Length(visible_height.to_double()),
+      width=@tui.dim_length(content_width.to_double()),
+      height=@tui.dim_length(visible_height.to_double()),
     )
 
     // Add scrollbar if needed
@@ -270,8 +270,8 @@ fn main {
       )
       @c.row(
         [messages_column, scrollbar_component],
-        width=@types.Dimension::Length(w.to_double()),
-        height=@types.Dimension::Length(visible_height.to_double()),
+        width=@tui.dim_length(w.to_double()),
+        height=@tui.dim_length(visible_height.to_double()),
       )
     } else {
       messages_column
@@ -323,27 +323,27 @@ fn main {
     let input_content = @core.text_box(
       " " + display_text + cursor,
       fg=input_color,
-      height=@types.Dimension::Length(@composed.max_input_rows.to_double()),
+      height=@tui.dim_length(@composed.max_input_rows.to_double()),
     )
     let input_area = @c.column(
       [
         input_content,
         @c.text(" " + status_text, fg=@core.Color::rgb(80, 80, 80)),
       ],
-      height=@types.Dimension::Length(@composed.input_area_height.to_double()),
+      height=@tui.dim_length(@composed.input_area_height.to_double()),
     )
 
     // Buffer line to prevent layout interference
     let buffer = @c.column(
       [],
-      height=@types.Dimension::Length(@composed.buffer_lines.to_double()),
+      height=@tui.dim_length(@composed.buffer_lines.to_double()),
     )
 
     // Main layout - vertical split
     let base_ui = @c.column(
       [message_area, divider, buffer, input_area],
-      width=@types.Dimension::Length(w.to_double()),
-      height=@types.Dimension::Length(h.to_double()),
+      width=@tui.dim_length(w.to_double()),
+      height=@tui.dim_length(h.to_double()),
     )
 
     // When modal is open, render modal full-screen instead of base UI
@@ -622,7 +622,7 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @events.parse_input(key)
+    let event = @tui.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
 
@@ -639,42 +639,41 @@ fn main {
 
     // Normal mode key handling
     match event {
-      @events.InputEvent::Key(key_event) =>
+      @tui.InputEvent::Key(key_event) =>
         match key_event {
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
             do_quit()
             return
           }
-          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
             do_quit()
             return
           }
-          @events.KeyEvent::Char('f', @events.KeyModifier::None)
-          | @events.KeyEvent::Char('F', @events.KeyModifier::None) =>
+          @tui.KeyEvent::Char('f', @tui.KeyModifier::None)
+          | @tui.KeyEvent::Char('F', @tui.KeyModifier::None) =>
             // Open action menu - clear buffer for full redraw
             action_menu.open_with_app(app.val)
-          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
             should_edit = true
-          @events.KeyEvent::Char(_, @events.KeyModifier::None) =>
-            should_edit = true
-          @events.KeyEvent::Special(@events.SpecialKey::Up, _)
-          | @events.KeyEvent::Special(@events.SpecialKey::PageUp, _) =>
+          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => should_edit = true
+          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _)
+          | @tui.KeyEvent::Special(@tui.SpecialKey::PageUp, _) =>
             ignore(message_view.up(1))
-          @events.KeyEvent::Special(@events.SpecialKey::Down, _)
-          | @events.KeyEvent::Special(@events.SpecialKey::PageDown, _) =>
+          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _)
+          | @tui.KeyEvent::Special(@tui.SpecialKey::PageDown, _) =>
             ignore(message_view.down(1))
           _ => need_render = false
         }
-      @events.InputEvent::Mouse(mouse_event) =>
+      @tui.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@events.MouseEventType::Press, @events.MouseButton::Left) =>
+          (@tui.MouseEventType::Press, @tui.MouseButton::Left) =>
             match app.val.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) => if hit.id == "chat-input" { should_edit = true }
               None => ()
             }
-          (@events.MouseEventType::Press, @events.MouseButton::ScrollUp) =>
+          (@tui.MouseEventType::Press, @tui.MouseButton::ScrollUp) =>
             ignore(message_view.up(3))
-          (@events.MouseEventType::Press, @events.MouseButton::ScrollDown) =>
+          (@tui.MouseEventType::Press, @tui.MouseButton::ScrollDown) =>
             ignore(message_view.down(3))
           _ => need_render = false
         }
@@ -683,9 +682,7 @@ fn main {
     if should_edit {
       // Extract initial character if it was a character input
       match event {
-        @events.InputEvent::Key(
-          @events.KeyEvent::Char(ch, @events.KeyModifier::None)
-        ) =>
+        @tui.InputEvent::Key(@tui.KeyEvent::Char(ch, @tui.KeyModifier::None)) =>
           // Don't start editing with 'f'/'F' as it opens modal
           if ch != 'f' && ch != 'F' {
             input_value.set(ch.to_string())

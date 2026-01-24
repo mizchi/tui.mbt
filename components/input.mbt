@@ -33,6 +33,8 @@ pub fn input(
   min_height? : Double = 1.0,
   padding_x? : Double = 0.0,
   padding_y? : Double = 0.0,
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> @core.Component {
   // Determine display text
   let display_text = if value.length() == 0 {
@@ -93,6 +95,7 @@ pub fn input(
     border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
+    on_click~,
     role=Some(@core.Role::Textbox),
   )
   // Set text content directly on the component for write_text_wrapped to handle

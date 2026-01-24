@@ -1,5 +1,5 @@
 import {
-  "mizchi/tui",
+  "mizchi/tui/stories" as @stories,
 }
 
 options(

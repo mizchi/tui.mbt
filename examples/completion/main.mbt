@@ -52,7 +52,7 @@ fn DemoState::new(start_row : Int, start_col : Int) -> DemoState {
 
 ///|
 fn pr(s : String) -> Unit {
-  @io.print_raw(s)
+  @tui.print_raw(s)
 }
 
 ///|
@@ -327,10 +327,10 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   if state.manager.check_pending() {
     render_all(state)
   }
-  let event = @events.parse_input(key)
+  let event = @tui.parse_input(key)
   let engine = state.manager.get_engine()
   if event.is_ctrl_c() {
-    @io.stop_keypress_listener()
+    @tui.stop_keypress_listener()
     pr(show_cursor())
     pr(exit_alt_screen())
     let result = state.input.get_full_text()
@@ -353,12 +353,12 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   // Arrow keys for navigation
   if engine.is_visible() && engine.get_items().length() > 0 {
     match event.is_arrow() {
-      Some(@events.SpecialKey::Up) => {
+      Some(@tui.SpecialKey::Up) => {
         engine.select_prev()
         render_all(state)
         return
       }
-      Some(@events.SpecialKey::Down) => {
+      Some(@tui.SpecialKey::Down) => {
         engine.select_next()
         render_all(state)
         return
@@ -389,7 +389,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
 
   // Character input
   match event {
-    @events.InputEvent::Key(@events.KeyEvent::Char(c, _)) =>
+    @tui.InputEvent::Key(@tui.KeyEvent::Char(c, _)) =>
       if c == ' ' {
         if state.input.get_current().length() > 0 {
           confirm_word(state, " ")
@@ -403,9 +403,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
         state.manager.request(state.input.get_current())
         render_all(state)
       }
-    @events.InputEvent::Key(
-      @events.KeyEvent::Special(@events.SpecialKey::Backspace, _)
-    ) => {
+    @tui.InputEvent::Key(@tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _)) => {
       if not(state.input.delete_char()) {
         // Current was empty, try to restore previous word
         ignore(state.input.restore_previous_word())
@@ -453,5 +451,5 @@ fn main {
       render_all(state)
     }
   })
-  @io.start_keypress_listener(fn(key) { handle_key(key, state) })
+  @tui.start_keypress_listener(fn(key) { handle_key(key, state) })
 }

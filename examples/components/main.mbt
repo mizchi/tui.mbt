@@ -3,7 +3,7 @@
 
 ///|
 fn main {
-  let (cols, rows) = @io.get_terminal_size()
+  let (cols, rows) = @tui.get_terminal_size()
   let width = cols
   let height = rows
 
@@ -24,17 +24,17 @@ fn main {
   let menubar_open = @signals.signal("")
   let menubar_focused_item = @signals.signal("")
   let message = @signals.signal("← → to switch demos | q to quit")
-  let app = @render.App::new(width, height)
+  let app = @tui.App::new(width, height)
 
   // Available demos
   let demos = [
     "tabs", "accordion", "radio", "switch", "listbox", "combobox", "splitter", "menubar",
   ]
-  fn render_ui() -> @core.Component {
+  fn render_ui() -> @tui.Component {
     let tab = current_tab.get()
 
     // Demo content based on current tab
-    let demo_content : @core.Component = match tab {
+    let demo_content : @tui.Component = match tab {
       "tabs" => render_tabs_demo(tab_selection)
       "accordion" => render_accordion_demo(accordion_expanded)
       "radio" => render_radio_demo(radio_selection)
@@ -43,69 +43,69 @@ fn main {
       "combobox" => render_combobox_demo(combobox_open, combobox_selection)
       "splitter" => render_splitter_demo(splitter_position, splitter_focused)
       "menubar" => render_menubar_demo(menubar_open, menubar_focused_item)
-      _ => @c.text("Unknown demo")
+      _ => @tui.text("Unknown demo")
     }
 
     // Build navigation tabs
-    let nav_items : Array[@core.Component] = []
+    let nav_items : Array[@tui.Component] = []
     for d in demos {
       let is_current = d == tab
       let (fg, bg) = if is_current {
-        (@core.Color::black(), @core.Color::cyan())
+        (@tui.Color::black(), @tui.Color::cyan())
       } else {
-        (@core.Color::white(), @core.Color::rgb(50, 50, 60))
+        (@tui.Color::white(), @tui.Color::rgb(50, 50, 60))
       }
       nav_items.push(
-        @c.row(
-          [@c.text(" " + d + " ", fg~)],
+        @tui.row(
+          [@tui.text(" " + d + " ", fg~)],
           id=d,
           bg~,
           padding_x=1.0,
-          align=@types.Alignment::Center,
+          align=@tui.align_center(),
         ),
       )
     }
-    @c.column(
+    @tui.column(
       [
         // Header
-        @c.row(
-          [@c.text("Component Gallery", fg=@core.Color::yellow(), bold=true)],
-          justify=@types.Alignment::Center,
+        @tui.row(
+          [@tui.text("Component Gallery", fg=@tui.Color::yellow(), bold=true)],
+          justify=@tui.align_center(),
           padding_y=1.0,
         ),
         // Navigation
-        @c.row(nav_items, justify=@types.Alignment::Center, gap=1.0),
-        @c.vspace(1.0),
+        @tui.row(nav_items, justify=@tui.align_center(), gap=1.0),
+        @tui.vspace(1.0),
         // Demo content
-        @c.row(
+        @tui.row(
           [demo_content],
           flex_grow=1.0,
           padding=1.0,
-          border=Some(@core.BorderChars::rounded()),
-          border_color=@core.Color::rgb(80, 80, 100),
+          border=Some(@tui.BorderChars::rounded()),
+          border_color=@tui.Color::rgb(80, 80, 100),
         ),
         // Footer
-        @c.row(
-          [@c.text(message.get(), fg=@core.Color::rgb(120, 120, 120))],
-          justify=@types.Alignment::Center,
+        @tui.row(
+          [@tui.text(message.get(), fg=@tui.Color::rgb(120, 120, 120))],
+          justify=@tui.align_center(),
           padding_y=1.0,
         ),
       ],
-      width=@types.Dimension::Length(width.to_double()),
-      height=@types.Dimension::Length(height.to_double()),
+      width=width.to_double(),
+      height=height.to_double(),
     )
   }
 
   fn do_render() -> Unit {
-    @io.print_raw(app.render_frame(render_ui()))
+    @tui.print_raw(app.render_frame(render_ui()))
   }
 
   fn do_quit() -> Unit {
     running.set(false)
-    @io.stop_keypress_listener()
-    @io.print_raw(@render.disable_mouse())
-    @io.cleanup_stdin()
-    @io.print_raw(@render.App::restore_terminal())
+    @tui.stop_keypress_listener()
+    @tui.print_raw(@tui.disable_mouse())
+    @tui.cleanup_stdin()
+    @tui.print_raw(@tui.App::restore_terminal())
     println("Goodbye!")
   }
 
@@ -113,25 +113,25 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @events.parse_input(key)
+    let event = @tui.parse_input(key)
     let mut need_render = true
     match event {
-      @events.InputEvent::Key(key_event) =>
+      @tui.InputEvent::Key(key_event) =>
         match key_event {
-          @events.KeyEvent::Char('q', @events.KeyModifier::None) => {
+          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => {
             do_quit()
             return
           }
-          @events.KeyEvent::Char('c', @events.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Char('c', @tui.KeyModifier::Ctrl) => {
             do_quit()
             return
           }
-          @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
             do_quit()
             return
           }
           // Navigate demos
-          @events.KeyEvent::Special(@events.SpecialKey::Right, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) => {
             let cur = current_tab.get()
             if cur == "menubar" && menubar_open.get().length() > 0 {
               handle_demo_key(
@@ -150,7 +150,7 @@ fn main {
               }
             }
           }
-          @events.KeyEvent::Special(@events.SpecialKey::Left, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Left, _) => {
             let cur = current_tab.get()
             if cur == "menubar" && menubar_open.get().length() > 0 {
               handle_demo_key(
@@ -170,49 +170,49 @@ fn main {
             }
           }
           // Demo-specific keys
-          @events.KeyEvent::Special(@events.SpecialKey::Up, _) =>
+          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) =>
             handle_demo_key(
               "up", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Special(@events.SpecialKey::Down, _) =>
+          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) =>
             handle_demo_key(
               "down", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Char(' ', _) =>
+          @tui.KeyEvent::Char(' ', _) =>
             handle_demo_key(
               "space", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
             handle_demo_key(
               "enter", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Char('1', _) =>
+          @tui.KeyEvent::Char('1', _) =>
             handle_demo_key(
               "1", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Char('2', _) =>
+          @tui.KeyEvent::Char('2', _) =>
             handle_demo_key(
               "2", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
               splitter_position, splitter_focused, menubar_open, menubar_focused_item,
               message,
             )
-          @events.KeyEvent::Char('3', _) =>
+          @tui.KeyEvent::Char('3', _) =>
             handle_demo_key(
               "3", current_tab, tab_selection, accordion_expanded, radio_selection,
               switch_on, checkbox_checked, listbox_selection, combobox_open, combobox_selection,
@@ -221,9 +221,9 @@ fn main {
             )
           _ => need_render = false
         }
-      @events.InputEvent::Mouse(mouse_event) =>
+      @tui.InputEvent::Mouse(mouse_event) =>
         match (mouse_event.event_type, mouse_event.button) {
-          (@events.MouseEventType::Drag, _) =>
+          (@tui.MouseEventType::Drag, _) =>
             if current_tab.get() == "splitter" && splitter_dragging.get() {
               let width = 80
               let divider_width = 2
@@ -234,7 +234,7 @@ fn main {
               splitter_position.set(new_pos)
               message.set("Splitter: " + new_pos.to_string() + "%")
             }
-          (@events.MouseEventType::Press, @events.MouseButton::Left) =>
+          (@tui.MouseEventType::Press, @tui.MouseButton::Left) =>
             match app.hit_test(mouse_event.x, mouse_event.y) {
               Some(hit) => {
                 let mut found = false
@@ -318,7 +318,7 @@ fn main {
               }
               None => need_render = false
             }
-          (@events.MouseEventType::Release, _) =>
+          (@tui.MouseEventType::Release, _) =>
             if splitter_dragging.get() {
               splitter_dragging.set(false)
               message.set("Splitter released")
@@ -333,10 +333,10 @@ fn main {
   }
 
   // Initialize
-  @io.print_raw(@render.App::init_terminal())
-  @io.print_raw(@render.enable_mouse())
+  @tui.print_raw(@tui.App::init_terminal())
+  @tui.print_raw(@tui.enable_mouse())
   do_render()
-  @io.start_keypress_listener(handle_key)
+  @tui.start_keypress_listener(handle_key)
 }
 
 ///|
@@ -554,83 +554,83 @@ fn handle_demo_key(
 // ============================================
 
 ///|
-fn render_tabs_demo(selection : @signals.Signal[String]) -> @core.Component {
+fn render_tabs_demo(selection : @signals.Signal[String]) -> @tui.Component {
   let items = [
-    @c.TabItem::{ id: "tab1", label: "Home" },
-    @c.TabItem::{ id: "tab2", label: "Profile" },
-    @c.TabItem::{ id: "tab3", label: "Settings" },
+    @tui.TabItem::{ id: "tab1", label: "Home" },
+    @tui.TabItem::{ id: "tab2", label: "Profile" },
+    @tui.TabItem::{ id: "tab3", label: "Settings" },
   ]
   let sel = selection.get()
   let content = match sel {
-    "tab1" => @c.text("Welcome to the Home tab!")
-    "tab2" => @c.text("Your profile information here.")
-    "tab3" => @c.text("Application settings.")
-    _ => @c.text("Select a tab")
+    "tab1" => @tui.text("Welcome to the Home tab!")
+    "tab2" => @tui.text("Your profile information here.")
+    "tab3" => @tui.text("Application settings.")
+    _ => @tui.text("Select a tab")
   }
   // Use boxed style for clearer tab boundaries
-  let tabs_bar = @c.tabs_boxed(items, sel)
-  let panel = @c.tab_panel(content)
-  @c.column(
+  let tabs_bar = @tui.tabs_boxed(items, sel)
+  let panel = @tui.tab_panel(content)
+  @tui.column(
     [
-      @c.text("Tabs Demo (1/2/3 or click)", fg=@core.Color::cyan()),
-      @c.vspace(1.0),
+      @tui.text("Tabs Demo (1/2/3 or click)", fg=@tui.Color::cyan()),
+      @tui.vspace(1.0),
       tabs_bar,
       panel,
-      @c.vspace(0.5),
-      @c.text("Selected: " + sel, fg=@core.Color::green()),
+      @tui.vspace(0.5),
+      @tui.text("Selected: " + sel, fg=@tui.Color::green()),
     ],
     gap=0.5,
   )
 }
 
 ///|
-fn render_accordion_demo(expanded : @signals.Signal[String]) -> @core.Component {
+fn render_accordion_demo(expanded : @signals.Signal[String]) -> @tui.Component {
   let exp = expanded.get()
   let items = [
-    @c.AccordionItem::{
+    @tui.AccordionItem::{
       id: "sec1",
       title: "Section 1: Introduction",
-      content: @c.text("This is the introduction content."),
+      content: @tui.text("This is the introduction content."),
       expanded: exp == "sec1",
     },
-    @c.AccordionItem::{
+    @tui.AccordionItem::{
       id: "sec2",
       title: "Section 2: Features",
-      content: @c.text("Feature list goes here."),
+      content: @tui.text("Feature list goes here."),
       expanded: exp == "sec2",
     },
-    @c.AccordionItem::{
+    @tui.AccordionItem::{
       id: "sec3",
       title: "Section 3: FAQ",
-      content: @c.text("Frequently asked questions."),
+      content: @tui.text("Frequently asked questions."),
       expanded: exp == "sec3",
     },
   ]
-  @c.column(
+  @tui.column(
     [
-      @c.text("Accordion Demo (press 1/2/3)", fg=@core.Color::cyan()),
-      @c.vspace(1.0),
-      @c.accordion(items),
+      @tui.text("Accordion Demo (press 1/2/3)", fg=@tui.Color::cyan()),
+      @tui.vspace(1.0),
+      @tui.accordion(items),
     ],
     gap=0.5,
   )
 }
 
 ///|
-fn render_radio_demo(selection : @signals.Signal[String]) -> @core.Component {
+fn render_radio_demo(selection : @signals.Signal[String]) -> @tui.Component {
   let options = [
-    @c.RadioOption::{ id: "opt1", label: "Option 1: Fast" },
-    @c.RadioOption::{ id: "opt2", label: "Option 2: Balanced" },
-    @c.RadioOption::{ id: "opt3", label: "Option 3: Power Saver" },
+    @tui.RadioOption::{ id: "opt1", label: "Option 1: Fast" },
+    @tui.RadioOption::{ id: "opt2", label: "Option 2: Balanced" },
+    @tui.RadioOption::{ id: "opt3", label: "Option 3: Power Saver" },
   ]
-  @c.column(
+  @tui.column(
     [
-      @c.text("Radio Group Demo (↑/↓ to navigate)", fg=@core.Color::cyan()),
-      @c.vspace(1.0),
-      @c.text("Select mode:"),
-      @c.radiogroup(options, selection.get()),
-      @c.vspace(1.0),
-      @c.text("Selected: " + selection.get(), fg=@core.Color::green()),
+      @tui.text("Radio Group Demo (↑/↓ to navigate)", fg=@tui.Color::cyan()),
+      @tui.vspace(1.0),
+      @tui.text("Select mode:"),
+      @tui.radiogroup(options, selection.get()),
+      @tui.vspace(1.0),
+      @tui.text("Selected: " + selection.get(), fg=@tui.Color::green()),
     ],
     gap=0.5,
   )
@@ -640,27 +640,27 @@ fn render_radio_demo(selection : @signals.Signal[String]) -> @core.Component {
 fn render_switch_demo(
   switch_on : @signals.Signal[Bool],
   checkbox_checked : @signals.Signal[Bool],
-) -> @core.Component {
-  @c.column(
+) -> @tui.Component {
+  @tui.column(
     [
-      @c.text("Switch & Checkbox Demo", fg=@core.Color::cyan()),
-      @c.vspace(1.0),
-      @c.text("Space/Enter to toggle switch, 1 to toggle checkbox"),
-      @c.vspace(1.0),
-      @c.labeled_switch("Dark Mode", switch_on.get(), id="switch-darkmode"),
-      @c.vspace(0.5),
-      @c.labeled_switch(
+      @tui.text("Switch & Checkbox Demo", fg=@tui.Color::cyan()),
+      @tui.vspace(1.0),
+      @tui.text("Space/Enter to toggle switch, 1 to toggle checkbox"),
+      @tui.vspace(1.0),
+      @tui.labeled_switch("Dark Mode", switch_on.get(), id="switch-darkmode"),
+      @tui.vspace(0.5),
+      @tui.labeled_switch(
         "Notifications",
         not(switch_on.get()),
-        label_position=@c.LabelPosition::Right,
+        label_position=@tui.LabelPosition::Right,
       ),
-      @c.vspace(1.0),
-      @c.labeled_checkbox(
+      @tui.vspace(1.0),
+      @tui.labeled_checkbox(
         "Accept Terms",
         checkbox_checked.get(),
         id="checkbox-terms",
       ),
-      @c.labeled_checkbox(
+      @tui.labeled_checkbox(
         "Subscribe to newsletter",
         not(checkbox_checked.get()),
       ),
@@ -670,22 +670,22 @@ fn render_switch_demo(
 }
 
 ///|
-fn render_listbox_demo(selection : @signals.Signal[String]) -> @core.Component {
+fn render_listbox_demo(selection : @signals.Signal[String]) -> @tui.Component {
   let options = [
-    @c.listbox_option("apple", "🍎 Apple"),
-    @c.listbox_option("banana", "🍌 Banana"),
-    @c.listbox_option("cherry", "🍒 Cherry"),
-    @c.listbox_option("date", "📅 Date"),
-    @c.listbox_option("elderberry", "🫐 Elderberry"),
+    @tui.listbox_option("apple", "🍎 Apple"),
+    @tui.listbox_option("banana", "🍌 Banana"),
+    @tui.listbox_option("cherry", "🍒 Cherry"),
+    @tui.listbox_option("date", "📅 Date"),
+    @tui.listbox_option("elderberry", "🫐 Elderberry"),
   ]
-  @c.column(
+  @tui.column(
     [
-      @c.text("Listbox Demo (↑/↓ to navigate)", fg=@core.Color::cyan()),
-      @c.vspace(1.0),
-      @c.text("Choose a fruit:"),
-      @c.listbox(options, selection.get(), focused_id=selection.get()),
-      @c.vspace(1.0),
-      @c.text("Selected: " + selection.get(), fg=@core.Color::green()),
+      @tui.text("Listbox Demo (↑/↓ to navigate)", fg=@tui.Color::cyan()),
+      @tui.vspace(1.0),
+      @tui.text("Choose a fruit:"),
+      @tui.listbox(options, selection.get(), focused_id=selection.get()),
+      @tui.vspace(1.0),
+      @tui.text("Selected: " + selection.get(), fg=@tui.Color::green()),
     ],
     gap=0.5,
   )
@@ -695,30 +695,30 @@ fn render_listbox_demo(selection : @signals.Signal[String]) -> @core.Component {
 fn render_combobox_demo(
   open : @signals.Signal[Bool],
   selection : @signals.Signal[String],
-) -> @core.Component {
+) -> @tui.Component {
   let options = [
-    @c.ComboboxOption::{ id: "js", label: "JavaScript" },
-    @c.ComboboxOption::{ id: "ts", label: "TypeScript" },
-    @c.ComboboxOption::{ id: "py", label: "Python" },
-    @c.ComboboxOption::{ id: "rs", label: "Rust" },
-    @c.ComboboxOption::{ id: "go", label: "Go" },
+    @tui.ComboboxOption::{ id: "js", label: "JavaScript" },
+    @tui.ComboboxOption::{ id: "ts", label: "TypeScript" },
+    @tui.ComboboxOption::{ id: "py", label: "Python" },
+    @tui.ComboboxOption::{ id: "rs", label: "Rust" },
+    @tui.ComboboxOption::{ id: "go", label: "Go" },
   ]
   let state = if open.get() {
-    @c.ComboboxState::Open
+    @tui.ComboboxState::Open
   } else {
-    @c.ComboboxState::Closed
+    @tui.ComboboxState::Closed
   }
-  @c.column(
+  @tui.column(
     [
-      @c.text(
+      @tui.text(
         "Combobox Demo (Space to open, ↑/↓ to select)",
-        fg=@core.Color::cyan(),
+        fg=@tui.Color::cyan(),
       ),
-      @c.vspace(1.0),
-      @c.text("Select language:"),
-      @c.combobox(options, selection.get(), state~),
-      @c.vspace(1.0),
-      @c.text("Selected: " + selection.get(), fg=@core.Color::green()),
+      @tui.vspace(1.0),
+      @tui.text("Select language:"),
+      @tui.combobox(options, selection.get(), state~),
+      @tui.vspace(1.0),
+      @tui.text("Selected: " + selection.get(), fg=@tui.Color::green()),
     ],
     gap=0.5,
   )
@@ -728,37 +728,37 @@ fn render_combobox_demo(
 fn render_splitter_demo(
   position : @signals.Signal[Int],
   focused : @signals.Signal[Bool],
-) -> @core.Component {
-  let state : @c.SplitterState = {
+) -> @tui.Component {
+  let state : @tui.SplitterState = {
     position: position.get(),
     collapsed: false,
     prev_position: position.get(),
     focused: focused.get(),
   }
-  let primary = @c.column(
+  let primary = @tui.column(
     [
-      @c.text("Left Pane", fg=@core.Color::cyan()),
-      @c.text("Resize with ↑/↓"),
+      @tui.text("Left Pane", fg=@tui.Color::cyan()),
+      @tui.text("Resize with ↑/↓"),
     ],
     padding=1.0,
-    bg=@core.Color::rgb(40, 40, 50),
+    bg=@tui.Color::rgb(40, 40, 50),
   )
-  let secondary = @c.column(
+  let secondary = @tui.column(
     [
-      @c.text("Right Pane", fg=@core.Color::yellow()),
-      @c.text("Position: " + position.get().to_string() + "%"),
+      @tui.text("Right Pane", fg=@tui.Color::yellow()),
+      @tui.text("Position: " + position.get().to_string() + "%"),
     ],
     padding=1.0,
-    bg=@core.Color::rgb(50, 40, 40),
+    bg=@tui.Color::rgb(50, 40, 40),
   )
-  @c.column(
+  @tui.column(
     [
-      @c.text(
+      @tui.text(
         "Window Splitter Demo (Drag divider with mouse, ↑/↓ to resize)",
-        fg=@core.Color::cyan(),
+        fg=@tui.Color::cyan(),
       ),
-      @c.vspace(1.0),
-      @c.window_splitter(
+      @tui.vspace(1.0),
+      @tui.window_splitter(
         primary,
         secondary,
         state,
@@ -775,55 +775,55 @@ fn render_splitter_demo(
 fn render_menubar_demo(
   open_menu : @signals.Signal[String],
   menubar_focused_item : @signals.Signal[String],
-) -> @core.Component {
+) -> @tui.Component {
   let items = [
-    @c.MenubarItem::{
+    @tui.MenubarItem::{
       id: "file",
       label: "File",
       items: [
-        @c.menu_item("new", "New"),
-        @c.menu_item("open", "Open"),
-        @c.menu_item("save", "Save"),
-        @c.menu_separator(),
-        @c.menu_item("exit", "Exit"),
+        @tui.menu_item("new", "New"),
+        @tui.menu_item("open", "Open"),
+        @tui.menu_item("save", "Save"),
+        @tui.menu_separator(),
+        @tui.menu_item("exit", "Exit"),
       ],
     },
-    @c.MenubarItem::{
+    @tui.MenubarItem::{
       id: "edit",
       label: "Edit",
       items: [
-        @c.menu_item("cut", "Cut"),
-        @c.menu_item("copy", "Copy"),
-        @c.menu_item("paste", "Paste"),
+        @tui.menu_item("cut", "Cut"),
+        @tui.menu_item("copy", "Copy"),
+        @tui.menu_item("paste", "Paste"),
       ],
     },
-    @c.MenubarItem::{
+    @tui.MenubarItem::{
       id: "view",
       label: "View",
       items: [
-        @c.menu_checkbox("toolbar", "Toolbar", true),
-        @c.menu_checkbox("statusbar", "Status Bar", false),
-        @c.menu_separator(),
-        @c.menu_radio("normal", "Normal", true),
-        @c.menu_radio("compact", "Compact", false),
+        @tui.menu_checkbox("toolbar", "Toolbar", true),
+        @tui.menu_checkbox("statusbar", "Status Bar", false),
+        @tui.menu_separator(),
+        @tui.menu_radio("normal", "Normal", true),
+        @tui.menu_radio("compact", "Compact", false),
       ],
     },
   ]
-  let state : @c.MenubarState = {
+  let state : @tui.MenubarState = {
     open_menu_id: open_menu.get(),
     focused_item_id: menubar_focused_item.get(),
     open_submenu_path: [],
   }
-  @c.column(
+  @tui.column(
     [
-      @c.text(
+      @tui.text(
         "Menubar Demo (1/2/3 to open, ←/→ to switch menus, ↑/↓ to select items, Space to close)",
-        fg=@core.Color::cyan(),
+        fg=@tui.Color::cyan(),
       ),
-      @c.vspace(1.0),
-      @c.menubar(items, state),
-      @c.vspace(1.0),
-      @c.text(
+      @tui.vspace(1.0),
+      @tui.menubar(items, state),
+      @tui.vspace(1.0),
+      @tui.text(
         "Open: " +
         (if open_menu.get().length() > 0 { open_menu.get() } else { "none" }) +
         " | Focused: " +
@@ -832,7 +832,7 @@ fn render_menubar_demo(
         } else {
           "none"
         }),
-        fg=@core.Color::green(),
+        fg=@tui.Color::green(),
       ),
     ],
     gap=0.5,

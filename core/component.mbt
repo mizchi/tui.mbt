@@ -138,12 +138,63 @@ pub fn ClickHandlers::iter(
 
 ///|
 /// Component represents a renderable UI element with its layout, style, and content
+/// Note: Fields are internal implementation details. Use accessor methods for external access.
 pub struct Component {
   node : @node.Node
   styles : RenderStyleMap
   texts : TextContentMap
   click_handlers : ClickHandlers
   roles : RoleMap
+}
+
+// === Accessor methods for Component ===
+
+///|
+/// Get the component's ID
+pub fn Component::id(self : Component) -> String {
+  self.node.id
+}
+
+///|
+/// Get the layout node (internal use)
+pub fn Component::get_node(self : Component) -> @node.Node {
+  self.node
+}
+
+///|
+/// Get the styles map (internal use)
+pub fn Component::get_styles(self : Component) -> RenderStyleMap {
+  self.styles
+}
+
+///|
+/// Get the text content map (internal use)
+pub fn Component::get_texts(self : Component) -> TextContentMap {
+  self.texts
+}
+
+///|
+/// Get click handlers (internal use)
+pub fn Component::get_click_handlers(self : Component) -> ClickHandlers {
+  self.click_handlers
+}
+
+///|
+/// Get roles map (internal use)
+pub fn Component::get_roles(self : Component) -> RoleMap {
+  self.roles
+}
+
+///|
+/// Get text content by ID
+pub fn Component::get_text(self : Component, id : String) -> String? {
+  self.texts.get(id)
+}
+
+///|
+/// Check if component has a specific role
+pub fn Component::get_role(self : Component, id : String) -> Role? {
+  self.roles.get(id)
 }
 
 // Global ID counter for unique component IDs

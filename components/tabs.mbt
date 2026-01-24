@@ -24,6 +24,8 @@ pub fn tabs(
   focused_id? : String = "",
   theme? : Theme = Theme::default(),
   padding_x? : Double = 2.0,
+  // Event handler
+  on_select? : ((String) -> Unit)? = None,
 ) -> @core.Component {
   let tab_components : Array[@core.Component] = []
   for item in items {
@@ -37,11 +39,18 @@ pub fn tabs(
     } else {
       theme.fg
     }
+    // Create click handler for this tab
+    let tab_id = item.id
+    let tab_on_click : (() -> Unit)? = match on_select {
+      Some(handler) => Some(fn() { handler(tab_id) })
+      None => None
+    }
     tab_components.push(
       row(
         [text(item.label, fg=tab_fg, bold=is_active)],
         id=item.id,
         padding_x~,
+        on_click=tab_on_click,
         role=Some(@core.Role::Tab),
       ),
     )

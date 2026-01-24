@@ -31,6 +31,8 @@ pub fn textarea(
   min_width? : Double = 20.0,
   padding_x? : Double = 1.0,
   padding_y? : Double = 0.0,
+  // Event handler
+  on_click? : (() -> Unit)? = None,
 ) -> @core.Component {
   let display_text = textarea_display_text(value, placeholder, state)
   let display_lines = split_lines(display_text)
@@ -71,6 +73,7 @@ pub fn textarea(
     border=Some(@core.BorderChars::rounded()),
     border_color~,
     bg=actual_bg,
+    on_click~,
     role=Some(@core.Role::Textbox),
   )
 }

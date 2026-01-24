@@ -95,12 +95,12 @@ fn filter_commands(query : String) -> Array[String] {
 
 ///|
 fn main {
-  let (cols, rows) = @io.get_terminal_size()
+  let (cols, rows) = @tui.get_terminal_size()
   let width : Ref[Int] = { val: cols }
   let height : Ref[Int] = { val: rows }
   let editing = @signals.signal(false)
   let text_value = @signals.signal("")
-  let app : Ref[@render.App] = { val: @render.App::new(cols, rows) }
+  let app : Ref[@tui.App] = { val: @tui.App::new(cols, rows) }
 
   // Command palette state
   let palette_open = @signals.signal(false)
@@ -132,64 +132,61 @@ fn main {
       let is_selected = i == selected
       let prefix = if is_selected { "› " } else { "  " }
       let fg = if is_selected {
-        @core.Color::cyan()
+        @tui.Color::cyan()
       } else {
-        @core.Color::rgb(180, 180, 180)
+        @tui.Color::rgb(180, 180, 180)
       }
       item_components.push(
-        @c.row(
-          [@c.text(prefix + item, fg~, bold=is_selected)],
-          height=@types.Dimension::Length(1.0),
-        ),
+        @tui.row([@tui.text(prefix + item, fg~, bold=is_selected)], height=1.0),
       )
     }
 
     // Show placeholder when no results
     if items.length() == 0 {
       item_components.push(
-        @c.row(
-          [@c.text("  No results", fg=@core.Color::rgb(100, 100, 100))],
-          height=@types.Dimension::Length(1.0),
+        @tui.row(
+          [@tui.text("  No results", fg=@tui.Color::rgb(100, 100, 100))],
+          height=1.0,
         ),
       )
     }
 
     // Input row
-    let input_row = @c.row(
-      [@c.text("> " + palette_input.val, fg=@core.Color::yellow(), bold=true)],
+    let input_row = @tui.row(
+      [@tui.text("> " + palette_input.val, fg=@tui.Color::yellow(), bold=true)],
       id="palette-input",
-      height=@types.Dimension::Length(1.0),
+      height=1.0,
     )
 
     // Separator line
-    let separator = @c.row(
+    let separator = @tui.row(
       [
-        @c.text(
+        @tui.text(
           "─".repeat(palette_width - 4),
-          fg=@core.Color::rgb(60, 60, 60),
+          fg=@tui.Color::rgb(60, 60, 60),
         ),
       ],
-      height=@types.Dimension::Length(1.0),
+      height=1.0,
     )
 
     // Palette box
-    @c.column(
+    @tui.column(
       [input_row, separator] + item_components,
-      border=Some(@core.BorderChars::rounded()),
-      border_color=@core.Color::cyan(),
-      bg=@core.Color::rgb(25, 25, 35),
+      border=Some(@tui.BorderChars::rounded()),
+      border_color=@tui.Color::cyan(),
+      bg=@tui.Color::rgb(25, 25, 35),
       padding=1.0,
     )
   }
 
   fn render_ui() -> @core.Component {
     let (box_width, box_height) = editor_box_size()
-    let fg = @core.Color::white()
+    let fg = @tui.Color::white()
     let value = text_value.get()
     let state = if editing.get() {
-      @c.TextareaState::Editing
+      @tui.TextareaState::Editing
     } else {
-      @c.TextareaState::Idle
+      @tui.TextareaState::Idle
     }
     // Debug: show palette input in header
     let header_text = if palette_open.get() {
@@ -200,33 +197,33 @@ fn main {
     } else {
       "Editor Prototype"
     }
-    let header = @c.row(
-      [@c.text(header_text, fg=@core.Color::yellow(), bold=true)],
-      justify=@types.Alignment::Center,
+    let header = @tui.row(
+      [@tui.text(header_text, fg=@tui.Color::yellow(), bold=true)],
+      justify=@tui.align_center(),
     )
     let last_cmd_row = if last_command.val.length() > 0 {
-      @c.row(
+      @tui.row(
         [
-          @c.text(
+          @tui.text(
             "Last: " + last_command.val,
-            fg=@core.Color::rgb(100, 180, 100),
+            fg=@tui.Color::rgb(100, 180, 100),
           ),
         ],
-        justify=@types.Alignment::Center,
+        justify=@tui.align_center(),
       )
     } else {
-      @c.row(
-        [@c.text("Ctrl+P: Command Palette", fg=@core.Color::rgb(80, 80, 80))],
-        justify=@types.Alignment::Center,
+      @tui.row(
+        [@tui.text("Ctrl+P: Command Palette", fg=@tui.Color::rgb(80, 80, 80))],
+        justify=@tui.align_center(),
       )
     }
-    let editor_box = @c.multiline_input(
+    let editor_box = @tui.multiline_input(
       value,
       id="editor-box",
       rows=box_height,
       placeholder="Press Enter to edit",
       state~,
-      width=@types.Dimension::Length(box_width.to_double()),
+      width=@tui.dim_length(box_width.to_double()),
       padding_x=1.0,
       padding_y=0.0,
       fg~,
@@ -236,16 +233,16 @@ fn main {
     } else {
       "Enter: edit | q: quit | p/Ctrl+P: palette"
     }
-    let footer = @c.row(
-      [@c.text(footer_text, fg=@core.Color::rgb(120, 120, 120))],
-      justify=@types.Alignment::Center,
+    let footer = @tui.row(
+      [@tui.text(footer_text, fg=@tui.Color::rgb(120, 120, 120))],
+      justify=@tui.align_center(),
     )
-    let base_ui = @c.column(
+    let base_ui = @tui.column(
       [header, last_cmd_row, editor_box, footer],
-      width=@types.Dimension::Length(width.val.to_double()),
-      height=@types.Dimension::Length(height.val.to_double()),
-      justify=@types.Alignment::Start,
-      align=@types.Alignment::Start,
+      width=@tui.dim_length(width.val.to_double()),
+      height=@tui.dim_length(height.val.to_double()),
+      justify=@tui.align_start(),
+      align=@tui.align_start(),
     )
 
     // If palette is open, overlay at center-top (Spotlight-like)
@@ -257,16 +254,16 @@ fn main {
           @core.box(
             [render_palette()],
             position=@types.Position::Absolute,
-            inset_top=@c.dim_length(3.0), // 3 lines from top
-            inset_left=@c.dim_length(0.0),
-            inset_right=@c.dim_length(0.0),
-            inset_bottom=@c.dim_length(0.0), // Required for align_items to work
-            justify_content=@types.Alignment::Center, // horizontal center
-            align_items=@types.Alignment::Start, // top align
+            inset_top=@tui.dim_length(3.0), // 3 lines from top
+            inset_left=@tui.dim_length(0.0),
+            inset_right=@tui.dim_length(0.0),
+            inset_bottom=@tui.dim_length(0.0), // Required for align_items to work
+            justify_content=@tui.align_center(), // horizontal center
+            align_items=@tui.align_start(), // top align
           ),
         ],
-        width=@c.dim_length(width.val.to_double()),
-        height=@c.dim_length(height.val.to_double()),
+        width=@tui.dim_length(width.val.to_double()),
+        height=@tui.dim_length(height.val.to_double()),
       )
     } else {
       base_ui
@@ -274,7 +271,7 @@ fn main {
   }
 
   fn do_render() -> Unit {
-    @io.print_raw(app.val.render_frame(render_ui()))
+    @tui.print_raw(app.val.render_frame(render_ui()))
     // Position cursor for IME when palette is open
     if palette_open.get() {
       // Use find_by_id to get actual rendered position
@@ -287,14 +284,14 @@ fn main {
           )
           let cursor_row = bounds.y + 1
           let cursor_col = bounds.x + 1 + 2 + input_display_width // +2 for "> "
-          @io.print_raw(
+          @tui.print_raw(
             "\u001b[" +
             cursor_row.to_string() +
             ";" +
             cursor_col.to_string() +
             "H",
           )
-          @io.print_raw(@render.ansi_show_cursor())
+          @tui.print_raw(@render.ansi_show_cursor())
         }
         None => ()
       }
@@ -302,18 +299,18 @@ fn main {
   }
 
   fn do_quit() -> Unit {
-    @io.stop_keypress_listener()
+    @tui.stop_keypress_listener()
     @io.stop_resize_listener()
-    @io.cleanup_stdin()
-    @io.print_raw(@render.App::restore_terminal())
+    @tui.cleanup_stdin()
+    @tui.print_raw(@tui.App::restore_terminal())
     println("Goodbye!")
   }
 
   fn handle_resize(new_width : Int, new_height : Int) -> Unit {
     width.val = new_width
     height.val = new_height
-    app.val = @render.App::new(new_width, new_height)
-    @io.print_raw(@render.ansi_clear_screen())
+    app.val = @tui.App::new(new_width, new_height)
+    @tui.print_raw(@render.ansi_clear_screen())
     do_render()
   }
 
@@ -352,29 +349,29 @@ fn main {
   }
 
   letrec restore_tui: () -> Unit = fn() {
-    @io.print_raw(@render.ansi_full_reset())
+    @tui.print_raw(@tui.ansi_full_reset())
     app.val.clear_prev_buffer()
     editing.set(false)
     do_render()
     @io.start_resize_listener(handle_resize)
-    @io.start_keypress_listener(handle_key)
+    @tui.start_keypress_listener(handle_key)
   }
   and start_editing: () -> Unit = fn() {
     editing.set(true)
     do_render()
     match app.val.find_by_id("editor-box") {
       Some(bounds) => {
-        let config = @c.EditConfig::{
+        let config = @tui.EditConfig::{
           field_name: "Editor",
           on_change: fn(value) { text_value.set(value) },
           on_edit_start: Some(fn() {
-            @io.stop_keypress_listener()
+            @tui.stop_keypress_listener()
             @io.stop_resize_listener()
           }),
           on_edit_end: Some(fn() { editing.set(false) }),
           on_force_quit: Some(fn() { do_quit() }),
         }
-        @c.start_edit_inplace_in_bounds(
+        @tui.start_edit_inplace_in_bounds(
           config,
           text_value.get(),
           bounds,
@@ -399,7 +396,7 @@ fn main {
     if completion_manager.check_pending() {
       do_render()
     }
-    let event = @events.parse_input(key)
+    let event = @tui.parse_input(key)
 
     // Handle palette mode
     if palette_open.get() {
@@ -411,27 +408,27 @@ fn main {
       let engine = completion_manager.get_engine()
       // Check for special keys first
       match event {
-        @events.InputEvent::Key(key_event) =>
+        @tui.InputEvent::Key(key_event) =>
           match key_event {
-            @events.KeyEvent::Special(@events.SpecialKey::Escape, _) => {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
               close_palette()
               return
             }
-            @events.KeyEvent::Special(@events.SpecialKey::Enter, _) => {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
               execute_palette_command()
               return
             }
-            @events.KeyEvent::Special(@events.SpecialKey::Up, _) => {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) => {
               engine.select_prev()
               do_render()
               return
             }
-            @events.KeyEvent::Special(@events.SpecialKey::Down, _) => {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) => {
               engine.select_next()
               do_render()
               return
             }
-            @events.KeyEvent::Special(@events.SpecialKey::Backspace, _) => {
+            @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _) => {
               if palette_input.val.length() > 0 {
                 let chars : Array[Char] = palette_input.val.iter().collect()
                 let new_len = chars.length() - 1
@@ -474,15 +471,12 @@ fn main {
       return
     }
     match event {
-      @events.InputEvent::Key(key_event) =>
+      @tui.InputEvent::Key(key_event) =>
         match key_event {
-          @events.KeyEvent::Char('q', @events.KeyModifier::None) => do_quit()
-          @events.KeyEvent::Char('p', @events.KeyModifier::None) =>
-            open_palette()
-          @events.KeyEvent::Special(@events.SpecialKey::Enter, _) =>
-            start_editing()
-          @events.KeyEvent::Char('e', @events.KeyModifier::None) =>
-            start_editing()
+          @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => do_quit()
+          @tui.KeyEvent::Char('p', @tui.KeyModifier::None) => open_palette()
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => start_editing()
+          @tui.KeyEvent::Char('e', @tui.KeyModifier::None) => start_editing()
           _ => ()
         }
       _ => ()
@@ -495,8 +489,8 @@ fn main {
       do_render()
     }
   })
-  @io.print_raw(@render.App::init_terminal())
+  @tui.print_raw(@tui.App::init_terminal())
   do_render()
   @io.start_resize_listener(handle_resize)
-  @io.start_keypress_listener(handle_key)
+  @tui.start_keypress_listener(handle_key)
 }

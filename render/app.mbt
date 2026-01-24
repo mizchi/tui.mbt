@@ -27,14 +27,21 @@ pub fn App::new(width : Int, height : Int) -> App {
 /// Render a component tree to ANSI string
 pub fn App::render(self : App, component : @core.Component) -> String {
   // Compute layout
-  let layout = compute_layout(component.node, self.width, self.height)
+  let layout = compute_layout(component.get_node(), self.width, self.height)
 
   // Save layout for hit testing
   self.last_layout = Some(layout)
 
   // Create new buffer
   let buf = CharBuffer::new(self.width, self.height)
-  render_layout(buf, layout, component.styles, component.texts, 0, 0)
+  render_layout(
+    buf,
+    layout,
+    component.get_styles(),
+    component.get_texts(),
+    0,
+    0,
+  )
 
   // Generate output with diff if possible
   let output = match self.prev_buffer {
@@ -58,10 +65,17 @@ pub fn App::render_with_offset(
   row_offset? : Int = 0,
   col_offset? : Int = 0,
 ) -> String {
-  let layout = compute_layout(component.node, self.width, self.height)
+  let layout = compute_layout(component.get_node(), self.width, self.height)
   self.last_layout = Some(layout)
   let buf = CharBuffer::new(self.width, self.height)
-  render_layout(buf, layout, component.styles, component.texts, 0, 0)
+  render_layout(
+    buf,
+    layout,
+    component.get_styles(),
+    component.get_texts(),
+    0,
+    0,
+  )
   let output = match self.prev_buffer {
     Some(prev) => buf.diff_to_ansi_offset(prev, row_offset, col_offset)
     None => buf.to_ansi_offset(row_offset, col_offset)
@@ -237,7 +251,7 @@ pub fn App::dispatch_click_from_component(
     (@events.MouseEventType::Press, @events.MouseButton::Left) =>
       match self.hit_test(event.x, event.y) {
         Some(hit) => {
-          match component.click_handlers.get(hit.id) {
+          match component.get_click_handlers().get(hit.id) {
             Some(handler) => handler.invoke()
             None => ()
           }

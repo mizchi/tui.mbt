@@ -70,7 +70,7 @@ pub fn checkbox(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : 
 
 pub fn colored(String, @core.Color) -> @core.Component
 
-pub fn column(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
+pub fn column(Array[@core.Component], id? : String, width? : &ToDimension, height? : &ToDimension, min_width? : &ToDimension, min_height? : &ToDimension, max_width? : &ToDimension, max_height? : &ToDimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : &ToDimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
 
 pub fn combobox(Array[ComboboxOption], String, id? : String, focused_id? : String, state? : ComboboxState, filter? : String, placeholder? : String, theme? : Theme, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
 
@@ -118,7 +118,7 @@ pub fn ime_input(String, Bool, focused? : Bool, disabled? : Bool, id? : String, 
 
 pub fn ime_textarea(String, Bool, focused? : Bool, disabled? : Bool, id? : String, rows? : Int, placeholder? : String, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
 
-pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
 
@@ -138,9 +138,9 @@ pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? :
 
 pub fn labeled_switch(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : LabelPosition, theme? : Theme, gap? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
-pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+pub fn listbox(Array[ListboxOption], String, id? : String, focused_id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
 
-pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double) -> @core.Component
+pub fn listbox_multi(Array[ListboxOption], ListboxState, id? : String, orientation? : ListboxOrientation, theme? : Theme, min_width? : Double, max_height? : Int, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
 
 pub fn listbox_option(String, String, disabled? : Bool) -> ListboxOption
 
@@ -182,7 +182,7 @@ pub fn radiogroup(Array[RadioOption], String, id? : String, focused_id? : String
 
 pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
 
-pub fn row(Array[@core.Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
+pub fn row(Array[@core.Component], id? : String, width? : &ToDimension, height? : &ToDimension, min_width? : &ToDimension, min_height? : &ToDimension, max_width? : &ToDimension, max_height? : &ToDimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : &ToDimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
 
 pub fn scroll_indicator(ScrollIndicator, fg? : @core.Color) -> @core.Component
 
@@ -224,7 +224,7 @@ pub fn tab_container(Array[TabItem], String, @core.Component, id? : String, focu
 
 pub fn tab_panel(@core.Component, id? : String, theme? : Theme, border? : @core.BorderChars?, padding? : Double) -> @core.Component
 
-pub fn tabs(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
+pub fn tabs(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
 
 pub fn tabs_boxed(Array[TabItem], String, id? : String, focused_id? : String, theme? : Theme, padding_x? : Double) -> @core.Component
 
@@ -234,7 +234,7 @@ pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underlin
 
 pub fn text_button(String, state? : ButtonState, theme? : Theme, underline? : Bool) -> @core.Component
 
-pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
+pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
 pub fn title_bar(String, fg? : @core.Color) -> @core.Component
 
@@ -747,4 +747,10 @@ pub fn UndoStack::undo_count(Self) -> Int
 // Type aliases
 
 // Traits
+pub(open) trait ToDimension {
+  to_dimension(Self) -> @types.Dimension
+}
+pub impl ToDimension for Int
+pub impl ToDimension for Double
+pub impl ToDimension for @types.Dimension
 

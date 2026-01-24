@@ -81,6 +81,14 @@ pub struct Component {
   click_handlers : ClickHandlers
   roles : RoleMap
 }
+pub fn Component::get_click_handlers(Self) -> ClickHandlers
+pub fn Component::get_node(Self) -> @node.Node
+pub fn Component::get_role(Self, String) -> Role?
+pub fn Component::get_roles(Self) -> RoleMap
+pub fn Component::get_styles(Self) -> RenderStyleMap
+pub fn Component::get_text(Self, String) -> String?
+pub fn Component::get_texts(Self) -> TextContentMap
+pub fn Component::id(Self) -> String
 
 pub(all) struct RenderStyle {
   fg : Color

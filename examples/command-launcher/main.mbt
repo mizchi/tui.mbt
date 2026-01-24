@@ -92,7 +92,7 @@ fn AppState::new(width : Int, height : Int) -> AppState {
 
 ///|
 fn pr(s : String) -> Unit {
-  @io.print_raw(s)
+  @tui.print_raw(s)
 }
 
 ///|
@@ -407,11 +407,11 @@ fn handle_key(key : String, state : AppState) -> Unit {
   if state.manager.check_pending() {
     render_all(state)
   }
-  let event = @events.parse_input(key)
+  let event = @tui.parse_input(key)
   let engine = state.manager.get_engine()
   // Ctrl+C: quit
   if event.is_ctrl_c() {
-    @io.stop_keypress_listener()
+    @tui.stop_keypress_listener()
     pr(show_cursor())
     pr(exit_alt_screen())
     pr("Bye!\n")
@@ -438,12 +438,12 @@ fn handle_key(key : String, state : AppState) -> Unit {
     }
     // Arrow keys: navigate
     match event.is_arrow() {
-      Some(@events.SpecialKey::Up) => {
+      Some(@tui.SpecialKey::Up) => {
         engine.select_prev()
         render_all(state)
         return
       }
-      Some(@events.SpecialKey::Down) => {
+      Some(@tui.SpecialKey::Down) => {
         engine.select_next()
         render_all(state)
         return
@@ -470,13 +470,13 @@ fn handle_key(key : String, state : AppState) -> Unit {
     }
     // Character input
     match event {
-      @events.InputEvent::Key(@events.KeyEvent::Char(c, _)) => {
+      @tui.InputEvent::Key(@tui.KeyEvent::Char(c, _)) => {
         state.input = state.input + c.to_string()
         state.manager.request(state.input)
         render_all(state)
       }
-      @events.InputEvent::Key(
-        @events.KeyEvent::Special(@events.SpecialKey::Backspace, _)
+      @tui.InputEvent::Key(
+        @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _)
       ) => {
         if state.input.length() > 0 {
           let chars = state.input.iter().collect()
@@ -513,5 +513,5 @@ fn main {
       render_all(state)
     }
   })
-  @io.start_keypress_listener(fn(key) { handle_key(key, state) })
+  @tui.start_keypress_listener(fn(key) { handle_key(key, state) })
 }

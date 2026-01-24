@@ -3,6 +3,31 @@
 /// These provide a cleaner API without exposing crater's internal types
 
 ///|
+/// Trait for converting values to Dimension
+/// Allows functions to accept both Double and Dimension directly
+pub(open) trait ToDimension {
+  to_dimension(Self) -> @types.Dimension
+}
+
+///|
+/// Double converts to Length dimension
+pub impl ToDimension for Double with to_dimension(self) {
+  @types.Dimension::Length(self)
+}
+
+///|
+/// Int converts to Length dimension
+pub impl ToDimension for Int with to_dimension(self) {
+  @types.Dimension::Length(self.to_double())
+}
+
+///|
+/// Dimension passes through unchanged
+pub impl ToDimension for @types.Dimension with to_dimension(self) {
+  self
+}
+
+///|
 // Dimension helpers - avoid @types.Dimension::Length(...) verbosity
 
 ///|

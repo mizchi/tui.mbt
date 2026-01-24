@@ -5,7 +5,7 @@
 ///|
 fn main {
   // Get terminal size
-  let (cols, rows) = @io.get_terminal_size()
+  let (cols, rows) = @tui.get_terminal_size()
   let width = cols
   let height = rows
 
@@ -17,12 +17,12 @@ fn main {
 
   // Focus navigation with FocusNav utility
   let input_ids = ["name-input", "email-input", "message-textarea"]
-  let focus = @c.FocusNav::new([
+  let focus = @tui.FocusNav::new([
     "name-input", "email-input", "message-textarea", "submit-btn",
   ])
 
   // Create the app
-  let app = @render.App::new(width, height)
+  let app = @tui.App::new(width, height)
 
   // Field configurations for editing
   let field_configs : Map[String, (String, @signals.Signal[String])] = {
@@ -32,19 +32,19 @@ fn main {
   }
 
   // Render function
-  fn render_ui() -> @core.Component {
-    @c.column(
+  fn render_ui() -> @tui.Component {
+    @tui.column(
       [
         // Title
-        @c.title_bar("Form Demo"),
+        @tui.title_bar("Form Demo"),
         // Form fields
-        @c.column(
+        @tui.column(
           [
             // Name field
-            @c.row(
+            @tui.row(
               [
-                @c.text("Name:    "),
-                @c.input(
+                @tui.text("Name:    "),
+                @tui.input(
                   name.get(),
                   id="name-input",
                   placeholder="Enter your name",
@@ -56,10 +56,10 @@ fn main {
               margin_y=0.5,
             ),
             // Email field
-            @c.row(
+            @tui.row(
               [
-                @c.text("Email:   "),
-                @c.input(
+                @tui.text("Email:   "),
+                @tui.input(
                   email.get(),
                   id="email-input",
                   placeholder="user@example.com",
@@ -71,10 +71,10 @@ fn main {
               margin_y=0.5,
             ),
             // Message field (textarea)
-            @c.row(
+            @tui.row(
               [
-                @c.text("Message: "),
-                @c.textarea(
+                @tui.text("Message: "),
+                @tui.textarea(
                   message.get(),
                   id="message-textarea",
                   placeholder="Enter your message...",
@@ -86,10 +86,10 @@ fn main {
               margin_y=0.5,
             ),
             // Submit button
-            @c.row(
+            @tui.row(
               [
-                @c.hspace(9.0),
-                @c.button(
+                @tui.hspace(9.0),
+                @tui.button(
                   "Submit",
                   id="submit-btn",
                   state=focus.button_state("submit-btn"),
@@ -102,42 +102,42 @@ fn main {
           padding=2.0,
         ),
         // Status bar
-        @c.footer([
-          @c.text(
+        @tui.footer([
+          @tui.text(
             "Tab: next | Enter: edit/confirm | Shift+Enter/Ctrl+D: newline | Esc: cancel",
           ),
         ]),
       ],
-      width=@c.dim_length(width.to_double()),
-      height=@c.dim_length(height.to_double()),
+      width=width.to_double(),
+      height=height.to_double(),
       padding=1.0,
-      border=Some(@core.BorderChars::rounded()),
-      border_color=@core.Color::cyan(),
+      border=Some(@tui.BorderChars::rounded()),
+      border_color=@tui.Color::cyan(),
     )
   }
 
   // Render helper
   fn do_render() -> Unit {
-    @io.print_raw(app.render_frame(render_ui()))
+    @tui.print_raw(app.render_frame(render_ui()))
   }
 
   // Handle quit
   fn do_quit() -> Unit {
     running.set(false)
-    @io.stop_keypress_listener()
-    @io.print_raw(@render.disable_mouse())
-    @io.cleanup_stdin()
-    @io.print_raw(@render.App::restore_terminal())
+    @tui.stop_keypress_listener()
+    @tui.print_raw(@tui.disable_mouse())
+    @tui.cleanup_stdin()
+    @tui.print_raw(@tui.App::restore_terminal())
     println("Cancelled.")
   }
 
   // Handle submit
   fn do_submit() -> Unit {
     running.set(false)
-    @io.stop_keypress_listener()
-    @io.print_raw(@render.disable_mouse())
-    @io.cleanup_stdin()
-    @io.print_raw(@render.App::restore_terminal())
+    @tui.stop_keypress_listener()
+    @tui.print_raw(@tui.disable_mouse())
+    @tui.cleanup_stdin()
+    @tui.print_raw(@tui.App::restore_terminal())
     println("Form submitted!")
     println("Name: " + name.get())
     println("Email: " + email.get())
@@ -146,11 +146,11 @@ fn main {
 
   // Mutually recursive functions: restore_tui <-> start_editing <-> handle_key
   letrec restore_tui: () -> Unit = fn() {
-    @io.print_raw(@render.ansi_full_reset())
-    @io.print_raw(@render.enable_mouse())
+    @tui.print_raw(@tui.ansi_full_reset())
+    @tui.print_raw(@tui.enable_mouse())
     app.clear_prev_buffer()
     do_render()
-    @io.start_keypress_listener(handle_key)
+    @tui.start_keypress_listener(handle_key)
   }
   and start_editing: (String) -> Unit = fn(id) {
     match field_configs.get(id) {
@@ -158,18 +158,18 @@ fn main {
         // Get the element bounds for inplace editing
         match app.find_by_id(id) {
           Some(bounds) => {
-            let config = @c.form_edit_config(
+            let config = @tui.form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
-                @io.stop_keypress_listener()
-                @io.print_raw(@render.disable_mouse())
+                @tui.stop_keypress_listener()
+                @tui.print_raw(@tui.disable_mouse())
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
             // Determine if this is a multiline textarea
             let multiline = id == "message-textarea"
-            @c.start_edit_inplace_in_bounds(
+            @tui.start_edit_inplace_in_bounds(
               config,
               signal.get(),
               bounds,
@@ -179,16 +179,16 @@ fn main {
           }
           None => {
             // Fallback to cooked mode if bounds not found
-            let config = @c.form_edit_config(
+            let config = @tui.form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
-                @io.stop_keypress_listener()
-                @io.print_raw(@render.disable_mouse())
+                @tui.stop_keypress_listener()
+                @tui.print_raw(@tui.disable_mouse())
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            @c.start_edit(config, signal.get(), restore_tui)
+            @tui.start_edit(config, signal.get(), restore_tui)
           }
         }
       None => ()
@@ -198,7 +198,7 @@ fn main {
     if key.length() == 0 {
       return
     }
-    let event = @events.parse_input(key)
+    let event = @tui.parse_input(key)
     let mut need_render = true
     let mut start_edit_id = ""
 
@@ -237,7 +237,7 @@ fn main {
     } else {
       // Handle mouse clicks
       match event {
-        @events.InputEvent::Mouse(mouse_event) =>
+        @tui.InputEvent::Mouse(mouse_event) =>
           match app.dispatch_click_with_result(mouse_event) {
             Some(hit) => if focus.ids.contains(hit.id) { focus.set(hit.id) }
             None => ()
@@ -259,12 +259,12 @@ fn main {
   }
 
   // Initialize terminal
-  @io.print_raw(@render.App::init_terminal())
-  @io.print_raw(@render.enable_mouse())
+  @tui.print_raw(@tui.App::init_terminal())
+  @tui.print_raw(@tui.enable_mouse())
 
   // Initial render
   do_render()
 
   // Start event-driven keypress listener
-  @io.start_keypress_listener(handle_key)
+  @tui.start_keypress_listener(handle_key)
 }

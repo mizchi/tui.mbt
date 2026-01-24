@@ -97,12 +97,12 @@ pub(all) struct PromptResult {
 
 ///|
 fn pr(s : String) -> Unit {
-  @io.print_raw(s)
+  @tui.print_raw(s)
 }
 
 ///|
 fn prln(s : String) -> Unit {
-  @io.print_raw(s + "\n")
+  @tui.print_raw(s + "\n")
 }
 
 ///|
@@ -311,7 +311,7 @@ fn submit_answer(state : WizardState) -> Unit {
   let next_idx = idx + 1
   if next_idx >= state.prompts.length() {
     show_summary(state)
-    @io.stop_keypress_listener()
+    @tui.stop_keypress_listener()
     pr(show_cursor())
     state.running.set(false)
     return
@@ -330,14 +330,14 @@ fn submit_answer(state : WizardState) -> Unit {
 ///|
 /// Handle input prompt key
 fn handle_input_key(
-  event : @events.InputEvent,
+  event : @tui.InputEvent,
   prompt : Prompt,
   state : WizardState,
 ) -> Unit {
   match event {
-    @events.InputEvent::Key(@events.KeyEvent::Char(c, modifier)) =>
+    @tui.InputEvent::Key(@tui.KeyEvent::Char(c, modifier)) =>
       match modifier {
-        @events.KeyModifier::Ctrl =>
+        @tui.KeyModifier::Ctrl =>
           // Ctrl+A: move to start, Ctrl+E: move to end (no-op for simple input)
           // Ctrl+U: clear input
           if c == 'u' || c == 'U' {
@@ -351,9 +351,7 @@ fn handle_input_key(
           render_active_prompt(prompt, state)
         }
       }
-    @events.InputEvent::Key(
-      @events.KeyEvent::Special(@events.SpecialKey::Backspace, _)
-    ) => {
+    @tui.InputEvent::Key(@tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _)) => {
       let buf = state.input_buffer.get()
       if buf.length() > 0 {
         let chars = buf.iter().collect()
@@ -365,9 +363,7 @@ fn handle_input_key(
         render_active_prompt(prompt, state)
       }
     }
-    @events.InputEvent::Key(
-      @events.KeyEvent::Special(@events.SpecialKey::Tab, _)
-    ) =>
+    @tui.InputEvent::Key(@tui.KeyEvent::Special(@tui.SpecialKey::Tab, _)) =>
       // Tab to complete placeholder
       match prompt.prompt_type {
         PromptType::Input(placeholder) =>
@@ -385,21 +381,21 @@ fn handle_input_key(
 ///|
 /// Handle select prompt key (with wrap-around)
 fn handle_select_key(
-  event : @events.InputEvent,
+  event : @tui.InputEvent,
   prompt : Prompt,
   options : Array[String],
   state : WizardState,
 ) -> Unit {
   let arrow = event.is_arrow()
   match arrow {
-    Some(@events.SpecialKey::Up) => {
+    Some(@tui.SpecialKey::Up) => {
       let cur = state.cursor_idx.get()
       let next = if cur > 0 { cur - 1 } else { options.length() - 1 }
       state.cursor_idx.set(next)
       clear_active_prompt(prompt)
       render_active_prompt(prompt, state)
     }
-    Some(@events.SpecialKey::Down) => {
+    Some(@tui.SpecialKey::Down) => {
       let cur = state.cursor_idx.get()
       let next = if cur < options.length() - 1 { cur + 1 } else { 0 }
       state.cursor_idx.set(next)
@@ -413,21 +409,21 @@ fn handle_select_key(
 ///|
 /// Handle multiselect prompt key (with wrap-around)
 fn handle_multiselect_key(
-  event : @events.InputEvent,
+  event : @tui.InputEvent,
   prompt : Prompt,
   options : Array[String],
   state : WizardState,
 ) -> Unit {
   let arrow = event.is_arrow()
   match arrow {
-    Some(@events.SpecialKey::Up) => {
+    Some(@tui.SpecialKey::Up) => {
       let cur = state.cursor_idx.get()
       let next = if cur > 0 { cur - 1 } else { options.length() - 1 }
       state.cursor_idx.set(next)
       clear_active_prompt(prompt)
       render_active_prompt(prompt, state)
     }
-    Some(@events.SpecialKey::Down) => {
+    Some(@tui.SpecialKey::Down) => {
       let cur = state.cursor_idx.get()
       let next = if cur < options.length() - 1 { cur + 1 } else { 0 }
       state.cursor_idx.set(next)
@@ -449,18 +445,18 @@ fn handle_multiselect_key(
 ///|
 /// Handle confirm prompt key
 fn handle_confirm_key(
-  event : @events.InputEvent,
+  event : @tui.InputEvent,
   prompt : Prompt,
   state : WizardState,
 ) -> Unit {
   let arrow = event.is_arrow()
   match arrow {
-    Some(@events.SpecialKey::Left) => {
+    Some(@tui.SpecialKey::Left) => {
       state.cursor_idx.set(0)
       clear_active_prompt(prompt)
       render_active_prompt(prompt, state)
     }
-    Some(@events.SpecialKey::Right) => {
+    Some(@tui.SpecialKey::Right) => {
       state.cursor_idx.set(1)
       clear_active_prompt(prompt)
       render_active_prompt(prompt, state)
@@ -482,14 +478,14 @@ fn handle_key(key : String, state : WizardState) -> Unit {
   if key.length() == 0 || not(state.running.get()) {
     return
   }
-  let event = @events.parse_input(key)
+  let event = @tui.parse_input(key)
   let idx = state.current_idx.get()
   if idx >= state.prompts.length() {
     return
   }
   let prompt = state.prompts[idx]
   if event.is_ctrl_c() {
-    @io.stop_keypress_listener()
+    @tui.stop_keypress_listener()
     pr(show_cursor())
     prln("\n" + red() + "Aborted." + reset())
     state.running.set(false)
@@ -557,5 +553,5 @@ fn main {
     _ => ()
   }
   render_active_prompt(state.prompts[0], state)
-  @io.start_keypress_listener(fn(key) { handle_key(key, state) })
+  @tui.start_keypress_listener(fn(key) { handle_key(key, state) })
 }

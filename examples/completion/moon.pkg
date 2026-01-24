@@ -1,8 +1,8 @@
 import {
+  "mizchi/tui",
   "mizchi/tui/completion" as @comp,
-  "mizchi/tui/events" as @events,
-  "mizchi/tui/io" as @io,
   "mizchi/tui/render" as @render,
+  "mizchi/tui/io" as @io,
   "mizchi/signals",
 }
 
