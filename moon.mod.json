@@ -1,6 +1,6 @@
 {
   "name": "mizchi/tui",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Terminal UI library for MoonBit with reactive signals",
   "deps": {
     "mizchi/crater": "0.2.2",
