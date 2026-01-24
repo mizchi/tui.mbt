@@ -410,7 +410,7 @@ fn handle_key(key : String, state : AppState) -> Unit {
   let event = @events.parse_input(key)
   let engine = state.manager.get_engine()
   // Ctrl+C: quit
-  if @events.is_ctrl_c(event) {
+  if event.is_ctrl_c() {
     @io.stop_keypress_listener()
     pr(show_cursor())
     pr(exit_alt_screen())
@@ -419,7 +419,7 @@ fn handle_key(key : String, state : AppState) -> Unit {
     return
   }
   // Ctrl+P: toggle launcher
-  if @events.is_ctrl(event, 'p') {
+  if event.is_ctrl('p') {
     if state.launcher_open {
       close_launcher(state)
     } else {
@@ -431,13 +431,13 @@ fn handle_key(key : String, state : AppState) -> Unit {
   // Launcher-specific keys
   if state.launcher_open {
     // Escape: close launcher
-    if @events.is_escape(event) {
+    if event.is_escape() {
       close_launcher(state)
       render_all(state)
       return
     }
     // Arrow keys: navigate
-    match @events.is_arrow(event) {
+    match event.is_arrow() {
       Some(@events.SpecialKey::Up) => {
         engine.select_prev()
         render_all(state)
@@ -451,13 +451,13 @@ fn handle_key(key : String, state : AppState) -> Unit {
       _ => ()
     }
     // Enter: execute
-    if @events.is_enter(event) {
+    if event.is_enter() {
       execute_command(state)
       render_all(state)
       return
     }
     // Tab: select and keep open
-    if @events.is_tab(event) {
+    if event.is_tab() {
       match engine.get_selected_item() {
         Some(item) => {
           state.input = item

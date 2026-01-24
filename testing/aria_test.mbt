@@ -24,7 +24,7 @@ fn key_space() -> String {
 
 ///|
 fn is_space(event : @events.InputEvent) -> Bool {
-  @events.is_char(event, ' ')
+  event.is_char(' ')
 }
 
 // ============================================================================
@@ -34,7 +34,7 @@ fn is_space(event : @events.InputEvent) -> Bool {
 ///|
 test "Button: Enter key should be recognized for activation" {
   let event = @events.parse_input(key_enter())
-  assert_true(@events.is_enter(event))
+  assert_true(event.is_enter())
 }
 
 ///|
@@ -189,8 +189,8 @@ test "Switch: disabled state prevents interaction" {
 test "RadioGroup: arrow keys are recognized for navigation" {
   let up = @events.parse_input(key_up())
   let down = @events.parse_input(key_down())
-  assert_true(@events.is_arrow(up) is Some(@events.SpecialKey::Up))
-  assert_true(@events.is_arrow(down) is Some(@events.SpecialKey::Down))
+  assert_true(up.is_arrow() is Some(@events.SpecialKey::Up))
+  assert_true(down.is_arrow() is Some(@events.SpecialKey::Down))
 }
 
 ///|
@@ -305,8 +305,8 @@ test "Listbox: disabled options render differently" {
 test "Tabs: left/right arrows for horizontal navigation" {
   let left = @events.parse_input(key_left())
   let right = @events.parse_input(key_right())
-  assert_true(@events.is_arrow(left) is Some(@events.SpecialKey::Left))
-  assert_true(@events.is_arrow(right) is Some(@events.SpecialKey::Right))
+  assert_true(left.is_arrow() is Some(@events.SpecialKey::Left))
+  assert_true(right.is_arrow() is Some(@events.SpecialKey::Right))
 }
 
 ///|
@@ -369,7 +369,7 @@ test "Tabs: boxed style" {
 ///|
 test "Modal: Escape key is recognized for closing" {
   let event = @events.parse_input(key_esc())
-  assert_true(@events.is_escape(event))
+  assert_true(event.is_escape())
 }
 
 ///|
@@ -711,8 +711,8 @@ test "context_menu: renders items" {
 ///|
 test "Ctrl+C is recognized as quit signal" {
   let event = @events.parse_input(ctrl('c'))
-  assert_true(@events.is_ctrl_c(event))
-  assert_true(@events.is_quit(event))
+  assert_true(event.is_ctrl_c())
+  assert_true(event.is_quit())
 }
 
 ///|

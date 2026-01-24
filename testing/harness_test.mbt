@@ -30,10 +30,10 @@ test "key sequences parse correctly - arrows" {
   let down = @events.parse_input(key_down())
   let left = @events.parse_input(key_left())
   let right = @events.parse_input(key_right())
-  assert_true(@events.is_arrow(up) is Some(_))
-  assert_true(@events.is_arrow(down) is Some(_))
-  assert_true(@events.is_arrow(left) is Some(_))
-  assert_true(@events.is_arrow(right) is Some(_))
+  assert_true(up.is_arrow() is Some(_))
+  assert_true(down.is_arrow() is Some(_))
+  assert_true(left.is_arrow() is Some(_))
+  assert_true(right.is_arrow() is Some(_))
 }
 
 ///|
@@ -42,18 +42,18 @@ test "key sequences parse correctly - special keys" {
   let tab = @events.parse_input(key_tab())
   let esc = @events.parse_input(key_esc())
   let backtab = @events.parse_input(key_backtab())
-  assert_true(@events.is_enter(enter))
-  assert_true(@events.is_tab(tab))
-  assert_true(@events.is_escape(esc))
-  assert_true(@events.is_backtab(backtab))
+  assert_true(enter.is_enter())
+  assert_true(tab.is_tab())
+  assert_true(esc.is_escape())
+  assert_true(backtab.is_backtab())
 }
 
 ///|
 test "key sequences parse correctly - ctrl keys" {
   let ctrl_c = @events.parse_input(ctrl('c'))
   let ctrl_d = @events.parse_input(ctrl('d'))
-  assert_true(@events.is_ctrl_c(ctrl_c))
-  assert_true(@events.is_ctrl(ctrl_d, 'd'))
+  assert_true(ctrl_c.is_ctrl_c())
+  assert_true(ctrl_d.is_ctrl('d'))
 }
 
 ///|
@@ -73,8 +73,8 @@ test "mouse click sequences parse correctly" {
 test "scroll sequences parse correctly" {
   let up = @events.parse_input(scroll_up(1, 1))
   let down = @events.parse_input(scroll_down(1, 1))
-  assert_true(@events.is_scroll_up(up))
-  assert_true(@events.is_scroll_down(down))
+  assert_true(up.is_scroll_up())
+  assert_true(down.is_scroll_down())
 }
 
 ///|

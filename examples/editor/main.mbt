@@ -403,7 +403,7 @@ fn main {
 
     // Handle palette mode
     if palette_open.get() {
-      if @events.is_ctrl(event, 'c') {
+      if event.is_ctrl('c') {
         close_palette()
         do_quit()
         return
@@ -465,11 +465,11 @@ fn main {
     }
 
     // Normal mode
-    if @events.is_ctrl(event, 'c') {
+    if event.is_ctrl('c') {
       do_quit()
       return
     }
-    if @events.is_ctrl(event, 'p') {
+    if event.is_ctrl('p') {
       open_palette()
       return
     }

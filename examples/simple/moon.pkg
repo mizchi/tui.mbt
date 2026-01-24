@@ -4,13 +4,9 @@ import {
   "mizchi/tui/events" as @events,
   "mizchi/tui/io" as @io,
   "mizchi/tui/components" as @c,
-  "mizchi/tui/composed" as @composed,
-  "mizchi/tui/ai" as @ai,
-  "mizchi/crater/types",
-  "mizchi/signals",
+  "mizchi/signals" as @signals,
 }
 
 options(
   "is-main": true,
-  targets: { "main.mbt": [ "js" ], "main_native.mbt": [ "not", "js" ] },
 )

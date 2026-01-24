@@ -325,7 +325,7 @@ test "VirtualTerminal: full render simulation" {
   let _ = buf.write_text(0, 1, "World", style, 20)
 
   // Convert to ANSI
-  let ansi = @render.buffer_to_ansi(buf)
+  let ansi = buf.to_ansi()
 
   // Process in virtual terminal
   let vt = VirtualTerminal::new(20, 3)
@@ -346,7 +346,7 @@ test "VirtualTerminal: diff rendering simulation" {
   let _ = prev.write_text(0, 0, "AAAA", style, 20)
 
   // Write initial content to terminal
-  let initial = @render.buffer_to_ansi(prev)
+  let initial = prev.to_ansi()
   vt.write(initial)
   assert_true(vt.line_contains(0, "AAAA"))
 
@@ -355,7 +355,7 @@ test "VirtualTerminal: diff rendering simulation" {
   let _ = current.write_text(0, 0, "BBBB", style, 20)
 
   // Apply diff
-  let diff = @render.buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   vt.write(diff)
 
   // Verify updated content

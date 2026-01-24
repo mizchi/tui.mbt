@@ -357,8 +357,8 @@ fn parse_mouse_modifier(cb : Int) -> KeyModifier {
 
 ///|
 /// Check if key matches a specific character with optional modifier
-pub fn key_is_char(event : KeyEvent, c : Char) -> Bool {
-  match event {
+pub fn KeyEvent::is_char(self : KeyEvent, c : Char) -> Bool {
+  match self {
     KeyEvent::Char(ch, KeyModifier::None) => ch == c
     _ => false
   }
@@ -366,8 +366,8 @@ pub fn key_is_char(event : KeyEvent, c : Char) -> Bool {
 
 ///|
 /// Check if key matches a special key
-pub fn key_is_special(event : KeyEvent, special : SpecialKey) -> Bool {
-  match event {
+pub fn KeyEvent::is_special(self : KeyEvent, special : SpecialKey) -> Bool {
+  match self {
     KeyEvent::Special(s, KeyModifier::None) =>
       match (s, special) {
         (SpecialKey::Up, SpecialKey::Up) => true
@@ -394,8 +394,8 @@ pub fn key_is_special(event : KeyEvent, special : SpecialKey) -> Bool {
 
 ///|
 /// Check if key is Ctrl+C
-pub fn key_is_ctrl_c(event : KeyEvent) -> Bool {
-  match event {
+pub fn KeyEvent::is_ctrl_c(self : KeyEvent) -> Bool {
+  match self {
     KeyEvent::Char('c', KeyModifier::Ctrl) => true
     _ => false
   }
@@ -403,8 +403,8 @@ pub fn key_is_ctrl_c(event : KeyEvent) -> Bool {
 
 ///|
 /// Check if key is Ctrl+Q (common quit)
-pub fn key_is_ctrl_q(event : KeyEvent) -> Bool {
-  match event {
+pub fn KeyEvent::is_ctrl_q(self : KeyEvent) -> Bool {
+  match self {
     KeyEvent::Char('q', KeyModifier::Ctrl) => true
     _ => false
   }
@@ -415,8 +415,8 @@ pub fn key_is_ctrl_q(event : KeyEvent) -> Bool {
 
 ///|
 /// Check if the input event is a key matching a character (no modifier)
-pub fn is_char(event : InputEvent, c : Char) -> Bool {
-  match event {
+pub fn InputEvent::is_char(self : InputEvent, c : Char) -> Bool {
+  match self {
     InputEvent::Key(KeyEvent::Char(ch, KeyModifier::None)) => ch == c
     _ => false
   }
@@ -424,8 +424,8 @@ pub fn is_char(event : InputEvent, c : Char) -> Bool {
 
 ///|
 /// Check if the input event is a key with Ctrl modifier
-pub fn is_ctrl(event : InputEvent, c : Char) -> Bool {
-  match event {
+pub fn InputEvent::is_ctrl(self : InputEvent, c : Char) -> Bool {
+  match self {
     InputEvent::Key(KeyEvent::Char(ch, KeyModifier::Ctrl)) => ch == c
     _ => false
   }
@@ -433,14 +433,14 @@ pub fn is_ctrl(event : InputEvent, c : Char) -> Bool {
 
 ///|
 /// Check if the input event is Ctrl+C (quit)
-pub fn is_ctrl_c(event : InputEvent) -> Bool {
-  is_ctrl(event, 'c')
+pub fn InputEvent::is_ctrl_c(self : InputEvent) -> Bool {
+  self.is_ctrl('c')
 }
 
 ///|
 /// Check if the input event is Escape
-pub fn is_escape(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_escape(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Key(KeyEvent::Special(SpecialKey::Escape, _)) => true
     _ => false
   }
@@ -448,8 +448,8 @@ pub fn is_escape(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is Tab
-pub fn is_tab(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_tab(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Key(KeyEvent::Special(SpecialKey::Tab, KeyModifier::None)) =>
       true
     _ => false
@@ -458,8 +458,8 @@ pub fn is_tab(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is Shift+Tab or BackTab
-pub fn is_backtab(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_backtab(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Key(
       KeyEvent::Special(
         SpecialKey::Tab
@@ -475,8 +475,8 @@ pub fn is_backtab(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is Enter
-pub fn is_enter(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_enter(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Key(KeyEvent::Special(SpecialKey::Enter, _)) => true
     _ => false
   }
@@ -484,8 +484,8 @@ pub fn is_enter(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is an arrow key, returns the direction
-pub fn is_arrow(event : InputEvent) -> SpecialKey? {
-  match event {
+pub fn InputEvent::is_arrow(self : InputEvent) -> SpecialKey? {
+  match self {
     InputEvent::Key(KeyEvent::Special(SpecialKey::Up as k, _)) => Some(k)
     InputEvent::Key(KeyEvent::Special(SpecialKey::Down as k, _)) => Some(k)
     InputEvent::Key(KeyEvent::Special(SpecialKey::Left as k, _)) => Some(k)
@@ -496,8 +496,8 @@ pub fn is_arrow(event : InputEvent) -> SpecialKey? {
 
 ///|
 /// Check if the input event is a common quit key (q, Ctrl+C, Escape)
-pub fn is_quit(event : InputEvent) -> Bool {
-  is_char(event, 'q') || is_ctrl_c(event) || is_escape(event)
+pub fn InputEvent::is_quit(self : InputEvent) -> Bool {
+  self.is_char('q') || self.is_ctrl_c() || self.is_escape()
 }
 
 ///|
@@ -505,8 +505,8 @@ pub fn is_quit(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is a left mouse button press
-pub fn is_left_click(event : InputEvent) -> MouseEvent? {
-  match event {
+pub fn InputEvent::is_left_click(self : InputEvent) -> MouseEvent? {
+  match self {
     InputEvent::Mouse(
       { button: MouseButton::Left, event_type: MouseEventType::Press, .. } as m
     ) => Some(m)
@@ -516,8 +516,8 @@ pub fn is_left_click(event : InputEvent) -> MouseEvent? {
 
 ///|
 /// Check if the input event is a right mouse button press
-pub fn is_right_click(event : InputEvent) -> MouseEvent? {
-  match event {
+pub fn InputEvent::is_right_click(self : InputEvent) -> MouseEvent? {
+  match self {
     InputEvent::Mouse(
       { button: MouseButton::Right, event_type: MouseEventType::Press, .. } as m
     ) => Some(m)
@@ -527,8 +527,8 @@ pub fn is_right_click(event : InputEvent) -> MouseEvent? {
 
 ///|
 /// Check if the input event is a scroll up
-pub fn is_scroll_up(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_scroll_up(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Mouse({ button: MouseButton::ScrollUp, .. }) => true
     _ => false
   }
@@ -536,8 +536,8 @@ pub fn is_scroll_up(event : InputEvent) -> Bool {
 
 ///|
 /// Check if the input event is a scroll down
-pub fn is_scroll_down(event : InputEvent) -> Bool {
-  match event {
+pub fn InputEvent::is_scroll_down(self : InputEvent) -> Bool {
+  match self {
     InputEvent::Mouse({ button: MouseButton::ScrollDown, .. }) => true
     _ => false
   }

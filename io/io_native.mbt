@@ -586,7 +586,7 @@ fn render_display_state(
       // Show remaining chars that fit
       let mut w = 1
       for c in line.chars {
-        let cw = @input.char_width_code(c.to_int())
+        let cw = @core.char_display_width(c)
         if w + cw > max_width {
           break
         }
@@ -597,7 +597,7 @@ fn render_display_state(
       // Show chars that fit, then ellipsis
       let mut w = 0
       for c in line.chars {
-        let cw = @input.char_width_code(c.to_int())
+        let cw = @core.char_display_width(c)
         if w + cw > max_width - 1 {
           break
         }

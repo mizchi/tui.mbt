@@ -202,17 +202,17 @@ pub fn ansi_bg_color(color : @core.Color) -> String {
 
 ///|
 /// Convert CharBuffer to ANSI-encoded string
-pub fn buffer_to_ansi(buf : CharBuffer) -> String {
+pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
   let sb = StringBuilder::new()
   let mut last_fg = -1
   let mut last_bg = -1
   let mut last_bold = false
   let mut last_underline = false
-  for row = 0; row < buf.height; row = row + 1 {
+  for row = 0; row < self.height; row = row + 1 {
     sb.write_string(ansi_move_to(row, 0))
     let mut expected_col = 0
-    for col = 0; col < buf.width; col = col + 1 {
-      let cell = buf.get_cell(col, row)
+    for col = 0; col < self.width; col = col + 1 {
+      let cell = self.get_cell(col, row)
       if cell.char == '\u0000' {
         // Skip wide char placeholder, but track that cursor should not advance
         continue
@@ -270,8 +270,8 @@ pub fn buffer_to_ansi(buf : CharBuffer) -> String {
 
 ///|
 /// Convert CharBuffer to ANSI-encoded string with an offset
-pub fn buffer_to_ansi_offset(
-  buf : CharBuffer,
+pub fn CharBuffer::to_ansi_offset(
+  self : CharBuffer,
   row_offset : Int,
   col_offset : Int,
 ) -> String {
@@ -280,11 +280,11 @@ pub fn buffer_to_ansi_offset(
   let mut last_bg = -1
   let mut last_bold = false
   let mut last_underline = false
-  for row = 0; row < buf.height; row = row + 1 {
+  for row = 0; row < self.height; row = row + 1 {
     sb.write_string(ansi_move_to(row + row_offset, col_offset))
     let mut expected_col = 0
-    for col = 0; col < buf.width; col = col + 1 {
-      let cell = buf.get_cell(col, row)
+    for col = 0; col < self.width; col = col + 1 {
+      let cell = self.get_cell(col, row)
       if cell.char == '\u0000' {
         continue
       }
@@ -341,7 +341,7 @@ pub fn buffer_to_ansi_offset(
 
 ///|
 /// Optimized ANSI output with diff (only output changed cells)
-pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
+pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String {
   let sb = StringBuilder::new()
   let mut last_row = -1
   let mut expected_col = -1 // Track expected cursor position (considering char width)
@@ -349,9 +349,9 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
   let mut last_bg = -1
   let mut last_bold = false
   let mut last_underline = false
-  for row = 0; row < current.height; row = row + 1 {
-    for col = 0; col < current.width; col = col + 1 {
-      let cell = current.get_cell(col, row)
+  for row = 0; row < self.height; row = row + 1 {
+    for col = 0; col < self.width; col = col + 1 {
+      let cell = self.get_cell(col, row)
       let prev_cell = prev.get_cell(col, row)
       if cell == prev_cell {
         continue
@@ -415,8 +415,8 @@ pub fn buffer_diff_to_ansi(current : CharBuffer, prev : CharBuffer) -> String {
 
 ///|
 /// Optimized ANSI output with diff and an offset
-pub fn buffer_diff_to_ansi_offset(
-  current : CharBuffer,
+pub fn CharBuffer::diff_to_ansi_offset(
+  self : CharBuffer,
   prev : CharBuffer,
   row_offset : Int,
   col_offset : Int,
@@ -428,9 +428,9 @@ pub fn buffer_diff_to_ansi_offset(
   let mut last_bg = -1
   let mut last_bold = false
   let mut last_underline = false
-  for row = 0; row < current.height; row = row + 1 {
-    for col = 0; col < current.width; col = col + 1 {
-      let cell = current.get_cell(col, row)
+  for row = 0; row < self.height; row = row + 1 {
+    for col = 0; col < self.width; col = col + 1 {
+      let cell = self.get_cell(col, row)
       let prev_cell = prev.get_cell(col, row)
       if cell == prev_cell {
         continue

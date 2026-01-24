@@ -77,19 +77,19 @@ test "bench_buffer_clone" (b : @bench.T) {
 ///|
 test "bench_buffer_to_ansi_small" (b : @bench.T) {
   let buf = create_test_buffer(40, 20)
-  b.bench(name="buffer_to_ansi_40x20", fn() { b.keep(buffer_to_ansi(buf)) })
+  b.bench(name="buffer_to_ansi_40x20", fn() { b.keep(buf.to_ansi()) })
 }
 
 ///|
 test "bench_buffer_to_ansi_medium" (b : @bench.T) {
   let buf = create_test_buffer(80, 40)
-  b.bench(name="buffer_to_ansi_80x40", fn() { b.keep(buffer_to_ansi(buf)) })
+  b.bench(name="buffer_to_ansi_80x40", fn() { b.keep(buf.to_ansi()) })
 }
 
 ///|
 test "bench_buffer_to_ansi_large" (b : @bench.T) {
   let buf = create_test_buffer(160, 80)
-  b.bench(name="buffer_to_ansi_160x80", fn() { b.keep(buffer_to_ansi(buf)) })
+  b.bench(name="buffer_to_ansi_160x80", fn() { b.keep(buf.to_ansi()) })
 }
 
 // =============================================================================
@@ -104,7 +104,7 @@ test "bench_diff_horizontal_1row" (b : @bench.T) {
   let current = prev.clone()
   apply_horizontal_change(current, 20, 'X')
   b.bench(name="diff_horizontal_1row_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -116,7 +116,7 @@ test "bench_diff_horizontal_5rows" (b : @bench.T) {
     apply_horizontal_change(current, i * 8, 'X')
   }
   b.bench(name="diff_horizontal_5rows_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -126,7 +126,7 @@ test "bench_diff_horizontal_large" (b : @bench.T) {
   let current = prev.clone()
   apply_horizontal_change(current, 40, 'X')
   b.bench(name="diff_horizontal_1row_160x80", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -142,7 +142,7 @@ test "bench_diff_vertical_1col" (b : @bench.T) {
   let current = prev.clone()
   apply_vertical_change(current, 40, 'X')
   b.bench(name="diff_vertical_1col_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -154,7 +154,7 @@ test "bench_diff_vertical_5cols" (b : @bench.T) {
     apply_vertical_change(current, i * 16, 'X')
   }
   b.bench(name="diff_vertical_5cols_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -164,7 +164,7 @@ test "bench_diff_vertical_large" (b : @bench.T) {
   let current = prev.clone()
   apply_vertical_change(current, 80, 'X')
   b.bench(name="diff_vertical_1col_160x80", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -180,7 +180,7 @@ test "bench_diff_compare_80cells_horizontal" (b : @bench.T) {
   let current = prev.clone()
   apply_horizontal_change(current, 0, 'X')
   b.bench(name="diff_80cells_horizontal", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -192,7 +192,7 @@ test "bench_diff_compare_80cells_vertical" (b : @bench.T) {
   apply_vertical_change(current, 0, 'X')
   apply_vertical_change(current, 1, 'X')
   b.bench(name="diff_80cells_vertical", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -206,7 +206,7 @@ test "bench_diff_scattered" (b : @bench.T) {
   let current = prev.clone()
   apply_scattered_change(current, 'X')
   b.bench(name="diff_scattered_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -215,7 +215,7 @@ test "bench_diff_no_change" (b : @bench.T) {
   let prev = create_test_buffer(80, 40)
   let current = prev.clone()
   b.bench(name="diff_no_change_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -228,7 +228,7 @@ test "bench_diff_full_change" (b : @bench.T) {
     apply_horizontal_change(current, row, 'Z')
   }
   b.bench(name="diff_full_change_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -270,7 +270,7 @@ test "bench_diff_avoid_small_region" (b : @bench.T) {
   // Avoid a 20x10 region in center (200 cells reserved)
   apply_change_avoiding_region(current, 'X', 30, 15, 20, 10)
   b.bench(name="diff_avoid_20x10_region", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -282,7 +282,7 @@ test "bench_diff_avoid_large_region" (b : @bench.T) {
   // Avoid a 40x20 region (800 cells reserved = 25% of buffer)
   apply_change_avoiding_region(current, 'X', 20, 10, 40, 20)
   b.bench(name="diff_avoid_40x20_region", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -303,7 +303,7 @@ test "bench_diff_border_only" (b : @bench.T) {
     current.set_cell(79, row, cell)
   }
   b.bench(name="diff_border_only_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }
 
@@ -314,6 +314,6 @@ test "bench_diff_status_line_only" (b : @bench.T) {
   let current = prev.clone()
   apply_horizontal_change(current, 39, 'S')
   b.bench(name="diff_status_line_80x40", fn() {
-    b.keep(buffer_diff_to_ansi(current, prev))
+    b.keep(current.diff_to_ansi(prev))
   })
 }

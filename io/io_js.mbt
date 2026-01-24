@@ -1495,7 +1495,7 @@ fn render_display_state(
       output = output + "…"
       let mut w = 1
       for c in line.chars {
-        let cw = @input.char_width_code(c.to_int())
+        let cw = @core.char_display_width(c)
         if w + cw > max_width {
           break
         }
@@ -1505,7 +1505,7 @@ fn render_display_state(
     } else if i == max_height - 1 && state.has_more_below {
       let mut w = 0
       for c in line.chars {
-        let cw = @input.char_width_code(c.to_int())
+        let cw = @core.char_display_width(c)
         if w + cw > max_width - 1 {
           break
         }

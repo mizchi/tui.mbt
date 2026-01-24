@@ -2,7 +2,10 @@ import {
   "mizchi/tui/core" as @core,
   "mizchi/tui/components" as @components,
   "mizchi/tui/render" as @render,
-  "mizchi/tui/testing" as @testing,
   "mizchi/crater/types",
   "mizchi/signals" as @signals,
+}
+
+import "test" {
+  "mizchi/tui/testing" as @testing,
 }

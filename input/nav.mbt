@@ -3,41 +3,13 @@
 
 ///|
 /// Get character display width from code point (ASCII=1, CJK/fullwidth=2)
-/// Delegates to @core.char_display_width
-pub fn char_width_code(code : Int) -> Int {
+fn char_width_code(code : Int) -> Int {
   @core.char_display_width(code.unsafe_to_char())
 }
 
 ///|
-/// Get character display width from Char
-/// Delegates to @core.char_display_width
-pub fn char_width(c : Char) -> Int {
-  @core.char_display_width(c)
-}
-
-///|
-/// Get display width of a string
-/// Delegates to @core.string_display_width
-pub fn string_width(s : String) -> Int {
-  @core.string_display_width(s)
-}
-
-///|
-/// Get display width of char array
-pub fn chars_width(chars : Array[Char]) -> Int {
-  let mut w = 0
-  for c in chars {
-    w = w + @core.char_display_width(c)
-  }
-  w
-}
-
-///|
 /// Wrap text into lines (considering newlines and max_width)
-pub fn wrap_text_to_lines(
-  buf : Array[Char],
-  max_width : Int,
-) -> Array[LineInfo] {
+fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
   let lines : Array[LineInfo] = []
   let mut current_chars : Array[Char] = []
   let mut current_width = 0
@@ -68,7 +40,7 @@ pub fn wrap_text_to_lines(
 
 ///|
 /// Find cursor line index and column offset
-pub fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
+fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
   for line_idx, line in lines {
     let next_start = if line_idx + 1 < lines.length() {
       lines[line_idx + 1].start_idx
@@ -95,7 +67,7 @@ pub fn find_cursor_line(lines : Array[LineInfo], cursor : Int) -> (Int, Int) {
 
 ///|
 /// Move cursor to previous wrapped line (keeps column offset when possible)
-pub fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
+fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
   let (line_idx, col_offset) = find_cursor_line(lines, cursor)
   if line_idx <= 0 {
     return cursor
@@ -121,7 +93,7 @@ pub fn cursor_up(lines : Array[LineInfo], cursor : Int) -> Int {
 
 ///|
 /// Move cursor to next wrapped line (keeps column offset when possible)
-pub fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
+fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
   let (line_idx, col_offset) = find_cursor_line(lines, cursor)
   if line_idx + 1 >= lines.length() {
     return cursor
@@ -147,7 +119,7 @@ pub fn cursor_down(lines : Array[LineInfo], cursor : Int) -> Int {
 
 ///|
 /// Adjust scroll offset to keep cursor visible
-pub fn adjust_scroll_offset(
+fn adjust_scroll_offset(
   scroll_offset : Int,
   cursor_line_idx : Int,
   max_height : Int,

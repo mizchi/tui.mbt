@@ -111,19 +111,19 @@ fn main {
     let mut need_render = true
 
     // Handle quit keys
-    if @events.is_quit(event) {
+    if event.is_quit() {
       do_quit()
       return
     }
 
     // Handle keyboard shortcuts
-    if @events.is_char(event, '+') || @events.is_char(event, '=') {
+    if event.is_char('+') || event.is_char('=') {
       count.set(count.get() + 1)
       message.set("Incremented!")
-    } else if @events.is_char(event, '-') {
+    } else if event.is_char('-') {
       count.set(count.get() - 1)
       message.set("Decremented!")
-    } else if @events.is_char(event, 'r') {
+    } else if event.is_char('r') {
       count.set(0)
       message.set("Reset!")
     } else {

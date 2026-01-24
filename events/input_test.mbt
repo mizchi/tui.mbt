@@ -207,8 +207,8 @@ test "parse_input: Ctrl+P" {
   let event = @events.parse_input("\u0010")
   inspect(event, content="Key(Char('p', Ctrl))")
   // Verify is_ctrl helper
-  assert_true(@events.is_ctrl(event, 'p'))
-  assert_false(@events.is_ctrl(event, 'c'))
+  assert_true(event.is_ctrl('p'))
+  assert_false(event.is_ctrl('c'))
 }
 
 ///|

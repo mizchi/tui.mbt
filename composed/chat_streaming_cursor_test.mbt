@@ -143,7 +143,7 @@ test "buffer_diff_clears_old_content_on_layout_change" {
   ignore(buf2.write_text(0, 1, "Processed 1 queued message(s).", style, 40))
 
   // The diff should clear row 0 and write to row 1
-  let diff = @render.buffer_diff_to_ansi(buf2, buf1)
+  let diff = buf2.diff_to_ansi(buf1)
   println("Diff output:")
   println(diff)
 

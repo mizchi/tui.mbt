@@ -203,13 +203,13 @@ fn main {
     let mut start_edit_id = ""
 
     // Handle Ctrl+C - always quit
-    if @events.is_ctrl_c(event) {
+    if event.is_ctrl_c() {
       do_quit()
       return
     }
 
     // Handle q to quit when not focused on input
-    if @events.is_char(event, 'q') && not(focus.focused_in(input_ids)) {
+    if event.is_char('q') && not(focus.focused_in(input_ids)) {
       do_quit()
       return
     }
@@ -219,10 +219,10 @@ fn main {
       // Tab was handled
     } else if focus.handle_arrows(event) {
       // Arrow was handled
-    } else if @events.is_escape(event) {
+    } else if event.is_escape() {
       // Escape - unfocus
       focus.blur()
-    } else if @events.is_enter(event) {
+    } else if event.is_enter() {
       // Enter - edit if on input, submit if on button
       let current_focus = focus.get()
       if current_focus == "submit-btn" {

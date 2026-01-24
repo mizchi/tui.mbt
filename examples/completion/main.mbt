@@ -329,7 +329,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   }
   let event = @events.parse_input(key)
   let engine = state.manager.get_engine()
-  if @events.is_ctrl_c(event) {
+  if event.is_ctrl_c() {
     @io.stop_keypress_listener()
     pr(show_cursor())
     pr(exit_alt_screen())
@@ -342,7 +342,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
     state.running.set(false)
     return
   }
-  if @events.is_escape(event) {
+  if event.is_escape() {
     if engine.is_visible() {
       engine.hide()
       render_all(state)
@@ -352,7 +352,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
 
   // Arrow keys for navigation
   if engine.is_visible() && engine.get_items().length() > 0 {
-    match @events.is_arrow(event) {
+    match event.is_arrow() {
       Some(@events.SpecialKey::Up) => {
         engine.select_prev()
         render_all(state)
@@ -368,7 +368,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   }
 
   // Tab to confirm completion
-  if @events.is_tab(event) {
+  if event.is_tab() {
     if engine.is_visible() {
       confirm_completion(state)
       render_all(state)
@@ -377,7 +377,7 @@ fn handle_key(key : String, state : DemoState) -> Unit {
   }
 
   // Enter to confirm word
-  if @events.is_enter(event) {
+  if event.is_enter() {
     if state.input.get_current().length() > 0 ||
       state.input.get_confirmed().length() > 0 {
       confirm_word(state, " ")

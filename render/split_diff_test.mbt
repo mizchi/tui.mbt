@@ -55,7 +55,7 @@ test "buffer_diff: unchanged buffer produces minimal output" {
   // Write same content to both buffers
   let _ = buf1.write_text(0, 0, "Hello", style, 20)
   let _ = buf2.write_text(0, 0, "Hello", style, 20)
-  let diff = buffer_diff_to_ansi(buf1, buf2)
+  let diff = buf1.diff_to_ansi(buf2)
   // Diff should only contain reset sequence (no content changes)
   inspect(diff, content="\u{1b}[0m")
 }
@@ -69,7 +69,7 @@ test "buffer_diff: single cell change produces minimal diff" {
   // Write same content initially
   let _ = prev.write_text(0, 0, "Hello", style, 20)
   let _ = current.write_text(0, 0, "Hallo", style, 20) // Change 'e' to 'a'
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain 'a' (the changed character)
@@ -92,7 +92,7 @@ test "buffer_diff: left pane change only affects left side" {
   let _ = prev.write_text(10, 1, "Right", style, 10)
   let _ = current.write_text(0, 1, "LEFT", style, 10) // Change left pane completely
   let _ = current.write_text(10, 1, "Right", style, 10) // Right pane unchanged
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain the changed text (all 4 chars changed)
@@ -114,7 +114,7 @@ test "buffer_diff: right pane change only affects right side" {
   let _ = prev.write_text(10, 1, "xxxxx", style, 10)
   let _ = current.write_text(0, 1, "Left", style, 10) // Left pane unchanged
   let _ = current.write_text(10, 1, "RIGHT", style, 10) // Change right pane completely
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain the changed text (all 5 chars changed)
@@ -148,7 +148,7 @@ test "buffer_diff: multiple rows changed in one pane" {
   let _ = current.write_text(10, 0, "Alpha", style, 10)
   let _ = current.write_text(10, 1, "Beta", style, 10)
   let _ = current.write_text(10, 2, "Gamma", style, 10)
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain NEW text
@@ -193,7 +193,7 @@ test "buffer_diff: border unchanged when content changes" {
   // Content inside (different)
   let _ = prev.write_text(1, 1, "Old text", style, 8)
   let _ = current.write_text(1, 1, "New text", style, 8)
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain the new content
@@ -220,7 +220,7 @@ test "buffer_diff: CJK text change in split pane" {
   let _ = current.write_text(0, 1, "中文字", style, 12) // Different CJK
   // Right pane unchanged
   let _ = current.write_text(12, 1, "English", style, 12)
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain new CJK text
@@ -241,7 +241,7 @@ test "buffer_diff: partial row update" {
   let _ = prev.write_text(0, 1, "AAAAAABBBBBBCCCCCC", style, 30)
   // Change only middle section
   let _ = current.write_text(0, 1, "AAAAAA******CCCCCC", style, 30)
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain only the changed characters
@@ -261,7 +261,7 @@ test "buffer_diff: empty to content transition" {
 
   // Add content to left side only
   let _ = current.write_text(0, 1, "Hello", style, 10)
-  let diff = buffer_diff_to_ansi(current, prev)
+  let diff = current.diff_to_ansi(prev)
   let plain = strip_ansi_local(diff)
 
   // Should contain the new text

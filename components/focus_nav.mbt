@@ -131,11 +131,11 @@ pub fn FocusNav::handle_tab(
   self : FocusNav,
   event : @events.InputEvent,
 ) -> Bool {
-  if @events.is_tab(event) {
+  if event.is_tab() {
     self.next()
     return true
   }
-  if @events.is_backtab(event) {
+  if event.is_backtab() {
     self.prev()
     return true
   }
@@ -149,7 +149,7 @@ pub fn FocusNav::handle_arrows(
   self : FocusNav,
   event : @events.InputEvent,
 ) -> Bool {
-  match @events.is_arrow(event) {
+  match event.is_arrow() {
     Some(@events.SpecialKey::Down) => {
       self.next()
       true
