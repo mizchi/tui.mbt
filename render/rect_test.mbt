@@ -76,7 +76,6 @@ test "fill_rect: single cell" {
   let buf = CharBuffer::new(5, 5)
   let cell = CharCell::from_char('*')
   buf.fill_rect(2, 2, 1, 1, cell)
-
   inspect(count_char(buf, '*'), content="1")
   assert_eq(buf.get_cell(2, 2).char, '*')
 }
@@ -140,10 +139,8 @@ test "fill_rect: negative coordinates" {
 test "fill_rect: zero size" {
   let buf = CharBuffer::new(5, 5)
   let cell = CharCell::from_char('Z')
-
   buf.fill_rect(2, 2, 0, 3, cell) // Zero width
   inspect(count_char(buf, 'Z'), content="0")
-
   buf.fill_rect(2, 2, 3, 0, cell) // Zero height
   inspect(count_char(buf, 'Z'), content="0")
 }
@@ -157,7 +154,6 @@ test "fill_bg: basic background fill" {
   let buf = CharBuffer::new(10, 5)
   let style = TextStyle::default()
   let _ = buf.write_text(0, 0, "Hello", style, 10)
-
   let blue = @core.Color::rgb(0, 0, 255)
   buf.fill_bg(0, 0, 5, 1, blue)
 
@@ -171,7 +167,6 @@ test "fill_bg: preserves wide char placeholder but replaces main char" {
   let buf = CharBuffer::new(10, 3)
   let style = TextStyle::default()
   let _ = buf.write_text(0, 1, "日本", style, 10) // 2 CJK chars = 4 display width
-
   let red = @core.Color::rgb(255, 0, 0)
   buf.fill_bg(0, 1, 4, 1, red)
 
@@ -217,7 +212,6 @@ test "write_text: basic text" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let written = buf.write_text(0, 0, "Hello", style, 20)
-
   inspect(written, content="5")
   assert_eq(buf.get_cell(0, 0).char, 'H')
   assert_eq(buf.get_cell(4, 0).char, 'o')
@@ -228,7 +222,6 @@ test "write_text: truncation at max_width" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let written = buf.write_text(0, 0, "Hello World", style, 5)
-
   inspect(written, content="5")
   assert_eq(buf.get_cell(4, 0).char, 'o')
   assert_eq(buf.get_cell(5, 0).char, ' ') // Not written
@@ -239,7 +232,6 @@ test "write_text: with offset" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let _ = buf.write_text(5, 1, "Test", style, 10)
-
   assert_eq(buf.get_cell(5, 1).char, 'T')
   assert_eq(buf.get_cell(8, 1).char, 't')
   assert_eq(buf.get_cell(4, 1).char, ' ') // Before text
@@ -250,7 +242,6 @@ test "write_text: CJK characters" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let written = buf.write_text(0, 0, "日本語", style, 20)
-
   inspect(written, content="6") // 3 chars * 2 width each
   assert_eq(buf.get_cell(0, 0).char, '日')
   assert_eq(buf.get_cell(1, 0).char, '\u0000') // Placeholder
@@ -262,7 +253,6 @@ test "write_text: mixed ASCII and CJK" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let written = buf.write_text(0, 0, "A日B", style, 20)
-
   inspect(written, content="4") // A=1 + 日=2 + B=1
   assert_eq(buf.get_cell(0, 0).char, 'A')
   assert_eq(buf.get_cell(1, 0).char, '日')
@@ -276,7 +266,6 @@ test "write_text: CJK truncation at boundary" {
   let style = TextStyle::default()
   // max_width=3, but CJK char needs 2 columns
   let written = buf.write_text(0, 0, "A日B", style, 3)
-
   inspect(written, content="3") // A=1 + 日=2, B doesn't fit
   assert_eq(buf.get_cell(0, 0).char, 'A')
   assert_eq(buf.get_cell(1, 0).char, '日')
@@ -288,7 +277,6 @@ test "write_text: stops at newline" {
   let buf = CharBuffer::new(20, 3)
   let style = TextStyle::default()
   let written = buf.write_text(0, 0, "Line1\nLine2", style, 20)
-
   inspect(written, content="5") // Only "Line1"
   assert_eq(buf.get_cell(4, 0).char, '1')
   assert_eq(buf.get_cell(5, 0).char, ' ') // After newline stop
@@ -301,7 +289,6 @@ test "write_text: with styles" {
   let blue = @core.Color::rgb(0, 0, 255)
   let style : TextStyle = { fg: red, bg: blue, bold: true, underline: true }
   let _ = buf.write_text(0, 0, "Styled", style, 20)
-
   let cell = buf.get_cell(0, 0)
   assert_true(cell.fg == red)
   assert_true(cell.bg == blue)
@@ -335,7 +322,6 @@ test "write_text_wrapped: basic wrapping" {
   let buf = CharBuffer::new(10, 5)
   let style = TextStyle::default()
   let lines = buf.write_text_wrapped(0, 0, "Hello World Test", style, 5, 5)
-
   inspect(lines, content="4") // "Hello", " Worl", "d Tes", "t"
 
   // First line
@@ -349,7 +335,6 @@ test "write_text_wrapped: explicit newlines" {
   let buf = CharBuffer::new(20, 5)
   let style = TextStyle::default()
   let lines = buf.write_text_wrapped(0, 0, "Line1\nLine2\nLine3", style, 10, 5)
-
   inspect(lines, content="3")
   assert_eq(buf.get_cell(0, 0).char, 'L')
   assert_eq(buf.get_cell(0, 1).char, 'L')
@@ -374,7 +359,6 @@ test "write_text_wrapped: CJK wrapping" {
   let buf = CharBuffer::new(10, 5)
   let style = TextStyle::default()
   let lines = buf.write_text_wrapped(0, 0, "日本語テスト", style, 4, 5)
-
   inspect(lines, content="3") // "日本" (4), "語テ" (4), "スト" (4)
   assert_eq(buf.get_cell(0, 0).char, '日')
   assert_eq(buf.get_cell(0, 1).char, '語')
@@ -389,7 +373,6 @@ test "get_cell: out of bounds returns default" {
   let buf = CharBuffer::new(5, 5)
   let cell = buf.get_cell(-1, 0)
   assert_eq(cell.char, ' ')
-
   let cell2 = buf.get_cell(10, 10)
   assert_eq(cell2.char, ' ')
 }
@@ -398,7 +381,6 @@ test "get_cell: out of bounds returns default" {
 test "set_cell: out of bounds is ignored" {
   let buf = CharBuffer::new(5, 5)
   let cell = CharCell::from_char('X')
-
   buf.set_cell(-1, 0, cell) // Should be ignored
   buf.set_cell(10, 10, cell) // Should be ignored
 
@@ -414,7 +396,6 @@ test "set_cell: out of bounds is ignored" {
 test "clone: creates independent copy" {
   let buf = CharBuffer::new(5, 5)
   let _ = buf.write_text(0, 0, "Test", TextStyle::default(), 5)
-
   let cloned = buf.clone()
 
   // Modify original
@@ -430,11 +411,8 @@ test "clear: resets all cells" {
   let buf = CharBuffer::new(10, 5)
   let cell = CharCell::from_char('X')
   buf.fill_rect(0, 0, 10, 5, cell)
-
   inspect(count_char(buf, 'X'), content="50")
-
   buf.clear()
-
   inspect(count_char(buf, 'X'), content="0")
   inspect(count_char(buf, ' '), content="50")
 }
@@ -446,7 +424,6 @@ test "clear: resets all cells" {
 ///|
 test "overlapping: later fill overwrites earlier" {
   let buf = CharBuffer::new(10, 5)
-
   buf.fill_rect(0, 0, 5, 3, CharCell::from_char('A'))
   buf.fill_rect(3, 1, 5, 3, CharCell::from_char('B'))
 
@@ -465,7 +442,6 @@ test "overlapping: later fill overwrites earlier" {
 ///|
 test "overlapping: text over filled rect" {
   let buf = CharBuffer::new(10, 3)
-
   buf.fill_rect(0, 0, 10, 3, CharCell::from_char('.'))
   let _ = buf.write_text(2, 1, "TEXT", TextStyle::default(), 10)
 
@@ -490,7 +466,6 @@ test "overlapping: multiple layers" {
 
   // Layer 3: Even smaller
   buf.fill_rect(4, 2, 2, 1, CharCell::from_char('3'))
-
   assert_eq(buf.get_cell(0, 0).char, '1') // Outside all inner rects
   assert_eq(buf.get_cell(2, 1).char, '2') // In layer 2
   assert_eq(buf.get_cell(4, 2).char, '3') // In layer 3

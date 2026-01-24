@@ -231,7 +231,6 @@ test "VirtualTerminal: diff-based update" {
 
   // Partial update (only change "World" to "MoonBit")
   vt.write("\u001b[1;7HMoonBit")
-
   assert_eq(vt.get_line_trimmed(0), "Hello MoonBit")
 }
 
@@ -243,7 +242,6 @@ test "VirtualTerminal: cursor jump and write" {
   vt.write("\u001b[1;1HA")
   vt.write("\u001b[2;5HB")
   vt.write("\u001b[3;10HC")
-
   assert_eq(vt.get_cell(0, 0).char, 'A')
   assert_eq(vt.get_cell(4, 1).char, 'B')
   assert_eq(vt.get_cell(9, 2).char, 'C')
@@ -259,7 +257,6 @@ test "VirtualTerminal: real diff sequence" {
 
   // Then apply diff (change Left to LEFT - only changed chars)
   vt.write("\u001b[1;2HEFT") // Position at 'e' and write "EFT"
-
   assert_eq(vt.get_line_trimmed(0), "LEFT  Right")
 }
 
@@ -270,11 +267,9 @@ test "VirtualTerminal: real diff sequence" {
 ///|
 test "VirtualTerminal: input queue" {
   let vt = VirtualTerminal::new(20, 5)
-
   vt.inject_input("a")
   vt.inject_input("b")
   vt.inject_input("\u001b[A") // Up arrow
-
   assert_true(vt.has_input())
   assert_eq(vt.read_input(), Some("a"))
   assert_eq(vt.read_input(), Some("b"))
@@ -290,7 +285,6 @@ test "VirtualTerminal: input queue" {
 test "VirtualTerminal: snapshot matching" {
   let vt = VirtualTerminal::new(20, 5)
   vt.write("Line1\nLine2\nLine3")
-
   assert_true(vt.matches("Line1\nLine2\nLine3"))
 }
 
@@ -316,7 +310,6 @@ test "VirtualTerminal: process render buffer output" {
   // Simulate what buffer_to_ansi might produce
   let ansi = "\u001b[1;1H\u001b[38;5;231mHello\u001b[0m"
   vt.write(ansi)
-
   assert_true(vt.contains("Hello"))
   let (x, y) = vt.get_cursor()
   assert_eq(y, 0)

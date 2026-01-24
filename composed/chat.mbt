@@ -197,3 +197,126 @@ pub fn chat_message_list(
   }
   items
 }
+
+///|
+/// Default indent for labeled blocks
+let default_indent : String = "   "
+
+///|
+/// Calculate line height for a single message
+pub fn calc_message_height(msg : Message, width : Int) -> Int {
+  @components.calc_labeled_block_lines(msg.content, width, default_indent)
+}
+
+///|
+/// Calculate line heights for all chat items
+/// Returns array of heights matching chat_message_list output
+pub fn calc_chat_heights(
+  messages : Array[Message],
+  streaming : @components.StreamingState,
+  input_queue : InputQueue,
+  width : Int,
+  streaming_height : Int,
+) -> Array[Int] {
+  let heights : Array[Int] = []
+  for msg in messages {
+    heights.push(calc_message_height(msg, width))
+  }
+  if streaming.has_content() {
+    // Streaming message has fixed height
+    heights.push(streaming_height)
+  }
+  let queued_items = input_queue.0.peek_all()
+  for queued in queued_items {
+    heights.push(
+      @components.calc_labeled_block_lines(queued, width, default_indent),
+    )
+  }
+  heights
+}
+
+///|
+/// Calculate total line count for chat content
+pub fn calc_chat_total_lines(
+  messages : Array[Message],
+  streaming : @components.StreamingState,
+  input_queue : InputQueue,
+  width : Int,
+  streaming_height : Int,
+) -> Int {
+  let heights = calc_chat_heights(
+    messages, streaming, input_queue, width, streaming_height,
+  )
+  let mut total = 0
+  for h in heights {
+    total = total + h
+  }
+  total
+}
+
+///|
+/// Build styled lines for chat view (used by ScrollableView)
+pub fn build_chat_lines(
+  messages : Array[Message],
+  streaming : @components.StreamingState,
+  input_queue : InputQueue,
+  width : Int,
+) -> Array[@components.StyledLine] {
+  let lines : Array[@components.StyledLine] = []
+  let indent = default_indent
+  let indent_width = @core.string_display_width(indent)
+  let content_width = width - indent_width
+  let content_color = @core.Color::rgb(220, 220, 220)
+
+  // Render each message
+  for msg in messages {
+    let (icon, label, color) = role_style(msg.role)
+    // Label line (bold)
+    let label_line = icon + " " + label
+    lines.push(@components.StyledLine::new(label_line, fg=color, bold=true))
+    // Content lines
+    let wrapped = @components.wrap_text(msg.content, content_width)
+    for line in wrapped {
+      lines.push(@components.StyledLine::new(indent + line, fg=content_color))
+    }
+  }
+
+  // Streaming message
+  if streaming.has_content() {
+    let streaming_color = @core.Color::rgb(255, 150, 100)
+    lines.push(
+      @components.StyledLine::new(
+        "✦ Assistant",
+        fg=streaming_color,
+        bold=true,
+      ),
+    )
+    let content = if streaming.is_streaming() {
+      streaming.get_partial() + "▌"
+    } else {
+      streaming.get_partial()
+    }
+    let wrapped = @components.wrap_text(content, content_width)
+    for line in wrapped {
+      lines.push(@components.StyledLine::new(indent + line, fg=content_color))
+    }
+  }
+
+  // Queued messages
+  let queued_items = input_queue.items()
+  let total_queued = queued_items.length()
+  let gray = @core.Color::rgb(128, 128, 128)
+  for i, queued in queued_items {
+    let label = if total_queued > 1 {
+      "◇ Queued [" + (i + 1).to_string() + "]"
+    } else {
+      "◇ Queued"
+    }
+    lines.push(@components.StyledLine::new(label, fg=gray))
+    let wrapped = @components.wrap_text(queued, content_width)
+    for line in wrapped {
+      lines.push(@components.StyledLine::new(indent + line, fg=gray))
+    }
+  }
+  lines
+}

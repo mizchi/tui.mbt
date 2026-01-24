@@ -198,7 +198,6 @@ fn VirtualTerminal::execute_csi(
 ) -> Unit {
   let p0 = if params.length() > 0 { params[0] } else { 0 }
   let p1 = if params.length() > 1 { params[1] } else { 0 }
-
   match cmd {
     'A' => {
       // Cursor Up
@@ -209,11 +208,7 @@ fn VirtualTerminal::execute_csi(
       // Cursor Down
       let n = if p0 < 1 { 1 } else { p0 }
       let new_y = self.cursor_y + n
-      self.cursor_y = if new_y >= self.height {
-        self.height - 1
-      } else {
-        new_y
-      }
+      self.cursor_y = if new_y >= self.height { self.height - 1 } else { new_y }
     }
     'C' => {
       // Cursor Forward
@@ -230,11 +225,7 @@ fn VirtualTerminal::execute_csi(
       // Cursor Next Line
       let n = if p0 < 1 { 1 } else { p0 }
       let new_y = self.cursor_y + n
-      self.cursor_y = if new_y >= self.height {
-        self.height - 1
-      } else {
-        new_y
-      }
+      self.cursor_y = if new_y >= self.height { self.height - 1 } else { new_y }
       self.cursor_x = 0
     }
     'F' => {
@@ -337,7 +328,6 @@ fn VirtualTerminal::process_sgr(
     self.reset_attributes()
     return
   }
-
   let mut i = 0
   while i < params.length() {
     let p = params[i]
@@ -358,7 +348,7 @@ fn VirtualTerminal::process_sgr(
       35 => self.current_fg = @core.Color::rgb(188, 63, 188) // Magenta
       36 => self.current_fg = @core.Color::rgb(17, 168, 205) // Cyan
       37 => self.current_fg = @core.Color::rgb(229, 229, 229) // White
-      38 => {
+      38 =>
         // Extended foreground color
         if i + 2 < params.length() && params[i + 1] == 5 {
           // 256-color mode
@@ -373,7 +363,6 @@ fn VirtualTerminal::process_sgr(
           )
           i = i + 4
         }
-      }
       39 => self.current_fg = @core.Color::white() // Default foreground
       40 => self.current_bg = @core.Color::rgb(0, 0, 0) // Black bg
       41 => self.current_bg = @core.Color::rgb(205, 49, 49) // Red bg
@@ -383,7 +372,7 @@ fn VirtualTerminal::process_sgr(
       45 => self.current_bg = @core.Color::rgb(188, 63, 188) // Magenta bg
       46 => self.current_bg = @core.Color::rgb(17, 168, 205) // Cyan bg
       47 => self.current_bg = @core.Color::rgb(229, 229, 229) // White bg
-      48 => {
+      48 =>
         // Extended background color
         if i + 2 < params.length() && params[i + 1] == 5 {
           // 256-color mode
@@ -398,7 +387,6 @@ fn VirtualTerminal::process_sgr(
           )
           i = i + 4
         }
-      }
       49 => self.current_bg = @core.Color::transparent() // Default background
       90 => self.current_fg = @core.Color::rgb(128, 128, 128) // Bright black
       91 => self.current_fg = @core.Color::rgb(255, 0, 0) // Bright red
@@ -435,7 +423,6 @@ fn VirtualTerminal::write_char(self : VirtualTerminal, c : Char) -> Unit {
       self.cursor_y = self.height - 1
     }
   }
-
   let width = @core.char_display_width(c)
 
   // Check if wide char fits
@@ -448,7 +435,6 @@ fn VirtualTerminal::write_char(self : VirtualTerminal, c : Char) -> Unit {
       self.cursor_y = self.height - 1
     }
   }
-
   let cell : @render.CharCell = {
     char: c,
     fg: self.current_fg,
@@ -471,7 +457,6 @@ fn VirtualTerminal::write_char(self : VirtualTerminal, c : Char) -> Unit {
     }
     self.buffer.set_cell(self.cursor_x + 1, self.cursor_y, placeholder)
   }
-
   self.cursor_x = self.cursor_x + width
 }
 
@@ -579,12 +564,24 @@ fn color_from_256(idx : Int) -> @core.Color {
     // 216 colors (6x6x6 cube)
     let n = idx - 16
     let r = n / 36
-    let g = (n % 36) / 6
+    let g = n % 36 / 6
     let b = n % 6
     @core.Color::rgb(
-      if r == 0 { 0 } else { r * 40 + 55 },
-      if g == 0 { 0 } else { g * 40 + 55 },
-      if b == 0 { 0 } else { b * 40 + 55 },
+      if r == 0 {
+        0
+      } else {
+        r * 40 + 55
+      },
+      if g == 0 {
+        0
+      } else {
+        g * 40 + 55
+      },
+      if b == 0 {
+        0
+      } else {
+        b * 40 + 55
+      },
     )
   } else {
     // Grayscale (24 shades)
@@ -745,7 +742,6 @@ pub fn VirtualTerminal::matches(
     .map(fn(sv) { trim_trailing_spaces(sv.to_string()) })
     .filter(fn(s) { s.length() > 0 })
     .collect()
-
   if actual_lines.length() != expected_lines.length() {
     return false
   }

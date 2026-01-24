@@ -54,9 +54,13 @@ pub fn build_scrollbar(Int, Int, Int, Int, track_char? : String, thumb_char? : S
 
 pub fn button(String, id? : String, state? : ButtonState, theme? : Theme, min_width? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
 
+pub fn calc_labeled_block_lines(String, Int, String) -> Int
+
 pub fn calc_max_scroll(Int, Int, reserve_indicator? : Bool) -> Int
 
 pub fn calc_split_sizes(Int, SplitSize, SplitSize, divider_size? : Int) -> (Int, Int)
+
+pub fn calc_text_lines(String, Int) -> Int
 
 pub fn card(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
 
@@ -250,6 +254,8 @@ pub fn window_splitter(@core.Component, @core.Component, SplitterState, orientat
 
 pub fn with_modal(@core.Component, @core.Component, Bool) -> @core.Component
 
+pub fn wrap_text(String, Int) -> Array[String]
+
 // Errors
 
 // Types and methods
@@ -408,6 +414,20 @@ pub(all) enum LabelPosition {
   Right
 }
 
+pub(all) struct LineScroller {
+  offset : @signals.Signal[Int]
+  auto_scroll : @signals.Signal[Bool]
+}
+pub fn LineScroller::can_scroll_down(Self, Int, Int) -> Bool
+pub fn LineScroller::can_scroll_up(Self) -> Bool
+pub fn LineScroller::down(Self, Int, Int, Int) -> Bool
+pub fn LineScroller::follow_bottom(Self, Int, Int) -> Unit
+pub fn LineScroller::new() -> Self
+pub fn[T] LineScroller::slice(Self, Array[T], Array[Int], Int) -> Array[T]
+pub fn[T] LineScroller::slice_with_offset(Self, Array[T], Array[Int], Int) -> (Array[T], Int)
+pub fn LineScroller::to_bottom(Self, Int, Int) -> Unit
+pub fn LineScroller::up(Self, Int) -> Bool
+
 pub(all) struct ListboxOption {
   id : String
   label : String
@@ -537,6 +557,27 @@ pub fn ScrollState::scroll_to_bottom(Self, Int, Int) -> Unit
 pub fn ScrollState::scroll_up(Self, Int) -> Bool
 pub fn ScrollState::with_values(Int, Bool) -> Self
 
+pub(all) struct ScrollableView {
+  lines : Ref[Array[StyledLine]]
+  offset : @signals.Signal[Int]
+  auto_scroll : @signals.Signal[Bool]
+  width : Ref[Int]
+  visible_height : Ref[Int]
+}
+pub fn ScrollableView::can_scroll_down(Self) -> Bool
+pub fn ScrollableView::can_scroll_up(Self) -> Bool
+pub fn ScrollableView::down(Self, Int) -> Bool
+pub fn ScrollableView::follow_bottom(Self) -> Unit
+pub fn ScrollableView::get_visible_height(Self) -> Int
+pub fn ScrollableView::get_width(Self) -> Int
+pub fn ScrollableView::max_offset(Self) -> Int
+pub fn ScrollableView::new(Int, Int) -> Self
+pub fn ScrollableView::resize(Self, Int, Int) -> Unit
+pub fn ScrollableView::set_lines(Self, Array[StyledLine]) -> Unit
+pub fn ScrollableView::to_bottom(Self) -> Unit
+pub fn ScrollableView::total_lines(Self) -> Int
+pub fn ScrollableView::up(Self, Int) -> Bool
+
 pub(all) struct Selection {
   anchor : CursorPosition
   cursor : CursorPosition
@@ -607,6 +648,14 @@ pub fn StreamingState::start_realtime(Self) -> Bool
 pub fn StreamingState::stop(Self) -> Unit
 pub fn StreamingState::take(Self) -> String
 pub fn StreamingState::take_partial(Self) -> String
+
+pub(all) struct StyledLine {
+  content : String
+  fg : @core.Color
+  bold : Bool
+}
+pub fn StyledLine::new(String, fg? : @core.Color, bold? : Bool) -> Self
+pub fn StyledLine::plain(String) -> Self
 
 pub(all) enum SwitchState {
   Off

@@ -13,6 +13,8 @@ fn run_headless() -> Unit {
 
   // Create state
   let messages : Array[@composed.Message] = []
+  let streaming = @c.StreamingState::new()
+  let input_queue = @composed.InputQueue::new()
 
   // Simulate many messages to test scrolling
   for i = 0; i < 10; i = i + 1 {
@@ -23,32 +25,31 @@ fn run_headless() -> Unit {
     })
   }
 
-  // Calculate visible count (same as in main)
+  // Calculate visible height
   let vh = @composed.calc_visible_height(height)
-  let visible_count = if vh / 3 < 3 { 3 } else { vh / 3 }
-  let total_items = messages.length()
-  let max_offset = if total_items > visible_count {
-    total_items - visible_count
-  } else {
-    0
-  }
 
-  // Test scroller
-  let scroller = @c.ItemScroller::new()
+  // Test ScrollableView
+  let scroller = @c.ScrollableView::new(width - 1, vh) // -1 for scrollbar
 
-  // Simulate follow_bottom (what happens after messages are added)
-  scroller.follow_bottom(total_items, visible_count)
+  // Build and set lines
+  let lines = @composed.build_chat_lines(
+    messages,
+    streaming,
+    input_queue,
+    width - 1,
+  )
+  scroller.set_lines(lines)
 
   // Output state as plain text (no ANSI escapes)
-  println("=== HEADLESS MODE - SCROLL TEST ===")
+  println("=== HEADLESS MODE - SCROLLABLE VIEW TEST ===")
   println("Terminal: " + width.to_string() + "x" + height.to_string())
   println(
-    "Messages: " +
-    total_items.to_string() +
-    ", Visible: " +
-    visible_count.to_string() +
+    "TotalLines: " +
+    scroller.total_lines().to_string() +
+    ", VisibleHeight: " +
+    vh.to_string() +
     ", MaxOffset: " +
-    max_offset.to_string(),
+    scroller.max_offset().to_string(),
   )
   println(
     "Initial: offset=" +
@@ -76,33 +77,57 @@ fn run_headless() -> Unit {
     ", can_up=" +
     scroller.can_scroll_up().to_string() +
     ", can_down=" +
-    scroller.can_scroll_down(total_items, visible_count).to_string(),
+    scroller.can_scroll_down().to_string(),
   )
 
   // Test scrollbar visibility condition
-  let is_streaming = false
-  let show_scrollbar = total_items > visible_count && not(is_streaming)
+  let show_scrollbar = scroller.total_lines() > vh
   println(
     "Scrollbar: show=" +
     show_scrollbar.to_string() +
     " (total=" +
-    total_items.to_string() +
+    scroller.total_lines().to_string() +
     " > visible=" +
-    visible_count.to_string() +
+    vh.to_string() +
     ")",
   )
 
   // Test scrollbar rendering
   let scrollbar_lines = @c.build_scrollbar(
     scroller.offset.get(),
-    total_items,
-    visible_count,
+    scroller.total_lines(),
+    vh,
     vh,
   )
   println("Scrollbar height: " + scrollbar_lines.length().to_string())
   println(
     "Scrollbar preview: " +
     scrollbar_lines.iter().fold(init="", fn(acc, s) { acc + s }),
+  )
+
+  // Test scroll positions - get first line at different offsets
+  scroller.to_bottom()
+  let bottom_offset = scroller.offset.get()
+  let bottom_lines = scroller.lines.val
+  let bottom_first = if bottom_offset < bottom_lines.length() {
+    bottom_lines[bottom_offset].content
+  } else {
+    ""
+  }
+  scroller.offset.set(0)
+  let top_first = if bottom_lines.length() > 0 {
+    bottom_lines[0].content
+  } else {
+    ""
+  }
+  println(
+    "Scroll test: top first='" +
+    top_first +
+    "', bottom first (offset=" +
+    bottom_offset.to_string() +
+    ")='" +
+    bottom_first +
+    "'",
   )
   println("=== END ===")
 }
@@ -126,22 +151,19 @@ fn main {
   let running = @signals.signal(true)
 
   // Action menu will be created after other state is defined
-  // (handlers need to capture messages, streaming, scroller)
+  // (handlers need to capture messages, streaming, message_view)
 
   // Forward reference for start_editing (set later in letrec)
   let start_editing_ref : Ref[() -> Unit] = { val: fn() { () } }
 
-  // Item-based scroller for message list
-  let scroller = @c.ItemScroller::new()
+  // ScrollableView for message list (width-1 for scrollbar)
+  let message_view = @c.ScrollableView::new(
+    cols - 1,
+    @composed.calc_visible_height(rows),
+  )
 
   // Streaming state using StreamingState component
   let streaming = @c.StreamingState::new()
-
-  // Cursor-safe stream buffer for message area updates
-  let stream_buffer = @c.StreamBuffer::new(
-    cols,
-    @composed.calc_visible_height(rows),
-  )
 
   // Input queue for batching inputs during task processing
   let input_queue = @composed.InputQueue::new()
@@ -161,8 +183,9 @@ fn main {
       @c.ActionItem::new('1', "Clear messages", fn() {
         messages.set([])
         streaming.clear()
-        scroller.offset.set(0)
-        scroller.auto_scroll.set(true)
+        message_view.offset.set(0)
+        message_view.auto_scroll.set(true)
+        message_view.set_lines([])
       }),
       @c.ActionItem::new('2', "Export chat", fn() {
         // Placeholder - just close modal
@@ -174,77 +197,73 @@ fn main {
     toggle_key=Some('f'),
   )
 
-  // Get total item count (messages + streaming + queued)
-  fn get_item_count() -> Int {
-    let mut count = messages.get().length()
-    if streaming.has_content() {
-      count = count + 1
-    }
-    count + input_queue.length()
-  }
-
-  // Calculate visible item count based on terminal height
-  // Each message takes roughly 2-3 lines, so we estimate
-  fn get_visible_count() -> Int {
-    let vh = @composed.calc_visible_height(height.val)
-    // Estimate: each item takes about 3 lines on average
-    let count = vh / 3
-    if count < 3 {
-      3
-    } else {
-      count
-    }
+  // Update message view lines from current state
+  fn update_message_lines() -> Unit {
+    let w = width.val - 1 // Reserve space for scrollbar
+    let lines = @composed.build_chat_lines(
+      messages.get(),
+      streaming,
+      input_queue,
+      w,
+    )
+    message_view.set_lines(lines)
   }
 
   // Check if scrollbar should be shown
   fn should_show_scrollbar() -> Bool {
-    get_item_count() > get_visible_count()
+    message_view.total_lines() > message_view.get_visible_height()
   }
 
-  // Build message content only (without scrollbar) - for streaming
-  fn build_message_content() -> @core.Component {
-    let w = width.val
-    let h = height.val
-    let visible_count = get_visible_count()
-    let visible_height = @composed.calc_visible_height(h)
-    let content_width = if should_show_scrollbar() { w - 1 } else { w }
-    let all_items = @composed.chat_message_list(
-      messages.get(),
-      streaming,
-      input_queue,
-      content_width,
-      @composed.streaming_message_height,
-    )
-    let visible_items = scroller.slice(all_items, visible_count)
-
-    // Message content column
-    let display_items : Array[@core.Component] = []
-    for item in visible_items {
-      display_items.push(item)
-    }
-    @c.column(
-      display_items,
-      width=@types.Dimension::Length(content_width.to_double()),
-      height=@types.Dimension::Length(visible_height.to_double()),
-      justify=@types.Alignment::FlexEnd, // Align messages to bottom
-    )
-  }
-
-  // Build the message area with scrolling and scrollbar
+  // Build the message area using visible lines from ScrollableView
   fn build_message_area() -> @core.Component {
     let w = width.val
-    let h = height.val
-    let visible_count = get_visible_count()
-    let visible_height = @composed.calc_visible_height(h)
-    let total = get_item_count()
-    let messages_column = build_message_content()
+    let visible_height = @composed.calc_visible_height(height.val)
+    let content_width = if should_show_scrollbar() { w - 1 } else { w }
 
-    // Scrollbar (show when scrolling is possible)
+    // Get visible lines from ScrollableView
+    let offset = message_view.offset.get()
+    let all_lines = message_view.lines.val
+    let total = all_lines.length()
+
+    // Build text components for each visible line (each exactly 1 row)
+    let line_components : Array[@core.Component] = []
+    for i = 0; i < visible_height; i = i + 1 {
+      let line_idx = offset + i
+      if line_idx < total {
+        let styled_line = all_lines[line_idx]
+        // Use text_box with height=1 to ensure each line takes exactly 1 row
+        line_components.push(
+          @core.text_box(
+            styled_line.content,
+            fg=styled_line.fg,
+            bold=styled_line.bold,
+            width=@types.Dimension::Length(content_width.to_double()),
+            height=@types.Dimension::Length(1.0),
+          ),
+        )
+      } else {
+        // Empty line for padding (height=1)
+        line_components.push(
+          @core.text_box(
+            "",
+            width=@types.Dimension::Length(content_width.to_double()),
+            height=@types.Dimension::Length(1.0),
+          ),
+        )
+      }
+    }
+    let messages_column = @c.column(
+      line_components,
+      width=@types.Dimension::Length(content_width.to_double()),
+      height=@types.Dimension::Length(visible_height.to_double()),
+    )
+
+    // Add scrollbar if needed
     if should_show_scrollbar() {
       let scrollbar_component = @c.scrollbar(
-        scroller.offset.get(),
-        total,
-        visible_count,
+        message_view.offset.get(),
+        message_view.total_lines(),
+        visible_height,
         visible_height,
         track_color=@core.Color::rgb(60, 60, 60),
         thumb_color=@core.Color::rgb(140, 140, 140),
@@ -335,49 +354,6 @@ fn main {
     }
   }
 
-  // Render scrollbar directly at fixed position (rightmost column)
-  fn render_scrollbar_direct() -> Unit {
-    if not(should_show_scrollbar()) {
-      return
-    }
-    let w = width.val
-    let h = height.val
-    let visible_count = get_visible_count()
-    let visible_height = @composed.calc_visible_height(h)
-    let total = get_item_count()
-    let offset = scroller.offset.get()
-
-    // Build scrollbar lines
-    let lines = @c.build_scrollbar(
-      offset,
-      total,
-      visible_count,
-      visible_height,
-      track_char="│",
-      thumb_char="┃",
-    )
-
-    // Render each line at rightmost column
-    let mut output = @c.ansi_save_cursor()
-    let color = @core.Color::rgb(140, 140, 140)
-    for i, line in lines {
-      // Move to row i+1 (1-indexed), column w (rightmost)
-      output = output + @c.ansi_move_to(i + 1, w)
-      output = output + @render.ansi_fg_color(color) + line
-    }
-    output = output + @render.ansi_reset() + @c.ansi_restore_cursor()
-    @io.print_raw(output)
-  }
-
-  // Render message area with cursor-safe stream buffer
-  fn render_message_area_stream() -> Unit {
-    // Render only message content (without scrollbar) to stream buffer
-    let message_content = build_message_content()
-    stream_buffer.render(message_content)
-    // Render scrollbar separately at fixed position
-    render_scrollbar_direct()
-  }
-
   // Render helper
   fn do_render() -> Unit {
     let editing = ime_session.is_editing()
@@ -385,6 +361,9 @@ fn main {
     if editing {
       @io.print_raw(@c.ansi_save_cursor())
     }
+    // Update message lines before rendering
+    update_message_lines()
+    // Render entire UI via crater
     let ui = build_ui()
     let output = app.val.render_frame(ui)
     @io.print_raw(output)
@@ -395,7 +374,6 @@ fn main {
       // Keep cursor in input area when not editing
       @io.print_raw(@c.ansi_move_to(@composed.calc_input_row(height.val), 0))
     }
-    stream_buffer.sync(build_message_content())
   }
 
   // Quit helper
@@ -415,8 +393,9 @@ fn main {
     let current = messages.get()
     current.push({ role, content })
     messages.set(current)
-    // Auto-scroll to bottom
-    scroller.follow_bottom(get_item_count(), get_visible_count())
+    // Update lines and auto-scroll to bottom
+    update_message_lines()
+    message_view.follow_bottom()
   }
 
   // Complete streaming and add to messages
@@ -425,9 +404,9 @@ fn main {
     if text.length() > 0 {
       add_message(Assistant, text)
     }
-    scroller.follow_bottom(get_item_count(), get_visible_count())
+    update_message_lines()
+    message_view.follow_bottom()
     // Clear main app's prev_buffer to force full render after streaming
-    // (stream_buffer was updating screen independently, main app's buffer is stale)
     app.val.clear_prev_buffer()
   }
 
@@ -437,13 +416,13 @@ fn main {
   // Start streaming response
   fn start_streaming(response : String) -> Unit {
     input_queue.start_processing()
-    // Clear stream buffer to avoid stale content from previous streaming
-    stream_buffer.clear()
     // Force scroll to bottom when starting output
-    scroller.to_bottom(get_item_count(), get_visible_count())
+    update_message_lines()
+    message_view.to_bottom()
     fn on_tick() {
-      scroller.follow_bottom(get_item_count(), get_visible_count())
-      render_message_area_stream()
+      update_message_lines()
+      message_view.follow_bottom()
+      do_render()
     }
 
     fn on_complete() {
@@ -497,8 +476,8 @@ fn main {
     match claude_client {
       Some(client) => {
         input_queue.start_processing()
-        stream_buffer.clear()
-        scroller.to_bottom(get_item_count(), get_visible_count())
+        update_message_lines()
+        message_view.to_bottom()
         // Start realtime streaming mode with loading indicator
         ignore(streaming.start_realtime())
         streaming.append("Thinking...")
@@ -518,8 +497,9 @@ fn main {
             }
             // Append chunk and render
             streaming.append(chunk)
-            scroller.follow_bottom(get_item_count(), get_visible_count())
-            render_message_area_stream()
+            update_message_lines()
+            message_view.follow_bottom()
+            do_render()
           },
           fn(_tool_id, tool_name, input_json) {
             // Execute tool and return result
@@ -570,7 +550,7 @@ fn main {
     }
     let queued = input_queue.dequeue_all()
     if queued.length() > 0 {
-      scroller.auto_scroll.set(true)
+      message_view.auto_scroll.set(true)
       // Add each queued message as separate user message
       for msg in queued {
         add_message(User, msg)
@@ -590,7 +570,10 @@ fn main {
     height.val = new_height
     // Recreate apps with new dimensions
     app.val = @render.App::new(new_width, new_height)
-    stream_buffer.resize(new_width, @composed.calc_visible_height(new_height))
+    message_view.resize(
+      new_width - 1,
+      @composed.calc_visible_height(new_height),
+    )
     // Clear screen and re-render
     @io.print_raw(@render.ansi_clear_screen())
     do_render()
@@ -607,7 +590,7 @@ fn main {
         input_queue.enqueue(text)
       } else {
         // No task running, send immediately
-        scroller.auto_scroll.set(true)
+        message_view.auto_scroll.set(true)
         add_message(User, text)
         send_to_claude()
       }
@@ -615,10 +598,6 @@ fn main {
     @io.print_raw(@render.ansi_full_reset())
     @io.print_raw(@render.enable_mouse())
     app.val.clear_prev_buffer()
-    // Only clear stream buffer if not currently streaming
-    if not(streaming.is_streaming()) {
-      stream_buffer.clear()
-    }
     do_render()
     @io.start_resize_listener(handle_resize)
     @io.start_keypress_listener(handle_key)
@@ -646,8 +625,6 @@ fn main {
     let event = @events.parse_input(key)
     let mut need_render = true
     let mut should_edit = false
-    let total = get_item_count()
-    let visible = get_visible_count()
 
     // Handle modal keys when modal is open
     match action_menu.handle_event(app.val, event) {
@@ -682,10 +659,10 @@ fn main {
             should_edit = true
           @events.KeyEvent::Special(@events.SpecialKey::Up, _)
           | @events.KeyEvent::Special(@events.SpecialKey::PageUp, _) =>
-            ignore(scroller.up(1))
+            ignore(message_view.up(1))
           @events.KeyEvent::Special(@events.SpecialKey::Down, _)
           | @events.KeyEvent::Special(@events.SpecialKey::PageDown, _) =>
-            ignore(scroller.down(1, total, visible))
+            ignore(message_view.down(1))
           _ => need_render = false
         }
       @events.InputEvent::Mouse(mouse_event) =>
@@ -696,9 +673,9 @@ fn main {
               None => ()
             }
           (@events.MouseEventType::Press, @events.MouseButton::ScrollUp) =>
-            ignore(scroller.up(3))
+            ignore(message_view.up(3))
           (@events.MouseEventType::Press, @events.MouseButton::ScrollDown) =>
-            ignore(scroller.down(3, total, visible))
+            ignore(message_view.down(3))
           _ => need_render = false
         }
       _ => need_render = false
