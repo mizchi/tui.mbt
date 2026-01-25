@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/vnode-layout"
+package "mizchi/tui/examples/counter"
 
 // Values
 

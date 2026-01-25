@@ -1,15 +1,13 @@
 import {
   "mizchi/tui",
-  "mizchi/tui/render" as @render,
-  "mizchi/tui/core" as @core,
-  "mizchi/tui/io" as @io,
-  "mizchi/tui/components" as @c,
-  "mizchi/tui/composed" as @composed,
-  "mizchi/tui/ai" as @ai,
+  "mizchi/tui/core",
+  "mizchi/tui/render",
+  "mizchi/tui/vnode",
+  "mizchi/tui/io",
+  "mizchi/tui/ai",
   "mizchi/signals",
 }
 
 options(
   "is-main": true,
-  targets: { "main.mbt": [ "js" ], "main_native.mbt": [ "not", "js" ] },
 )

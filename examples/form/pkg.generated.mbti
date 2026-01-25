@@ -1,12 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/vnode-editor"
+package "mizchi/tui/examples/form"
 
 // Values
 
 // Errors
 
 // Types and methods
-type Command
 
 // Type aliases
 

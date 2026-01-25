@@ -6,6 +6,13 @@ package "mizchi/tui/examples/chat"
 // Errors
 
 // Types and methods
+type InputQueue
+
+type Message
+
+type MessageRole
+
+type StreamingState
 
 // Type aliases
 
