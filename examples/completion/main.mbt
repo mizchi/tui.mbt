@@ -59,17 +59,6 @@ fn main {
     get_confirmed_text() + input.get()
   }
 
-  // Helper to check if a string is all printable characters
-  fn is_printable_string(s : String) -> Bool {
-    for c in s {
-      let code = c.to_int()
-      if not((code >= 32 && code < 127) || code >= 128) {
-        return false
-      }
-    }
-    true
-  }
-
   fn render_popup_item(item : String, idx : Int) -> @vnode.TuiNode {
     let is_selected = idx == selected_idx.get()
     let query = input.get()
@@ -277,7 +266,9 @@ fn main {
     }
 
     // Handle multi-character printable input (IME) before parse_input
-    if key.length() > 1 && key[0].to_int() != 0x1b && is_printable_string(key) {
+    if key.length() > 1 &&
+      key[0].to_int() != 0x1b &&
+      @tui.is_printable_string(key) {
       input.set(input.get() + key)
       selected_idx.set(0)
       suppress_popup.val = false // Show popup when typing

@@ -207,6 +207,34 @@ fn apply_attr(
       style.row_gap = @types.Dimension::Length(v)
       style.column_gap = @types.Dimension::Length(v)
     }
+    // Display
+    TuiAttrValue::Display(v) => style.display = v.to_display()
+    // Grid container
+    TuiAttrValue::GridTemplateColumns(v) => style.grid_template_columns = v
+    TuiAttrValue::GridTemplateRows(v) => style.grid_template_rows = v
+    TuiAttrValue::GridAutoFlow(v) =>
+      style.grid_auto_flow = v.to_grid_auto_flow()
+    // Grid item
+    TuiAttrValue::GridColumn(v) =>
+      style.grid_column = {
+        start: @types.GridPlacement::Line(v),
+        end: @types.GridPlacement::Auto,
+      }
+    TuiAttrValue::GridRow(v) =>
+      style.grid_row = {
+        start: @types.GridPlacement::Line(v),
+        end: @types.GridPlacement::Auto,
+      }
+    TuiAttrValue::GridColumnSpan(v) =>
+      style.grid_column = {
+        start: style.grid_column.start,
+        end: @types.GridPlacement::Span(v),
+      }
+    TuiAttrValue::GridRowSpan(v) =>
+      style.grid_row = {
+        start: style.grid_row.start,
+        end: @types.GridPlacement::Span(v),
+      }
     TuiAttrValue::Padding(v) => {
       let len = @types.Dimension::Length(v)
       style.padding = @types.Rect::new(len, len, len, len)

@@ -1,6 +1,7 @@
 import {
   "mizchi/tui",
   "mizchi/tui/vnode",
+  "mizchi/tui/components" as @ui,
   "mizchi/signals",
   "moonbitlang/async",
 }

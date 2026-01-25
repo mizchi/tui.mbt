@@ -3,7 +3,9 @@ package "mizchi/tui"
 
 import {
   "mizchi/signals",
+  "mizchi/tui/components",
   "mizchi/tui/events",
+  "mizchi/tui/headless",
   "mizchi/tui/io",
   "mizchi/tui/render",
   "mizchi/tui/vnode",
@@ -16,7 +18,11 @@ pub fn alert_dialog(String, title? : String, button_label? : String, id? : Strin
 
 pub fn ansi_full_reset() -> String
 
-pub fn button(String, id? : String, state? : @vnode.ButtonState, min_width? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn build_gauge(Double, Int, style? : @components.GaugeStyle) -> String
+
+pub fn build_sparkline(Array[Double], width? : Int) -> String
+
+pub fn button(String, id? : String, state? : @headless.ButtonState, min_width? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn card(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], title? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -46,15 +52,25 @@ pub fn fragment(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValu
 
 pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
+pub fn get_spinner_frame(Int) -> String
+
 pub fn get_terminal_size() -> (Int, Int)
+
+pub fn grid(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn grid_item(@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], column? : Int, row? : Int, column_span? : Int, row_span? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn icon_button(String, id? : String, state? : @vnode.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn icon_button(String, id? : String, state? : @headless.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn input(String, id? : String, placeholder? : String, state? : @vnode.InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn input_plain(String, placeholder? : String, state? : @vnode.InputState, fg? : String, placeholder_fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn is_printable_char(Char) -> Bool
+
+pub fn is_printable_string(String) -> Bool
 
 pub fn listbox(Array[(String, String)], String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -116,17 +132,21 @@ pub fn tab(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent
 
 pub fn tab_bar(Array[(String, String)], String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table(Array[@vnode.TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table(Array[@components.TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table_header(Array[@vnode.TableColumn], separator? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table_header(Array[@components.TableColumn], separator? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table_row(Array[@vnode.TableColumn], Array[String], separator? : String, selected? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table_row(Array[@components.TableColumn], Array[String], separator? : String, selected? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn text_button(String, id? : String, state? : @headless.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn view(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn vspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -135,11 +155,13 @@ pub fn vspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrV
 // Types and methods
 
 // Type aliases
+pub using @headless {type AccordionState}
+
 pub using @render {type App}
 
 pub using @mizchi/tui/core {type BorderChars}
 
-pub using @vnode {type ButtonState}
+pub using @headless {type ButtonState}
 
 pub using @render {type CharBuffer}
 
@@ -147,11 +169,15 @@ pub using @render {type CharCell}
 
 pub using @mizchi/tui/core {type Color}
 
-pub using @vnode {type ColumnAlign}
+pub using @components {type ColumnAlign}
 
 pub using @mizchi/tui/core {type Component}
 
 pub using @vnode {type EditConfig}
+
+pub using @headless {type FocusNav}
+
+pub using @components {type GaugeStyle}
 
 pub using @events {type HitTestResult}
 
@@ -165,6 +191,8 @@ pub using @events {type KeyEvent}
 
 pub using @events {type KeyModifier}
 
+pub using @headless {type ModalState}
+
 pub using @events {type MouseButton}
 
 pub using @events {type MouseEvent}
@@ -175,13 +203,17 @@ pub using @mizchi/tui/core {type RenderStyleMap}
 
 pub using @mizchi/tui/core {type Role}
 
+pub using @headless {type SelectionState}
+
 pub using @events {type SpecialKey}
 
-pub using @vnode {type TableColumn}
+pub using @components {type TableColumn}
 
 pub using @mizchi/tui/core {type TextContentMap}
 
 pub using @render {type TextStyle}
+
+pub using @headless {type ToggleState}
 
 pub using @vnode {type TuiEvent}
 

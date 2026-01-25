@@ -79,6 +79,17 @@ pub fn all_stories() -> Array[VNodeStory] {
     stories.push(s)
   }
 
+  // Grid & View
+  for s in grid_basic_stories() {
+    stories.push(s)
+  }
+  for s in grid_item_stories() {
+    stories.push(s)
+  }
+  for s in view_stories() {
+    stories.push(s)
+  }
+
   // Dashboard (btop-like components)
   for s in sparkline_stories() {
     stories.push(s)

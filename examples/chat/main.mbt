@@ -179,17 +179,6 @@ fn main {
     system_prompt="You are a helpful assistant. Keep responses concise.",
   )
 
-  // Helper to check if a string is all printable characters
-  fn is_printable_string(s : String) -> Bool {
-    for c in s {
-      let code = c.to_int()
-      if not((code >= 32 && code < 127) || code >= 128) {
-        return false
-      }
-    }
-    true
-  }
-
   // Build message lines for display
   fn build_message_lines() -> Array[String] {
     let lines : Array[String] = []
@@ -261,7 +250,6 @@ fn main {
     } else {
       0
     }
-
     for i = 0; i < message_area_height; i = i + 1 {
       if i < empty_lines_at_top {
         // Empty line for bottom-alignment
@@ -520,7 +508,9 @@ fn main {
       return
     }
     // Handle multi-character printable input (IME)
-    if key.length() > 1 && key[0].to_int() != 0x1b && is_printable_string(key) {
+    if key.length() > 1 &&
+      key[0].to_int() != 0x1b &&
+      @tui.is_printable_string(key) {
       input.set(input.get() + key)
       do_render()
       return

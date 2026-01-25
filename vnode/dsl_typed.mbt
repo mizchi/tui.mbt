@@ -45,6 +45,14 @@ fn attr_key(attr : TuiAttrValue) -> String {
     TuiAttrValue::FlexGrow(_) => "flex_grow"
     TuiAttrValue::FlexShrink(_) => "flex_shrink"
     TuiAttrValue::Gap(_) => "gap"
+    TuiAttrValue::Display(_) => "display"
+    TuiAttrValue::GridTemplateColumns(_) => "grid_template_columns"
+    TuiAttrValue::GridTemplateRows(_) => "grid_template_rows"
+    TuiAttrValue::GridAutoFlow(_) => "grid_auto_flow"
+    TuiAttrValue::GridColumn(_) => "grid_column"
+    TuiAttrValue::GridRow(_) => "grid_row"
+    TuiAttrValue::GridColumnSpan(_) => "grid_column_span"
+    TuiAttrValue::GridRowSpan(_) => "grid_row_span"
     TuiAttrValue::Padding(_) => "padding"
     TuiAttrValue::PaddingX(_) => "padding_x"
     TuiAttrValue::PaddingY(_) => "padding_y"
@@ -455,6 +463,164 @@ pub fn column(
 }
 
 ///|
+/// Generic view container (flex layout with configurable direction)
+/// Default direction is column (React Native style)
+pub fn view(
+  children : Array[TuiNode],
+  direction? : String = "column",
+  id? : String = "",
+  gap? : Double = 0.0,
+  margin? : Double = 0.0,
+  margin_x? : Double = 0.0,
+  margin_y? : Double = 0.0,
+  padding? : Double = 0.0,
+  padding_x? : Double = 0.0,
+  padding_y? : Double = 0.0,
+  width? : Double = -1.0,
+  height? : Double = -1.0,
+  min_width? : Double = -1.0,
+  min_height? : Double = -1.0,
+  flex_grow? : Double = 0.0,
+  justify? : String = "",
+  align? : String = "",
+  border? : String = "",
+  border_color? : String = "",
+  bg? : String = "",
+  on_click? : ((TuiEvent) -> Unit)? = None,
+) -> TuiNode {
+  let dir = if direction == "row" {
+    DirectionValue::Row
+  } else {
+    DirectionValue::Column
+  }
+  let attrs = build_box_attrs(
+    dir, id, gap, margin, margin_x, margin_y, padding, padding_x, padding_y, width,
+    height, min_width, min_height, flex_grow, justify, align, border, border_color,
+    bg, on_click,
+  )
+  @luna.h("box", attrs, children)
+}
+
+///|
+/// Grid container with CSS Grid layout
+pub fn grid(
+  children : Array[TuiNode],
+  columns? : Array[Double] = [],
+  rows? : Array[Double] = [],
+  auto_flow? : String = "row",
+  id? : String = "",
+  gap? : Double = 0.0,
+  padding? : Double = 0.0,
+  padding_x? : Double = 0.0,
+  padding_y? : Double = 0.0,
+  width? : Double = -1.0,
+  height? : Double = -1.0,
+  border? : String = "",
+  border_color? : String = "",
+  bg? : String = "",
+) -> TuiNode {
+  let attrs : Array[(String, TuiAttr)] = [
+    ("display", attr(TuiAttrValue::Display(DisplayValue::Grid))),
+  ]
+  // Grid template columns (convert Double array to fr values)
+  if columns.length() > 0 {
+    let tracks = columns.map(fn(v) { @types.TrackSizingFunction::Fr(v) })
+    attrs.push(
+      ("grid_template_columns", attr(TuiAttrValue::GridTemplateColumns(tracks))),
+    )
+  }
+  // Grid template rows
+  if rows.length() > 0 {
+    let tracks = rows.map(fn(v) { @types.TrackSizingFunction::Fr(v) })
+    attrs.push(
+      ("grid_template_rows", attr(TuiAttrValue::GridTemplateRows(tracks))),
+    )
+  }
+  // Grid auto flow
+  let flow = match auto_flow {
+    "column" => GridAutoFlowValue::Column
+    "row-dense" => GridAutoFlowValue::RowDense
+    "column-dense" => GridAutoFlowValue::ColumnDense
+    _ => GridAutoFlowValue::Row
+  }
+  attrs.push(("grid_auto_flow", attr(TuiAttrValue::GridAutoFlow(flow))))
+  // Common attributes
+  if id.length() > 0 {
+    attrs.push(("id", attr(TuiAttrValue::Id(id))))
+  }
+  if gap > 0.0 {
+    attrs.push(("gap", attr(TuiAttrValue::Gap(gap))))
+  }
+  if padding > 0.0 {
+    attrs.push(("padding", attr(TuiAttrValue::Padding(padding))))
+  }
+  if padding_x > 0.0 {
+    attrs.push(("padding_x", attr(TuiAttrValue::PaddingX(padding_x))))
+  }
+  if padding_y > 0.0 {
+    attrs.push(("padding_y", attr(TuiAttrValue::PaddingY(padding_y))))
+  }
+  if width >= 0.0 {
+    attrs.push(
+      ("width", attr(TuiAttrValue::Width(DimensionValue::Length(width)))),
+    )
+  }
+  if height >= 0.0 {
+    attrs.push(
+      ("height", attr(TuiAttrValue::Height(DimensionValue::Length(height)))),
+    )
+  }
+  if border.length() > 0 {
+    attrs.push(
+      ("border", attr(TuiAttrValue::Border(parse_border_value(border)))),
+    )
+  }
+  if border_color.length() > 0 {
+    attrs.push(
+      (
+        "border_color",
+        attr(TuiAttrValue::BorderColor(parse_color_value(border_color))),
+      ),
+    )
+  }
+  if bg.length() > 0 {
+    attrs.push(("bg", attr(TuiAttrValue::Bg(parse_color_value(bg)))))
+  }
+  @luna.h("box", attrs, children)
+}
+
+///|
+/// Grid item with placement control
+pub fn grid_item(
+  child : TuiNode,
+  column? : Int = 0,
+  row? : Int = 0,
+  column_span? : Int = 1,
+  row_span? : Int = 1,
+) -> TuiNode {
+  let attrs : Array[(String, TuiAttr)] = []
+  // Column placement (1-indexed)
+  if column > 0 {
+    attrs.push(("grid_column", attr(TuiAttrValue::GridColumn(column))))
+  }
+  // Row placement (1-indexed)
+  if row > 0 {
+    attrs.push(("grid_row", attr(TuiAttrValue::GridRow(row))))
+  }
+  // Column span
+  if column_span > 1 {
+    attrs.push(
+      ("grid_column_span", attr(TuiAttrValue::GridColumnSpan(column_span))),
+    )
+  }
+  // Row span
+  if row_span > 1 {
+    attrs.push(("grid_row_span", attr(TuiAttrValue::GridRowSpan(row_span))))
+  }
+  @luna.h("box", attrs, [child])
+}
+
+///|
 /// Static text node
 pub fn text(
   content : String,
@@ -625,6 +791,14 @@ pub fn attr_to_string(attr : TuiAttrValue) -> (String, String) {
     TuiAttrValue::FlexGrow(v) => v.to_int().to_string()
     TuiAttrValue::FlexShrink(v) => v.to_int().to_string()
     TuiAttrValue::Gap(v) => v.to_int().to_string()
+    TuiAttrValue::Display(v) => display_to_string(v)
+    TuiAttrValue::GridTemplateColumns(v) => track_list_to_string(v)
+    TuiAttrValue::GridTemplateRows(v) => track_list_to_string(v)
+    TuiAttrValue::GridAutoFlow(v) => grid_auto_flow_to_string(v)
+    TuiAttrValue::GridColumn(v) => v.to_string()
+    TuiAttrValue::GridRow(v) => v.to_string()
+    TuiAttrValue::GridColumnSpan(v) => v.to_string()
+    TuiAttrValue::GridRowSpan(v) => v.to_string()
     TuiAttrValue::Padding(v) => v.to_int().to_string()
     TuiAttrValue::PaddingX(v) => v.to_int().to_string()
     TuiAttrValue::PaddingY(v) => v.to_int().to_string()
@@ -686,5 +860,42 @@ fn color_to_string(v : ColorValue) -> String {
     ColorValue::Named(name) => name
     ColorValue::Rgb(r, g, b) =>
       "rgb(" + r.to_string() + "," + g.to_string() + "," + b.to_string() + ")"
+  }
+}
+
+///|
+fn display_to_string(v : DisplayValue) -> String {
+  match v {
+    DisplayValue::Flex => "flex"
+    DisplayValue::Grid => "grid"
+  }
+}
+
+///|
+fn grid_auto_flow_to_string(v : GridAutoFlowValue) -> String {
+  match v {
+    GridAutoFlowValue::Row => "row"
+    GridAutoFlowValue::Column => "column"
+    GridAutoFlowValue::RowDense => "row-dense"
+    GridAutoFlowValue::ColumnDense => "column-dense"
+  }
+}
+
+///|
+fn track_list_to_string(tracks : Array[@types.TrackSizingFunction]) -> String {
+  tracks.map(fn(t) { track_sizing_to_string(t) }).join(" ")
+}
+
+///|
+fn track_sizing_to_string(t : @types.TrackSizingFunction) -> String {
+  match t {
+    @types.TrackSizingFunction::Length(v) => v.to_int().to_string() + "px"
+    @types.TrackSizingFunction::Percent(v) =>
+      (v * 100.0).to_int().to_string() + "%"
+    @types.TrackSizingFunction::Fr(v) => v.to_string() + "fr"
+    @types.TrackSizingFunction::Auto => "auto"
+    @types.TrackSizingFunction::MinContent => "min-content"
+    @types.TrackSizingFunction::MaxContent => "max-content"
+    _ => "auto"
   }
 }

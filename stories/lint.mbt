@@ -68,7 +68,9 @@ pub fn lint_odd_dimensions(stories : Array[VNodeStory]) -> Array[LintViolation] 
 
 ///|
 /// Lint: Story dimensions should be reasonable
-pub fn lint_dimension_range(stories : Array[VNodeStory]) -> Array[LintViolation] {
+pub fn lint_dimension_range(
+  stories : Array[VNodeStory],
+) -> Array[LintViolation] {
   let violations : Array[LintViolation] = []
   for story in stories {
     let story_name = story.category + "/" + story.name

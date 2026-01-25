@@ -1,89 +1,112 @@
 # vnode 完全移行計画
 
-## 現状
+## ステータス: 完了
 
-| パッケージ | 状態 | 依存元 |
-|-----------|------|--------|
-| `@core` | 維持（低レベル） | render, vnode, io, input, events 等 |
-| `@components` | 移行対象 | top, testing, stories, examples/form, examples/editor, composed |
-| `@composed` | 削除予定 | stories |
-| `@vnode` | 移行先 | examples/* |
-| `@stories` | 移行対象 | examples/snapshot, lint, snapshot-ansi |
+全フェーズが完了し、v0.3.0 としてリリース準備完了。
 
-## 移行フェーズ
+## 新パッケージ構成
 
-### Phase 1: vnode に高レベルコンポーネントを追加
+### headless - ヘッドレスコンポーネント
+ロジック・状態管理のみ（スタイルなし）。APG パターンに準拠。
 
-**ファイル構成:**
-- `vnode/components/button.mbt` - button, icon_button
-- `vnode/components/checkbox.mbt` - checkbox, radio, switch
-- `vnode/components/accordion.mbt` - accordion
-- `vnode/components/tabs.mbt` - tabs
-- `vnode/components/listbox.mbt` - listbox
-- `vnode/components/combobox.mbt` - combobox, autocomplete
-- `vnode/components/modal.mbt` - modal, dialog
-- `vnode/components/menu.mbt` - menubar, context_menu
-- `vnode/components/progress.mbt` - progress_bar, spinner
-- `vnode/components/tooltip.mbt` - tooltip
-
-**優先度:**
-1. button, checkbox (基本)
-2. modal, dialog (よく使う)
-3. tabs, accordion (レイアウト)
-4. listbox, combobox (選択)
-5. menubar, context_menu (ナビゲーション)
-6. progress, spinner, tooltip (フィードバック)
-
-### Phase 2: examples を vnode 版に完全移行
-
-- [ ] `examples/form` - @components.input → @vnode.input
-- [ ] `examples/editor` - @components 依存を削除
-
-### Phase 3: stories を vnode 版に移行
-
-1. `stories/story.mbt` の Story 型を vnode 版に変更
-2. 各 `*_stories.mbt` を vnode で書き直し
-3. `examples/snapshot*` を vnode 版に対応
-
-### Phase 4: 非推奨化と削除
-
-- [ ] `@components` を deprecated としてマーク
-- [ ] `@composed` を削除
-- [ ] `testing` の @components 依存を削除
-
-### Phase 5: トップレベル API の整理
-
-- [ ] `top.mbt` の再エクスポートを vnode 版に変更
-- [ ] `moon.mod.json` のバージョンを 1.0.0 に
-
-## 削除予定ファイル
-
-```
-composed/          # 全削除
-components/        # 全削除（Phase 4 完了後）
+```moonbit
+// 状態型
+@headless.ButtonState::{Default, Focused, Pressed, Disabled}
+@headless.InputState::{Idle, Focused, Editing, Disabled}
+@headless.ToggleState
+@headless.SelectionState
+@headless.ModalState
+@headless.AccordionState
+@headless.FocusNav
 ```
 
-## 維持するパッケージ
+### components - スタイル付きコンポーネント
+headless を使った既製のスタイル付き UI。
 
+```moonbit
+// ボタン
+@components.button(label, state?, min_width?)
+@components.icon_button(icon, state?)
+@components.text_button(label, state?)
+
+// トグル
+@components.checkbox(label, checked, focused?, disabled?)
+@components.radio(label, selected, disabled?)
+@components.switch(on, label, disabled?)
+
+// 選択
+@components.tab(label, selected)
+@components.tab_bar(tabs, selected_id)
+@components.listbox(items, selected_id)
+@components.listbox_item(label, selected)
+@components.combobox_trigger(label, open)
+@components.combobox_item(label, selected)
+
+// モーダル
+@components.modal(title, content, width?)
+@components.modal_backdrop()
+@components.alert_dialog(message, title?, button_label?)
+@components.confirm_dialog(message, title?, confirm_label?, cancel_label?)
+@components.card(content, title?)
+
+// メニュー
+@components.menubar_item(label, open)
+@components.menu_item(label, selected, disabled?)
+@components.menu_divider()
+
+// アコーディオン
+@components.accordion_section(title, content, expanded)
+
+// フィードバック
+@components.progress_bar(ratio, width?, show_percent?)
+@components.spinner(tick, label?)
+@components.divider(char?, fg?)
 ```
-core/              # 低レベル（Color, BorderChars, Component 型）
-render/            # レンダリング（CharBuffer, App）
-vnode/             # 新 API（全コンポーネント）
-input/             # キーボード入力
-io/                # プラットフォーム I/O
-events/            # イベント型
-completion/        # 補完エンジン
-ai/                # Claude API
-testing/           # テストユーティリティ
-stories/           # vnode 版スナップショット
+
+### vnode - コアプリミティブ
+低レベルのレイアウトとテキストノード。
+
+```moonbit
+@vnode.column(children, gap?, padding?, border?, ...)
+@vnode.row(children, gap?, padding?, border?, ...)
+@vnode.text(content, fg?, bold?)
+@vnode.fragment(children)
+@vnode.spacer()
+@vnode.hspace(width)
+@vnode.vspace(height)
 ```
 
-## 見積もり
+## 使用例
 
-| Phase | 規模 | 備考 |
-|-------|------|------|
-| Phase 1 | 大 | 10+ コンポーネント新規作成 |
-| Phase 2 | 小 | 2 examples |
-| Phase 3 | 中 | 157 stories 書き直し |
-| Phase 4 | 小 | 削除のみ |
-| Phase 5 | 小 | 再エクスポート整理 |
+### headless + カスタムスタイル
+```moonbit
+// 独自スタイルのボタン
+fn my_button(label : String, state : @headless.ButtonState) -> @vnode.TuiNode {
+  let bg = match state {
+    Default => "blue"
+    Focused => "lightblue"
+    _ => "gray"
+  }
+  @vnode.row([@vnode.text(label)], bg~, padding=1.0)
+}
+```
+
+### components - すぐ使える
+```moonbit
+fn view() -> @vnode.TuiNode {
+  @vnode.column([
+    @components.button("Submit"),
+    @components.checkbox("I agree", true),
+    @components.progress_bar(0.7),
+  ])
+}
+```
+
+## 移行完了フェーズ
+
+- ✅ Phase 1: vnode に高レベルコンポーネントを追加
+- ✅ Phase 2: examples を vnode 版に完全移行
+- ✅ Phase 3: stories を vnode 版に移行
+- ✅ Phase 4: @components, @composed を削除
+- ✅ Phase 5: トップレベル API の整理
+- ✅ Phase 6: headless + components 分離

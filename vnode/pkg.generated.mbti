@@ -10,10 +10,6 @@ import {
 }
 
 // Values
-pub fn accordion_section(String, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue], Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
 pub fn attr(TuiAttrValue) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
 
 pub fn attr_dyn(() -> TuiAttrValue) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
@@ -24,27 +20,9 @@ pub fn box_node(BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]])
 
 pub fn box_to_crater(TypedRenderContext, BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @node.Node
 
-pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
-
-pub fn build_sparkline(Array[Double], width? : Int) -> String
-
-pub fn button(String, id? : String, state? : ButtonState, min_width? : Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn card(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], title? : String, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
 pub fn column(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn combobox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn combobox_trigger(String, Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
 pub fn component(() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn divider(char? : String, fg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn for_each(() -> Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
@@ -52,39 +30,21 @@ pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() ->
 
 pub fn fragment(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn grid(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn get_spinner_frame(Int) -> String
+pub fn grid_item(@mizchi/luna/core.Node[TuiEvent, TuiAttrValue], column? : Int, row? : Int, column_span? : Int, row_span? : Int) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn icon_button(String, id? : String, state? : ButtonState) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : String, placeholder_fg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn listbox(Array[(String, String)], String, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn is_printable_char(Char) -> Bool
 
-pub fn listbox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn menu_divider() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn menu_item(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn menubar_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn meter(String, Double, width? : Int, label_width? : Int) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn modal(String, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], width? : Double, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn modal_backdrop() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn is_printable_string(String) -> Bool
 
 pub fn on((TuiEvent) -> Unit) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
-
-pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn radio(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn render_overlay_at(Int, Int, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
 
@@ -100,29 +60,11 @@ pub fn show(() -> Bool, () -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) ->
 
 pub fn spacer() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn sparkline(Array[Double], width? : Int, fg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn spinner(Int, label? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
 pub fn start_edit(EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
 pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
 pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
-
-pub fn stat(String, String, label_width? : Int) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn switch(Bool, String, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn tab(String, Bool, id? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn tab_bar(Array[(String, String)], String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn table_header(Array[TableColumn], separator? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
-
-pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
@@ -133,6 +75,8 @@ pub fn text_node(TextProps) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 pub fn textarea(String, id? : String, placeholder? : String, state? : InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn to_crater_node(RenderContext, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @node.Node
+
+pub fn view(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn vspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
@@ -186,25 +130,12 @@ pub struct BoxProps {
 pub fn BoxProps::default() -> Self
 pub fn BoxProps::to_attrs(Self) -> Array[TuiAttrValue]
 
-pub(all) enum ButtonState {
-  Default
-  Focused
-  Pressed
-  Disabled
-}
-
 pub(all) enum ColorValue {
   Transparent
   Named(String)
   Rgb(Int, Int, Int)
 }
 pub fn ColorValue::to_color(Self) -> @mizchi/tui/core.Color
-
-pub(all) enum ColumnAlign {
-  Left
-  Right
-  Center
-}
 
 pub(all) enum DimensionValue {
   Auto
@@ -219,6 +150,12 @@ pub(all) enum DirectionValue {
 }
 pub fn DirectionValue::to_flex_direction(Self) -> @types.FlexDirection
 
+pub(all) enum DisplayValue {
+  Flex
+  Grid
+}
+pub fn DisplayValue::to_display(Self) -> @types.Display
+
 pub(all) struct EditConfig {
   field_name : String
   on_change : (String) -> Unit
@@ -227,11 +164,13 @@ pub(all) struct EditConfig {
   on_force_quit : (() -> Unit)?
 }
 
-pub(all) enum GaugeStyle {
-  Bar
-  Thin
-  Blocks
+pub(all) enum GridAutoFlowValue {
+  Row
+  Column
+  RowDense
+  ColumnDense
 }
+pub fn GridAutoFlowValue::to_grid_auto_flow(Self) -> @types.GridAutoFlow
 
 pub(all) enum InputState {
   Idle
@@ -254,13 +193,6 @@ pub struct RenderContext {
 }
 pub fn RenderContext::new() -> Self
 
-pub(all) struct TableColumn {
-  header : String
-  width : Int
-  align : ColumnAlign
-}
-pub fn TableColumn::new(String, width? : Int, align? : ColumnAlign) -> Self
-
 pub struct TextProps {
   content : String
   fg : ColorValue?
@@ -279,6 +211,14 @@ pub(all) enum TuiAttrValue {
   FlexGrow(Double)
   FlexShrink(Double)
   Gap(Double)
+  Display(DisplayValue)
+  GridTemplateColumns(Array[@types.TrackSizingFunction])
+  GridTemplateRows(Array[@types.TrackSizingFunction])
+  GridAutoFlow(GridAutoFlowValue)
+  GridColumn(Int)
+  GridRow(Int)
+  GridColumnSpan(Int)
+  GridRowSpan(Int)
   Padding(Double)
   PaddingX(Double)
   PaddingY(Double)

@@ -42,6 +42,10 @@ pub fn format_lint_report(Array[LintViolation]) -> String
 
 pub fn gauge_stories() -> Array[VNodeStory]
 
+pub fn grid_basic_stories() -> Array[VNodeStory]
+
+pub fn grid_item_stories() -> Array[VNodeStory]
+
 pub fn grid_layout_stories() -> Array[VNodeStory]
 
 pub fn header_footer_stories() -> Array[VNodeStory]
@@ -103,6 +107,8 @@ pub fn text_stories() -> Array[VNodeStory]
 pub fn textarea_stories() -> Array[VNodeStory]
 
 pub fn titled_box_stories() -> Array[VNodeStory]
+
+pub fn view_stories() -> Array[VNodeStory]
 
 // Errors
 

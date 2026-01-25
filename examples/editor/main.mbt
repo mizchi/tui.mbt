@@ -130,17 +130,6 @@ fn main {
     filter_commands(palette_query.get())
   }
 
-  // Helper to check if a string is all printable characters
-  fn is_printable_string(s : String) -> Bool {
-    for c in s {
-      let code = c.to_int()
-      if not((code >= 32 && code < 127) || code >= 128) {
-        return false
-      }
-    }
-    true
-  }
-
   fn render_palette_item(cmd : Command, idx : Int) -> @vnode.TuiNode {
     let is_selected = idx == palette_selected.get()
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(40,40,50)" }
@@ -417,7 +406,9 @@ fn main {
     // Handle palette mode
     if palette_open.get() {
       // Handle multi-character printable input (IME) before parse_input
-      if key.length() > 1 && key[0].to_int() != 0x1b && is_printable_string(key) {
+      if key.length() > 1 &&
+        key[0].to_int() != 0x1b &&
+        @tui.is_printable_string(key) {
         palette_query.set(palette_query.get() + key)
         palette_selected.set(0)
         do_render()

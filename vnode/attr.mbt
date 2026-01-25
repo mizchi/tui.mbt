@@ -69,6 +69,44 @@ pub fn DirectionValue::to_flex_direction(
 }
 
 ///|
+/// Display value
+pub(all) enum DisplayValue {
+  Flex
+  Grid
+}
+
+///|
+/// Convert to crater Display
+pub fn DisplayValue::to_display(self : DisplayValue) -> @types.Display {
+  match self {
+    Flex => @types.Display::Flex
+    Grid => @types.Display::Grid
+  }
+}
+
+///|
+/// Grid auto-flow value
+pub(all) enum GridAutoFlowValue {
+  Row
+  Column
+  RowDense
+  ColumnDense
+}
+
+///|
+/// Convert to crater GridAutoFlow
+pub fn GridAutoFlowValue::to_grid_auto_flow(
+  self : GridAutoFlowValue,
+) -> @types.GridAutoFlow {
+  match self {
+    Row => @types.GridAutoFlow::Row
+    Column => @types.GridAutoFlow::Column
+    RowDense => @types.GridAutoFlow::RowDense
+    ColumnDense => @types.GridAutoFlow::ColumnDense
+  }
+}
+
+///|
 /// Border style
 pub(all) enum BorderValue {
   None
@@ -132,6 +170,17 @@ pub(all) enum TuiAttrValue {
   FlexGrow(Double)
   FlexShrink(Double)
   Gap(Double)
+  // Display
+  Display(DisplayValue)
+  // Grid container
+  GridTemplateColumns(Array[@types.TrackSizingFunction])
+  GridTemplateRows(Array[@types.TrackSizingFunction])
+  GridAutoFlow(GridAutoFlowValue)
+  // Grid item
+  GridColumn(Int) // Column position (1-indexed)
+  GridRow(Int) // Row position (1-indexed)
+  GridColumnSpan(Int) // Column span
+  GridRowSpan(Int) // Row span
   // Spacing
   Padding(Double)
   PaddingX(Double)

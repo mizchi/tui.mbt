@@ -1,0 +1,76 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/headless"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct AccordionState {
+  expanded_ids : Array[String]
+  allow_multiple : Bool
+}
+pub fn AccordionState::is_expanded(Self, String) -> Bool
+pub fn AccordionState::new(allow_multiple? : Bool) -> Self
+pub fn AccordionState::toggle(Self, String) -> Self
+
+pub(all) enum ButtonState {
+  Default
+  Focused
+  Pressed
+  Disabled
+}
+pub fn ButtonState::is_interactive(Self) -> Bool
+
+pub(all) struct FocusNav {
+  ids : Array[String]
+  current_index : Int
+}
+pub fn FocusNav::current(Self) -> String
+pub fn FocusNav::focus_id(Self, String) -> Self
+pub fn FocusNav::is_focused(Self, String) -> Bool
+pub fn FocusNav::new(Array[String]) -> Self
+pub fn FocusNav::next(Self) -> Self
+pub fn FocusNav::prev(Self) -> Self
+
+pub(all) enum InputState {
+  Idle
+  Focused
+  Editing
+  Disabled
+}
+pub fn InputState::is_editable(Self) -> Bool
+pub fn InputState::is_focusable(Self) -> Bool
+
+pub(all) struct ModalState {
+  open : Bool
+  focused_element : String
+}
+pub fn ModalState::hide(Self) -> Self
+pub fn ModalState::is_open(Self) -> Bool
+pub fn ModalState::new() -> Self
+pub fn ModalState::show(Self) -> Self
+
+pub(all) struct SelectionState {
+  selected_id : String
+  focused_id : String
+  open : Bool
+}
+pub fn SelectionState::focus(Self, String) -> Self
+pub fn SelectionState::new(selected_id? : String) -> Self
+pub fn SelectionState::select(Self, String) -> Self
+pub fn SelectionState::toggle_open(Self) -> Self
+
+pub(all) struct ToggleState {
+  checked : Bool
+  focused : Bool
+  disabled : Bool
+}
+pub fn ToggleState::new(checked? : Bool) -> Self
+pub fn ToggleState::set_focused(Self, Bool) -> Self
+pub fn ToggleState::toggle(Self) -> Self
+
+// Type aliases
+
+// Traits
+

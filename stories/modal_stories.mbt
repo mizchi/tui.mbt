@@ -9,10 +9,14 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "simple_overlay",
       fn() {
-        @vnode.column([
-          @vnode.text("BASE"),
-          @vnode.row([@vnode.text("OVER")], bg="rgb(80,80,100)"),
-        ], width=20.0, height=5.0)
+        @vnode.column(
+          [
+            @vnode.text("BASE"),
+            @vnode.row([@vnode.text("OVER")], bg="rgb(80,80,100)"),
+          ],
+          width=20.0,
+          height=5.0,
+        )
       },
       width=20,
       height=5,
@@ -37,11 +41,7 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "bordered_content",
       fn() {
-        @vnode.column(
-          [@vnode.text("Content")],
-          border="single",
-          padding=1.0,
-        )
+        @vnode.column([@vnode.text("Content")], border="single", padding=1.0)
       },
       width=15,
       height=5,
@@ -51,10 +51,7 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "text_overlay",
       fn() {
-        @vnode.column([
-          @vnode.text("AAAA"),
-          @vnode.text("BB"),
-        ], height=3.0)
+        @vnode.column([@vnode.text("AAAA"), @vnode.text("BB")], height=3.0)
       },
       width=15,
       height=5,
@@ -64,11 +61,17 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "dialog_layout",
       fn() {
-        @vnode.column([
-          @vnode.text("Title", bold=true),
-          @vnode.text("Message text"),
-          @vnode.row([@vnode.text("[OK]"), @vnode.text("[Cancel]")], gap=1.0),
-        ], border="rounded", border_color="cyan", padding=1.0, gap=1.0)
+        @vnode.column(
+          [
+            @vnode.text("Title", bold=true),
+            @vnode.text("Message text"),
+            @vnode.row([@vnode.text("[OK]"), @vnode.text("[Cancel]")], gap=1.0),
+          ],
+          border="rounded",
+          border_color="cyan",
+          padding=1.0,
+          gap=1.0,
+        )
       },
       width=25,
       height=9,
@@ -94,15 +97,25 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "centered_modal",
       fn() {
-        @vnode.column([
-          @vnode.row([
-            @vnode.column(
-              [@vnode.text("Modal")],
-              border="rounded",
-              padding=1.0,
+        @vnode.column(
+          [
+            @vnode.row(
+              [
+                @vnode.column(
+                  [@vnode.text("Modal")],
+                  border="rounded",
+                  padding=1.0,
+                ),
+              ],
+              justify="center",
             ),
-          ], justify="center"),
-        ], width=21.0, height=9.0, bg="rgb(40,40,40)", justify="center", align="center")
+          ],
+          width=21.0,
+          height=9.0,
+          bg="rgb(40,40,40)",
+          justify="center",
+          align="center",
+        )
       },
       width=21,
       height=9,
@@ -112,19 +125,26 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "stacked_modal",
       fn() {
-        @vnode.column([
-          @vnode.text("Background"),
-          @vnode.text("Content Here"),
-          @vnode.text("..........."),
-          @vnode.row([
-            @vnode.column(
-              [@vnode.text("Dialog")],
-              border="rounded",
-              padding=1.0,
-              bg="rgb(30,30,50)",
+        @vnode.column(
+          [
+            @vnode.text("Background"),
+            @vnode.text("Content Here"),
+            @vnode.text("..........."),
+            @vnode.row(
+              [
+                @vnode.column(
+                  [@vnode.text("Dialog")],
+                  border="rounded",
+                  padding=1.0,
+                  bg="rgb(30,30,50)",
+                ),
+              ],
+              justify="center",
             ),
-          ], justify="center"),
-        ], width=25.0, height=9.0)
+          ],
+          width=25.0,
+          height=9.0,
+        )
       },
       width=25,
       height=9,
@@ -134,17 +154,24 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "nested_modals",
       fn() {
-        @vnode.column([
-          @vnode.text("App Content"),
-          @vnode.row([
-            @vnode.column(
-              [@vnode.text("Confirm?")],
-              border="rounded",
-              padding=1.0,
-              bg="rgb(60,40,40)",
+        @vnode.column(
+          [
+            @vnode.text("App Content"),
+            @vnode.row(
+              [
+                @vnode.column(
+                  [@vnode.text("Confirm?")],
+                  border="rounded",
+                  padding=1.0,
+                  bg="rgb(60,40,40)",
+                ),
+              ],
+              justify="center",
             ),
-          ], justify="center"),
-        ], width=25.0, height=9.0)
+          ],
+          width=25.0,
+          height=9.0,
+        )
       },
       width=25,
       height=9,
@@ -154,17 +181,17 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "full_overlay",
       fn() {
-        @vnode.modal(
-          "Confirm",
-          [
-            @vnode.text("Save changes?"),
-            @vnode.row([
-              @vnode.button("Yes"),
+        @components.modal("Confirm", [
+          @vnode.text("Save changes?"),
+          @vnode.row(
+            [
+              @components.button("Yes"),
               @vnode.hspace(2.0),
-              @vnode.button("No"),
-            ], justify="center"),
-          ],
-        )
+              @components.button("No"),
+            ],
+            justify="center",
+          ),
+        ])
       },
       width=31,
       height=13,
@@ -173,9 +200,7 @@ pub fn modal_stories() -> Array[VNodeStory] {
     VNodeStory::new(
       "modal",
       "alert_modal",
-      fn() {
-        @vnode.alert_dialog("Connection lost", title="! Error !")
-      },
+      fn() { @components.alert_dialog("Connection lost", title="! Error !") },
       width=25,
       height=11,
     ),
@@ -184,10 +209,13 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "command_launcher",
       fn() {
-        @vnode.column([
-          @vnode.text("> open"),
-          @vnode.text("* Open"),
-        ], border="rounded", border_color="cyan", bg="rgb(30,30,40)", padding=1.0)
+        @vnode.column(
+          [@vnode.text("> open"), @vnode.text("* Open")],
+          border="rounded",
+          border_color="cyan",
+          bg="rgb(30,30,40)",
+          padding=1.0,
+        )
       },
       width=24,
       height=15,
@@ -197,20 +225,28 @@ pub fn modal_stories() -> Array[VNodeStory] {
       "modal",
       "spotlight_top_center",
       fn() {
-        @vnode.column([
-          @vnode.row([
-            @vnode.column(
-              [@vnode.text("[Popup]")],
-              border="rounded",
-              border_color="cyan",
-              bg="rgb(20,20,30)",
-              padding=1.0,
+        @vnode.column(
+          [
+            @vnode.row(
+              [
+                @vnode.column(
+                  [@vnode.text("[Popup]")],
+                  border="rounded",
+                  border_color="cyan",
+                  bg="rgb(20,20,30)",
+                  padding=1.0,
+                ),
+              ],
+              justify="center",
             ),
-          ], justify="center"),
-          @vnode.text("Background"),
-          @vnode.text("Line 2"),
-          @vnode.text("Line 3"),
-        ], width=20.0, height=10.0, bg="rgb(40,40,40)")
+            @vnode.text("Background"),
+            @vnode.text("Line 2"),
+            @vnode.text("Line 3"),
+          ],
+          width=20.0,
+          height=10.0,
+          bg="rgb(40,40,40)",
+        )
       },
       width=20,
       height=10,
