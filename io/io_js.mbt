@@ -1027,12 +1027,40 @@ pub fn start_inplace_input(
       return
     }
 
-    // Parse input and extract KeyEvent
-    let input_event = @events.parse_input(key)
-    let action = match input_event {
-      @events.InputEvent::Key(key_event) =>
-        @input.interpret_key(key_event, config)
-      _ => @input.EditAction::None
+    // Handle multi-character printable input (IME) before parse_input
+    // parse_input only handles single characters, so we need to detect
+    // multi-character input and bypass it
+    let action = if key.length() > 1 && key[0].to_int() != 0x1b {
+      // Not an escape sequence - check if all chars are printable
+      let chars = key.to_array()
+      let mut all_printable = true
+      for c in chars {
+        let code = c.to_int()
+        if not((code >= 32 && code < 127) || code >= 128) {
+          all_printable = false
+          break
+        }
+      }
+      if all_printable {
+        // Multi-character printable input (IME) - insert entire string
+        @input.EditAction::Insert(key)
+      } else {
+        // Parse normally
+        let input_event = @events.parse_input(key)
+        match input_event {
+          @events.InputEvent::Key(key_event) =>
+            @input.interpret_key(key_event, config)
+          _ => @input.EditAction::None
+        }
+      }
+    } else {
+      // Single character or escape sequence - parse normally
+      let input_event = @events.parse_input(key)
+      match input_event {
+        @events.InputEvent::Key(key_event) =>
+          @input.interpret_key(key_event, config)
+        _ => @input.EditAction::None
+      }
     }
 
     // Handle special actions that require custom logic

@@ -81,11 +81,9 @@ test "dropdown heights should be consistent" {
   let file_output = @vnode.render_vnode_once(60, 12, file_dropdown)
   let edit_output = @vnode.render_vnode_once(60, 12, edit_dropdown)
   let view_output = @vnode.render_vnode_once(60, 12, view_dropdown)
-
   let file_lines = count_lines(file_output)
   let edit_lines = count_lines(edit_output)
   let view_lines = count_lines(view_output)
-
   println("File dropdown lines: " + file_lines.to_string())
   println("Edit dropdown lines: " + edit_lines.to_string())
   println("View dropdown lines: " + view_lines.to_string())
@@ -100,19 +98,15 @@ test "menu items have consistent height" {
   let item1 = test_menu_item("Short", false)
   let item2 = test_menu_item("Medium Text", false)
   let item3 = test_menu_item("Status Bar", true)
-
   let out1 = @vnode.render_vnode_once(30, 3, item1)
   let out2 = @vnode.render_vnode_once(30, 3, item2)
   let out3 = @vnode.render_vnode_once(30, 3, item3)
-
   let lines1 = count_lines(out1)
   let lines2 = count_lines(out2)
   let lines3 = count_lines(out3)
-
   println("Item 'Short' lines: " + lines1.to_string())
   println("Item 'Medium Text' lines: " + lines2.to_string())
   println("Item 'Status Bar' (selected) lines: " + lines3.to_string())
-
   inspect(lines1 == lines2, content="true")
   inspect(lines2 == lines3, content="true")
 }
@@ -121,17 +115,13 @@ test "menu items have consistent height" {
 test "render dropdown and print output" {
   let edit_items = ["Cut", "Copy", "Paste"]
   let view_items = ["Toolbar", "Status Bar", "Zoom In", "Zoom Out"]
-
   let edit_dropdown = test_dropdown(edit_items, 1)
   let view_dropdown = test_dropdown(view_items, 1)
-
   let edit_output = @vnode.render_vnode_once(40, 12, edit_dropdown)
   let view_output = @vnode.render_vnode_once(40, 12, view_dropdown)
-
   println("=== Edit dropdown (3 items) ===")
   println(edit_output)
   println("=== end ===")
-
   println("=== View dropdown (4 items) ===")
   println(view_output)
   println("=== end ===")
@@ -148,7 +138,6 @@ fn test_menubar_layout(open_menu : Int, selected_item : Int) -> @vnode.TuiNode {
   let file_items = ["New", "Open", "Save", "Exit"]
   let edit_items = ["Cut", "Copy", "Paste"]
   let view_items = ["Toolbar", "Status Bar", "Zoom In", "Zoom Out"]
-
   fn get_items(idx : Int) -> Array[String] {
     match idx {
       0 => file_items
@@ -190,22 +179,19 @@ fn test_menubar_layout(open_menu : Int, selected_item : Int) -> @vnode.TuiNode {
     // Use same column structure as placeholder
     @vnode.column([], height=dropdown_height)
   }
-
-  @vnode.column(
-    [
-      @vnode.text("Menubar", fg="yellow", bold=true),
-      @vnode.vspace(1.0),
-      @vnode.row(
-        menu_bar_items,
-        bg="rgb(40,40,50)",
-        border="single",
-        border_color="rgb(60,60,80)",
-      ),
-      dropdown,
-      @vnode.spacer(),
-      @vnode.text("Status line", fg="green"),
-    ],
-  )
+  @vnode.column([
+    @vnode.text("Menubar", fg="yellow", bold=true),
+    @vnode.vspace(1.0),
+    @vnode.row(
+      menu_bar_items,
+      bg="rgb(40,40,50)",
+      border="single",
+      border_color="rgb(60,60,80)",
+    ),
+    dropdown,
+    @vnode.spacer(),
+    @vnode.text("Status line", fg="green"),
+  ])
 }
 
 ///|
@@ -256,11 +242,9 @@ test "menubar full layout height consistency" {
   // Test View menu open (4 items)
   let view_layout = test_menubar_layout(2, 0)
   let view_output = @vnode.render_vnode_once(60, 25, view_layout)
-
   println("=== Edit menu full layout ===")
   println(edit_output)
   println("=== end ===")
-
   println("=== View menu full layout ===")
   println(view_output)
   println("=== end ===")
@@ -268,7 +252,6 @@ test "menubar full layout height consistency" {
   // Extract row positions from both outputs
   let edit_rows = extract_row_positions(edit_output)
   let view_rows = extract_row_positions(view_output)
-
   println("Edit rows: " + edit_rows.to_string())
   println("View rows: " + view_rows.to_string())
 
@@ -287,13 +270,10 @@ test "menubar closed vs open height consistency" {
   // Test that closed menu has same row positions as open menu
   let closed_layout = test_menubar_layout(-1, 0)
   let open_layout = test_menubar_layout(1, 0)
-
   let closed_output = @vnode.render_vnode_once(60, 25, closed_layout)
   let open_output = @vnode.render_vnode_once(60, 25, open_layout)
-
   let closed_rows = extract_row_positions(closed_output)
   let open_rows = extract_row_positions(open_output)
-
   println("Closed rows: " + closed_rows.to_string())
   println("Open rows: " + open_rows.to_string())
 
@@ -318,7 +298,6 @@ test "menubar diff rendering consistency" {
   // Second render: View menu (should use diff)
   let view_layout = test_menubar_layout(2, 0)
   let view_output = app.render_frame(view_layout)
-
   println("=== Edit to View diff output ===")
   println(view_output)
   println("=== end ===")

@@ -303,8 +303,76 @@ test "parse_input: mouse with ctrl modifier" {
 ///|
 test "parse_input: multi-character printable input (pasted text)" {
   // Simulates pasted text - should return first character
+  // NOTE: This is documented behavior. Multi-character IME input should be
+  // handled by the caller (io/io_js.mbt, io/io_native.mbt) BEFORE calling
+  // parse_input. The input handler detects multi-character printable input
+  // and creates Insert(full_string) directly, bypassing parse_input.
   let event = @events.parse_input("abc")
   inspect(event, content="Key(Char('a', None))")
+}
+
+// ===== IME multi-character input behavior tests =====
+// These tests document parse_input's behavior with multi-character input.
+// IMPORTANT: The actual fix for IME is in io/io_js.mbt and io/io_native.mbt,
+// which detect multi-character printable input BEFORE calling parse_input.
+
+///|
+test "parse_input: IME hiragana - returns first char only" {
+  // This is the DOCUMENTED behavior of parse_input.
+  // The real IME fix is in the input handler (io/io_js.mbt, io/io_native.mbt).
+  let event = @events.parse_input("こんにちは")
+  match event {
+    @events.InputEvent::Key(
+      @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    ) => assert_eq(c, 'こ')
+    _ => fail("Expected Key(Char) event")
+  }
+}
+
+///|
+test "parse_input: IME kanji - returns first char only" {
+  let event = @events.parse_input("日本語")
+  match event {
+    @events.InputEvent::Key(
+      @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    ) => assert_eq(c, '日')
+    _ => fail("Expected Key(Char) event")
+  }
+}
+
+///|
+test "parse_input: IME mixed content - returns first char only" {
+  let event = @events.parse_input("Hello世界")
+  match event {
+    @events.InputEvent::Key(
+      @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    ) => assert_eq(c, 'H')
+    _ => fail("Expected Key(Char) event")
+  }
+}
+
+///|
+test "parse_input: single CJK character" {
+  // Single CJK character should work correctly
+  let event = @events.parse_input("日")
+  match event {
+    @events.InputEvent::Key(
+      @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    ) => assert_eq(c, '日')
+    _ => fail("Expected Key(Char) event")
+  }
+}
+
+///|
+test "parse_input: single emoji" {
+  // Single emoji should work correctly (even if surrogate pair)
+  let event = @events.parse_input("😀")
+  match event {
+    @events.InputEvent::Key(
+      @events.KeyEvent::Char(c, @events.KeyModifier::None)
+    ) => assert_eq(c.to_string(), "😀")
+    _ => fail("Expected Key(Char) event")
+  }
 }
 
 ///|

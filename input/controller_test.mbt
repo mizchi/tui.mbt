@@ -657,3 +657,152 @@ test "rapid sequential inserts simulating IME" {
   assert_eq(ctrl.get_text(), "日本語")
   assert_eq(ctrl.get_cursor_pos(), 3)
 }
+
+// ===== IME multi-character batch input tests =====
+// These tests verify that Insert action handles multi-character strings correctly.
+// This is critical for IME support - when user confirms input like "こんにちは",
+// the entire string should be inserted at once, not just the first character.
+
+///|
+/// Test: IME batch input - hiragana string
+test "IME batch input - hiragana" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Simulate IME confirming "こんにちは" as a single batch
+  let _ = ctrl.apply_action(Insert("こんにちは"))
+  assert_eq(ctrl.get_text(), "こんにちは")
+  assert_eq(ctrl.get_cursor_pos(), 5)
+}
+
+///|
+/// Test: IME batch input - kanji string
+test "IME batch input - kanji" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Simulate IME confirming "日本語入力" as a single batch
+  let _ = ctrl.apply_action(Insert("日本語入力"))
+  assert_eq(ctrl.get_text(), "日本語入力")
+  assert_eq(ctrl.get_cursor_pos(), 5)
+}
+
+///|
+/// Test: IME batch input - mixed content
+test "IME batch input - mixed content" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Simulate IME confirming mixed content
+  let _ = ctrl.apply_action(Insert("Hello世界"))
+  assert_eq(ctrl.get_text(), "Hello世界")
+  assert_eq(ctrl.get_cursor_pos(), 7)
+}
+
+///|
+/// Test: IME batch input - insert in middle of existing text
+test "IME batch input - insert in middle" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "abc")
+
+  // Move cursor to middle
+  ctrl.set_cursor_pos(1)
+
+  // Insert Japanese text at cursor
+  let _ = ctrl.apply_action(Insert("日本語"))
+  assert_eq(ctrl.get_text(), "a日本語bc")
+  assert_eq(ctrl.get_cursor_pos(), 4)
+}
+
+///|
+/// Test: IME batch input - append to existing text
+test "IME batch input - append" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "Hello ")
+
+  // Cursor is at end
+  assert_eq(ctrl.get_cursor_pos(), 6)
+
+  // Append Japanese greeting
+  let _ = ctrl.apply_action(Insert("世界"))
+  assert_eq(ctrl.get_text(), "Hello 世界")
+  assert_eq(ctrl.get_cursor_pos(), 8)
+}
+
+///|
+/// Test: IME batch input - long string
+test "IME batch input - long string" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Simulate long IME input
+  let long_text = "これは長い日本語のテキストです"
+  let _ = ctrl.apply_action(Insert(long_text))
+  assert_eq(ctrl.get_text(), long_text)
+  assert_eq(ctrl.get_cursor_pos(), 15)
+}
+
+///|
+/// Test: IME batch input - with newlines (multiline mode)
+test "IME batch input - multiline" {
+  let config = TextInputConfig::new(80, 10, multiline=true)
+  let ctrl = TextInputController::new(config, "")
+
+  // First line
+  let _ = ctrl.apply_action(Insert("一行目"))
+  let _ = ctrl.apply_action(NewLine)
+
+  // Second line with batch input
+  let _ = ctrl.apply_action(Insert("二行目の内容"))
+  assert_eq(ctrl.get_text(), "一行目\n二行目の内容")
+  assert_eq(ctrl.get_cursor_pos(), 10)
+}
+
+///|
+/// Test: IME batch input - cursor movement after insert
+test "IME batch input - cursor movement" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert text
+  let _ = ctrl.apply_action(Insert("テスト"))
+  assert_eq(ctrl.get_cursor_pos(), 3)
+
+  // Move left
+  let _ = ctrl.apply_action(MoveCursorLeft)
+  assert_eq(ctrl.get_cursor_pos(), 2)
+
+  // Insert more text at cursor
+  let _ = ctrl.apply_action(Insert("追加"))
+  assert_eq(ctrl.get_text(), "テス追加ト")
+  assert_eq(ctrl.get_cursor_pos(), 4)
+}
+
+///|
+/// Test: IME batch input - delete after insert
+test "IME batch input - delete after insert" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "")
+
+  // Insert text
+  let _ = ctrl.apply_action(Insert("あいうえお"))
+  assert_eq(ctrl.get_cursor_pos(), 5)
+
+  // Delete backward
+  let _ = ctrl.apply_action(DeleteBackward)
+  assert_eq(ctrl.get_text(), "あいうえ")
+  assert_eq(ctrl.get_cursor_pos(), 4)
+}
+
+///|
+/// Test: IME batch input - empty string keeps text unchanged
+test "IME batch input - empty string" {
+  let config = TextInputConfig::new(80, 10)
+  let ctrl = TextInputController::new(config, "test")
+
+  // Insert empty string - returns true but doesn't change content
+  let handled = ctrl.apply_action(Insert(""))
+  assert_true(handled) // Controller returns true for Insert regardless of content
+  assert_eq(ctrl.get_text(), "test")
+  assert_eq(ctrl.get_cursor_pos(), 4)
+}

@@ -241,3 +241,197 @@ test "VNodeApp: handle_click dispatches event" {
     None => assert_true(false) // Button should be found
   }
 }
+
+///|
+test "completion popup: items in single lines" {
+  // Simulate completion items like IDE
+  let items = ["apple", "apricot", "avocado"]
+  let selected = 1
+  let query = "ap"
+  fn render_item(item : String, idx : Int) -> TuiNode {
+    let is_selected = idx == selected
+    let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
+    let suffix = item.unsafe_substring(start=query.length(), end=item.length())
+    row(
+      [
+        text(query, fg="cyan", bold=is_selected),
+        text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
+      ],
+      bg~,
+    )
+  }
+
+  let popup = column(items.mapi(fn(idx, item) { render_item(item, idx) }))
+
+  // Use render_to_lines to verify each item is on its own line
+  let lines = render_to_lines(popup)
+  inspect(lines.length(), content="3")
+
+  // Each line should contain the query prefix "ap"
+  for line in lines {
+    assert_true(line.contains("ap"))
+  }
+
+  // Verify suffixes are present (text is split by ANSI codes)
+  assert_true(lines[0].contains("ple"))
+  assert_true(lines[1].contains("ricot"))
+  assert_true(lines[2].contains("ocado"))
+}
+
+///|
+test "completion popup: render_to_lines" {
+  let items = ["apple", "apricot", "avocado"]
+  let selected = 1
+  let query = "ap"
+  fn render_item(item : String, idx : Int) -> TuiNode {
+    let is_selected = idx == selected
+    let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
+    let suffix = item.unsafe_substring(start=query.length(), end=item.length())
+    row(
+      [
+        text(query, fg="cyan", bold=is_selected),
+        text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
+      ],
+      bg~,
+    )
+  }
+
+  let popup = column(items.mapi(fn(idx, item) { render_item(item, idx) }))
+  let lines = render_to_lines(popup)
+  // Should have 3 lines, one for each item
+  inspect(lines.length(), content="3")
+  for line in lines {
+    println(line)
+  }
+}
+
+///|
+test "render_overlay_at: positions content correctly" {
+  let popup = column([text("Line 1"), text("Line 2"), text("Line 3")])
+  let overlay = render_overlay_at(5, 10, popup)
+
+  // Output should contain ANSI cursor positioning sequences
+  // ansi_move_to converts 0-indexed to 1-indexed: (y, x) -> ESC[y+1;x+1H
+  // First line: ansi_move_to(10, 5) -> ESC[11;6H
+  assert_true(overlay.contains("\u001b[11;6H"))
+  // Second line: ansi_move_to(11, 5) -> ESC[12;6H
+  assert_true(overlay.contains("\u001b[12;6H"))
+  // Third line: ansi_move_to(12, 5) -> ESC[13;6H
+  assert_true(overlay.contains("\u001b[13;6H"))
+
+  // Content should be present
+  assert_true(overlay.contains("Line 1"))
+  assert_true(overlay.contains("Line 2"))
+  assert_true(overlay.contains("Line 3"))
+}
+
+// =============================================================================
+// Completion popup visibility logic tests
+// =============================================================================
+
+///|
+/// Simulates completion popup state management
+struct CompletionState {
+  mut input : String
+  mut suppress_popup : Bool
+}
+
+///|
+fn CompletionState::new() -> CompletionState {
+  { input: "", suppress_popup: false }
+}
+
+///|
+fn CompletionState::should_show_popup(self : CompletionState) -> Bool {
+  not(self.suppress_popup) && self.input.length() > 0
+}
+
+///|
+fn CompletionState::on_type_char(self : CompletionState, c : Char) -> Unit {
+  self.input = self.input + c.to_string()
+  self.suppress_popup = false // Reset suppression when typing
+}
+
+///|
+fn CompletionState::on_tab_confirm(
+  self : CompletionState,
+  completion : String,
+) -> Unit {
+  self.input = completion
+  self.suppress_popup = true // Suppress popup after Tab confirmation
+}
+
+///|
+fn CompletionState::on_backspace(self : CompletionState) -> Unit {
+  if self.input.length() > 0 {
+    let chars : Array[Char] = self.input.iter().collect()
+    let buf = StringBuilder::new()
+    for i = 0; i < chars.length() - 1; i = i + 1 {
+      buf.write_char(chars[i])
+    }
+    self.input = buf.to_string()
+  }
+  self.suppress_popup = true // Suppress popup when deleting
+}
+
+///|
+test "completion: Tab confirms and hides popup" {
+  let state = CompletionState::new()
+
+  // Type "ap"
+  state.on_type_char('a')
+  state.on_type_char('p')
+  assert_eq(state.input, "ap")
+  assert_true(state.should_show_popup()) // Popup should be visible
+
+  // Tab confirms "apple"
+  state.on_tab_confirm("apple")
+  assert_eq(state.input, "apple")
+  assert_false(state.should_show_popup()) // Popup should be hidden after Tab
+}
+
+///|
+test "completion: Backspace hides popup" {
+  let state = CompletionState::new()
+
+  // Type "ap"
+  state.on_type_char('a')
+  state.on_type_char('p')
+  assert_true(state.should_show_popup())
+
+  // Backspace
+  state.on_backspace()
+  assert_eq(state.input, "a")
+  assert_false(state.should_show_popup()) // Popup should be hidden after backspace
+}
+
+///|
+test "completion: typing after Tab shows popup again" {
+  let state = CompletionState::new()
+
+  // Type and confirm
+  state.on_type_char('a')
+  state.on_tab_confirm("apple")
+  assert_false(state.should_show_popup())
+
+  // Type more
+  state.on_type_char('s')
+  assert_eq(state.input, "apples")
+  assert_true(state.should_show_popup()) // Popup should reappear
+}
+
+///|
+test "completion: typing after Backspace shows popup again" {
+  let state = CompletionState::new()
+
+  // Type and backspace
+  state.on_type_char('a')
+  state.on_type_char('p')
+  state.on_backspace()
+  assert_false(state.should_show_popup())
+
+  // Type more
+  state.on_type_char('p')
+  assert_eq(state.input, "ap")
+  assert_true(state.should_show_popup()) // Popup should reappear
+}

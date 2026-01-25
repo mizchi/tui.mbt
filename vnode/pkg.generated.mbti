@@ -29,7 +29,13 @@ pub fn fragment(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizch
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
+pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : String, placeholder_fg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
 pub fn on((TuiEvent) -> Unit) -> @mizchi/luna/core.Attr[TuiEvent, TuiAttrValue]
+
+pub fn render_overlay_at(Int, Int, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
 
 pub fn render_to_lines(@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> Array[String]
 
@@ -48,6 +54,8 @@ pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[TuiEve
 pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn text_node(TextProps) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+
+pub fn textarea(String, id? : String, placeholder? : String, state? : InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn to_crater_node(RenderContext, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @node.Node
 
@@ -122,6 +130,13 @@ pub(all) enum DirectionValue {
   Column
 }
 pub fn DirectionValue::to_flex_direction(Self) -> @types.FlexDirection
+
+pub(all) enum InputState {
+  Idle
+  Focused
+  Editing
+  Disabled
+}
 
 pub(all) enum MouseButton {
   Left

@@ -733,9 +733,32 @@ pub fn start_inplace_input(
     let mut done = false
     let mut result : InputResult = InputResult::Cancelled
 
-    // Parse key and interpret as action
-    let event = parse_raw_key_to_event(key)
-    let action = @input.interpret_key(event, config)
+    // Handle multi-character printable input (IME) before normal parsing
+    // parse_raw_key_to_event only handles single characters for printable input
+    let action = if key.length() > 1 && key[0].to_int() != 0x1b {
+      // Not an escape sequence - check if all chars are printable
+      let chars = key.to_array()
+      let mut all_printable = true
+      for c in chars {
+        let code = c.to_int()
+        if not((code >= 32 && code < 127) || code >= 128) {
+          all_printable = false
+          break
+        }
+      }
+      if all_printable {
+        // Multi-character printable input (IME) - insert entire string
+        @input.EditAction::Insert(key)
+      } else {
+        // Parse normally
+        let event = parse_raw_key_to_event(key)
+        @input.interpret_key(event, config)
+      }
+    } else {
+      // Single character or escape sequence - parse normally
+      let event = parse_raw_key_to_event(key)
+      @input.interpret_key(event, config)
+    }
 
     // Handle special actions that require custom logic
     match action {
@@ -969,8 +992,27 @@ pub fn start_inline_input_cooked(
 
   // Process any pending input that was captured during cursor position query
   for pending in pending_input {
-    let event = parse_raw_key_to_event(pending)
-    let action = @input.interpret_key(event, config)
+    // Handle multi-character printable input (IME)
+    let action = if pending.length() > 1 && pending[0].to_int() != 0x1b {
+      let chars = pending.to_array()
+      let mut all_printable = true
+      for c in chars {
+        let code = c.to_int()
+        if not((code >= 32 && code < 127) || code >= 128) {
+          all_printable = false
+          break
+        }
+      }
+      if all_printable {
+        @input.EditAction::Insert(pending)
+      } else {
+        let event = parse_raw_key_to_event(pending)
+        @input.interpret_key(event, config)
+      }
+    } else {
+      let event = parse_raw_key_to_event(pending)
+      @input.interpret_key(event, config)
+    }
     match action {
       @input.EditAction::Confirm
       | @input.EditAction::Cancel
@@ -994,9 +1036,28 @@ pub fn start_inline_input_cooked(
     let mut done = false
     let mut result : InputResult = InputResult::Cancelled
 
-    // Parse key and interpret as action
-    let event = parse_raw_key_to_event(key)
-    let action = @input.interpret_key(event, config)
+    // Handle multi-character printable input (IME) before normal parsing
+    let action = if key.length() > 1 && key[0].to_int() != 0x1b {
+      // Not an escape sequence - check if all chars are printable
+      let chars = key.to_array()
+      let mut all_printable = true
+      for c in chars {
+        let code = c.to_int()
+        if not((code >= 32 && code < 127) || code >= 128) {
+          all_printable = false
+          break
+        }
+      }
+      if all_printable {
+        @input.EditAction::Insert(key)
+      } else {
+        let event = parse_raw_key_to_event(key)
+        @input.interpret_key(event, config)
+      }
+    } else {
+      let event = parse_raw_key_to_event(key)
+      @input.interpret_key(event, config)
+    }
 
     // Handle special actions
     match action {

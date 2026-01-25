@@ -515,11 +515,7 @@ async fn main {
       )
     } else {
       // Use same column structure as placeholder to keep layout stable
-      @vnode.column(
-        [],
-        id="dropdown",
-        height=dropdown_height,
-      )
+      @vnode.column([], id="dropdown", height=dropdown_height)
     }
 
     // Get current item name
@@ -533,31 +529,29 @@ async fn main {
     } else {
       "none"
     }
-    @vnode.column(
-      [
-        @vnode.text("Menubar", fg="yellow", bold=true),
-        @vnode.text(
-          "1/2/3: open menu, ↑/↓: select, Space: close",
-          fg="rgb(128,128,128)",
-        ),
-        @vnode.vspace(1.0),
-        @vnode.row(
-          menu_bar_items,
-          bg="rgb(40,40,50)",
-          border="single",
-          border_color="rgb(60,60,80)",
-        ),
-        dropdown,
-        @vnode.spacer(),
-        @vnode.text(
-          "Menu: " +
-          (if open_menu >= 0 { menus[open_menu] } else { "none" }) +
-          " | Item: " +
-          current_item_name,
-          fg="green",
-        ),
-      ],
-    )
+    @vnode.column([
+      @vnode.text("Menubar", fg="yellow", bold=true),
+      @vnode.text(
+        "1/2/3: open menu, ↑/↓: select, Space: close",
+        fg="rgb(128,128,128)",
+      ),
+      @vnode.vspace(1.0),
+      @vnode.row(
+        menu_bar_items,
+        bg="rgb(40,40,50)",
+        border="single",
+        border_color="rgb(60,60,80)",
+      ),
+      dropdown,
+      @vnode.spacer(),
+      @vnode.text(
+        "Menu: " +
+        (if open_menu >= 0 { menus[open_menu] } else { "none" }) +
+        " | Item: " +
+        current_item_name,
+        fg="green",
+      ),
+    ])
   }
 
   // ==========================================================================

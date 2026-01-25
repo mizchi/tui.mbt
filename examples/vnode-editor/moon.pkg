@@ -1,0 +1,13 @@
+import {
+  "mizchi/tui",
+  "mizchi/tui/core",
+  "mizchi/tui/render",
+  "mizchi/tui/vnode",
+  "mizchi/tui/io",
+  "mizchi/tui/components",
+  "mizchi/signals",
+}
+
+options(
+  "is-main": true,
+)

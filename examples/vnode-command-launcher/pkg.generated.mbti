@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/completion"
+package "mizchi/tui/examples/vnode-command-launcher"
 
 // Values
 
 // Errors
 
 // Types and methods
-type DemoState
+type Command
 
 // Type aliases
 
