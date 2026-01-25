@@ -3,9 +3,7 @@ import {
   "mizchi/tui/vnode",
   "mizchi/tui/render",
   "mizchi/tui/io",
-  "mizchi/tui/components",
   "mizchi/signals",
-  "moonbitlang/async",
 }
 
 options(

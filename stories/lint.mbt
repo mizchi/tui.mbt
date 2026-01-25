@@ -39,7 +39,7 @@ fn is_bordered_category(category : String) -> Bool {
 /// Lint: Bordered UI should use odd dimensions for better centering
 /// - Border takes 2 chars (left + right, top + bottom)
 /// - Odd total = odd inner content = better centering
-pub fn lint_odd_dimensions(stories : Array[Story]) -> Array[LintViolation] {
+pub fn lint_odd_dimensions(stories : Array[VNodeStory]) -> Array[LintViolation] {
   let violations : Array[LintViolation] = []
   for story in stories {
     if is_bordered_category(story.category) {
@@ -68,7 +68,7 @@ pub fn lint_odd_dimensions(stories : Array[Story]) -> Array[LintViolation] {
 
 ///|
 /// Lint: Story dimensions should be reasonable
-pub fn lint_dimension_range(stories : Array[Story]) -> Array[LintViolation] {
+pub fn lint_dimension_range(stories : Array[VNodeStory]) -> Array[LintViolation] {
   let violations : Array[LintViolation] = []
   for story in stories {
     let story_name = story.category + "/" + story.name
@@ -94,7 +94,7 @@ pub fn lint_dimension_range(stories : Array[Story]) -> Array[LintViolation] {
 
 ///|
 /// Run all lint checks on stories
-pub fn lint_all(stories : Array[Story]) -> Array[LintViolation] {
+pub fn lint_all(stories : Array[VNodeStory]) -> Array[LintViolation] {
   let violations : Array[LintViolation] = []
   violations.append(lint_odd_dimensions(stories))
   violations.append(lint_dimension_range(stories))

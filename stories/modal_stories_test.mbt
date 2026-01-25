@@ -133,11 +133,14 @@ test "modal/stacked_modal story snapshot" {
         content=(
           #|Background
           #|Content Here
+          #|
+          #|...........
           #|       ╭────────╮
-          #|.......│        │
+          #|       │        │
           #|       │ Dialog │
           #|       │        │
           #|       ╰────────╯
+
         ),
       )
       return
@@ -185,15 +188,18 @@ test "modal/full_overlay story snapshot" {
       inspect(
         plain,
         content=(
-          #|      ╭─────────────────╮
-          #|      │                 │
-          #|      │  Confirm        │
-          #|      │                 │
-          #|      │                 │
-          #|      │  Save changes?  │
-          #|      │                 │
-          #|      │                 │
-          #|      ╰─ [Yes] ── [No] ─╯
+          #|╭──────────────────────────────
+          #|│
+          #|│ Confirm
+          #|│ -----------------------------
+          #|│ Save changes?
+          #|│
+          #|│ ╭ Yes ─╮
+          #|│ │      │
+          #|│ ╰──────╯
+          #|│
+          #|╰──────────────────────────────
+
         ),
       )
       return
@@ -214,15 +220,18 @@ test "modal/alert_modal story snapshot" {
       inspect(
         plain,
         content=(
-          #|   ╭─────────────────╮
-          #|   │                 │
-          #|   │ ! Error !       │
-          #|   │                 │
-          #|   │                 │
-          #|   │ Connection lost │
-          #|   │                 │
-          #|   │                 │
-          #|   ╰─   [OK]   ──────╯
+          #|╭────────────────────────
+          #|│
+          #|│ ! Error !
+          #|│
+          #|│ -----------------------
+          #|│
+          #|│  Connection lost
+          #|│
+          #|│               ╭ OK ─╮
+          #|│               │     │
+          #|│               ╰─────╯
+
         ),
       )
       return
@@ -243,12 +252,15 @@ test "modal/command_launcher story snapshot" {
       inspect(
         plain,
         content=(
-          #|       ╭────────╮
-          #|       │        │
-          #|       │ > open │
-          #|       │        │
-          #|       │ * Open │
-          #|       ╰────────╯
+          #|╭────────╮
+          #|│        │
+          #|│ > open │
+          #|│        │
+          #|│ * Open │
+          #|│        │
+          #|│        │
+          #|╰────────╯
+
         ),
       )
       return

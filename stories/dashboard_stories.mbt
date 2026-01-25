@@ -1,27 +1,27 @@
 ///|
-/// Dashboard component stories
+/// Dashboard component stories - vnode version
 
 ///|
-pub fn sparkline_stories() -> Array[Story] {
+pub fn sparkline_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "sparkline",
       "basic",
-      fn() { @composed.sparkline([1.0, 3.0, 2.0, 5.0, 4.0, 7.0, 6.0, 8.0]) },
+      fn() { @vnode.sparkline([1.0, 3.0, 2.0, 5.0, 4.0, 7.0, 6.0, 8.0]) },
       width=15,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "sparkline",
       "with_width",
-      fn() { @composed.sparkline([1.0, 5.0, 3.0, 8.0, 2.0], width=10) },
+      fn() { @vnode.sparkline([1.0, 5.0, 3.0, 8.0, 2.0], width=10) },
       width=15,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "sparkline",
       "constant",
-      fn() { @composed.sparkline([5.0, 5.0, 5.0, 5.0, 5.0]) },
+      fn() { @vnode.sparkline([5.0, 5.0, 5.0, 5.0, 5.0]) },
       width=15,
       height=3,
     ),
@@ -29,35 +29,33 @@ pub fn sparkline_stories() -> Array[Story] {
 }
 
 ///|
-pub fn gauge_stories() -> Array[Story] {
+pub fn gauge_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "gauge",
       "50_percent",
-      fn() { @composed.gauge("", 0.5, bar_width=15) },
+      fn() { @vnode.gauge("", 0.5, bar_width=15) },
       width=25,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "gauge",
       "with_label",
-      fn() { @composed.gauge("CPU", 0.75, bar_width=12) },
+      fn() { @vnode.gauge("CPU", 0.75, bar_width=12) },
       width=25,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "gauge",
       "high_usage",
-      fn() { @composed.gauge("MEM", 0.95, bar_width=12) },
+      fn() { @vnode.gauge("MEM", 0.95, bar_width=12) },
       width=25,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "gauge",
       "thin_style",
-      fn() {
-        @composed.gauge("", 0.6, bar_width=15, style=@composed.GaugeStyle::Thin)
-      },
+      fn() { @vnode.gauge("", 0.6, bar_width=15) },
       width=25,
       height=3,
     ),
@@ -65,19 +63,19 @@ pub fn gauge_stories() -> Array[Story] {
 }
 
 ///|
-pub fn stat_stories() -> Array[Story] {
+pub fn stat_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "stat",
       "basic",
-      fn() { @composed.stat("Total", "32.0 GiB") },
+      fn() { @vnode.stat("Total", "32.0 GiB") },
       width=20,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "stat",
       "with_width",
-      fn() { @composed.stat("Used", "13.0 GiB", label_width=8) },
+      fn() { @vnode.stat("Used", "13.0 GiB", label_width=8) },
       width=25,
       height=3,
     ),
@@ -85,26 +83,26 @@ pub fn stat_stories() -> Array[Story] {
 }
 
 ///|
-pub fn meter_stories() -> Array[Story] {
+pub fn meter_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "meter",
       "cpu_low",
-      fn() { @composed.meter("C0", 0.25, width=25) },
+      fn() { @vnode.meter("C0", 0.25, width=25) },
       width=30,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "meter",
       "cpu_medium",
-      fn() { @composed.meter("C1", 0.56, width=25) },
+      fn() { @vnode.meter("C1", 0.56, width=25) },
       width=30,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "meter",
       "cpu_high",
-      fn() { @composed.meter("C2", 0.92, width=25) },
+      fn() { @vnode.meter("C2", 0.92, width=25) },
       width=30,
       height=3,
     ),
@@ -112,50 +110,34 @@ pub fn meter_stories() -> Array[Story] {
 }
 
 ///|
-pub fn table_stories() -> Array[Story] {
+pub fn table_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "table",
       "basic",
       fn() {
         let cols = [
-          @composed.TableColumn::new(
-            "Pid",
-            width=6,
-            align=@composed.ColumnAlign::Right,
-          ),
-          @composed.TableColumn::new("Name", width=10),
-          @composed.TableColumn::new(
-            "CPU%",
-            width=5,
-            align=@composed.ColumnAlign::Right,
-          ),
+          @vnode.TableColumn::new("Pid", width=6, align=@vnode.ColumnAlign::Right),
+          @vnode.TableColumn::new("Name", width=10),
+          @vnode.TableColumn::new("CPU%", width=5, align=@vnode.ColumnAlign::Right),
         ]
         let data = [["1234", "process1", "12.3"], ["5678", "process2", "5.1"]]
-        @composed.table(cols, data)
+        @vnode.table(cols, data)
       },
       width=30,
       height=4,
     ),
-    Story::new(
+    VNodeStory::new(
       "table",
       "selected",
       fn() {
         let cols = [
-          @composed.TableColumn::new(
-            "Pid",
-            width=6,
-            align=@composed.ColumnAlign::Right,
-          ),
-          @composed.TableColumn::new("Name", width=10),
-          @composed.TableColumn::new(
-            "CPU%",
-            width=5,
-            align=@composed.ColumnAlign::Right,
-          ),
+          @vnode.TableColumn::new("Pid", width=6, align=@vnode.ColumnAlign::Right),
+          @vnode.TableColumn::new("Name", width=10),
+          @vnode.TableColumn::new("CPU%", width=5, align=@vnode.ColumnAlign::Right),
         ]
         let data = [["1234", "process1", "12.3"], ["5678", "process2", "5.1"]]
-        @composed.table(cols, data, selected_row=1)
+        @vnode.table(cols, data, selected_row=1)
       },
       width=30,
       height=4,
@@ -164,30 +146,29 @@ pub fn table_stories() -> Array[Story] {
 }
 
 ///|
-pub fn titled_box_stories() -> Array[Story] {
+pub fn titled_box_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "titled_box",
       "basic",
       fn() {
-        @composed.titled_box(
-          "mem",
-          [@components.text("Content here")],
-          width=20,
-        )
+        @vnode.column([
+          @vnode.text("mem", fg="cyan", bold=true),
+          @vnode.text("Content here"),
+        ], border="rounded", border_color="cyan", padding=1.0, min_width=20.0)
       },
       width=25,
       height=5,
     ),
-    Story::new(
+    VNodeStory::new(
       "titled_box",
       "with_stats",
       fn() {
-        @composed.titled_box(
-          "cpu",
-          [@composed.stat("Total", "100%"), @composed.stat("User", "45%")],
-          width=20,
-        )
+        @vnode.column([
+          @vnode.text("cpu", fg="cyan", bold=true),
+          @vnode.stat("Total", "100%"),
+          @vnode.stat("User", "45%"),
+        ], border="rounded", border_color="cyan", padding=1.0, min_width=20.0)
       },
       width=25,
       height=6,

@@ -122,3 +122,103 @@ pub fn Story::to_snapshot(self : Story) -> String {
 pub fn Story::snapshot_filename(self : Story) -> String {
   self.category + "_" + self.name + ".txt"
 }
+
+// =============================================================================
+// VNodeStory - vnode-based stories
+// =============================================================================
+
+///|
+/// A vnode-based story representing a component in a specific state
+pub(all) struct VNodeStory {
+  /// Category/component name (e.g., "button", "checkbox")
+  category : String
+  /// Story name (e.g., "normal", "hover", "disabled")
+  name : String
+  /// Viewport width for rendering
+  width : Int
+  /// Viewport height for rendering
+  height : Int
+  /// VNode factory function
+  render : () -> @vnode.TuiNode
+}
+
+///|
+/// Create a new vnode story
+pub fn VNodeStory::new(
+  category : String,
+  name : String,
+  render : () -> @vnode.TuiNode,
+  width? : Int = 30,
+  height? : Int = 5,
+) -> VNodeStory {
+  { category, name, width, height, render }
+}
+
+///|
+/// Render vnode story to plain text (no ANSI codes)
+pub fn VNodeStory::to_plain(self : VNodeStory) -> String {
+  let app = @vnode.VNodeApp::new(self.width, self.height)
+  let node = (self.render)()
+  let frame = app.render_frame(node)
+  let plain = @testing.strip_ansi(frame)
+
+  // Parse by width accounting for CJK characters
+  let chars = plain.to_array()
+  let lines : Array[String] = []
+  let mut pos = 0
+  for row = 0; row < self.height; row = row + 1 {
+    let line_chars : Array[Char] = []
+    let mut col = 0
+    while col < self.width && pos < chars.length() {
+      let c = chars[pos]
+      line_chars.push(c)
+      pos = pos + 1
+      col = col + @core.char_display_width(c)
+    }
+    lines.push(trim_end(String::from_array(line_chars)))
+  }
+
+  // Remove trailing empty lines
+  while lines.length() > 0 && lines[lines.length() - 1] == "" {
+    let _ = lines.pop()
+  }
+  lines
+  .iter()
+  .fold(init="", fn(acc, line) {
+    if acc == "" {
+      line
+    } else {
+      acc + "\n" + line
+    }
+  })
+}
+
+///|
+/// Render vnode story with ANSI codes
+pub fn VNodeStory::to_ansi(self : VNodeStory) -> String {
+  let app = @vnode.VNodeApp::new(self.width, self.height)
+  let node = (self.render)()
+  app.render_frame(node)
+}
+
+///|
+/// Format vnode story as snapshot content with header
+pub fn VNodeStory::to_snapshot(self : VNodeStory) -> String {
+  let plain = self.to_plain()
+  let header = "# " +
+    self.category +
+    "/" +
+    self.name +
+    " (" +
+    self.width.to_string() +
+    "x" +
+    self.height.to_string() +
+    ")\n"
+  header + plain
+}
+
+///|
+/// Get the filename for this vnode story's snapshot
+pub fn VNodeStory::snapshot_filename(self : VNodeStory) -> String {
+  self.category + "_" + self.name + ".txt"
+}

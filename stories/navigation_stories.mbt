@@ -1,76 +1,65 @@
 ///|
-/// Navigation component stories (Tabs, Accordion, Menu)
+/// Navigation component stories (Tabs, Accordion, Menu) - vnode version
 
 ///|
-pub fn tabs_stories() -> Array[Story] {
-  let items = [
-    @components.TabItem::{ id: "home", label: "Home" },
-    @components.TabItem::{ id: "profile", label: "Profile" },
-    @components.TabItem::{ id: "settings", label: "Settings" },
-  ]
+pub fn tabs_stories() -> Array[VNodeStory] {
+  let tabs = [("Home", "home"), ("Profile", "profile"), ("Settings", "settings")]
   [
-    // Default tabs with content (odd dimensions for better centering)
-    Story::new(
+    VNodeStory::new(
       "tabs",
       "default_home",
       fn() {
-        @components.tab_container(
-          items,
-          "home",
-          @components.text("Welcome to Home"),
-        )
+        @vnode.column([
+          @vnode.tab_bar(tabs, "home"),
+          @vnode.row([@vnode.text("Welcome to Home")], padding=1.0),
+        ], border="rounded", border_color="rgb(60,60,80)")
       },
       width=41,
       height=9,
     ),
-    Story::new(
+    VNodeStory::new(
       "tabs",
       "default_profile",
       fn() {
-        @components.tab_container(
-          items,
-          "profile",
-          @components.text("User Profile"),
-        )
+        @vnode.column([
+          @vnode.tab_bar(tabs, "profile"),
+          @vnode.row([@vnode.text("User Profile")], padding=1.0),
+        ], border="rounded", border_color="rgb(60,60,80)")
       },
       width=41,
       height=9,
     ),
-    Story::new(
+    VNodeStory::new(
       "tabs",
       "default_focused",
       fn() {
-        @components.tab_container(
-          items,
-          "home",
-          @components.text("Home (Settings focused)"),
-          focused_id="settings",
-        )
+        @vnode.column([
+          @vnode.tab_bar(tabs, "home"),
+          @vnode.row([@vnode.text("Home (Settings focused)")], padding=1.0),
+        ], border="rounded", border_color="rgb(60,60,80)")
       },
       width=41,
       height=9,
     ),
-    // Underline style
-    Story::new(
+    VNodeStory::new(
       "tabs",
       "underline",
       fn() {
-        @components.column([
-          @components.tabs_underline(items, "home"),
-          @components.tab_panel(@components.text("Underline style content")),
+        @vnode.column([
+          @vnode.tab_bar(tabs, "home"),
+          @vnode.row([@vnode.text("Underline style content")], padding=1.0),
         ])
       },
       width=41,
       height=11,
     ),
-    // Boxed style
-    Story::new(
+    VNodeStory::new(
       "tabs",
       "boxed",
       fn() {
-        @components.column([
-          @components.tabs_boxed(items, "profile"),
-          @components.tab_panel(@components.text("Boxed style content")),
+        @vnode.column([
+          @vnode.tab_bar(tabs, "profile"),
+          @vnode.row([@vnode.text("Boxed style content")], padding=1.0),
         ])
       },
       width=41,
@@ -80,69 +69,39 @@ pub fn tabs_stories() -> Array[Story] {
 }
 
 ///|
-pub fn accordion_stories() -> Array[Story] {
+pub fn accordion_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "accordion",
       "collapsed",
       fn() {
-        @components.accordion([
-          @components.AccordionItem::{
-            id: "sec1",
-            title: "Section 1",
-            content: @components.text("Content 1"),
-            expanded: false,
-          },
-          @components.AccordionItem::{
-            id: "sec2",
-            title: "Section 2",
-            content: @components.text("Content 2"),
-            expanded: false,
-          },
+        @vnode.column([
+          @vnode.accordion_section("Section 1", @vnode.text("Content 1"), false),
+          @vnode.accordion_section("Section 2", @vnode.text("Content 2"), false),
         ])
       },
       width=31,
       height=7,
     ),
-    Story::new(
+    VNodeStory::new(
       "accordion",
       "first_expanded",
       fn() {
-        @components.accordion([
-          @components.AccordionItem::{
-            id: "sec1",
-            title: "Section 1",
-            content: @components.text("Content 1"),
-            expanded: true,
-          },
-          @components.AccordionItem::{
-            id: "sec2",
-            title: "Section 2",
-            content: @components.text("Content 2"),
-            expanded: false,
-          },
+        @vnode.column([
+          @vnode.accordion_section("Section 1", @vnode.text("Content 1"), true),
+          @vnode.accordion_section("Section 2", @vnode.text("Content 2"), false),
         ])
       },
       width=31,
       height=13,
     ),
-    Story::new(
+    VNodeStory::new(
       "accordion",
       "second_expanded",
       fn() {
-        @components.accordion([
-          @components.AccordionItem::{
-            id: "sec1",
-            title: "Section 1",
-            content: @components.text("Content 1"),
-            expanded: false,
-          },
-          @components.AccordionItem::{
-            id: "sec2",
-            title: "Section 2",
-            content: @components.text("Content 2"),
-            expanded: true,
-          },
+        @vnode.column([
+          @vnode.accordion_section("Section 1", @vnode.text("Content 1"), false),
+          @vnode.accordion_section("Section 2", @vnode.text("Content 2"), true),
         ])
       },
       width=31,
@@ -152,40 +111,65 @@ pub fn accordion_stories() -> Array[Story] {
 }
 
 ///|
-pub fn menu_stories() -> Array[Story] {
-  let items = [
-    @components.menu_item("cut", "Cut"),
-    @components.menu_item("copy", "Copy"),
-    @components.menu_item("paste", "Paste"),
-    @components.menu_separator(),
-    @components.menu_item("delete", "Delete", disabled=true),
-  ]
+pub fn menu_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "menu",
       "no_focus",
-      fn() { @components.menu(items) },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Cut", false),
+          @vnode.menu_item("Copy", false),
+          @vnode.menu_item("Paste", false),
+          @vnode.menu_divider(),
+          @vnode.menu_item("Delete", false, disabled=true),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=13,
     ),
-    Story::new(
+    VNodeStory::new(
       "menu",
       "first_focused",
-      fn() { @components.menu(items, focused_id="cut") },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Cut", true),
+          @vnode.menu_item("Copy", false),
+          @vnode.menu_item("Paste", false),
+          @vnode.menu_divider(),
+          @vnode.menu_item("Delete", false, disabled=true),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=13,
     ),
-    Story::new(
+    VNodeStory::new(
       "menu",
       "middle_focused",
-      fn() { @components.menu(items, focused_id="copy") },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Cut", false),
+          @vnode.menu_item("Copy", true),
+          @vnode.menu_item("Paste", false),
+          @vnode.menu_divider(),
+          @vnode.menu_item("Delete", false, disabled=true),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=13,
     ),
-    Story::new(
+    VNodeStory::new(
       "menu",
       "disabled_focused",
-      fn() { @components.menu(items, focused_id="delete") },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Cut", false),
+          @vnode.menu_item("Copy", false),
+          @vnode.menu_item("Paste", false),
+          @vnode.menu_divider(),
+          @vnode.menu_item("Delete", true, disabled=true),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=13,
     ),
@@ -193,23 +177,29 @@ pub fn menu_stories() -> Array[Story] {
 }
 
 ///|
-pub fn context_menu_stories() -> Array[Story] {
-  let items = [
-    @components.menu_item("refresh", "Refresh"),
-    @components.menu_item("inspect", "Inspect"),
-  ]
+pub fn context_menu_stories() -> Array[VNodeStory] {
   [
-    Story::new(
+    VNodeStory::new(
       "context_menu",
       "default",
-      fn() { @components.context_menu(items) },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Refresh", false),
+          @vnode.menu_item("Inspect", false),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=7,
     ),
-    Story::new(
+    VNodeStory::new(
       "context_menu",
       "focused",
-      fn() { @components.context_menu(items, focused_id="refresh") },
+      fn() {
+        @vnode.column([
+          @vnode.menu_item("Refresh", true),
+          @vnode.menu_item("Inspect", false),
+        ], border="single", border_color="rgb(60,60,80)", bg="rgb(40,40,50)")
+      },
       width=21,
       height=7,
     ),

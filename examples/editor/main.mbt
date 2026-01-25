@@ -383,7 +383,7 @@ fn main {
   and start_editing: () -> Unit = fn() {
     match app.find_by_id("editor") {
       Some(bounds) => {
-        let config = @components.EditConfig::{
+        let config : @vnode.EditConfig = {
           field_name: "Editor",
           on_change: fn(value) { text.set(value) },
           on_edit_start: Some(fn() {
@@ -393,7 +393,7 @@ fn main {
           on_edit_end: Some(fn() { editing.set(false) }),
           on_force_quit: Some(fn() { do_quit() }),
         }
-        @components.start_edit_inplace_in_bounds(
+        @vnode.start_edit_inplace_in_bounds(
           config,
           text.get(),
           bounds,

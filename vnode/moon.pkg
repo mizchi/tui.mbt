@@ -6,6 +6,7 @@ import {
   "mizchi/tui/core" as @core,
   "mizchi/tui/render" as @render,
   "mizchi/tui/events" as @events,
+  "mizchi/tui/io" as @io,
   "mizchi/signals" as @signals,
   "moonbitlang/core/strconv" as @strconv,
 }

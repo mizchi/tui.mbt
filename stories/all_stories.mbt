@@ -2,8 +2,8 @@
 /// Collect all stories from all component categories
 
 ///|
-pub fn all_stories() -> Array[Story] {
-  let stories : Array[Story] = []
+pub fn all_stories() -> Array[VNodeStory] {
+  let stories : Array[VNodeStory] = []
 
   // Button
   for s in button_stories() {
@@ -157,8 +157,8 @@ pub fn all_stories() -> Array[Story] {
 
 ///|
 /// Get stories for a specific category
-pub fn stories_by_category(category : String) -> Array[Story] {
-  let result : Array[Story] = []
+pub fn stories_by_category(category : String) -> Array[VNodeStory] {
+  let result : Array[VNodeStory] = []
   for s in all_stories() {
     if s.category == category {
       result.push(s)

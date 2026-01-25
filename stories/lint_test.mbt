@@ -4,10 +4,10 @@
 ///|
 test "lint utilities work correctly" {
   // Test with a story that violates odd-dimensions
-  let bad_story = Story::new(
+  let bad_story = VNodeStory::new(
     "tabs",
     "test",
-    fn() { @core.text("x") },
+    fn() { @vnode.text("x") },
     width=20,
     height=10,
   )
@@ -18,10 +18,10 @@ test "lint utilities work correctly" {
 
 ///|
 test "lint passes for odd dimensions" {
-  let good_story = Story::new(
+  let good_story = VNodeStory::new(
     "tabs",
     "test",
-    fn() { @core.text("x") },
+    fn() { @vnode.text("x") },
     width=21,
     height=11,
   )

@@ -1,56 +1,50 @@
 ///|
-/// Checkbox and Switch component stories
+/// Checkbox and Switch component stories (vnode version)
 
 ///|
-pub fn checkbox_stories() -> Array[Story] {
+pub fn checkbox_stories() -> Array[VNodeStory] {
   [
     // Checkbox
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "unchecked",
-      fn() { @components.checkbox(false) },
+      fn() { @vnode.row([@vnode.text("[ ]")]) },
       width=10,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "checked",
-      fn() { @components.checkbox(true) },
+      fn() { @vnode.row([@vnode.text("[x]", fg="cyan")]) },
       width=10,
       height=3,
     ),
     // Labeled checkbox
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "labeled_unchecked",
-      fn() { @components.labeled_checkbox("Accept terms", false) },
+      fn() { @vnode.checkbox("Accept terms", false) },
       width=20,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "labeled_checked",
-      fn() { @components.labeled_checkbox("Accept terms", true) },
+      fn() { @vnode.checkbox("Accept terms", true) },
       width=20,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "labeled_right",
-      fn() {
-        @components.labeled_checkbox(
-          "Remember me",
-          true,
-          label_position=@components.LabelPosition::Right,
-        )
-      },
+      fn() { @vnode.checkbox("Remember me", true) },
       width=20,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "checkbox",
       "focused",
-      fn() { @components.checkbox(true, focused=true) },
+      fn() { @vnode.checkbox("", true, focused=true) },
       width=10,
       height=3,
     ),
@@ -58,56 +52,56 @@ pub fn checkbox_stories() -> Array[Story] {
 }
 
 ///|
-pub fn switch_stories() -> Array[Story] {
+pub fn switch_stories() -> Array[VNodeStory] {
   [
     // Switch states
-    Story::new(
+    VNodeStory::new(
       "switch",
       "off",
-      fn() { @components.switch(false) },
+      fn() { @vnode.switch(false, "") },
       width=10,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "switch",
       "on",
-      fn() { @components.switch(true) },
+      fn() { @vnode.switch(true, "") },
       width=10,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "switch",
       "disabled_off",
-      fn() { @components.switch(false, disabled=true) },
+      fn() { @vnode.switch(false, "", disabled=true) },
       width=10,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "switch",
       "disabled_on",
-      fn() { @components.switch(true, disabled=true) },
+      fn() { @vnode.switch(true, "", disabled=true) },
       width=10,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "switch",
       "focused",
-      fn() { @components.switch(true, focused=true) },
+      fn() { @vnode.switch(true, "") },
       width=10,
       height=3,
     ),
     // Labeled switch
-    Story::new(
+    VNodeStory::new(
       "switch",
       "labeled_off",
-      fn() { @components.labeled_switch("Dark mode", false) },
+      fn() { @vnode.switch(false, "Dark mode") },
       width=20,
       height=3,
     ),
-    Story::new(
+    VNodeStory::new(
       "switch",
       "labeled_on",
-      fn() { @components.labeled_switch("Dark mode", true) },
+      fn() { @vnode.switch(true, "Dark mode") },
       width=20,
       height=3,
     ),

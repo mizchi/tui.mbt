@@ -161,7 +161,7 @@ fn main {
       Some((field_name, signal, multiline)) =>
         match app.find_by_id(id) {
           Some(bounds) => {
-            let config = @components.form_edit_config(
+            let config = @vnode.form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
@@ -170,7 +170,7 @@ fn main {
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            @components.start_edit_inplace_in_bounds(
+            @vnode.start_edit_inplace_in_bounds(
               config,
               signal.get(),
               bounds,
@@ -180,7 +180,7 @@ fn main {
           }
           None => {
             // Fallback to simple edit if bounds not found
-            let config = @components.form_edit_config(
+            let config = @vnode.form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
@@ -189,7 +189,7 @@ fn main {
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            @components.start_edit(config, signal.get(), restore_tui)
+            @vnode.start_edit(config, signal.get(), restore_tui)
           }
         }
       None => ()

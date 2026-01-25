@@ -119,6 +119,202 @@ pub fn input_plain(
   text(text_with_cursor, fg=actual_fg)
 }
 
+// =============================================================================
+// Edit functionality
+// =============================================================================
+
+///|
+/// Configuration for editable input behavior
+pub(all) struct EditConfig {
+  /// Field name displayed during editing
+  field_name : String
+  /// Called when value is confirmed
+  on_change : (String) -> Unit
+  /// Called before editing starts (optional, for setup like disabling mouse)
+  on_edit_start : (() -> Unit)?
+  /// Called after editing ends (optional, for cleanup like re-enabling mouse)
+  on_edit_end : (() -> Unit)?
+  /// Called when Ctrl+C is pressed (optional, for force quit)
+  on_force_quit : (() -> Unit)?
+}
+
+///|
+/// Start editing a field with cooked mode (IME support)
+/// This exits alternate screen temporarily for proper IME input
+/// confirm_on_shift_enter: if true, Shift+Enter confirms and Enter inserts newline
+/// esc_cancels: if false, Esc is ignored
+pub fn start_edit(
+  config : EditConfig,
+  current_value : String,
+  on_complete : () -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
+) -> Unit {
+  // Call optional setup callback
+  match config.on_edit_start {
+    Some(f) => f()
+    None => ()
+  }
+
+  // Start cooked mode input
+  @io.start_inline_input_cooked(
+    config.field_name,
+    current_value,
+    fn(result) {
+      match result {
+        @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
+        @io.InputResult::Cancelled => ()
+        @io.InputResult::ForceQuit => {
+          match config.on_force_quit {
+            Some(f) => f()
+            None => ()
+          }
+          return
+        }
+        _ => ()
+      }
+
+      match config.on_edit_end {
+        Some(f) => f()
+        None => ()
+      }
+      on_complete()
+    },
+    confirm_on_shift_enter~,
+    esc_cancels~,
+  )
+}
+
+///|
+/// Start editing a field inplace (stays in TUI screen)
+/// row/col are 1-indexed ANSI coordinates
+/// width/height define the input area (supports multi-line wrapping)
+/// multiline: if true, Enter can insert newline when confirm_on_shift_enter is true
+/// confirm_on_shift_enter: if true, Shift+Enter confirms
+/// esc_cancels: if false, Esc is ignored
+/// on_lines_change: optional callback (line_count) -> new_height for dynamic resizing
+/// on_completion: optional callback (text, cursor_pos) -> completion_suffix for Tab completion
+pub fn start_edit_inplace(
+  config : EditConfig,
+  current_value : String,
+  row : Int,
+  col : Int,
+  width : Int,
+  height : Int,
+  multiline : Bool,
+  on_complete : () -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
+  on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
+) -> Unit {
+  match config.on_edit_start {
+    Some(f) => f()
+    None => ()
+  }
+
+  @io.start_inplace_input(
+    row,
+    col,
+    width,
+    height,
+    multiline,
+    current_value,
+    fn(result) {
+      match result {
+        @io.InputResult::Confirmed(new_value) => (config.on_change)(new_value)
+        @io.InputResult::Cancelled => ()
+        @io.InputResult::ForceQuit => {
+          match config.on_force_quit {
+            Some(f) => f()
+            None => ()
+          }
+          return
+        }
+        _ => ()
+      }
+
+      match config.on_edit_end {
+        Some(f) => f()
+        None => ()
+      }
+      on_complete()
+    },
+    confirm_on_shift_enter~,
+    esc_cancels~,
+    on_lines_change~,
+    on_completion~,
+  )
+}
+
+///|
+fn bounds_to_inplace_area(
+  bounds : @events.HitTestResult,
+  border : Int,
+) -> (Int, Int, Int, Int) {
+  let border_size = if border < 0 { 0 } else { border }
+  let row = bounds.y + 1 + border_size
+  let col = bounds.x + 1 + border_size
+  let width = (bounds.width - border_size * 2).max(1)
+  let height = (bounds.height - border_size * 2).max(1)
+  (row, col, width, height)
+}
+
+///|
+/// Start editing within bounds (HitTestResult) with border adjustment.
+/// bounds.x/y are 0-indexed; row/col for ANSI are 1-indexed.
+/// on_completion: optional callback (text, cursor_pos) -> completion_suffix for Tab completion
+pub fn start_edit_inplace_in_bounds(
+  config : EditConfig,
+  current_value : String,
+  bounds : @events.HitTestResult,
+  multiline : Bool,
+  on_complete : () -> Unit,
+  confirm_on_shift_enter? : Bool = false,
+  esc_cancels? : Bool = true,
+  border? : Int = 1,
+  on_lines_change? : ((Int) -> Int)? = None,
+  on_completion? : ((String, Int) -> String?)? = None,
+) -> Unit {
+  let (row, col, width, height) = bounds_to_inplace_area(bounds, border)
+  start_edit_inplace(
+    config,
+    current_value,
+    row,
+    col,
+    width,
+    height,
+    multiline,
+    on_complete,
+    confirm_on_shift_enter~,
+    esc_cancels~,
+    on_lines_change~,
+    on_completion~,
+  )
+}
+
+///|
+/// Helper to create a standard edit config for form fields
+pub fn form_edit_config(
+  field_name : String,
+  signal : @signals.Signal[String],
+  on_edit_start? : (() -> Unit)? = None,
+  on_edit_end? : (() -> Unit)? = None,
+  on_force_quit? : (() -> Unit)? = None,
+) -> EditConfig {
+  {
+    field_name,
+    on_change: fn(value) { signal.set(value) },
+    on_edit_start,
+    on_edit_end,
+    on_force_quit,
+  }
+}
+
+// =============================================================================
+// Textarea
+// =============================================================================
+
 ///|
 /// Create a textarea component (multi-line input)
 pub fn textarea(
