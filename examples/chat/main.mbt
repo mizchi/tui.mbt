@@ -1,6 +1,9 @@
 ///|
 /// VNode Chat - Simple chat UI with Claude API
 
+///|
+using @vnode {type TuiNode, type VNodeApp, column, row, text}
+
 // =============================================================================
 // Message Types
 // =============================================================================
@@ -166,7 +169,7 @@ fn main {
   let scroll_offset = @signals.signal(0)
   let streaming = StreamingState::new()
   let input_queue = InputQueue::new()
-  let app = @vnode.VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height)
 
   // Layout constants
   let input_rows = 3
@@ -227,22 +230,22 @@ fn main {
     scroll_offset.set(max_scroll_offset())
   }
 
-  fn render_message_line(line : String, idx : Int) -> @vnode.TuiNode {
+  fn render_message_line(line : String, idx : Int) -> TuiNode {
     let is_user = line.has_prefix("> ")
     let fg = if is_user { "cyan" } else { "white" }
-    @vnode.row(
-      [@vnode.text(line, fg~)],
+    row(
+      [text(line, fg~)],
       id="msg-" + idx.to_string(),
       min_width=width.to_double(),
       height=1.0,
     )
   }
 
-  fn render_messages() -> @vnode.TuiNode {
+  fn render_messages() -> TuiNode {
     let all_lines = build_message_lines()
     let total_lines = all_lines.length()
     let offset = scroll_offset.get()
-    let visible_lines : Array[@vnode.TuiNode] = []
+    let visible_lines : Array[TuiNode] = []
 
     // Bottom-align: add empty lines at top if content is shorter than area
     let empty_lines_at_top = if total_lines < message_area_height {
@@ -253,29 +256,29 @@ fn main {
     for i = 0; i < message_area_height; i = i + 1 {
       if i < empty_lines_at_top {
         // Empty line for bottom-alignment
-        visible_lines.push(@vnode.row([], height=1.0))
+        visible_lines.push(row([], height=1.0))
       } else {
         let line_idx = offset + (i - empty_lines_at_top)
         if line_idx < total_lines {
           visible_lines.push(render_message_line(all_lines[line_idx], line_idx))
         } else {
-          visible_lines.push(@vnode.row([], height=1.0))
+          visible_lines.push(row([], height=1.0))
         }
       }
     }
-    @vnode.column(
+    column(
       visible_lines,
       min_width=width.to_double(),
       height=message_area_height.to_double(),
     )
   }
 
-  fn render_divider() -> @vnode.TuiNode {
+  fn render_divider() -> TuiNode {
     let color = if editing.get() { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
-    @vnode.text("\u{2500}".repeat(width), fg=color)
+    text("\u{2500}".repeat(width), fg=color)
   }
 
-  fn render_input() -> @vnode.TuiNode {
+  fn render_input() -> TuiNode {
     let current = input.get()
     let display_text = if current.length() == 0 && not(editing.get()) {
       "Type a message... (press Enter to start)"
@@ -287,10 +290,10 @@ fn main {
     } else {
       "white"
     }
-    @vnode.column(
+    column(
       [
-        @vnode.row(
-          [@vnode.text(" " + display_text, fg~)],
+        row(
+          [text(" " + display_text, fg~)],
           id="input-line",
           min_width=width.to_double(),
         ),
@@ -300,7 +303,7 @@ fn main {
     )
   }
 
-  fn render_footer() -> @vnode.TuiNode {
+  fn render_footer() -> TuiNode {
     let queue_info = if input_queue.is_busy() {
       let count = input_queue.length()
       if count > 0 {
@@ -313,14 +316,11 @@ fn main {
     }
     let status = "Enter: send | \u{2191}\u{2193}: scroll | Ctrl+C: quit" +
       queue_info
-    @vnode.row(
-      [@vnode.text(" " + status, fg="rgb(80,80,80)")],
-      min_width=width.to_double(),
-    )
+    row([text(" " + status, fg="rgb(80,80,80)")], min_width=width.to_double())
   }
 
-  fn render_ui() -> @vnode.TuiNode {
-    @vnode.column(
+  fn render_ui() -> TuiNode {
+    column(
       [render_messages(), render_divider(), render_input(), render_footer()],
       width=width.to_double(),
       height=(height - 1).to_double(),
@@ -350,7 +350,7 @@ fn main {
   fn do_quit() -> Unit {
     streaming.clear()
     @io.stop_keypress_listener()
-    @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+    @tui.print_raw(VNodeApp::restore_terminal())
     println("Goodbye!")
   }
 
@@ -587,7 +587,7 @@ fn main {
   }
 
   // Initialize
-  @tui.print_raw(@vnode.VNodeApp::init_terminal())
+  @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
   do_render()
   @io.start_keypress_listener(handle_key)

@@ -3,6 +3,9 @@
 /// Uses vnode's render_to_lines for inline CLI rendering
 
 ///|
+using @vnode {type TuiNode, column, row, text, render_to_lines}
+
+///|
 fn hide_cursor() -> String {
   @render.ansi_hide_cursor()
 }
@@ -44,40 +47,34 @@ fn render_select_prompt(
   cursor : Int,
   selected_value : String,
 ) -> Array[String] {
-  let node = if selected_value.length() > 0 {
+  let node : TuiNode = if selected_value.length() > 0 {
     // Completed state
-    @vnode.column([
-      @vnode.row([
-        @vnode.text("* ", fg="green"),
-        @vnode.text(question + " ", bold=true),
-        @vnode.text(selected_value, fg="cyan"),
+    column([
+      row([
+        text("* ", fg="green"),
+        text(question + " ", bold=true),
+        text(selected_value, fg="cyan"),
       ]),
     ])
   } else {
     // Active state
-    let children : Array[@vnode.TuiNode] = [
-      @vnode.row([
-        @vnode.text("? ", fg="yellow"),
-        @vnode.text(question, bold=true),
-      ]),
-      @vnode.text("  (Use arrows, Enter to select)", fg="rgb(128,128,128)"),
+    let children : Array[TuiNode] = [
+      row([text("? ", fg="yellow"), text(question, bold=true)]),
+      text("  (Use arrows, Enter to select)", fg="rgb(128,128,128)"),
     ]
     // Add options
     for i, opt in options {
       if i == cursor {
         children.push(
-          @vnode.row([
-            @vnode.text("  > ", fg="cyan"),
-            @vnode.text(opt, fg="cyan", bold=true),
-          ]),
+          row([text("  > ", fg="cyan"), text(opt, fg="cyan", bold=true)]),
         )
       } else {
-        children.push(@vnode.text("    " + opt, fg="rgb(128,128,128)"))
+        children.push(text("    " + opt, fg="rgb(128,128,128)"))
       }
     }
-    @vnode.column(children)
+    column(children)
   }
-  @vnode.render_to_lines(node)
+  render_to_lines(node)
 }
 
 ///|
@@ -87,35 +84,32 @@ fn render_confirm_prompt(
   cursor : Int,
   confirmed : Bool?,
 ) -> Array[String] {
-  let node = match confirmed {
+  let node : TuiNode = match confirmed {
     Some(value) => {
       let answer = if value { "Yes" } else { "No" }
-      @vnode.column([
-        @vnode.row([
-          @vnode.text("* ", fg="green"),
-          @vnode.text(question + " ", bold=true),
-          @vnode.text(answer, fg="cyan"),
+      column([
+        row([
+          text("* ", fg="green"),
+          text(question + " ", bold=true),
+          text(answer, fg="cyan"),
         ]),
       ])
     }
     None => {
       let yes_color = if cursor == 0 { "cyan" } else { "rgb(128,128,128)" }
       let no_color = if cursor == 1 { "cyan" } else { "rgb(128,128,128)" }
-      @vnode.column([
-        @vnode.row([
-          @vnode.text("? ", fg="yellow"),
-          @vnode.text(question, bold=true),
-        ]),
-        @vnode.row([
-          @vnode.text("  "),
-          @vnode.text("Yes", fg=yes_color, bold=cursor == 0),
-          @vnode.text(" / "),
-          @vnode.text("No", fg=no_color, bold=cursor == 1),
+      column([
+        row([text("? ", fg="yellow"), text(question, bold=true)]),
+        row([
+          text("  "),
+          text("Yes", fg=yes_color, bold=cursor == 0),
+          text(" / "),
+          text("No", fg=no_color, bold=cursor == 1),
         ]),
       ])
     }
   }
-  @vnode.render_to_lines(node)
+  render_to_lines(node)
 }
 
 ///|

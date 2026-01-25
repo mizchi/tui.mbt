@@ -127,3 +127,100 @@ test "text_node: plain text without style" {
   // Should create a Text node (no wrapper needed)
   assert_true(node is @luna.Node::Text(_))
 }
+
+// =============================================================================
+// Grid and View tests
+// =============================================================================
+
+///|
+test "DisplayValue: to_display" {
+  assert_true(DisplayValue::Flex.to_display() == @types.Display::Flex)
+  assert_true(DisplayValue::Grid.to_display() == @types.Display::Grid)
+}
+
+///|
+test "GridAutoFlowValue: to_grid_auto_flow" {
+  assert_true(
+    GridAutoFlowValue::Row.to_grid_auto_flow() == @types.GridAutoFlow::Row,
+  )
+  assert_true(
+    GridAutoFlowValue::Column.to_grid_auto_flow() == @types.GridAutoFlow::Column,
+  )
+  assert_true(
+    GridAutoFlowValue::RowDense.to_grid_auto_flow() ==
+    @types.GridAutoFlow::RowDense,
+  )
+  assert_true(
+    GridAutoFlowValue::ColumnDense.to_grid_auto_flow() ==
+    @types.GridAutoFlow::ColumnDense,
+  )
+}
+
+///|
+test "attr_to_string: display" {
+  let (k, v) = attr_to_string(TuiAttrValue::Display(DisplayValue::Grid))
+  assert_eq(k, "display")
+  assert_eq(v, "grid")
+}
+
+///|
+test "attr_to_string: grid_auto_flow" {
+  let (k, v) = attr_to_string(
+    TuiAttrValue::GridAutoFlow(GridAutoFlowValue::ColumnDense),
+  )
+  assert_eq(k, "grid_auto_flow")
+  assert_eq(v, "column-dense")
+}
+
+///|
+test "attr_to_string: grid_column" {
+  let (k, v) = attr_to_string(TuiAttrValue::GridColumn(2))
+  assert_eq(k, "grid_column")
+  assert_eq(v, "2")
+}
+
+///|
+test "attr_to_string: grid_template_columns" {
+  let tracks = [
+    @types.TrackSizingFunction::Fr(1.0),
+    @types.TrackSizingFunction::Fr(2.0),
+  ]
+  let (k, v) = attr_to_string(TuiAttrValue::GridTemplateColumns(tracks))
+  assert_eq(k, "grid_template_columns")
+  assert_eq(v, "1fr 2fr")
+}
+
+///|
+test "view: creates column layout by default" {
+  let node = view([text("A"), text("B")])
+  // Should create an Element node
+  assert_true(node is @luna.Node::Element(_))
+}
+
+///|
+test "view: creates row layout with direction param" {
+  let node = view([text("A"), text("B")], direction="row")
+  // Should create an Element node
+  assert_true(node is @luna.Node::Element(_))
+}
+
+///|
+test "grid: creates grid layout" {
+  let node = grid([text("A"), text("B")], columns=[1.0, 1.0])
+  // Should create an Element node
+  assert_true(node is @luna.Node::Element(_))
+}
+
+///|
+test "grid_item: creates positioned item" {
+  let node = grid_item(text("A"), column=2, row=1)
+  // Should create an Element node
+  assert_true(node is @luna.Node::Element(_))
+}
+
+///|
+test "grid_item: creates spanned item" {
+  let node = grid_item(text("Header"), column_span=3)
+  // Should create an Element node
+  assert_true(node is @luna.Node::Element(_))
+}

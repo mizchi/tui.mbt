@@ -98,6 +98,9 @@ pub using @vnode {
   type VNodeApp,
   type TuiNode,
   type TuiEvent,
+  // Grid types
+  type DisplayValue,
+  type GridAutoFlowValue,
 }
 
 // === Headless (State Types) ===

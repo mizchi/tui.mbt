@@ -2,7 +2,12 @@
 /// VNode Components - Complete component gallery using @components
 /// Demonstrates all major UI patterns with pre-built styled components
 
+///|
+using @vnode {type TuiNode, type VNodeApp, column, row, text, vspace, spacer}
+
 // Demo indices
+
+///|
 let demo_tabs : Int = 0
 
 ///|
@@ -51,16 +56,16 @@ async fn main {
   ]
 
   // Create the vnode app
-  let app = @vnode.VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height)
 
   // ==========================================================================
   // Demo Renderers
   // ==========================================================================
 
-  fn render_tabs_demo() -> @vnode.TuiNode {
+  fn render_tabs_demo() -> TuiNode {
     let tabs = ["Home", "Profile", "Settings"]
     let selected = tab_selected.get()
-    let tab_items : Array[@vnode.TuiNode] = []
+    let tab_items : Array[TuiNode] = []
     for i, t in tabs {
       tab_items.push(@ui.tab(t, selected == i, id="tab-" + i.to_string()))
     }
@@ -70,26 +75,26 @@ async fn main {
       2 => "Application configuration and preferences."
       _ => "Unknown tab"
     }
-    @vnode.column(
+    column(
       [
-        @vnode.text("Tabs Component", fg="yellow", bold=true),
-        @vnode.text("Press 1/2/3 or click", fg="rgb(128,128,128)"),
-        @vnode.vspace(1.0),
-        @vnode.row(tab_items, gap=0.5),
-        @vnode.column(
-          [@vnode.text(content)],
+        text("Tabs Component", fg="yellow", bold=true),
+        text("Press 1/2/3 or click", fg="rgb(128,128,128)"),
+        vspace(1.0),
+        row(tab_items, gap=0.5),
+        column(
+          [text(content)],
           padding=1.0,
           border="single",
           border_color="rgb(80,80,80)",
         ),
-        @vnode.vspace(0.5),
-        @vnode.text("Selected: Tab " + (selected + 1).to_string(), fg="green"),
+        vspace(0.5),
+        text("Selected: Tab " + (selected + 1).to_string(), fg="green"),
       ],
       gap=0.5,
     )
   }
 
-  fn render_accordion_demo() -> @vnode.TuiNode {
+  fn render_accordion_demo() -> TuiNode {
     let sections = [
       (
         "Introduction", "Welcome to the accordion demo. Click headers to expand.",
@@ -98,67 +103,60 @@ async fn main {
       ("FAQ", "Q: How does it work? A: Click on section headers!"),
     ]
     let expanded = accordion_expanded.get()
-    let section_nodes : Array[@vnode.TuiNode] = []
+    let section_nodes : Array[TuiNode] = []
     for i, s in sections {
       section_nodes.push(
         @ui.accordion_section(
           s.0,
-          @vnode.text(s.1, fg="rgb(180,180,180)"),
+          text(s.1, fg="rgb(180,180,180)"),
           expanded == i,
           id="acc-" + i.to_string(),
         ),
       )
     }
-    @vnode.column(
+    column(
       [
-        @vnode.text("Accordion Component", fg="yellow", bold=true),
-        @vnode.text("Press 1/2/3 to expand sections", fg="rgb(128,128,128)"),
+        text("Accordion Component", fg="yellow", bold=true),
+        text("Press 1/2/3 to expand sections", fg="rgb(128,128,128)"),
         ..section_nodes,
       ],
     )
   }
 
-  fn render_radio_demo() -> @vnode.TuiNode {
+  fn render_radio_demo() -> TuiNode {
     let options = ["Fast", "Balanced", "Power Saver"]
     let selected = radio_selected.get()
-    let option_nodes : Array[@vnode.TuiNode] = []
+    let option_nodes : Array[TuiNode] = []
     for i, opt in options {
       option_nodes.push(
         @ui.radio(opt, selected == i, id="radio-" + i.to_string()),
       )
     }
-    @vnode.column(
+    column(
       [
-        @vnode.text("Radio Group", fg="yellow", bold=true),
-        @vnode.text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
-        @vnode.vspace(1.0),
-        @vnode.text("Select mode:"),
-        @vnode.column(
-          option_nodes,
-          border="single",
-          border_color="rgb(60,60,80)",
-        ),
-        @vnode.vspace(0.5),
-        @vnode.text("Selected: " + options[selected], fg="green"),
+        text("Radio Group", fg="yellow", bold=true),
+        text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
+        vspace(1.0),
+        text("Select mode:"),
+        column(option_nodes, border="single", border_color="rgb(60,60,80)"),
+        vspace(0.5),
+        text("Selected: " + options[selected], fg="green"),
       ],
       gap=0.5,
     )
   }
 
-  fn render_switch_demo() -> @vnode.TuiNode {
+  fn render_switch_demo() -> TuiNode {
     let sw = switch_on.get()
     let cb = checkbox_checked.get()
-    @vnode.column(
+    column(
       [
-        @vnode.text("Switch & Checkbox", fg="yellow", bold=true),
-        @vnode.text(
-          "Space: toggle switch, 1: toggle checkbox",
-          fg="rgb(128,128,128)",
-        ),
-        @vnode.vspace(1.0),
+        text("Switch & Checkbox", fg="yellow", bold=true),
+        text("Space: toggle switch, 1: toggle checkbox", fg="rgb(128,128,128)"),
+        vspace(1.0),
         @ui.switch(sw, "Dark Mode", id="switch-dark"),
         @ui.switch(not(sw), "Notifications", id="switch-notif"),
-        @vnode.vspace(0.5),
+        vspace(0.5),
         @ui.checkbox("Accept Terms", cb, id="cb-terms"),
         @ui.checkbox("Subscribe to Newsletter", not(cb), id="cb-news"),
       ],
@@ -166,43 +164,43 @@ async fn main {
     )
   }
 
-  fn render_listbox_demo() -> @vnode.TuiNode {
+  fn render_listbox_demo() -> TuiNode {
     let items = ["Apple", "Banana", "Cherry", "Grape", "Orange"]
     let selected = listbox_selected.get()
-    let list_nodes : Array[@vnode.TuiNode] = []
+    let list_nodes : Array[TuiNode] = []
     for i, item in items {
       list_nodes.push(
         @ui.listbox_item(item, selected == i, id="list-" + i.to_string()),
       )
     }
-    @vnode.column(
+    column(
       [
-        @vnode.text("Listbox", fg="yellow", bold=true),
-        @vnode.text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
-        @vnode.vspace(1.0),
-        @vnode.text("Choose a fruit:"),
-        @vnode.column(list_nodes, border="single", border_color="rgb(60,60,80)"),
-        @vnode.vspace(0.5),
-        @vnode.text("Selected: " + items[selected], fg="green"),
+        text("Listbox", fg="yellow", bold=true),
+        text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
+        vspace(1.0),
+        text("Choose a fruit:"),
+        column(list_nodes, border="single", border_color="rgb(60,60,80)"),
+        vspace(0.5),
+        text("Selected: " + items[selected], fg="green"),
       ],
       gap=0.5,
     )
   }
 
-  fn render_combobox_demo() -> @vnode.TuiNode {
+  fn render_combobox_demo() -> TuiNode {
     let options = ["JavaScript", "TypeScript", "Python", "Rust", "Go"]
     let selected = combobox_selected.get()
     let open = combobox_open.get()
     // Dropdown items (only shown when open)
-    let dropdown_items : Array[@vnode.TuiNode] = if open {
-      let items : Array[@vnode.TuiNode] = []
+    let dropdown_items : Array[TuiNode] = if open {
+      let items : Array[TuiNode] = []
       for i, opt in options {
         items.push(
           @ui.combobox_item(opt, selected == i, id="combo-" + i.to_string()),
         )
       }
       [
-        @vnode.column(
+        column(
           items,
           id="combo-dropdown",
           border="single",
@@ -214,16 +212,16 @@ async fn main {
       []
     }
     // Show selected text only when dropdown is closed
-    let status_text : Array[@vnode.TuiNode] = if open {
+    let status_text : Array[TuiNode] = if open {
       []
     } else {
-      [@vnode.text("Selected: " + options[selected], fg="green")]
+      [text("Selected: " + options[selected], fg="green")]
     }
-    @vnode.column(
+    column(
       [
-        @vnode.text("Combobox (Dropdown)", fg="yellow", bold=true),
-        @vnode.text("Space: open/close, ↑/↓: select", fg="rgb(128,128,128)"),
-        @vnode.text("Select language:"),
+        text("Combobox (Dropdown)", fg="yellow", bold=true),
+        text("Space: open/close, ↑/↓: select", fg="rgb(128,128,128)"),
+        text("Select language:"),
         @ui.combobox_trigger(options[selected], open, id="combo-trigger"),
         ..dropdown_items,
         ..status_text,
@@ -231,15 +229,15 @@ async fn main {
     )
   }
 
-  fn render_splitter_demo() -> @vnode.TuiNode {
+  fn render_splitter_demo() -> TuiNode {
     let pos = splitter_pos.get()
     let left_width = pos * 60 / 100
     let right_width = 60 - left_width - 1
     // Splitter divider (custom, not in components yet)
-    fn splitter_divider(focused : Bool, id : String) -> @vnode.TuiNode {
+    fn splitter_divider(focused : Bool, id : String) -> TuiNode {
       let color = if focused { "cyan" } else { "rgb(80,80,80)" }
-      @vnode.column(
-        [@vnode.text("|", fg=color)],
+      column(
+        [text("|", fg=color)],
         id~,
         width=1.0,
         justify="center",
@@ -248,18 +246,18 @@ async fn main {
       )
     }
 
-    @vnode.column(
+    column(
       [
-        @vnode.text("Window Splitter", fg="yellow", bold=true),
-        @vnode.text("Use ↑/↓ to resize", fg="rgb(128,128,128)"),
-        @vnode.vspace(1.0),
-        @vnode.row(
+        text("Window Splitter", fg="yellow", bold=true),
+        text("Use ↑/↓ to resize", fg="rgb(128,128,128)"),
+        vspace(1.0),
+        row(
           [
             // Left pane
-            @vnode.column(
+            column(
               [
-                @vnode.text("Left Pane", fg="cyan"),
-                @vnode.text("Width: " + left_width.to_string()),
+                text("Left Pane", fg="cyan"),
+                text("Width: " + left_width.to_string()),
               ],
               width=left_width.to_double(),
               height=8.0,
@@ -271,10 +269,10 @@ async fn main {
             // Divider
             splitter_divider(true, "splitter-div"),
             // Right pane
-            @vnode.column(
+            column(
               [
-                @vnode.text("Right Pane", fg="yellow"),
-                @vnode.text("Width: " + right_width.to_string()),
+                text("Right Pane", fg="yellow"),
+                text("Width: " + right_width.to_string()),
               ],
               width=right_width.to_double(),
               height=8.0,
@@ -286,14 +284,14 @@ async fn main {
           ],
           id="splitter",
         ),
-        @vnode.vspace(0.5),
-        @vnode.text("Position: " + pos.to_string() + "%", fg="green"),
+        vspace(0.5),
+        text("Position: " + pos.to_string() + "%", fg="green"),
       ],
       gap=0.5,
     )
   }
 
-  fn render_menubar_demo() -> @vnode.TuiNode {
+  fn render_menubar_demo() -> TuiNode {
     let menus = ["File", "Edit", "View"]
     let file_items = ["New", "Open", "Save", "Exit"]
     let edit_items = ["Cut", "Copy", "Paste"]
@@ -312,7 +310,7 @@ async fn main {
     }
 
     // Menu bar
-    let menu_bar_items : Array[@vnode.TuiNode] = []
+    let menu_bar_items : Array[TuiNode] = []
     for i, m in menus {
       menu_bar_items.push(
         @ui.menubar_item(m, open_menu == i, id="menu-" + i.to_string()),
@@ -322,9 +320,9 @@ async fn main {
     // Dropdown (if open) - use same structure for both states
     // Fixed height for dropdown area
     let dropdown_height = 10.0
-    let dropdown : @vnode.TuiNode = if open_menu >= 0 {
+    let dropdown : TuiNode = if open_menu >= 0 {
       let items = get_menu_items(open_menu)
-      let item_nodes : Array[@vnode.TuiNode] = []
+      let item_nodes : Array[TuiNode] = []
       for i, item in items {
         item_nodes.push(
           @ui.menu_item(
@@ -334,7 +332,7 @@ async fn main {
           ),
         )
       }
-      @vnode.column(
+      column(
         item_nodes,
         id="dropdown",
         border="single",
@@ -344,7 +342,7 @@ async fn main {
       )
     } else {
       // Use same column structure as placeholder to keep layout stable
-      @vnode.column([], id="dropdown", height=dropdown_height)
+      column([], id="dropdown", height=dropdown_height)
     }
 
     // Get current item name
@@ -358,22 +356,22 @@ async fn main {
     } else {
       "none"
     }
-    @vnode.column([
-      @vnode.text("Menubar", fg="yellow", bold=true),
-      @vnode.text(
+    column([
+      text("Menubar", fg="yellow", bold=true),
+      text(
         "1/2/3: open menu, ↑/↓: select, Space: close",
         fg="rgb(128,128,128)",
       ),
-      @vnode.vspace(1.0),
-      @vnode.row(
+      vspace(1.0),
+      row(
         menu_bar_items,
         bg="rgb(40,40,50)",
         border="single",
         border_color="rgb(60,60,80)",
       ),
       dropdown,
-      @vnode.spacer(),
-      @vnode.text(
+      spacer(),
+      text(
         "Menu: " +
         (if open_menu >= 0 { menus[open_menu] } else { "none" }) +
         " | Item: " +
@@ -387,11 +385,11 @@ async fn main {
   // Main Render
   // ==========================================================================
 
-  fn render_ui() -> @vnode.TuiNode {
+  fn render_ui() -> TuiNode {
     let current = current_demo.get()
 
     // Navigation tabs
-    let nav_items : Array[@vnode.TuiNode] = []
+    let nav_items : Array[TuiNode] = []
     for i, d in demos {
       nav_items.push(@ui.tab(d, current == i, id="nav-" + i.to_string()))
     }
@@ -406,20 +404,20 @@ async fn main {
       _ if current == demo_combobox => render_combobox_demo()
       _ if current == demo_splitter => render_splitter_demo()
       _ if current == demo_menubar => render_menubar_demo()
-      _ => @vnode.text("Unknown demo")
+      _ => text("Unknown demo")
     }
-    @vnode.column(
+    column(
       [
         // Header
-        @vnode.row(
-          [@vnode.text("VNode Component Gallery", fg="yellow", bold=true)],
+        row(
+          [text("VNode Component Gallery", fg="yellow", bold=true)],
           justify="center",
           padding_y=0.5,
         ),
         // Navigation
-        @vnode.row(nav_items, justify="center", gap=0.5),
+        row(nav_items, justify="center", gap=0.5),
         // Demo content
-        @vnode.column(
+        column(
           [demo_content],
           flex_grow=1.0,
           padding_x=1.0,
@@ -428,8 +426,8 @@ async fn main {
           border_color="rgb(80,80,100)",
         ),
         // Footer
-        @vnode.row(
-          [@vnode.text(message.get(), fg="rgb(100,100,100)")],
+        row(
+          [text(message.get(), fg="rgb(100,100,100)")],
           justify="center",
           padding_y=1.0,
         ),
@@ -456,7 +454,7 @@ async fn main {
   }
 
   // Initialize terminal
-  @tui.print_raw(@vnode.VNodeApp::init_terminal())
+  @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
   @tui.print_raw(@tui.enable_mouse())
 
@@ -711,6 +709,6 @@ async fn main {
   // Restore terminal
   @tui.print_raw(@tui.disable_mouse())
   @tui.cleanup_stdin()
-  @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+  @tui.print_raw(VNodeApp::restore_terminal())
   println("Goodbye!")
 }

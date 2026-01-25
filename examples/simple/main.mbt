@@ -3,24 +3,27 @@
 /// Run with: moon run examples/vnode-simple
 
 ///|
+using @vnode {type TuiNode, type VNodeApp, view, row, text}
+
+///|
 /// Render the simple counter UI
-fn render_simple_ui(width : Int, height : Int, count : Int) -> @vnode.TuiNode {
-  @vnode.column(
+fn render_simple_ui(width : Int, height : Int, count : Int) -> TuiNode {
+  view(
     [
       // Header - matches @tui.title_bar (margin_y=1.0, fg=yellow, bold)
-      @vnode.row(
-        [@vnode.text("Simple TUI App", fg="yellow", bold=true)],
+      row(
+        [text("Simple TUI App", fg="yellow", bold=true)],
         justify="center",
         margin_y=1.0,
       ),
       // Main content area - centered both ways
-      @vnode.column(
+      view(
         [
-          @vnode.text("Press +/- to change count, q to quit"),
-          @vnode.row(
+          text("Press +/- to change count, q to quit"),
+          row(
             [
-              @vnode.text("Count: "),
-              @vnode.text(
+              text("Count: "),
+              text(
                 count.to_string(),
                 fg=if count >= 0 { "green" } else { "red" },
                 bold=true,
@@ -34,8 +37,8 @@ fn render_simple_ui(width : Int, height : Int, count : Int) -> @vnode.TuiNode {
         align="center",
       ),
       // Footer - matches @tui.footer (justify=center, fg=gray)
-      @vnode.row(
-        [@vnode.text("q: quit | +/-: change count", fg="rgb(128,128,128)")],
+      row(
+        [text("q: quit | +/-: change count", fg="rgb(128,128,128)")],
         justify="center",
       ),
     ],
@@ -55,15 +58,15 @@ async fn main {
   let count = @signals.signal(0)
 
   // Create the vnode app
-  let app = @vnode.VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height)
 
   // Render function wrapper
-  fn render_ui() -> @vnode.TuiNode {
+  fn render_ui() -> TuiNode {
     render_simple_ui(width, height, count.get())
   }
 
   // Initialize terminal
-  @tui.print_raw(@vnode.VNodeApp::init_terminal())
+  @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
 
   // Initial render
@@ -103,6 +106,6 @@ async fn main {
 
   // Restore terminal
   @tui.cleanup_stdin()
-  @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+  @tui.print_raw(VNodeApp::restore_terminal())
   println("Goodbye!")
 }

@@ -2,6 +2,23 @@
 /// VNode Form - demonstrates input components with cooked mode editing
 
 ///|
+using @vnode {
+  type TuiNode,
+  type InputState,
+  type VNodeApp,
+  view,
+  row,
+  grid,
+  text,
+  input,
+  textarea,
+  vspace,
+  form_edit_config,
+  start_edit_inplace_in_bounds,
+  start_edit,
+}
+
+///|
 fn main {
   let (width, height) = @tui.get_terminal_size()
 
@@ -22,78 +39,75 @@ fn main {
   }
 
   // Create the vnode app
-  let app = @vnode.VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height)
 
   // Get input state based on focus and editing
-  fn get_input_state(index : Int) -> @vnode.InputState {
+  fn get_input_state(index : Int) -> InputState {
     if editing.get() && focus_index.get() == index {
-      @vnode.InputState::Editing
+      InputState::Editing
     } else if focus_index.get() == index {
-      @vnode.InputState::Focused
+      InputState::Focused
     } else {
-      @vnode.InputState::Idle
+      InputState::Idle
     }
   }
 
   // Render function
-  fn render_ui() -> @vnode.TuiNode {
+  fn render_ui() -> TuiNode {
     let focus = focus_index.get()
-    @vnode.column(
+    view(
       [
         // Header
-        @vnode.row(
-          [@vnode.text("VNode Form Demo", fg="yellow", bold=true)],
+        row(
+          [text("VNode Form Demo", fg="yellow", bold=true)],
           justify="center",
           padding_y=0.5,
         ),
-        // Form content
-        @vnode.column(
+        // Form content - use grid for label/input alignment
+        view(
           [
-            // Name field
-            @vnode.column([
-              @vnode.text("Name:", fg="cyan"),
-              @vnode.input(
-                name.get(),
-                id="name",
-                placeholder="Enter your name",
-                state=get_input_state(0),
-                min_width=40.0,
-              ),
-            ]),
-            @vnode.vspace(1.0),
-            // Email field
-            @vnode.column([
-              @vnode.text("Email:", fg="cyan"),
-              @vnode.input(
-                email.get(),
-                id="email",
-                placeholder="user@example.com",
-                state=get_input_state(1),
-                min_width=40.0,
-              ),
-            ]),
-            @vnode.vspace(1.0),
-            // Message field
-            @vnode.column([
-              @vnode.text("Message:", fg="cyan"),
-              @vnode.textarea(
-                message.get(),
-                id="message",
-                placeholder="Enter your message...",
-                state=get_input_state(2),
-                rows=3,
-                min_width=40.0,
-              ),
-            ]),
-            @vnode.vspace(1.0),
+            grid(
+              [
+                // Row 1: Name
+                text("Name:", fg="cyan"),
+                input(
+                  name.get(),
+                  id="name",
+                  placeholder="Enter your name",
+                  state=get_input_state(0),
+                ),
+                // Row 2: Email
+                text("Email:", fg="cyan"),
+                input(
+                  email.get(),
+                  id="email",
+                  placeholder="user@example.com",
+                  state=get_input_state(1),
+                ),
+              ],
+              columns=[10.0, 40.0],
+              gap=1.0,
+            ),
+            vspace(1.0),
+            // Message field (full width, separate from grid)
+            text("Message:", fg="cyan"),
+            textarea(
+              message.get(),
+              id="message",
+              placeholder="Enter your message...",
+              state=get_input_state(2),
+              rows=3,
+              min_width=50.0,
+            ),
+            vspace(1.0),
             // Submit button
-            @vnode.row([
+            row([
               {
                 let is_focused = focus == 3
                 let bg = if is_focused { "cyan" } else { "rgb(60,60,70)" }
                 let fg = if is_focused { "black" } else { "white" }
-                @vnode.row(
-                  [@vnode.text("  Submit  ", fg~, bold=is_focused)],
+                row(
+                  [text("  Submit  ", fg~, bold=is_focused)],
                   id="submit",
                   bg~,
                   padding_x=1.0,
@@ -108,9 +122,9 @@ fn main {
           flex_grow=1.0,
         ),
         // Footer
-        @vnode.row(
+        row(
           [
-            @vnode.text(
+            text(
               "Tab/↑↓: navigate | Enter: edit | Esc: cancel | q: quit",
               fg="rgb(100,100,100)",
             ),
@@ -133,7 +147,7 @@ fn main {
   fn do_quit() -> Unit {
     running.set(false)
     @io.stop_keypress_listener()
-    @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+    @tui.print_raw(VNodeApp::restore_terminal())
     println("Cancelled.")
   }
 
@@ -141,7 +155,7 @@ fn main {
   fn do_submit() -> Unit {
     running.set(false)
     @io.stop_keypress_listener()
-    @tui.print_raw(@vnode.VNodeApp::restore_terminal())
+    @tui.print_raw(VNodeApp::restore_terminal())
     println("Form submitted!")
     println("Name: " + name.get())
     println("Email: " + email.get())
@@ -161,7 +175,7 @@ fn main {
       Some((field_name, signal, multiline)) =>
         match app.find_by_id(id) {
           Some(bounds) => {
-            let config = @vnode.form_edit_config(
+            let config = form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
@@ -170,7 +184,7 @@ fn main {
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            @vnode.start_edit_inplace_in_bounds(
+            start_edit_inplace_in_bounds(
               config,
               signal.get(),
               bounds,
@@ -180,7 +194,7 @@ fn main {
           }
           None => {
             // Fallback to simple edit if bounds not found
-            let config = @vnode.form_edit_config(
+            let config = form_edit_config(
               field_name,
               signal,
               on_edit_start=Some(fn() {
@@ -189,7 +203,7 @@ fn main {
               }),
               on_force_quit=Some(fn() { do_quit() }),
             )
-            @vnode.start_edit(config, signal.get(), restore_tui)
+            start_edit(config, signal.get(), restore_tui)
           }
         }
       None => ()
@@ -249,7 +263,7 @@ fn main {
   }
 
   // Initialize terminal
-  @tui.print_raw(@vnode.VNodeApp::init_terminal())
+  @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
 
   // Initial render

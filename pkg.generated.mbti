@@ -173,11 +173,15 @@ pub using @components {type ColumnAlign}
 
 pub using @mizchi/tui/core {type Component}
 
+pub using @vnode {type DisplayValue}
+
 pub using @vnode {type EditConfig}
 
 pub using @headless {type FocusNav}
 
 pub using @components {type GaugeStyle}
+
+pub using @vnode {type GridAutoFlowValue}
 
 pub using @events {type HitTestResult}
 
