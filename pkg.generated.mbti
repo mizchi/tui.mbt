@@ -2,258 +2,156 @@
 package "mizchi/tui"
 
 import {
-  "mizchi/crater/types",
   "mizchi/signals",
-  "mizchi/tui/components",
-  "mizchi/tui/core",
   "mizchi/tui/events",
   "mizchi/tui/io",
   "mizchi/tui/render",
+  "mizchi/tui/vnode",
 }
 
 // Values
-pub fn accordion(Array[@components.AccordionItem], id? : String, focused_id? : String, theme? : @components.Theme, expanded_icon? : String, collapsed_icon? : String, content_padding? : Double, gap? : Double) -> @core.Component
+pub fn accordion_section(String, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn accordion_header(String, Bool, id? : String, focused? : Bool, theme? : @components.Theme, expanded_icon? : String, collapsed_icon? : String, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
-
-pub fn alert_dialog(String, title? : String, button_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
-
-pub fn align_center() -> @types.Alignment
-
-pub fn align_end() -> @types.Alignment
-
-pub fn align_space_around() -> @types.Alignment
-
-pub fn align_space_between() -> @types.Alignment
-
-pub fn align_space_evenly() -> @types.Alignment
-
-pub fn align_start() -> @types.Alignment
-
-pub fn align_stretch() -> @types.Alignment
+pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn ansi_full_reset() -> String
 
-pub fn autocomplete(Array[@components.ComboboxOption], String, id? : String, focused_id? : String, placeholder? : String, theme? : @components.Theme, min_width? : Double, max_visible? : Int) -> @core.Component
+pub fn button(String, id? : String, state? : @vnode.ButtonState, min_width? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn bold(String) -> @core.Component
+pub fn card(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], title? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn bordered(Array[@core.Component], style? : @core.BorderChars, color? : @core.Color) -> @core.Component
-
-pub fn button(String, id? : String, state? : @components.ButtonState, theme? : @components.Theme, min_width? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
-
-pub fn card(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color, padding? : Double) -> @core.Component
-
-pub fn center(Array[@core.Component]) -> @core.Component
-
-pub fn checkbox(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : @components.Theme, checked_icon? : String, unchecked_icon? : String, on_click? : (() -> Unit)?) -> @core.Component
+pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn cleanup_stdin() -> Unit
 
-pub fn colored(String, @core.Color) -> @core.Component
+pub fn column(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn column(Array[@core.Component], id? : String, width? : &@components.ToDimension, height? : &@components.ToDimension, min_width? : &@components.ToDimension, min_height? : &@components.ToDimension, max_width? : &@components.ToDimension, max_height? : &@components.ToDimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : &@components.ToDimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
+pub fn combobox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn combobox(Array[@components.ComboboxOption], String, id? : String, focused_id? : String, state? : @components.ComboboxState, filter? : String, placeholder? : String, theme? : @components.Theme, width? : @types.Dimension, min_width? : Double, max_visible? : Int, dropdown_icon? : String, dropdown_icon_open? : String) -> @core.Component
+pub fn combobox_trigger(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, bg? : @core.Color, border_color? : @core.Color) -> @core.Component
-
-pub fn context_menu(Array[@components.MenuItem], focused_id? : String, id? : String, theme? : @components.Theme, min_width? : Double) -> @core.Component
-
-pub fn dim_auto() -> @types.Dimension
-
-pub fn dim_length(Double) -> @types.Dimension
-
-pub fn dim_percent(Double) -> @types.Dimension
+pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn disable_mouse() -> String
+
+pub fn divider(char? : String, fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn enable_mouse() -> String
 
 pub fn enable_raw_mode() -> Unit
 
-pub fn fill(Array[@core.Component]) -> @core.Component
+pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?, on_force_quit? : (() -> Unit)?) -> @vnode.EditConfig
 
-pub fn footer(Array[@core.Component], fg? : @core.Color) -> @core.Component
+pub fn fragment(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() -> Unit)?, on_edit_end? : (() -> Unit)?, on_force_quit? : (() -> Unit)?) -> @components.EditConfig
-
-pub fn fraction_text(Int, Int, theme? : @components.Theme) -> @core.Component
-
-pub fn fullscreen(Array[@core.Component], Int, Int, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double) -> @core.Component
+pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn get_terminal_size() -> (Int, Int)
 
-pub fn grid(Array[@core.Component], columns? : Int, column_gap? : Double, row_gap? : Double, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, justify_items? : @types.Alignment, align_items? : @types.Alignment, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color) -> @core.Component
+pub fn hspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn hdivider(char? : Char, fg? : @core.Color, width? : Int) -> @core.Component
+pub fn icon_button(String, id? : String, state? : @vnode.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn hspace(Double) -> @core.Component
+pub fn input(String, id? : String, placeholder? : String, state? : @vnode.InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn hsplit(Array[@core.Component], Array[@core.Component], Int, @components.SplitSize, @components.SplitSize, divider? : @core.Component?, divider_size? : Int) -> @core.Component
+pub fn input_plain(String, placeholder? : String, state? : @vnode.InputState, fg? : String, placeholder_fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn hsplit_fixed_bottom(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
+pub fn listbox(Array[(String, String)], String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn hsplit_fixed_top(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
+pub fn listbox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn icon_button(String, state? : @components.ButtonState, theme? : @components.Theme) -> @core.Component
+pub fn menu_divider() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn input(String, id? : String, placeholder? : String, state? : @components.InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, height? : @types.Dimension, min_width? : Double, min_height? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
+pub fn menu_item(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn input_plain(String, placeholder? : String, state? : @components.InputState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, underline? : Bool) -> @core.Component
+pub fn menubar_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn labeled_block(String, String, String, label_color? : @core.Color, content_color? : @core.Color, bold_label? : Bool, width? : Int, height? : Int, indent? : String) -> @core.Component
+pub fn meter(String, Double, width? : Int, label_width? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn labeled_checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : @components.LabelPosition, theme? : @components.Theme, gap? : Double, on_click? : (() -> Unit)?) -> @core.Component
+pub fn modal(String, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn labeled_switch(String, Bool, id? : String, focused? : Bool, disabled? : Bool, label_position? : @components.LabelPosition, theme? : @components.Theme, gap? : Double, on_click? : (() -> Unit)?) -> @core.Component
-
-pub fn listbox(Array[@components.ListboxOption], String, id? : String, focused_id? : String, orientation? : @components.ListboxOrientation, theme? : @components.Theme, min_width? : Double, max_height? : Int, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
-
-pub fn listbox_multi(Array[@components.ListboxOption], @components.ListboxState, id? : String, orientation? : @components.ListboxOrientation, theme? : @components.Theme, min_width? : Double, max_height? : Int, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
-
-pub fn listbox_option(String, String, disabled? : Bool) -> @components.ListboxOption
-
-pub fn loading_dots(Int, label? : String, theme? : @components.Theme) -> @core.Component
-
-pub fn menu(Array[@components.MenuItem], focused_id? : String, id? : String, theme? : @components.Theme, min_width? : Double) -> @core.Component
-
-pub fn menu_checkbox(String, String, Bool, disabled? : Bool) -> @components.MenuItem
-
-pub fn menu_item(String, String, disabled? : Bool) -> @components.MenuItem
-
-pub fn menu_radio(String, String, Bool, disabled? : Bool) -> @components.MenuItem
-
-pub fn menu_separator() -> @components.MenuItem
-
-pub fn menubar(Array[@components.MenubarItem], @components.MenubarState, id? : String, theme? : @components.Theme, item_padding_x? : Double, dropdown_min_width? : Double) -> @core.Component
-
-pub fn modal(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
-
-pub fn modal_with_backdrop(@core.Component, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, bg? : @core.Color, fg? : @core.Color, border? : @core.BorderChars?, border_color? : @core.Color, padding? : Double, padding_x? : Double, padding_y? : Double, backdrop_bg? : @core.Color, container_width? : @types.Dimension, container_height? : @types.Dimension) -> @core.Component
-
-pub fn multiline_input(String, id? : String, rows? : Int, placeholder? : String, state? : @components.TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @core.Component
-
-pub fn padded(Array[@core.Component], padding? : Double) -> @core.Component
-
-pub fn panel(Array[@core.Component], id? : String, border_color? : @core.Color, bg? : @core.Color) -> @core.Component
+pub fn modal_backdrop() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn parse_input(String) -> @events.InputEvent
 
-pub fn percent_text(Double, theme? : @components.Theme) -> @core.Component
-
 pub fn print_raw(String) -> Unit
 
-pub fn progress_bar(Double, Int, style? : @components.ProgressStyle, show_percent? : Bool, theme? : @components.Theme) -> @core.Component
+pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn radio(String, Bool, id? : String, focused? : Bool, theme? : @components.Theme, selected_icon? : String, unselected_icon? : String, gap? : Double) -> @core.Component
-
-pub fn radiogroup(Array[@components.RadioOption], String, id? : String, focused_id? : String, orientation? : @components.RadioOrientation, theme? : @components.Theme, selected_icon? : String, unselected_icon? : String, gap? : Double, item_gap? : Double) -> @core.Component
+pub fn radio(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub async fn read_key() -> String
 
-pub fn render_once(Int, Int, @core.Component) -> String
+pub fn render_once(Int, Int, @mizchi/tui/core.Component) -> String
 
-pub fn resizable_pane(@core.Component, @core.Component, Int, orientation? : @components.SplitterOrientation, id? : String, focused? : Bool, show_position? : Bool, total_size? : Int) -> @core.Component
+pub fn render_vnode_once(Int, Int, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
-pub fn row(Array[@core.Component], id? : String, width? : &@components.ToDimension, height? : &@components.ToDimension, min_width? : &@components.ToDimension, min_height? : &@components.ToDimension, max_width? : &@components.ToDimension, max_height? : &@components.ToDimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : &@components.ToDimension, justify? : @types.Alignment, align? : @types.Alignment, wrap? : Bool, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : @core.BorderChars?, border_color? : @core.Color, bg? : @core.Color, fg? : @core.Color, on_click? : (() -> Unit)?, role? : @core.Role?) -> @core.Component
+pub fn row(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
+pub fn run(() -> @mizchi/tui/core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
 
-pub fn scroll_indicator(@components.ScrollIndicator, fg? : @core.Color) -> @core.Component
+pub fn run_vnode_app(Int, Int, () -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], (String) -> Unit) -> () -> Unit
 
-pub fn scrollbar(Int, Int, Int, Int, track_color? : @core.Color, thumb_color? : @core.Color, track_char? : String, thumb_char? : String) -> @core.Component
+pub fn spacer() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn select(Array[@components.ComboboxOption], String, id? : String, focused_id? : String, open? : Bool, placeholder? : String, theme? : @components.Theme, min_width? : Double, max_visible? : Int) -> @core.Component
+pub fn sparkline(Array[Double], width? : Int, fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn snapshot(@components.HeadlessApp, String) -> Unit
+pub fn spinner(Int, label? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn spacer(flex_grow? : Double) -> @core.Component
+pub fn start_edit(@vnode.EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn spinner(Int, label? : String, theme? : @components.Theme) -> @core.Component
+pub fn start_edit_inplace(@vnode.EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
-pub fn splitter_handle(@components.SplitterOrientation, focused? : Bool, id? : String, fg? : @core.Color, bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color) -> @core.Component
-
-pub fn start_edit(@components.EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
-
-pub fn start_edit_inplace(@components.EditConfig, String, Int, Int, Int, Int, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
-
-pub fn start_edit_inplace_in_bounds(@components.EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
+pub fn start_edit_inplace_in_bounds(@vnode.EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
 pub fn start_keypress_listener((String) -> Unit) -> Unit
 
+pub fn stat(String, String, label_width? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
 pub fn stop_keypress_listener() -> Unit
 
-pub fn streaming_block(String, String, String, is_streaming? : Bool, label_color? : @core.Color, content_color? : @core.Color, bold_label? : Bool, width? : Int, height? : Int, indent? : String, cursor_char? : String) -> @core.Component
+pub fn switch(Bool, String, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn streaming_text(String, is_streaming? : Bool, cursor_char? : String, fg? : @core.Color, width? : Int, height? : Int) -> @core.Component
+pub fn tab(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn switch(Bool, id? : String, focused? : Bool, disabled? : Bool, theme? : @components.Theme, track_on? : String, track_off? : String, on_click? : (() -> Unit)?) -> @core.Component
+pub fn tab_bar(Array[(String, String)], String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tab_container(Array[@components.TabItem], String, @core.Component, id? : String, focused_id? : String, theme? : @components.Theme, padding_x? : Double) -> @core.Component
+pub fn table(Array[@vnode.TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tab_panel(@core.Component, id? : String, theme? : @components.Theme, border? : @core.BorderChars?, padding? : Double) -> @core.Component
+pub fn table_header(Array[@vnode.TableColumn], separator? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tabs(Array[@components.TabItem], String, id? : String, focused_id? : String, theme? : @components.Theme, padding_x? : Double, on_select? : ((String) -> Unit)?) -> @core.Component
+pub fn table_row(Array[@vnode.TableColumn], Array[String], separator? : String, selected? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tabs_boxed(Array[@components.TabItem], String, id? : String, focused_id? : String, theme? : @components.Theme, padding_x? : Double) -> @core.Component
+pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tabs_underline(Array[@components.TabItem], String, id? : String, focused_id? : String, theme? : @components.Theme, padding_x? : Double) -> @core.Component
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn text(String, fg? : @core.Color, bg? : @core.Color, bold? : Bool, underline? : Bool) -> @core.Component
+pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn text_button(String, state? : @components.ButtonState, theme? : @components.Theme, underline? : Bool) -> @core.Component
-
-pub fn textarea(String, id? : String, rows? : Int, placeholder? : String, state? : @components.TextareaState, fg? : @core.Color, bg? : @core.Color, placeholder_fg? : @core.Color, focus_border_color? : @core.Color, edit_border_color? : @core.Color, disabled_fg? : @core.Color, disabled_bg? : @core.Color, width? : @types.Dimension, min_width? : Double, padding_x? : Double, padding_y? : Double, on_click? : (() -> Unit)?) -> @core.Component
-
-pub fn title_bar(String, fg? : @core.Color) -> @core.Component
-
-pub fn vdivider(char? : Char, fg? : @core.Color) -> @core.Component
-
-pub fn vspace(Double) -> @core.Component
-
-pub fn vsplit(Array[@core.Component], Array[@core.Component], Int, @components.SplitSize, @components.SplitSize, divider? : @core.Component?, divider_size? : Int) -> @core.Component
-
-pub fn vsplit_fixed_left(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
-
-pub fn vsplit_fixed_right(Array[@core.Component], Array[@core.Component], Int, Int, divider? : @core.Component?) -> @core.Component
-
-pub fn window_splitter(@core.Component, @core.Component, @components.SplitterState, orientation? : @components.SplitterOrientation, id? : String, min? : Int, max? : Int, divider_fg? : @core.Color, divider_bg? : @core.Color, focused_fg? : @core.Color, focused_bg? : @core.Color, total_size? : Int, divider_width? : Double) -> @core.Component
-
-pub fn with_modal(@core.Component, @core.Component, Bool) -> @core.Component
+pub fn vspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 // Errors
 
 // Types and methods
 
 // Type aliases
-pub using @components {type AccordionItem}
-
-pub using @components {type ActionMenu}
-
 pub using @render {type App}
 
-pub using @core {type BorderChars}
+pub using @mizchi/tui/core {type BorderChars}
 
-pub using @components {type ButtonState}
+pub using @vnode {type ButtonState}
 
 pub using @render {type CharBuffer}
 
 pub using @render {type CharCell}
 
-pub using @core {type Color}
+pub using @mizchi/tui/core {type Color}
 
-pub using @components {type ComboboxOption}
+pub using @vnode {type ColumnAlign}
 
-pub using @components {type ComboboxState}
+pub using @mizchi/tui/core {type Component}
 
-pub using @core {type Component}
-
-pub using @components {type EditConfig}
-
-pub using @components {type FocusNav}
-
-pub using @components {type HeadlessApp}
+pub using @vnode {type EditConfig}
 
 pub using @events {type HitTestResult}
 
@@ -261,27 +159,11 @@ pub using @events {type InputEvent}
 
 pub using @io {type InputResult}
 
-pub using @components {type InputState}
-
-pub using @components {type ItemScroller}
+pub using @vnode {type InputState}
 
 pub using @events {type KeyEvent}
 
 pub using @events {type KeyModifier}
-
-pub using @components {type LabelPosition}
-
-pub using @components {type LineScroller}
-
-pub using @components {type ListboxOption}
-
-pub using @components {type MenuItem}
-
-pub using @components {type MenubarItem}
-
-pub using @components {type MenubarState}
-
-pub using @components {type ModalState}
 
 pub using @events {type MouseButton}
 
@@ -289,35 +171,23 @@ pub using @events {type MouseEvent}
 
 pub using @events {type MouseEventType}
 
-pub using @components {type ProgressStyle}
+pub using @mizchi/tui/core {type RenderStyleMap}
 
-pub using @components {type RadioOption}
-
-pub using @core {type RenderStyleMap}
-
-pub using @core {type Role}
-
-pub using @components {type ScrollState}
+pub using @mizchi/tui/core {type Role}
 
 pub using @events {type SpecialKey}
 
-pub using @components {type SplitterOrientation}
+pub using @vnode {type TableColumn}
 
-pub using @components {type SplitterState}
-
-pub using @components {type StreamingState}
-
-pub using @components {type TabItem}
-
-pub using @core {type TextContentMap}
+pub using @mizchi/tui/core {type TextContentMap}
 
 pub using @render {type TextStyle}
 
-pub using @components {type TextareaState}
+pub using @vnode {type TuiEvent}
 
-pub using @components {type Theme}
+pub type TuiNode = @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub using @components {trait ToDimension}
+pub using @vnode {type VNodeApp}
 
 // Traits
 

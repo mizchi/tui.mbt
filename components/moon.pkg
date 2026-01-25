@@ -1,9 +1,0 @@
-import {
-  "mizchi/tui/render" as @render,
-  "mizchi/tui/core" as @core,
-  "mizchi/tui/events" as @events,
-  "mizchi/tui/io" as @io,
-  "mizchi/crater/style",
-  "mizchi/crater/types",
-  "mizchi/signals" as @signals,
-}

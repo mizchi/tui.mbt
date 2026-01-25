@@ -2,7 +2,7 @@
 /// Re-exports for convenient access to commonly used types and functions
 /// Users can import `@tui` and access most APIs from there.
 
-// === Core ===
+// === Core (Low-level) ===
 pub using @core {
   type Component,
   type Color,
@@ -10,171 +10,104 @@ pub using @core {
   type RenderStyleMap,
   type TextContentMap,
   type Role,
-  text,
-  spacer,
 }
 
-// === Components (Layout) ===
+// === VNode (Layout) ===
 
 ///|
-pub using @components {
+pub using @vnode {
   column,
   row,
-  grid,
-  center,
-  fill,
-  padded,
-  fullscreen,
+  fragment,
+  spacer,
   hspace,
   vspace,
-  hdivider,
-  vdivider,
-  hsplit,
-  vsplit,
-  hsplit_fixed_top,
-  hsplit_fixed_bottom,
-  vsplit_fixed_left,
-  vsplit_fixed_right,
+  divider,
 }
 
-// === Components (Basic) ===
+// === VNode (Basic Components) ===
 
 ///|
-pub using @components {
+pub using @vnode {
   button,
-  text_button,
   icon_button,
   input,
   input_plain,
   textarea,
-  multiline_input,
   checkbox,
   switch,
   radio,
-  radiogroup,
-  labeled_checkbox,
-  labeled_switch,
+  text,
+  text_dyn,
 }
 
-// === Components (Composite) ===
+// === VNode (Composite Components) ===
 
 ///|
-pub using @components {
-  tabs,
-  tabs_boxed,
-  tabs_underline,
-  tab_panel,
-  tab_container,
-  accordion,
-  accordion_header,
-  listbox,
-  listbox_multi,
-  listbox_option,
-  combobox,
-  select,
-  autocomplete,
-  menu,
-  menubar,
-  context_menu,
+pub using @vnode {
+  card,
   modal,
-  modal_with_backdrop,
-  with_modal,
+  modal_backdrop,
   alert_dialog,
   confirm_dialog,
-  window_splitter,
-  resizable_pane,
-  splitter_handle,
+  tab,
+  tab_bar,
+  listbox,
+  listbox_item,
   menu_item,
-  menu_separator,
-  menu_checkbox,
-  menu_radio,
+  menu_divider,
+  menubar_item,
+  combobox_trigger,
+  combobox_item,
+  accordion_section,
 }
 
-// === Components (Display) ===
+// === VNode (Dashboard) ===
 
 ///|
-pub using @components {
-  title_bar,
-  footer,
-  card,
-  panel,
-  bordered,
-  spinner,
-  loading_dots,
+pub using @vnode {
+  gauge,
+  meter,
+  sparkline,
+  stat,
+  table,
+  table_header,
+  table_row,
   progress_bar,
-  scrollbar,
-  scroll_indicator,
-  streaming_text,
-  streaming_block,
-  labeled_block,
-  bold,
-  colored,
-  percent_text,
-  fraction_text,
+  spinner,
 }
 
-// === Components (State/Helpers) ===
+// === VNode (State Types) ===
 
 ///|
-pub using @components {
+pub using @vnode {
   type ButtonState,
   type InputState,
-  type TextareaState,
-  type ScrollState,
-  type ProgressStyle,
-  type StreamingState,
-  type ItemScroller,
-  type LineScroller,
-  type ActionMenu,
-  type ModalState,
   type EditConfig,
-  type FocusNav,
-  type Theme,
-  type TabItem,
-  type AccordionItem,
-  type RadioOption,
-  type ListboxOption,
-  type ComboboxOption,
-  type MenuItem,
-  type MenubarItem,
-  type MenubarState,
-  type SplitterState,
-  type SplitterOrientation,
-  type LabelPosition,
-  type ComboboxState,
+  type TableColumn,
+  type ColumnAlign,
+  type VNodeApp,
+  type TuiNode,
+  type TuiEvent,
 }
 
-// === Components (Dimension/Alignment helpers) ===
+// === VNode (Edit/Form) ===
 
 ///|
-pub using @components {
-  trait ToDimension,
-  dim_auto,
-  dim_length,
-  dim_percent,
-  align_start,
-  align_center,
-  align_end,
-  align_stretch,
-  align_space_between,
-  align_space_around,
-  align_space_evenly,
-}
-
-// === Components (Edit/Form) ===
-
-///|
-pub using @components {
+pub using @vnode {
   form_edit_config,
   start_edit,
   start_edit_inplace,
   start_edit_inplace_in_bounds,
 }
 
-// === Components (Testing) ===
+// === VNode (Rendering) ===
 
 ///|
-pub using @components {type HeadlessApp, snapshot}
+pub using @vnode {
+  render_vnode_once,
+  run_vnode_app,
+}
 
 // === Render ===
 

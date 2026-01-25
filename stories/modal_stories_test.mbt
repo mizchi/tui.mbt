@@ -3,10 +3,10 @@
 
 ///|
 test "simple text renders" {
-  let story = Story::new(
+  let story = VNodeStory::new(
     "test",
     "simple",
-    fn() { @components.text("HELLO") },
+    fn() { @vnode.text("HELLO") },
     width=15,
     height=3,
   )
@@ -16,16 +16,10 @@ test "simple text renders" {
 
 ///|
 test "box with text renders" {
-  let story = Story::new(
+  let story = VNodeStory::new(
     "test",
     "boxed",
-    fn() {
-      @core.box(
-        [@components.text("BOX")],
-        width=@components.dim_percent(100.0),
-        height=@components.dim_percent(100.0),
-      )
-    },
+    fn() { @vnode.column([@vnode.text("BOX")], width=15.0, height=3.0) },
     width=15,
     height=3,
   )
@@ -35,20 +29,14 @@ test "box with text renders" {
 
 ///|
 test "nested box renders" {
-  let story = Story::new(
+  let story = VNodeStory::new(
     "test",
     "nested",
     fn() {
-      @core.box(
-        [
-          @core.box(
-            [@components.text("NESTED")],
-            width=@components.dim_percent(100.0),
-            height=@components.dim_percent(100.0),
-          ),
-        ],
-        width=@components.dim_percent(100.0),
-        height=@components.dim_percent(100.0),
+      @vnode.column(
+        [@vnode.column([@vnode.text("NESTED")])],
+        width=15.0,
+        height=3.0,
       )
     },
     width=15,
@@ -60,14 +48,16 @@ test "nested box renders" {
 
 ///|
 test "centered text renders at center" {
-  let story = Story::new(
+  let story = VNodeStory::new(
     "test",
     "centered",
     fn() {
-      @core.box(
-        [@components.fill([@components.center([@components.text("CENTER")])])],
-        width=@components.dim_percent(100.0),
-        height=@components.dim_percent(100.0),
+      @vnode.column(
+        [@vnode.row([@vnode.text("CENTER")], justify="center")],
+        width=17.0,
+        height=5.0,
+        justify="center",
+        align="center",
       )
     },
     width=17,
