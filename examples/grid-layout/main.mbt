@@ -34,11 +34,11 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
         view(
           [
             text(" Menu", fg="cyan", bold=true),
-            vspace(1.0),
             text(" > Home", fg="white"),
             text("   Users", fg="rgb(128,128,128)"),
             text("   Settings", fg="rgb(128,128,128)"),
             text("   Reports", fg="rgb(128,128,128)"),
+            vspace(1.0), // Push remaining space to bottom
           ],
           border="single",
           border_color="rgb(60,60,80)",
@@ -50,10 +50,10 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
       view(
         [
           text(" Main Content", fg="green", bold=true),
-          vspace(1.0),
           text(" Welcome to the Grid Layout demo!"),
           text(" This panel demonstrates column_span"),
           text(" and row_span capabilities."),
+          vspace(1.0),
         ],
         border="single",
         border_color="rgb(60,60,80)",
@@ -63,9 +63,9 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
       view(
         [
           text(" Stats", fg="magenta", bold=true),
-          vspace(0.5),
           text(" Users: 1,234"),
           text(" Active: 567"),
+          vspace(1.0),
         ],
         border="single",
         border_color="rgb(60,60,80)",
@@ -75,9 +75,9 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
       view(
         [
           text(" Recent Activity", fg="cyan", bold=true),
-          vspace(0.5),
           text(" - User logged in"),
           text(" - Report generated"),
+          vspace(1.0),
         ],
         border="single",
         border_color="rgb(60,60,80)",
@@ -87,9 +87,9 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
       view(
         [
           text(" Quick Actions", fg="yellow", bold=true),
-          vspace(0.5),
           text(" [N] New"),
           text(" [E] Export"),
+          vspace(1.0),
         ],
         border="single",
         border_color="rgb(60,60,80)",
@@ -105,7 +105,7 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
         column_span=3,
       ),
     ],
-    columns=[15.0, 2.0, 1.0], // sidebar: 15fr, main: 2fr, right: 1fr
+    columns=[1.0, 3.0, 1.0], // sidebar: 1fr, main: 3fr, right: 1fr
     rows=[1.0, 1.0, 1.0, 1.0], // header, content row 1, content row 2, footer
     gap=0.0,
     width=width.to_double(),
