@@ -367,7 +367,6 @@ fn build_box_attrs(
 ///|
 /// Row container (horizontal flex)
 pub fn row(
-  children : Array[TuiNode],
   id? : String = "",
   gap? : Double = 0.0,
   margin? : Double = 0.0,
@@ -387,6 +386,7 @@ pub fn row(
   border_color? : String = "",
   bg? : String = "",
   on_click? : ((TuiEvent) -> Unit)? = None,
+  children? : Array[TuiNode] = [],
 ) -> TuiNode {
   let attrs = build_box_attrs(
     DirectionValue::Row,
@@ -416,7 +416,6 @@ pub fn row(
 ///|
 /// Column container (vertical flex)
 pub fn column(
-  children : Array[TuiNode],
   id? : String = "",
   gap? : Double = 0.0,
   margin? : Double = 0.0,
@@ -436,6 +435,7 @@ pub fn column(
   border_color? : String = "",
   bg? : String = "",
   on_click? : ((TuiEvent) -> Unit)? = None,
+  children? : Array[TuiNode] = [],
 ) -> TuiNode {
   let attrs = build_box_attrs(
     DirectionValue::Column,
@@ -466,7 +466,6 @@ pub fn column(
 /// Generic view container (flex layout with configurable direction)
 /// Default direction is column (React Native style)
 pub fn view(
-  children : Array[TuiNode],
   direction? : String = "column",
   id? : String = "",
   gap? : Double = 0.0,
@@ -487,6 +486,7 @@ pub fn view(
   border_color? : String = "",
   bg? : String = "",
   on_click? : ((TuiEvent) -> Unit)? = None,
+  children? : Array[TuiNode] = [],
 ) -> TuiNode {
   let dir = if direction == "row" {
     DirectionValue::Row
@@ -504,7 +504,6 @@ pub fn view(
 ///|
 /// Grid container with CSS Grid layout
 pub fn grid(
-  children : Array[TuiNode],
   columns? : Array[Double] = [],
   rows? : Array[Double] = [],
   auto_flow? : String = "row",
@@ -518,6 +517,7 @@ pub fn grid(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  children? : Array[TuiNode] = [],
 ) -> TuiNode {
   let attrs : Array[(String, TuiAttr)] = [
     ("display", attr(TuiAttrValue::Display(DisplayValue::Grid))),
@@ -592,11 +592,11 @@ pub fn grid(
 ///|
 /// Grid item with placement control
 pub fn grid_item(
-  child : TuiNode,
   column? : Int = 0,
   row? : Int = 0,
   column_span? : Int = 1,
   row_span? : Int = 1,
+  child~ : TuiNode,
 ) -> TuiNode {
   let attrs : Array[(String, TuiAttr)] = []
   // Column placement (1-indexed)

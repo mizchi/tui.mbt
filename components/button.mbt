@@ -20,7 +20,6 @@ pub fn button(
     Disabled => ("rgb(100,100,100)", "", "rgb(60,60,60)")
   }
   @vnode.row(
-    [@vnode.text(" " + label + " ", fg~)],
     id~,
     bg~,
     border="rounded",
@@ -30,6 +29,7 @@ pub fn button(
     min_width~,
     justify="center",
     align="center",
+    children=[@vnode.text(" " + label + " ", fg~)],
   )
 }
 
@@ -46,7 +46,7 @@ pub fn icon_button(
     Pressed => ("black", "cyan")
     Disabled => ("rgb(80,80,80)", "")
   }
-  @vnode.row([@vnode.text(icon, fg~)], id~, bg~, padding_x=0.5)
+  @vnode.row(id~, bg~, padding_x=0.5, children=[@vnode.text(icon, fg~)])
 }
 
 ///|

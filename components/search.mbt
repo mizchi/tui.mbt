@@ -23,7 +23,7 @@ pub fn search_input(
   if show_cursor {
     children.push(@vnode.text("_", fg=cursor_fg))
   }
-  @vnode.row(children, id~, padding_x=1.0, padding_y=0.5)
+  @vnode.row(id~, padding_x=1.0, padding_y=0.5, children~)
 }
 
 ///|
@@ -37,17 +37,14 @@ pub fn highlight_text(
   highlight_bold? : Bool = true,
 ) -> @vnode.TuiNode {
   if highlight_len <= 0 || highlight_len > text.length() {
-    return @vnode.row([@vnode.text(text, fg=text_fg)], id~)
+    return @vnode.row(id~, children=[@vnode.text(text, fg=text_fg)])
   }
   let prefix = text.unsafe_substring(start=0, end=highlight_len)
   let suffix = text.unsafe_substring(start=highlight_len, end=text.length())
-  @vnode.row(
-    [
-      @vnode.text(prefix, fg=highlight_fg, bold=highlight_bold),
-      @vnode.text(suffix, fg=text_fg),
-    ],
-    id~,
-  )
+  @vnode.row(id~, children=[
+    @vnode.text(prefix, fg=highlight_fg, bold=highlight_bold),
+    @vnode.text(suffix, fg=text_fg),
+  ])
 }
 
 ///|
@@ -83,5 +80,5 @@ pub fn search_result_item(
   } else {
     children.push(@vnode.text(text, fg~, bold=selected))
   }
-  @vnode.row(children, id~, bg~, padding_x=0.5)
+  @vnode.row(id~, bg~, padding_x=0.5, children~)
 }

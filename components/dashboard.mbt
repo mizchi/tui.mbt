@@ -127,19 +127,16 @@ pub fn gauge(
     "cyan"
   }
   if label.length() > 0 {
-    @vnode.row(
-      [
-        @vnode.text(label + " "),
-        @vnode.text(bar, fg=bar_color),
-        @vnode.text(percent_str, fg="gray"),
-      ],
-      height=1.0,
-    )
+    @vnode.row(height=1.0, children=[
+      @vnode.text(label + " "),
+      @vnode.text(bar, fg=bar_color),
+      @vnode.text(percent_str, fg="gray"),
+    ])
   } else {
-    @vnode.row(
-      [@vnode.text(bar, fg=bar_color), @vnode.text(percent_str, fg="gray")],
-      height=1.0,
-    )
+    @vnode.row(height=1.0, children=[
+      @vnode.text(bar, fg=bar_color),
+      @vnode.text(percent_str, fg="gray"),
+    ])
   }
 }
 
@@ -155,10 +152,10 @@ pub fn stat(
   } else {
     label
   }
-  @vnode.row(
-    [@vnode.text(padded_label + ": ", fg="gray"), @vnode.text(value, bold=true)],
-    height=1.0,
-  )
+  @vnode.row(height=1.0, children=[
+    @vnode.text(padded_label + ": ", fg="gray"),
+    @vnode.text(value, bold=true),
+  ])
 }
 
 ///|
@@ -202,15 +199,12 @@ pub fn meter(
   } else {
     pct.to_string() + "%"
   }
-  @vnode.row(
-    [
-      @vnode.text(padded_label + " ", fg="gray"),
-      @vnode.text("\u{2588}".repeat(filled), fg=bar_color),
-      @vnode.text("\u{2591}".repeat(empty), fg="gray"),
-      @vnode.text(pct_str),
-    ],
-    height=1.0,
-  )
+  @vnode.row(height=1.0, children=[
+    @vnode.text(padded_label + " ", fg="gray"),
+    @vnode.text("\u{2588}".repeat(filled), fg=bar_color),
+    @vnode.text("\u{2591}".repeat(empty), fg="gray"),
+    @vnode.text(pct_str),
+  ])
 }
 
 ///|
@@ -289,7 +283,7 @@ pub fn table_header(
       parts.push(@vnode.text(separator))
     }
   }
-  @vnode.row(parts, height=1.0)
+  @vnode.row(height=1.0, children=parts)
 }
 
 ///|
@@ -311,7 +305,7 @@ pub fn table_row(
     }
   }
   let bg = if selected { "cyan" } else { "" }
-  @vnode.row(parts, height=1.0, bg~)
+  @vnode.row(height=1.0, bg~, children=parts)
 }
 
 ///|
@@ -330,5 +324,5 @@ pub fn table(
       table_row(columns, row_data, separator~, selected=is_selected),
     )
   }
-  @vnode.column(children)
+  @vnode.column(children~)
 }

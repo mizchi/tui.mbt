@@ -22,7 +22,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_first",
       fn() {
-        @vnode.column([
+        @vnode.column(children=[
           @components.radio("Small", true),
           @components.radio("Medium", false),
           @components.radio("Large", false),
@@ -35,7 +35,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_middle",
       fn() {
-        @vnode.column([
+        @vnode.column(children=[
           @components.radio("Small", false),
           @components.radio("Medium", true),
           @components.radio("Large", false),
@@ -48,7 +48,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_focused",
       fn() {
-        @vnode.column([
+        @vnode.column(children=[
           @components.radio("Small", true),
           @components.radio("Medium", false),
           @components.radio("Large", false),
@@ -61,14 +61,11 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_horizontal",
       fn() {
-        @vnode.row(
-          [
-            @components.radio("Small", false),
-            @components.radio("Medium", true),
-            @components.radio("Large", false),
-          ],
-          gap=1.0,
-        )
+        @vnode.row(gap=1.0, children=[
+          @components.radio("Small", false),
+          @components.radio("Medium", true),
+          @components.radio("Large", false),
+        ])
       },
       width=30,
       height=3,
@@ -142,7 +139,7 @@ pub fn select_stories() -> Array[VNodeStory] {
       "select",
       "open",
       fn() {
-        @vnode.column([
+        @vnode.column(children=[
           @components.combobox_trigger("JavaScript", true),
           @components.combobox_item("JavaScript", true),
           @components.combobox_item("TypeScript", false),

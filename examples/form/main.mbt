@@ -55,87 +55,69 @@ fn main {
   // Render function
   fn render_ui() -> TuiNode {
     let focus = focus_index.get()
-    view(
-      [
-        // Header
-        row(
-          [text("VNode Form Demo", fg="yellow", bold=true)],
-          justify="center",
-          padding_y=0.5,
-        ),
-        // Form content - use grid for label/input alignment
-        view(
-          [
-            grid(
-              [
-                // Row 1: Name
-                text("Name:", fg="cyan"),
-                input(
-                  name.get(),
-                  id="name",
-                  placeholder="Enter your name",
-                  state=get_input_state(0),
-                ),
-                // Row 2: Email
-                text("Email:", fg="cyan"),
-                input(
-                  email.get(),
-                  id="email",
-                  placeholder="user@example.com",
-                  state=get_input_state(1),
-                ),
-              ],
-              columns=[10.0, 40.0],
-              gap=1.0,
+    view(width=width.to_double(), height=height.to_double(), children=[
+      // Header
+      row(justify="center", padding_y=0.5, children=[
+        text("VNode Form Demo", fg="yellow", bold=true),
+      ]),
+      // Form content - use grid for label/input alignment
+      view(
+        padding=2.0,
+        border="rounded",
+        border_color="rgb(80,80,100)",
+        flex_grow=1.0,
+        children=[
+          grid(columns=[10.0, 40.0], gap=1.0, children=[
+            // Row 1: Name
+            text("Name:", fg="cyan"),
+            input(
+              name.get(),
+              id="name",
+              placeholder="Enter your name",
+              state=get_input_state(0),
             ),
-            vspace(1.0),
-            // Message field (full width, separate from grid)
-            text("Message:", fg="cyan"),
-            textarea(
-              message.get(),
-              id="message",
-              placeholder="Enter your message...",
-              state=get_input_state(2),
-              rows=3,
-              min_width=50.0,
+            // Row 2: Email
+            text("Email:", fg="cyan"),
+            input(
+              email.get(),
+              id="email",
+              placeholder="user@example.com",
+              state=get_input_state(1),
             ),
-            vspace(1.0),
-            // Submit button
-            row([
-              {
-                let is_focused = focus == 3
-                let bg = if is_focused { "cyan" } else { "rgb(60,60,70)" }
-                let fg = if is_focused { "black" } else { "white" }
-                row(
-                  [text("  Submit  ", fg~, bold=is_focused)],
-                  id="submit",
-                  bg~,
-                  padding_x=1.0,
-                  padding_y=0.5,
-                )
-              },
-            ]),
-          ],
-          padding=2.0,
-          border="rounded",
-          border_color="rgb(80,80,100)",
-          flex_grow=1.0,
+          ]),
+          vspace(1.0),
+          // Message field (full width, separate from grid)
+          text("Message:", fg="cyan"),
+          textarea(
+            message.get(),
+            id="message",
+            placeholder="Enter your message...",
+            state=get_input_state(2),
+            rows=3,
+            min_width=50.0,
+          ),
+          vspace(1.0),
+          // Submit button
+          row(children=[
+            {
+              let is_focused = focus == 3
+              let bg = if is_focused { "cyan" } else { "rgb(60,60,70)" }
+              let fg = if is_focused { "black" } else { "white" }
+              row(id="submit", bg~, padding_x=1.0, padding_y=0.5, children=[
+                text("  Submit  ", fg~, bold=is_focused),
+              ])
+            },
+          ]),
+        ],
+      ),
+      // Footer
+      row(justify="center", padding_y=0.5, children=[
+        text(
+          "Tab/↑↓: navigate | Enter: edit | Esc: cancel | q: quit",
+          fg="rgb(100,100,100)",
         ),
-        // Footer
-        row(
-          [
-            text(
-              "Tab/↑↓: navigate | Enter: edit | Esc: cancel | q: quit",
-              fg="rgb(100,100,100)",
-            ),
-          ],
-          justify="center",
-          padding_y=0.5,
-        ),
-      ],
-      width=width.to_double(),
-      height=height.to_double(),
-    )
+      ]),
+    ])
   }
 
   // Render helper

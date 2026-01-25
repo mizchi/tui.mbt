@@ -9,7 +9,7 @@ test "VNodeApp: simple render" {
 ///|
 test "VNodeApp: row layout" {
   let app = VNodeApp::new(20, 5)
-  let node = row([text("A"), text("B"), text("C")])
+  let node = row(children=[text("A"), text("B"), text("C")])
   let output = app.render(node)
   assert_true(output.contains("A"))
   assert_true(output.contains("B"))
@@ -19,7 +19,7 @@ test "VNodeApp: row layout" {
 ///|
 test "VNodeApp: column layout" {
   let app = VNodeApp::new(20, 5)
-  let node = column([text("Line 1"), text("Line 2")])
+  let node = column(children=[text("Line 1"), text("Line 2")])
   let output = app.render(node)
   assert_true(output.contains("Line 1"))
   assert_true(output.contains("Line 2"))
@@ -28,10 +28,10 @@ test "VNodeApp: column layout" {
 ///|
 test "VNodeApp: nested layout" {
   let app = VNodeApp::new(30, 10)
-  let node = column([
-    row([text("Header")]),
-    row([text("Content")]),
-    row([text("Footer")]),
+  let node = column(children=[
+    row(children=[text("Header")]),
+    row(children=[text("Content")]),
+    row(children=[text("Footer")]),
   ])
   let output = app.render(node)
   assert_true(output.contains("Header"))
@@ -53,7 +53,7 @@ test "VNodeApp: styled text" {
 ///|
 test "VNodeApp: border" {
   let app = VNodeApp::new(20, 8)
-  let node = column([text("Inside")], border="single", padding=1.0)
+  let node = column(border="single", padding=1.0, children=[text("Inside")])
   let output = app.render(node)
   // Should contain border characters
   assert_true(output.contains("Inside"))
@@ -80,7 +80,7 @@ test "VNodeApp: diff rendering" {
 ///|
 test "VNodeApp: hit test" {
   let app = VNodeApp::new(20, 5)
-  let node = column([text("Click me")], id="clickable")
+  let node = column(id="clickable", children=[text("Click me")])
   let _ = app.render(node)
 
   // Hit test should find the component
@@ -146,10 +146,12 @@ test "VNodeApp: component boundary" {
 
   // Define a reusable component
   fn my_button(label : String) -> TuiNode {
-    component(fn() { row([text(label)], border="single", padding_x=1.0) })
+    component(fn() {
+      row(border="single", padding_x=1.0, children=[text(label)])
+    })
   }
 
-  let node = row([my_button("OK"), hspace(1.0), my_button("Cancel")])
+  let node = row(children=[my_button("OK"), hspace(1.0), my_button("Cancel")])
   let output = app.render(node)
   assert_true(output.contains("OK"))
   assert_true(output.contains("Cancel"))
@@ -172,7 +174,7 @@ test "VNodeApp: border styles" {
   // Test different border styles
   for style in ["single", "double", "rounded", "ascii"] {
     let app = VNodeApp::new(15, 5)
-    let node = row([text("Box")], border=style, padding=1.0)
+    let node = row(border=style, padding=1.0, children=[text("Box")])
     let output = app.render(node)
     assert_true(output.contains("Box"))
   }
@@ -184,11 +186,9 @@ test "VNodeApp: event handler registration" {
   let clicked : Ref[Bool] = Ref::new(false)
 
   // Create a node with on_click handler
-  let node = row(
-    [text("Click me")],
-    id="btn",
-    on_click=Some(fn(_event) { clicked.val = true }),
-  )
+  let node = row(id="btn", on_click=Some(fn(_event) { clicked.val = true }), children=[
+    text("Click me"),
+  ])
 
   // Render to register handlers
   let _ = app.render(node)
@@ -203,19 +203,15 @@ test "VNodeApp: handle_click dispatches event" {
   let click_count : Ref[Int] = Ref::new(0)
 
   // Create a clickable button at a known position
-  let node = column(
-    [
-      row(
-        [text("Button")],
-        id="my-btn",
-        on_click=Some(fn(_event) { click_count.val = click_count.val + 1 }),
-        border="single",
-        padding=1.0,
-      ),
-    ],
-    width=20.0,
-    height=5.0,
-  )
+  let node = column(width=20.0, height=5.0, children=[
+    row(
+      id="my-btn",
+      on_click=Some(fn(_event) { click_count.val = click_count.val + 1 }),
+      border="single",
+      padding=1.0,
+      children=[text("Button")],
+    ),
+  ])
 
   // Render to compute layout and register handlers
   let _ = app.render(node)
@@ -252,16 +248,15 @@ test "completion popup: items in single lines" {
     let is_selected = idx == selected
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
     let suffix = item.unsafe_substring(start=query.length(), end=item.length())
-    row(
-      [
-        text(query, fg="cyan", bold=is_selected),
-        text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
-      ],
-      bg~,
-    )
+    row(bg~, children=[
+      text(query, fg="cyan", bold=is_selected),
+      text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
+    ])
   }
 
-  let popup = column(items.mapi(fn(idx, item) { render_item(item, idx) }))
+  let popup = column(
+    children=items.mapi(fn(idx, item) { render_item(item, idx) }),
+  )
 
   // Use render_to_lines to verify each item is on its own line
   let lines = render_to_lines(popup)
@@ -287,16 +282,15 @@ test "completion popup: render_to_lines" {
     let is_selected = idx == selected
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
     let suffix = item.unsafe_substring(start=query.length(), end=item.length())
-    row(
-      [
-        text(query, fg="cyan", bold=is_selected),
-        text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
-      ],
-      bg~,
-    )
+    row(bg~, children=[
+      text(query, fg="cyan", bold=is_selected),
+      text(suffix, fg=if is_selected { "white" } else { "rgb(150,150,150)" }),
+    ])
   }
 
-  let popup = column(items.mapi(fn(idx, item) { render_item(item, idx) }))
+  let popup = column(
+    children=items.mapi(fn(idx, item) { render_item(item, idx) }),
+  )
   let lines = render_to_lines(popup)
   // Should have 3 lines, one for each item
   inspect(lines.length(), content="3")
@@ -307,7 +301,7 @@ test "completion popup: render_to_lines" {
 
 ///|
 test "render_overlay_at: positions content correctly" {
-  let popup = column([text("Line 1"), text("Line 2"), text("Line 3")])
+  let popup = column(children=[text("Line 1"), text("Line 2"), text("Line 3")])
   let overlay = render_overlay_at(5, 10, popup)
 
   // Output should contain ANSI cursor positioning sequences

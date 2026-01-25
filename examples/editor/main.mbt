@@ -134,14 +134,10 @@ fn main {
     let is_selected = idx == palette_selected.get()
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(40,40,50)" }
     let fg = if is_selected { "cyan" } else { "white" }
-    @vnode.row(
-      [
-        @vnode.text(" " + cmd.icon + " ", fg="cyan"),
-        @vnode.text(cmd.name, fg~, bold=is_selected),
-      ],
-      bg~,
-      padding_x=0.5,
-    )
+    @vnode.row(bg~, padding_x=0.5, children=[
+      @vnode.text(" " + cmd.icon + " ", fg="cyan"),
+      @vnode.text(cmd.name, fg~, bold=is_selected),
+    ])
   }
 
   fn render_palette() -> @vnode.TuiNode {
@@ -159,86 +155,72 @@ fn main {
         items.push(render_palette_item(visible_items[i], i))
       } else if i == 0 && filtered.length() == 0 {
         items.push(
-          @vnode.row(
-            [@vnode.text("No matching commands", fg="rgb(100,100,100)")],
-            padding_x=1.0,
-            height=1.0,
-          ),
+          @vnode.row(padding_x=1.0, height=1.0, children=[
+            @vnode.text("No matching commands", fg="rgb(100,100,100)"),
+          ]),
         )
       } else {
-        items.push(@vnode.row([], height=1.0))
+        items.push(@vnode.row(height=1.0, children=[]))
       }
     }
 
     // More indicator
     let more_row = if filtered.length() > palette_max_items {
       let more_count = filtered.length() - palette_max_items
-      @vnode.row(
-        [
-          @vnode.text(
-            "..." + more_count.to_string() + " more",
-            fg="rgb(100,100,100)",
-          ),
-        ],
-        padding_x=1.0,
-        height=1.0,
-      )
+      @vnode.row(padding_x=1.0, height=1.0, children=[
+        @vnode.text(
+          "..." + more_count.to_string() + " more",
+          fg="rgb(100,100,100)",
+        ),
+      ])
     } else {
-      @vnode.row([], height=1.0)
+      @vnode.row(height=1.0, children=[])
     }
 
     // Input field
     let query = palette_query.get()
-    let input_row = @vnode.row(
-      [
-        @vnode.text("> ", fg="yellow", bold=true),
-        @vnode.text(
-          if query.length() > 0 {
-            query
-          } else {
-            "Type to search..."
-          },
-          fg=if query.length() > 0 { "white" } else { "rgb(100,100,100)" },
-        ),
-        @vnode.text("_", fg="cyan"),
-      ],
-      padding_x=1.0,
-      padding_y=0.5,
-    )
+    let input_row = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+      @vnode.text("> ", fg="yellow", bold=true),
+      @vnode.text(
+        if query.length() > 0 {
+          query
+        } else {
+          "Type to search..."
+        },
+        fg=if query.length() > 0 { "white" } else { "rgb(100,100,100)" },
+      ),
+      @vnode.text("_", fg="cyan"),
+    ])
 
     // Footer
-    let footer = @vnode.row(
-      [
-        @vnode.text(
-          filtered.length().to_string() + " commands | Enter: run | Esc: close",
-          fg="rgb(100,100,100)",
-        ),
-      ],
-      padding_x=1.0,
-      padding_y=0.5,
-    )
+    let footer = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+      @vnode.text(
+        filtered.length().to_string() + " commands | Enter: run | Esc: close",
+        fg="rgb(100,100,100)",
+      ),
+    ])
 
     // Palette box
     @vnode.column(
-      [
-        input_row,
-        @vnode.row([
-          @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
-        ]),
-      ] +
-      items +
-      [
-        more_row,
-        @vnode.row([
-          @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
-        ]),
-        footer,
-      ],
       bg="rgb(30,30,40)",
       border="rounded",
       border_color="cyan",
       min_width=palette_width.to_double(),
       height=palette_height.to_double(),
+      children=[
+          input_row,
+          @vnode.row(children=[
+            @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
+          ]),
+        ] +
+        items +
+        [
+          more_row,
+          @vnode.row(children=[
+            @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
+          ]),
+          footer,
+        ],
     )
   }
 
@@ -259,22 +241,20 @@ fn main {
     let last_cmd = last_command.get()
 
     // Header
-    let header = @vnode.row(
-      [@vnode.text("VNode Editor", fg="cyan", bold=true)],
-      justify="center",
-    )
+    let header = @vnode.row(justify="center", children=[
+      @vnode.text("VNode Editor", fg="cyan", bold=true),
+    ])
 
     // Last command or hint
     let cmd_row = if last_cmd.length() > 0 {
-      @vnode.row(
-        [@vnode.text("Last: ", fg="green"), @vnode.text(last_cmd, fg="white")],
-        justify="center",
-      )
+      @vnode.row(justify="center", children=[
+        @vnode.text("Last: ", fg="green"),
+        @vnode.text(last_cmd, fg="white"),
+      ])
     } else {
-      @vnode.row(
-        [@vnode.text("Ctrl+P: command palette", fg="rgb(80,80,80)")],
-        justify="center",
-      )
+      @vnode.row(justify="center", children=[
+        @vnode.text("Ctrl+P: command palette", fg="rgb(80,80,80)"),
+      ])
     }
 
     // Footer
@@ -283,29 +263,28 @@ fn main {
     } else {
       "Enter: edit | q: quit | Ctrl+P: palette"
     }
-    let footer = @vnode.row(
-      [@vnode.text(footer_text, fg="rgb(100,100,100)")],
-      justify="center",
-    )
+    let footer = @vnode.row(justify="center", children=[
+      @vnode.text(footer_text, fg="rgb(100,100,100)"),
+    ])
 
     // Main layout (height-1 to prevent overflow)
     let main_ui = @vnode.column(
-      [header, cmd_row, render_editor(), footer],
       width=width.to_double(),
       height=(height - 1).to_double(),
+      children=[header, cmd_row, render_editor(), footer],
     )
 
     // Overlay palette if open
     if palette_open.get() {
       @vnode.column(
-        [
-          @vnode.vspace(3.0),
-          @vnode.row([render_palette()], justify="center"),
-          @vnode.spacer(),
-        ],
         width=width.to_double(),
         height=(height - 1).to_double(),
         bg="rgb(20,20,25)",
+        children=[
+          @vnode.vspace(3.0),
+          @vnode.row(justify="center", children=[render_palette()]),
+          @vnode.spacer(),
+        ],
       )
     } else {
       main_ui

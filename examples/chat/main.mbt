@@ -233,12 +233,9 @@ fn main {
   fn render_message_line(line : String, idx : Int) -> TuiNode {
     let is_user = line.has_prefix("> ")
     let fg = if is_user { "cyan" } else { "white" }
-    row(
-      [text(line, fg~)],
-      id="msg-" + idx.to_string(),
-      min_width=width.to_double(),
-      height=1.0,
-    )
+    row(id="msg-" + idx.to_string(), min_width=width.to_double(), height=1.0, children=[
+      text(line, fg~),
+    ])
   }
 
   fn render_messages() -> TuiNode {
@@ -256,20 +253,20 @@ fn main {
     for i = 0; i < message_area_height; i = i + 1 {
       if i < empty_lines_at_top {
         // Empty line for bottom-alignment
-        visible_lines.push(row([], height=1.0))
+        visible_lines.push(row(height=1.0, children=[]))
       } else {
         let line_idx = offset + (i - empty_lines_at_top)
         if line_idx < total_lines {
           visible_lines.push(render_message_line(all_lines[line_idx], line_idx))
         } else {
-          visible_lines.push(row([], height=1.0))
+          visible_lines.push(row(height=1.0, children=[]))
         }
       }
     }
     column(
-      visible_lines,
       min_width=width.to_double(),
       height=message_area_height.to_double(),
+      children=visible_lines,
     )
   }
 
@@ -290,17 +287,11 @@ fn main {
     } else {
       "white"
     }
-    column(
-      [
-        row(
-          [text(" " + display_text, fg~)],
-          id="input-line",
-          min_width=width.to_double(),
-        ),
-      ],
-      height=input_rows.to_double(),
-      min_width=width.to_double(),
-    )
+    column(height=input_rows.to_double(), min_width=width.to_double(), children=[
+      row(id="input-line", min_width=width.to_double(), children=[
+        text(" " + display_text, fg~),
+      ]),
+    ])
   }
 
   fn render_footer() -> TuiNode {
@@ -316,15 +307,18 @@ fn main {
     }
     let status = "Enter: send | \u{2191}\u{2193}: scroll | Ctrl+C: quit" +
       queue_info
-    row([text(" " + status, fg="rgb(80,80,80)")], min_width=width.to_double())
+    row(min_width=width.to_double(), children=[
+      text(" " + status, fg="rgb(80,80,80)"),
+    ])
   }
 
   fn render_ui() -> TuiNode {
-    column(
-      [render_messages(), render_divider(), render_input(), render_footer()],
-      width=width.to_double(),
-      height=(height - 1).to_double(),
-    )
+    column(width=width.to_double(), height=(height - 1).to_double(), children=[
+      render_messages(),
+      render_divider(),
+      render_input(),
+      render_footer(),
+    ])
   }
 
   fn do_render() -> Unit {

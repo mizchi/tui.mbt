@@ -19,7 +19,9 @@ test "box with text renders" {
   let story = VNodeStory::new(
     "test",
     "boxed",
-    fn() { @vnode.column([@vnode.text("BOX")], width=15.0, height=3.0) },
+    fn() {
+      @vnode.column(width=15.0, height=3.0, children=[@vnode.text("BOX")])
+    },
     width=15,
     height=3,
   )
@@ -33,11 +35,9 @@ test "nested box renders" {
     "test",
     "nested",
     fn() {
-      @vnode.column(
-        [@vnode.column([@vnode.text("NESTED")])],
-        width=15.0,
-        height=3.0,
-      )
+      @vnode.column(width=15.0, height=3.0, children=[
+        @vnode.column(children=[@vnode.text("NESTED")]),
+      ])
     },
     width=15,
     height=3,
@@ -52,13 +52,9 @@ test "centered text renders at center" {
     "test",
     "centered",
     fn() {
-      @vnode.column(
-        [@vnode.row([@vnode.text("CENTER")], justify="center")],
-        width=17.0,
-        height=5.0,
-        justify="center",
-        align="center",
-      )
+      @vnode.column(width=17.0, height=5.0, justify="center", align="center", children=[
+        @vnode.row(justify="center", children=[@vnode.text("CENTER")]),
+      ])
     },
     width=17,
     height=5,

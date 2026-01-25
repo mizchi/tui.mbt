@@ -30,7 +30,7 @@ pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -
 
 pub fn cleanup_stdin() -> Unit
 
-pub fn column(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn combobox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -56,9 +56,9 @@ pub fn get_spinner_frame(Int) -> String
 
 pub fn get_terminal_size() -> (Int, Int)
 
-pub fn grid(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn grid(columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn grid_item(@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], column? : Int, row? : Int, column_span? : Int, row_span? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int, child~ : @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -102,7 +102,7 @@ pub fn render_once(Int, Int, @mizchi/tui/core.Component) -> String
 
 pub fn render_vnode_once(Int, Int, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
-pub fn row(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn run(() -> @mizchi/tui/core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
 
@@ -146,7 +146,7 @@ pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.N
 
 pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn view(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn vspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 

@@ -28,7 +28,7 @@ pub fn progress_bar(
   }
   if show_percent {
     let pct = (clamped * 100.0).to_int()
-    @vnode.row([
+    @vnode.row(children=[
       @vnode.text(bar, fg=color),
       @vnode.hspace(1.0),
       @vnode.text(pct.to_string() + "%", fg="gray"),
@@ -53,7 +53,7 @@ pub fn get_spinner_frame(tick : Int) -> String {
 pub fn spinner(tick : Int, label? : String = "") -> @vnode.TuiNode {
   let frame = get_spinner_frame(tick)
   if label.length() > 0 {
-    @vnode.row([
+    @vnode.row(children=[
       @vnode.text(frame, fg="cyan"),
       @vnode.hspace(1.0),
       @vnode.text(label),

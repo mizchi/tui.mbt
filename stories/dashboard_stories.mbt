@@ -169,14 +169,14 @@ pub fn titled_box_stories() -> Array[VNodeStory] {
       "basic",
       fn() {
         @vnode.column(
-          [
-            @vnode.text("mem", fg="cyan", bold=true),
-            @vnode.text("Content here"),
-          ],
           border="rounded",
           border_color="cyan",
           padding=1.0,
           min_width=20.0,
+          children=[
+            @vnode.text("mem", fg="cyan", bold=true),
+            @vnode.text("Content here"),
+          ],
         )
       },
       width=25,
@@ -187,15 +187,15 @@ pub fn titled_box_stories() -> Array[VNodeStory] {
       "with_stats",
       fn() {
         @vnode.column(
-          [
-            @vnode.text("cpu", fg="cyan", bold=true),
-            @components.stat("Total", "100%"),
-            @components.stat("User", "45%"),
-          ],
           border="rounded",
           border_color="cyan",
           padding=1.0,
           min_width=20.0,
+          children=[
+            @vnode.text("cpu", fg="cyan", bold=true),
+            @components.stat("Total", "100%"),
+            @components.stat("User", "45%"),
+          ],
         )
       },
       width=25,

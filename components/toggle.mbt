@@ -23,12 +23,11 @@ pub fn checkbox(
     "white"
   }
   let bg = if focused && not(disabled) { "rgb(40,60,90)" } else { "" }
-  @vnode.row(
-    [@vnode.text(icon, fg~), @vnode.hspace(1.0), @vnode.text(label, fg="white")],
-    id~,
-    bg~,
-    padding_x=1.0,
-  )
+  @vnode.row(id~, bg~, padding_x=1.0, children=[
+    @vnode.text(icon, fg~),
+    @vnode.hspace(1.0),
+    @vnode.text(label, fg="white"),
+  ])
 }
 
 ///|
@@ -48,12 +47,9 @@ pub fn radio(
     "white"
   }
   let bg = if selected && not(disabled) { "rgb(40,60,90)" } else { "" }
-  @vnode.row(
-    [@vnode.text(icon + " " + label, fg~, bold=selected)],
-    id~,
-    bg~,
-    padding_x=1.0,
-  )
+  @vnode.row(id~, bg~, padding_x=1.0, children=[
+    @vnode.text(icon + " " + label, fg~, bold=selected),
+  ])
 }
 
 ///|
@@ -80,14 +76,11 @@ pub fn switch(
   } else {
     "rgb(100,100,100)"
   }
-  @vnode.row(
-    [
-      @vnode.text(label, fg="white"),
-      @vnode.hspace(1.0),
-      @vnode.text(track, fg=track_color),
-      @vnode.hspace(1.0),
-      @vnode.text(status, fg=status_color),
-    ],
-    id~,
-  )
+  @vnode.row(id~, children=[
+    @vnode.text(label, fg="white"),
+    @vnode.hspace(1.0),
+    @vnode.text(track, fg=track_color),
+    @vnode.hspace(1.0),
+    @vnode.text(status, fg=status_color),
+  ])
 }

@@ -103,7 +103,6 @@ pub fn input(
   // Build input field with border
   let w = if width > 0.0 { width } else { 0.0 }
   column(
-    [text(text_with_cursor, fg=actual_fg)],
     id~,
     bg=actual_bg,
     border="rounded",
@@ -112,6 +111,7 @@ pub fn input(
     width=w,
     padding_x~,
     padding_y~,
+    children=[text(text_with_cursor, fg=actual_fg)],
   )
 }
 
@@ -402,7 +402,6 @@ pub fn textarea(
 
   // Build textarea with border
   column(
-    [text(text_with_cursor, fg=actual_fg)],
     id~,
     bg=actual_bg,
     border="rounded",
@@ -411,5 +410,6 @@ pub fn textarea(
     min_height=rows.to_double() + 2.0, // +2 for border
     padding_x~,
     padding_y~,
+    children=[text(text_with_cursor, fg=actual_fg)],
   )
 }

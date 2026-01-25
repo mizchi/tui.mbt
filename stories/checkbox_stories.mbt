@@ -8,14 +8,14 @@ pub fn checkbox_stories() -> Array[VNodeStory] {
     VNodeStory::new(
       "checkbox",
       "unchecked",
-      fn() { @vnode.row([@vnode.text("[ ]")]) },
+      fn() { @vnode.row(children=[@vnode.text("[ ]")]) },
       width=10,
       height=3,
     ),
     VNodeStory::new(
       "checkbox",
       "checked",
-      fn() { @vnode.row([@vnode.text("[x]", fg="cyan")]) },
+      fn() { @vnode.row(children=[@vnode.text("[x]", fg="cyan")]) },
       width=10,
       height=3,
     ),

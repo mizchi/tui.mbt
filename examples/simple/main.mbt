@@ -9,43 +9,32 @@ using @vnode {type TuiNode, type VNodeApp, view, row, text}
 /// Render the simple counter UI
 fn render_simple_ui(width : Int, height : Int, count : Int) -> TuiNode {
   view(
-    [
-      // Header - matches @tui.title_bar (margin_y=1.0, fg=yellow, bold)
-      row(
-        [text("Simple TUI App", fg="yellow", bold=true)],
-        justify="center",
-        margin_y=1.0,
-      ),
-      // Main content area - centered both ways
-      view(
-        [
-          text("Press +/- to change count, q to quit"),
-          row(
-            [
-              text("Count: "),
-              text(
-                count.to_string(),
-                fg=if count >= 0 { "green" } else { "red" },
-                bold=true,
-              ),
-            ],
-            justify="center",
-          ),
-        ],
-        flex_grow=1.0,
-        justify="center",
-        align="center",
-      ),
-      // Footer - matches @tui.footer (justify=center, fg=gray)
-      row(
-        [text("q: quit | +/-: change count", fg="rgb(128,128,128)")],
-        justify="center",
-      ),
-    ],
     width=width.to_double(),
     height=height.to_double(),
     border="rounded",
     border_color="cyan",
+    children=[
+      // Header - matches @tui.title_bar (margin_y=1.0, fg=yellow, bold)
+      row(justify="center", margin_y=1.0, children=[
+        text("Simple TUI App", fg="yellow", bold=true),
+      ]),
+      // Main content area - centered both ways
+      view(flex_grow=1.0, justify="center", align="center", children=[
+        text("Press +/- to change count, q to quit"),
+        row(justify="center", children=[
+          text("Count: "),
+          text(
+            count.to_string(),
+            fg=if count >= 0 { "green" } else { "red" },
+            bold=true,
+          ),
+        ]),
+      ]),
+      // Footer - matches @tui.footer (justify=center, fg=gray)
+      row(justify="center", children=[
+        text("q: quit | +/-: change count", fg="rgb(128,128,128)"),
+      ]),
+    ],
   )
 }
 

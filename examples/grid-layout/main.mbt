@@ -23,16 +23,27 @@ using @vnode {
 fn render_dashboard(width : Int, height : Int) -> TuiNode {
   let content_height = height - 4 // Header(1) + Footer(1) + borders(2)
   grid(
-    [
+    columns=[1.0, 3.0, 1.0], // sidebar: 1fr, main: 3fr, right: 1fr
+    rows=[1.0, 1.0, 1.0, 1.0], // header, content row 1, content row 2, footer
+    gap=0.0,
+    width=width.to_double(),
+    height=height.to_double(),
+    children=[
       // Header - spans all 3 columns
       grid_item(
-        row([text(" Dashboard", fg="yellow", bold=true)], bg="rgb(40,40,60)"),
         column_span=3,
+        child=row(bg="rgb(40,40,60)", children=[
+          text(" Dashboard", fg="yellow", bold=true),
+        ]),
       ),
       // Sidebar - spans 2 rows
       grid_item(
-        view(
-          [
+        row_span=2,
+        child=view(
+          border="single",
+          border_color="rgb(60,60,80)",
+          height=(content_height - 2).to_double(),
+          children=[
             text(" Menu", fg="cyan", bold=true),
             text(" > Home", fg="white"),
             text("   Users", fg="rgb(128,128,128)"),
@@ -40,76 +51,45 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
             text("   Reports", fg="rgb(128,128,128)"),
             vspace(1.0), // Push remaining space to bottom
           ],
-          border="single",
-          border_color="rgb(60,60,80)",
-          height=(content_height - 2).to_double(),
         ),
-        row_span=2,
       ),
       // Main content area
-      view(
-        [
-          text(" Main Content", fg="green", bold=true),
-          text(" Welcome to the Grid Layout demo!"),
-          text(" This panel demonstrates column_span"),
-          text(" and row_span capabilities."),
-          vspace(1.0),
-        ],
-        border="single",
-        border_color="rgb(60,60,80)",
-        flex_grow=1.0,
-      ),
+      view(border="single", border_color="rgb(60,60,80)", flex_grow=1.0, children=[
+        text(" Main Content", fg="green", bold=true),
+        text(" Welcome to the Grid Layout demo!"),
+        text(" This panel demonstrates column_span"),
+        text(" and row_span capabilities."),
+        vspace(1.0),
+      ]),
       // Stats panel
-      view(
-        [
-          text(" Stats", fg="magenta", bold=true),
-          text(" Users: 1,234"),
-          text(" Active: 567"),
-          vspace(1.0),
-        ],
-        border="single",
-        border_color="rgb(60,60,80)",
-        flex_grow=1.0,
-      ),
+      view(border="single", border_color="rgb(60,60,80)", flex_grow=1.0, children=[
+        text(" Stats", fg="magenta", bold=true),
+        text(" Users: 1,234"),
+        text(" Active: 567"),
+        vspace(1.0),
+      ]),
       // Activity panel (below main content)
-      view(
-        [
-          text(" Recent Activity", fg="cyan", bold=true),
-          text(" - User logged in"),
-          text(" - Report generated"),
-          vspace(1.0),
-        ],
-        border="single",
-        border_color="rgb(60,60,80)",
-        flex_grow=1.0,
-      ),
+      view(border="single", border_color="rgb(60,60,80)", flex_grow=1.0, children=[
+        text(" Recent Activity", fg="cyan", bold=true),
+        text(" - User logged in"),
+        text(" - Report generated"),
+        vspace(1.0),
+      ]),
       // Quick actions panel
-      view(
-        [
-          text(" Quick Actions", fg="yellow", bold=true),
-          text(" [N] New"),
-          text(" [E] Export"),
-          vspace(1.0),
-        ],
-        border="single",
-        border_color="rgb(60,60,80)",
-        flex_grow=1.0,
-      ),
+      view(border="single", border_color="rgb(60,60,80)", flex_grow=1.0, children=[
+        text(" Quick Actions", fg="yellow", bold=true),
+        text(" [N] New"),
+        text(" [E] Export"),
+        vspace(1.0),
+      ]),
       // Footer - spans all 3 columns
       grid_item(
-        row(
-          [text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)")],
-          bg="rgb(30,30,40)",
-          justify="center",
-        ),
         column_span=3,
+        child=row(bg="rgb(30,30,40)", justify="center", children=[
+          text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)"),
+        ]),
       ),
     ],
-    columns=[1.0, 3.0, 1.0], // sidebar: 1fr, main: 3fr, right: 1fr
-    rows=[1.0, 1.0, 1.0, 1.0], // header, content row 1, content row 2, footer
-    gap=0.0,
-    width=width.to_double(),
-    height=height.to_double(),
   )
 }
 
@@ -118,7 +98,7 @@ fn render_dashboard(width : Int, height : Int) -> TuiNode {
 fn render_calendar(width : Int, height : Int) -> TuiNode {
   let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   let header_items : Array[TuiNode] = days.map(fn(d) {
-    row([text(d, fg="cyan", bold=true)], justify="center")
+    row(justify="center", children=[text(d, fg="cyan", bold=true)])
   })
 
   // Generate calendar days (simplified)
@@ -127,27 +107,34 @@ fn render_calendar(width : Int, height : Int) -> TuiNode {
     let fg = if i == 15 { "black" } else { "white" }
     let bg = if i == 15 { "cyan" } else { "" }
     day_items.push(
-      row([text(i.to_string(), fg~, bold=i == 15)], justify="center", bg~),
+      row(justify="center", bg~, children=[
+        text(i.to_string(), fg~, bold=i == 15),
+      ]),
     )
   }
   view(
-    [
-      row([text(" Calendar View", fg="yellow", bold=true)], padding_y=0.5),
-      // Day headers
-      grid(header_items, columns=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
-      // Calendar days
-      grid(day_items, columns=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], gap=0.0),
-      vspace(1.0),
-      row(
-        [text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)")],
-        justify="center",
-      ),
-    ],
     border="rounded",
     border_color="rgb(80,80,100)",
     padding=1.0,
     width=width.to_double(),
     height=height.to_double(),
+    children=[
+      row(padding_y=0.5, children=[
+        text(" Calendar View", fg="yellow", bold=true),
+      ]),
+      // Day headers
+      grid(columns=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], children=header_items),
+      // Calendar days
+      grid(
+        columns=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        gap=0.0,
+        children=day_items,
+      ),
+      vspace(1.0),
+      row(justify="center", children=[
+        text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)"),
+      ]),
+    ],
   )
 }
 
@@ -155,93 +142,73 @@ fn render_calendar(width : Int, height : Int) -> TuiNode {
 /// Positioned grid items demo
 fn render_positioned(width : Int, height : Int) -> TuiNode {
   view(
-    [
-      row(
-        [text(" Positioned Items Demo", fg="yellow", bold=true)],
-        padding_y=0.5,
-      ),
-      grid(
-        [
-          // Explicitly positioned items (can overlap or leave gaps)
-          grid_item(
-            view(
-              [text("A", fg="cyan", bold=true)],
-              border="single",
-              border_color="cyan",
-              padding=1.0,
-            ),
-            column=1,
-            row=1,
-          ),
-          grid_item(
-            view(
-              [text("B (2,1)", fg="green", bold=true)],
-              border="single",
-              border_color="green",
-              padding=1.0,
-            ),
-            column=2,
-            row=1,
-          ),
-          grid_item(
-            view(
-              [text("C (3,1)", fg="magenta", bold=true)],
-              border="single",
-              border_color="magenta",
-              padding=1.0,
-            ),
-            column=3,
-            row=1,
-          ),
-          grid_item(
-            view(
-              [text("D (1,2) span 2 cols", fg="yellow", bold=true)],
-              border="single",
-              border_color="yellow",
-              padding=1.0,
-            ),
-            column=1,
-            row=2,
-            column_span=2,
-          ),
-          grid_item(
-            view(
-              [text("E (3,2)", fg="red", bold=true)],
-              border="single",
-              border_color="red",
-              padding=1.0,
-            ),
-            column=3,
-            row=2,
-          ),
-          grid_item(
-            view(
-              [text("F (1,3) span 3 cols", fg="white", bold=true)],
-              border="double",
-              border_color="white",
-              padding=1.0,
-            ),
-            column=1,
-            row=3,
-            column_span=3,
-          ),
-        ],
-        columns=[1.0, 1.0, 1.0],
-        rows=[1.0, 1.0, 1.0],
-        gap=1.0,
-        height=(height - 8).to_double(),
-      ),
-      vspace(1.0),
-      row(
-        [text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)")],
-        justify="center",
-      ),
-    ],
     border="rounded",
     border_color="rgb(80,80,100)",
     padding=1.0,
     width=width.to_double(),
     height=height.to_double(),
+    children=[
+      row(padding_y=0.5, children=[
+        text(" Positioned Items Demo", fg="yellow", bold=true),
+      ]),
+      grid(
+        columns=[1.0, 1.0, 1.0],
+        rows=[1.0, 1.0, 1.0],
+        gap=1.0,
+        height=(height - 8).to_double(),
+        children=[
+          // Explicitly positioned items (can overlap or leave gaps)
+          grid_item(
+            column=1,
+            row=1,
+            child=view(border="single", border_color="cyan", padding=1.0, children=[
+              text("A", fg="cyan", bold=true),
+            ]),
+          ),
+          grid_item(
+            column=2,
+            row=1,
+            child=view(border="single", border_color="green", padding=1.0, children=[
+              text("B (2,1)", fg="green", bold=true),
+            ]),
+          ),
+          grid_item(
+            column=3,
+            row=1,
+            child=view(border="single", border_color="magenta", padding=1.0, children=[
+              text("C (3,1)", fg="magenta", bold=true),
+            ]),
+          ),
+          grid_item(
+            column=1,
+            row=2,
+            column_span=2,
+            child=view(border="single", border_color="yellow", padding=1.0, children=[
+              text("D (1,2) span 2 cols", fg="yellow", bold=true),
+            ]),
+          ),
+          grid_item(
+            column=3,
+            row=2,
+            child=view(border="single", border_color="red", padding=1.0, children=[
+              text("E (3,2)", fg="red", bold=true),
+            ]),
+          ),
+          grid_item(
+            column=1,
+            row=3,
+            column_span=3,
+            child=view(border="double", border_color="white", padding=1.0, children=[
+              text("F (1,3) span 3 cols", fg="white", bold=true),
+            ]),
+          ),
+        ],
+      ),
+      vspace(1.0),
+      row(justify="center", children=[
+        text("Press 1-3 to switch views | q to quit", fg="rgb(100,100,100)"),
+      ]),
+    ],
   )
 }
 

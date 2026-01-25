@@ -79,13 +79,10 @@ fn main {
     } else {
       ""
     }
-    @vnode.row(
-      [
-        @vnode.text(query, fg="cyan", bold=is_selected),
-        @vnode.text(suffix + padding, fg=fg_suffix),
-      ],
-      bg~,
-    )
+    @vnode.row(bg~, children=[
+      @vnode.text(query, fg="cyan", bold=is_selected),
+      @vnode.text(suffix + padding, fg=fg_suffix),
+    ])
   }
 
   fn render_popup() -> @vnode.TuiNode {
@@ -109,13 +106,12 @@ fn main {
       let more_text = "..." + more_count.to_string() + " more"
       let padding = " ".repeat(popup_width - more_text.length())
       items.push(
-        @vnode.row(
-          [@vnode.text(more_text + padding, fg="rgb(100,100,100)")],
-          bg="rgb(60,60,60)",
-        ),
+        @vnode.row(bg="rgb(60,60,60)", children=[
+          @vnode.text(more_text + padding, fg="rgb(100,100,100)"),
+        ]),
       )
     }
-    @vnode.column(items)
+    @vnode.column(children=items)
   }
 
   fn render_ghost_text() -> @vnode.TuiNode {
@@ -142,35 +138,28 @@ fn main {
   fn render_main_ui() -> @vnode.TuiNode {
     let confirmed = get_confirmed_text()
     let current = input.get()
-    @vnode.column(
-      [
-        // Title
-        @vnode.text(" ◆ Inline Completion Demo", fg="cyan", bold=true),
-        // Instructions
-        @vnode.text(
-          " Type to search fruits (e.g., 'ap' for apple/apricot)",
-          fg="rgb(100,100,100)",
-        ),
-        // Input line with id for position lookup
-        @vnode.row(
-          [
-            @vnode.text(confirmed, fg="white"),
-            @vnode.text(current, fg="white"),
-            render_ghost_text(),
-          ],
-          id="input-line",
-        ),
-        // Spacer to push help to bottom
-        @vnode.spacer(),
-        // Help
-        @vnode.text(
-          " ↑↓: select | Tab: confirm | Enter/Space: next word | Ctrl+C: quit",
-          fg="rgb(100,100,100)",
-        ),
-      ],
-      width=width.to_double(),
-      height=height.to_double(),
-    )
+    @vnode.column(width=width.to_double(), height=height.to_double(), children=[
+      // Title
+      @vnode.text(" ◆ Inline Completion Demo", fg="cyan", bold=true),
+      // Instructions
+      @vnode.text(
+        " Type to search fruits (e.g., 'ap' for apple/apricot)",
+        fg="rgb(100,100,100)",
+      ),
+      // Input line with id for position lookup
+      @vnode.row(id="input-line", children=[
+        @vnode.text(confirmed, fg="white"),
+        @vnode.text(current, fg="white"),
+        render_ghost_text(),
+      ]),
+      // Spacer to push help to bottom
+      @vnode.spacer(),
+      // Help
+      @vnode.text(
+        " ↑↓: select | Tab: confirm | Enter/Space: next word | Ctrl+C: quit",
+        fg="rgb(100,100,100)",
+      ),
+    ])
   }
 
   // Track previous match count to detect popup visibility changes

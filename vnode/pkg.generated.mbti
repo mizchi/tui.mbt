@@ -20,7 +20,7 @@ pub fn box_node(BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]])
 
 pub fn box_to_crater(TypedRenderContext, BoxProps, Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @node.Node
 
-pub fn column(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn component(() -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
@@ -30,9 +30,9 @@ pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() ->
 
 pub fn fragment(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn grid(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn grid(columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, children? : Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
-pub fn grid_item(@mizchi/luna/core.Node[TuiEvent, TuiAttrValue], column? : Int, row? : Int, column_span? : Int, row_span? : Int) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int, child~ : @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
@@ -52,7 +52,7 @@ pub fn render_to_lines(@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> Array[
 
 pub fn render_vnode_once(Int, Int, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> String
 
-pub fn row(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn run_vnode_app(Int, Int, () -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
 
@@ -76,7 +76,7 @@ pub fn textarea(String, id? : String, placeholder? : String, state? : InputState
 
 pub fn to_crater_node(RenderContext, @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]) -> @node.Node
 
-pub fn view(Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]], direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
+pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[TuiEvent, TuiAttrValue]]) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 
 pub fn vspace(Double) -> @mizchi/luna/core.Node[TuiEvent, TuiAttrValue]
 

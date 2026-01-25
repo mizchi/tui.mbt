@@ -10,7 +10,7 @@ test "to_crater_node: simple text" {
 ///|
 test "to_crater_node: row with children" {
   let ctx = RenderContext::new()
-  let node = row([text("A"), text("B")])
+  let node = row(children=[text("A"), text("B")])
   let crater = to_crater_node(ctx, node)
   assert_eq(crater.children.length(), 2)
   assert_eq(ctx.texts.get("v2"), Some("A"))
@@ -20,7 +20,7 @@ test "to_crater_node: row with children" {
 ///|
 test "to_crater_node: column with gap" {
   let ctx = RenderContext::new()
-  let node = column([text("Line 1"), text("Line 2")], gap=1.0)
+  let node = column(gap=1.0, children=[text("Line 1"), text("Line 2")])
   let crater = to_crater_node(ctx, node)
   assert_eq(crater.children.length(), 2)
 }
@@ -66,7 +66,7 @@ test "to_crater_node: for_each" {
 ///|
 test "to_crater_node: spacer" {
   let ctx = RenderContext::new()
-  let node = row([text("Left"), spacer(), text("Right")])
+  let node = row(children=[text("Left"), spacer(), text("Right")])
   let crater = to_crater_node(ctx, node)
   assert_eq(crater.children.length(), 3)
 }
@@ -74,7 +74,7 @@ test "to_crater_node: spacer" {
 ///|
 test "to_crater_node: border" {
   let ctx = RenderContext::new()
-  let node = row([text("Bordered")], border="single")
+  let node = row(border="single", children=[text("Bordered")])
   let crater = to_crater_node(ctx, node)
   let style = ctx.styles.get(crater.id)
   assert_true(style is Some(_))

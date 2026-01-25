@@ -29,13 +29,9 @@ test "components uses signals" {
 fn test_menu_item(label : String, selected : Bool) -> @vnode.TuiNode {
   let bg = if selected { "rgb(40,80,120)" } else { "rgb(50,50,60)" }
   let fg = if selected { "cyan" } else { "white" }
-  @vnode.row(
-    [@vnode.text(" " + label + " ", fg~)],
-    bg~,
-    padding_x=1.0,
-    padding_y=0.5,
-    min_height=2.0,
-  )
+  @vnode.row(bg~, padding_x=1.0, padding_y=0.5, min_height=2.0, children=[
+    @vnode.text(" " + label + " ", fg~),
+  ])
 }
 
 ///|
@@ -46,11 +42,11 @@ fn test_dropdown(items : Array[String], selected : Int) -> @vnode.TuiNode {
     item_nodes.push(test_menu_item(item, selected == i))
   }
   @vnode.column(
-    item_nodes,
     border="single",
     border_color="cyan",
     bg="rgb(50,50,60)",
     height=10.0,
+    children=item_nodes,
   )
 }
 
@@ -152,11 +148,9 @@ fn test_menubar_layout(open_menu : Int, selected_item : Int) -> @vnode.TuiNode {
   for i, m in menus {
     let bg = if open_menu == i { "rgb(60,80,120)" } else { "" }
     menu_bar_items.push(
-      @vnode.row(
-        [@vnode.text(" " + m + " ", bold=open_menu == i)],
-        bg~,
-        padding_x=0.5,
-      ),
+      @vnode.row(bg~, padding_x=0.5, children=[
+        @vnode.text(" " + m + " ", bold=open_menu == i),
+      ]),
     )
   }
 
@@ -169,24 +163,24 @@ fn test_menubar_layout(open_menu : Int, selected_item : Int) -> @vnode.TuiNode {
       item_nodes.push(test_menu_item(item, selected_item == i))
     }
     @vnode.column(
-      item_nodes,
       border="single",
       border_color="cyan",
       bg="rgb(50,50,60)",
       height=dropdown_height,
+      children=item_nodes,
     )
   } else {
     // Use same column structure as placeholder
-    @vnode.column([], height=dropdown_height)
+    @vnode.column(height=dropdown_height, children=[])
   }
-  @vnode.column([
+  @vnode.column(children=[
     @vnode.text("Menubar", fg="yellow", bold=true),
     @vnode.vspace(1.0),
     @vnode.row(
-      menu_bar_items,
       bg="rgb(40,40,50)",
       border="single",
       border_color="rgb(60,60,80)",
+      children=menu_bar_items,
     ),
     dropdown,
     @vnode.spacer(),
