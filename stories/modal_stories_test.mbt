@@ -130,7 +130,6 @@ test "modal/stacked_modal story snapshot" {
           #|       │ Dialog │
           #|       │        │
           #|       ╰────────╯
-
         ),
       )
       return
@@ -189,7 +188,6 @@ test "modal/full_overlay story snapshot" {
           #|│ ╰──────╯
           #|│
           #|╰──────────────────────────────
-
         ),
       )
       return
@@ -221,7 +219,6 @@ test "modal/alert_modal story snapshot" {
           #|│               ╭ OK ─╮
           #|│               │     │
           #|│               ╰─────╯
-
         ),
       )
       return
@@ -250,7 +247,6 @@ test "modal/command_launcher story snapshot" {
           #|│        │
           #|│        │
           #|╰────────╯
-
         ),
       )
       return

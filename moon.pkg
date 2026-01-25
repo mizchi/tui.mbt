@@ -4,11 +4,13 @@ import {
   "mizchi/tui/io",
   "mizchi/tui/render",
   "mizchi/tui/vnode",
+  "mizchi/tui/headless",
+  "mizchi/tui/components",
 }
 
 options(
-  description: "Ink like terminal UI renderer with crater layout engine",
+  description: "Terminal UI library for MoonBit with reactive signals",
   license: "MIT",
   readme: "README.md",
-  version: "0.1.0",
+  version: "0.3.0",
 )

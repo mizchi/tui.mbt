@@ -305,17 +305,6 @@ fn main {
     }
   }
 
-  // Helper to check if a string is all printable characters
-  fn is_printable_string(s : String) -> Bool {
-    for c in s {
-      let code = c.to_int()
-      if not((code >= 32 && code < 127) || code >= 128) {
-        return false
-      }
-    }
-    true
-  }
-
   fn handle_key(key : String) -> Unit {
     if key.length() == 0 {
       return
@@ -326,7 +315,7 @@ fn main {
     if launcher_open.get() &&
       key.length() > 1 &&
       key[0].to_int() != 0x1b &&
-      is_printable_string(key) {
+      @tui.is_printable_string(key) {
       // IME input - append entire string
       query.set(query.get() + key)
       selected_idx.set(0)

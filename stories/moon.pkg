@@ -2,7 +2,7 @@ import {
   "mizchi/tui/core",
   "mizchi/tui/render",
   "mizchi/tui/vnode",
+  "mizchi/tui/headless",
+  "mizchi/tui/components",
   "mizchi/tui/testing",
-  "mizchi/crater",
-  "mizchi/crater/types",
 }

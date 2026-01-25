@@ -1,6 +1,6 @@
 ///|
-/// VNode Components - Complete component gallery using vnode/luna
-/// Demonstrates all major UI patterns with luna/vnode integration
+/// VNode Components - Complete component gallery using @components
+/// Demonstrates all major UI patterns with pre-built styled components
 
 // Demo indices
 let demo_tabs : Int = 0
@@ -47,203 +47,12 @@ async fn main {
 
   // Demo names
   let demos = [
-    "Tabs", "Accordion", "Radio", "Switch", "Listbox", "Combobox", "Splitter", "Menubar",
+    "Tabs", "Accordion", "Radio", "Switch", "Listbox", "Combobox", "Splitter",
+    "Menubar",
   ]
 
   // Create the vnode app
   let app = @vnode.VNodeApp::new(width, height)
-
-  // ==========================================================================
-  // Component Helpers
-  // ==========================================================================
-
-  // Tab component
-  fn vnode_tab(label : String, selected : Bool, id : String) -> @vnode.TuiNode {
-    let fg = if selected { "black" } else { "white" }
-    let bg = if selected { "cyan" } else { "rgb(60,60,70)" }
-    @vnode.row([@vnode.text(" " + label + " ", fg~)], id~, bg~, padding_x=0.5)
-  }
-
-  // Accordion section
-  fn vnode_accordion_section(
-    title : String,
-    content : String,
-    expanded : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let icon = if expanded { "▼" } else { "▶" }
-    let header_bg = if expanded { "rgb(40,60,90)" } else { "rgb(50,50,60)" }
-    @vnode.column(
-      [
-        @vnode.row(
-          [@vnode.text(icon + " " + title, fg="cyan", bold=expanded)],
-          id~,
-          bg=header_bg,
-          padding_x=1.0,
-        ),
-        ..if expanded {
-          [
-            @vnode.row(
-              [@vnode.text(content, fg="rgb(180,180,180)")],
-              padding_x=2.0,
-              bg="rgb(30,30,40)",
-            ),
-          ]
-        } else {
-          []
-        },
-      ],
-      border="single",
-      border_color="rgb(60,60,80)",
-    )
-  }
-
-  // Radio option
-  fn vnode_radio(
-    label : String,
-    selected : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let icon = if selected { "◉" } else { "○" }
-    let fg = if selected { "cyan" } else { "white" }
-    @vnode.row(
-      [@vnode.text(icon + " " + label, fg~, bold=selected)],
-      id~,
-      padding_x=1.0,
-      bg=if selected { "rgb(40,60,90)" } else { "" },
-    )
-  }
-
-  // Switch toggle
-  fn vnode_switch(on : Bool, label : String, id : String) -> @vnode.TuiNode {
-    // Use ASCII-safe characters to avoid Unicode width issues
-    let track = if on { "[*--]" } else { "[--*]" }
-    let track_color = if on { "green" } else { "rgb(80,80,80)" }
-    let status = if on { "ON" } else { "OFF" }
-    @vnode.row(
-      [
-        @vnode.text(label, fg="white"),
-        @vnode.hspace(1.0),
-        @vnode.text(track, fg=track_color),
-        @vnode.hspace(1.0),
-        @vnode.text(status, fg=if on { "green" } else { "rgb(100,100,100)" }),
-      ],
-      id~,
-    )
-  }
-
-  // Checkbox
-  fn vnode_checkbox(
-    label : String,
-    checked : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    // Use ASCII-safe characters
-    let icon = if checked { "[x]" } else { "[ ]" }
-    let fg = if checked { "cyan" } else { "white" }
-    @vnode.row(
-      [
-        @vnode.text(icon, fg~),
-        @vnode.hspace(1.0),
-        @vnode.text(label, fg="white"),
-      ],
-      id~,
-      padding_x=1.0,
-    )
-  }
-
-  // Listbox option
-  fn vnode_listbox_item(
-    label : String,
-    selected : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let prefix = if selected { "▸ " } else { "  " }
-    let fg = if selected { "cyan" } else { "white" }
-    let bg = if selected { "rgb(40,60,90)" } else { "" }
-    @vnode.row(
-      [@vnode.text(prefix + label, fg~, bold=selected)],
-      id~,
-      bg~,
-      padding_x=1.0,
-    )
-  }
-
-  // Combobox trigger
-  fn vnode_combobox_trigger(
-    label : String,
-    open : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let arrow = if open { "▲" } else { "▼" }
-    @vnode.row(
-      [
-        @vnode.text(" " + label + " ", fg="white"),
-        @vnode.text(arrow, fg="cyan"),
-      ],
-      id~,
-      border="single",
-      border_color="rgb(80,80,100)",
-      padding_x=0.5,
-    )
-  }
-
-  // Combobox dropdown item
-  fn vnode_combobox_item(
-    label : String,
-    selected : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let bg = if selected { "rgb(40,80,120)" } else { "rgb(40,40,50)" }
-    let fg = if selected { "cyan" } else { "white" }
-    @vnode.row([@vnode.text(" " + label + " ", fg~)], id~, bg~, padding_x=0.5)
-  }
-
-  // Splitter divider
-  fn vnode_splitter_divider(focused : Bool, id : String) -> @vnode.TuiNode {
-    let color = if focused { "cyan" } else { "rgb(80,80,80)" }
-    @vnode.column(
-      [@vnode.text("┃", fg=color)],
-      id~,
-      width=1.0,
-      justify="center",
-      align="center",
-      bg="rgb(40,40,50)",
-    )
-  }
-
-  // Menubar item
-  fn vnode_menubar_item(
-    label : String,
-    open : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let bg = if open { "rgb(60,80,120)" } else { "" }
-    @vnode.row(
-      [@vnode.text(" " + label + " ", bold=open)],
-      id~,
-      bg~,
-      padding_x=0.5,
-    )
-  }
-
-  // Menu dropdown item
-  fn vnode_menu_item(
-    label : String,
-    selected : Bool,
-    id : String,
-  ) -> @vnode.TuiNode {
-    let bg = if selected { "rgb(40,80,120)" } else { "rgb(50,50,60)" }
-    let fg = if selected { "cyan" } else { "white" }
-    @vnode.row(
-      [@vnode.text(" " + label + " ", fg~)],
-      id~,
-      bg~,
-      padding_x=1.0,
-      padding_y=0.5,
-      min_height=2.0,
-    )
-  }
 
   // ==========================================================================
   // Demo Renderers
@@ -254,7 +63,7 @@ async fn main {
     let selected = tab_selected.get()
     let tab_items : Array[@vnode.TuiNode] = []
     for i, t in tabs {
-      tab_items.push(vnode_tab(t, selected == i, "tab-" + i.to_string()))
+      tab_items.push(@ui.tab(t, selected == i, id="tab-" + i.to_string()))
     }
     let content = match selected {
       0 => "Welcome to the Home tab! This is the main dashboard area."
@@ -284,7 +93,8 @@ async fn main {
   fn render_accordion_demo() -> @vnode.TuiNode {
     let sections = [
       (
-        "Introduction", "Welcome to the accordion demo. Click headers to expand.",
+        "Introduction",
+        "Welcome to the accordion demo. Click headers to expand.",
       ),
       ("Features", "Supports expand/collapse with smooth state management."),
       ("FAQ", "Q: How does it work? A: Click on section headers!"),
@@ -293,7 +103,12 @@ async fn main {
     let section_nodes : Array[@vnode.TuiNode] = []
     for i, s in sections {
       section_nodes.push(
-        vnode_accordion_section(s.0, s.1, expanded == i, "acc-" + i.to_string()),
+        @ui.accordion_section(
+          s.0,
+          @vnode.text(s.1, fg="rgb(180,180,180)"),
+          expanded == i,
+          id="acc-" + i.to_string(),
+        ),
       )
     }
     @vnode.column(
@@ -311,7 +126,7 @@ async fn main {
     let option_nodes : Array[@vnode.TuiNode] = []
     for i, opt in options {
       option_nodes.push(
-        vnode_radio(opt, selected == i, "radio-" + i.to_string()),
+        @ui.radio(opt, selected == i, id="radio-" + i.to_string()),
       )
     }
     @vnode.column(
@@ -320,11 +135,7 @@ async fn main {
         @vnode.text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
         @vnode.vspace(1.0),
         @vnode.text("Select mode:"),
-        @vnode.column(
-          option_nodes,
-          border="single",
-          border_color="rgb(60,60,80)",
-        ),
+        @vnode.column(option_nodes, border="single", border_color="rgb(60,60,80)"),
         @vnode.vspace(0.5),
         @vnode.text("Selected: " + options[selected], fg="green"),
       ],
@@ -343,24 +154,27 @@ async fn main {
           fg="rgb(128,128,128)",
         ),
         @vnode.vspace(1.0),
-        vnode_switch(sw, "Dark Mode", "switch-dark"),
-        vnode_switch(not(sw), "Notifications", "switch-notif"),
+        @ui.switch(sw, "Dark Mode", id="switch-dark"),
+        @ui.switch(not(sw), "Notifications", id="switch-notif"),
         @vnode.vspace(0.5),
-        vnode_checkbox("Accept Terms", cb, "cb-terms"),
-        vnode_checkbox("Subscribe to Newsletter", not(cb), "cb-news"),
+        @ui.checkbox("Accept Terms", cb, id="cb-terms"),
+        @ui.checkbox("Subscribe to Newsletter", not(cb), id="cb-news"),
       ],
       gap=0.5,
     )
   }
 
   fn render_listbox_demo() -> @vnode.TuiNode {
-    // Use ASCII-safe characters to avoid Unicode width issues
     let items = ["Apple", "Banana", "Cherry", "Grape", "Orange"]
     let selected = listbox_selected.get()
     let list_nodes : Array[@vnode.TuiNode] = []
     for i, item in items {
       list_nodes.push(
-        vnode_listbox_item(item, selected == i, "list-" + i.to_string()),
+        @ui.listbox_item(
+          item,
+          selected == i,
+          id="list-" + i.to_string(),
+        ),
       )
     }
     @vnode.column(
@@ -386,7 +200,11 @@ async fn main {
       let items : Array[@vnode.TuiNode] = []
       for i, opt in options {
         items.push(
-          vnode_combobox_item(opt, selected == i, "combo-" + i.to_string()),
+          @ui.combobox_item(
+            opt,
+            selected == i,
+            id="combo-" + i.to_string(),
+          ),
         )
       }
       [
@@ -412,7 +230,7 @@ async fn main {
         @vnode.text("Combobox (Dropdown)", fg="yellow", bold=true),
         @vnode.text("Space: open/close, ↑/↓: select", fg="rgb(128,128,128)"),
         @vnode.text("Select language:"),
-        vnode_combobox_trigger(options[selected], open, "combo-trigger"),
+        @ui.combobox_trigger(options[selected], open, id="combo-trigger"),
         ..dropdown_items,
         ..status_text,
       ],
@@ -423,6 +241,19 @@ async fn main {
     let pos = splitter_pos.get()
     let left_width = pos * 60 / 100
     let right_width = 60 - left_width - 1
+    // Splitter divider (custom, not in components yet)
+    fn splitter_divider(focused : Bool, id : String) -> @vnode.TuiNode {
+      let color = if focused { "cyan" } else { "rgb(80,80,80)" }
+      @vnode.column(
+        [@vnode.text("|", fg=color)],
+        id~,
+        width=1.0,
+        justify="center",
+        align="center",
+        bg="rgb(40,40,50)",
+      )
+    }
+
     @vnode.column(
       [
         @vnode.text("Window Splitter", fg="yellow", bold=true),
@@ -444,7 +275,7 @@ async fn main {
               bg="rgb(40,40,50)",
             ),
             // Divider
-            vnode_splitter_divider(true, "splitter-div"),
+            splitter_divider(true, "splitter-div"),
             // Right pane
             @vnode.column(
               [
@@ -490,7 +321,7 @@ async fn main {
     let menu_bar_items : Array[@vnode.TuiNode] = []
     for i, m in menus {
       menu_bar_items.push(
-        vnode_menubar_item(m, open_menu == i, "menu-" + i.to_string()),
+        @ui.menubar_item(m, open_menu == i, id="menu-" + i.to_string()),
       )
     }
 
@@ -502,7 +333,11 @@ async fn main {
       let item_nodes : Array[@vnode.TuiNode] = []
       for i, item in items {
         item_nodes.push(
-          vnode_menu_item(item, selected_item == i, "menuitem-" + i.to_string()),
+          @ui.menu_item(
+            item,
+            selected_item == i,
+            id="menuitem-" + i.to_string(),
+          ),
         )
       }
       @vnode.column(
@@ -564,17 +399,7 @@ async fn main {
     // Navigation tabs
     let nav_items : Array[@vnode.TuiNode] = []
     for i, d in demos {
-      let is_current = current == i
-      let fg = if is_current { "black" } else { "white" }
-      let bg = if is_current { "cyan" } else { "rgb(50,50,60)" }
-      nav_items.push(
-        @vnode.row(
-          [@vnode.text(" " + d + " ", fg~)],
-          id="nav-" + i.to_string(),
-          bg~,
-          padding_x=0.5,
-        ),
-      )
+      nav_items.push(@ui.tab(d, current == i, id="nav-" + i.to_string()))
     }
 
     // Demo content

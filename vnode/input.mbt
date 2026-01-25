@@ -1,6 +1,32 @@
 ///|
 /// Input components for vnode
 
+// =============================================================================
+// Input Utilities
+// =============================================================================
+
+///|
+/// Check if a character is printable (for IME input detection)
+pub fn is_printable_char(c : Char) -> Bool {
+  let code = c.to_int()
+  (code >= 32 && code < 127) || code >= 128
+}
+
+///|
+/// Check if a string is all printable characters (for IME input detection)
+pub fn is_printable_string(s : String) -> Bool {
+  for c in s {
+    if not(is_printable_char(c)) {
+      return false
+    }
+  }
+  true
+}
+
+// =============================================================================
+// Input Components
+// =============================================================================
+
 ///|
 /// Input state for visual feedback
 pub(all) enum InputState {
@@ -173,7 +199,6 @@ pub fn start_edit(
         }
         _ => ()
       }
-
       match config.on_edit_end {
         Some(f) => f()
         None => ()
@@ -212,7 +237,6 @@ pub fn start_edit_inplace(
     Some(f) => f()
     None => ()
   }
-
   @io.start_inplace_input(
     row,
     col,
@@ -233,7 +257,6 @@ pub fn start_edit_inplace(
         }
         _ => ()
       }
-
       match config.on_edit_end {
         Some(f) => f()
         None => ()

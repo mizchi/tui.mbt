@@ -8,28 +8,36 @@ pub fn input_stories() -> Array[VNodeStory] {
     VNodeStory::new(
       "input",
       "idle",
-      fn() { @vnode.input("value", state=@vnode.InputState::Idle, min_width=20.0) },
+      fn() {
+        @vnode.input("value", state=@vnode.InputState::Idle, min_width=20.0)
+      },
       width=25,
       height=5,
     ),
     VNodeStory::new(
       "input",
       "focused",
-      fn() { @vnode.input("value", state=@vnode.InputState::Focused, min_width=20.0) },
+      fn() {
+        @vnode.input("value", state=@vnode.InputState::Focused, min_width=20.0)
+      },
       width=25,
       height=5,
     ),
     VNodeStory::new(
       "input",
       "editing",
-      fn() { @vnode.input("value", state=@vnode.InputState::Editing, min_width=20.0) },
+      fn() {
+        @vnode.input("value", state=@vnode.InputState::Editing, min_width=20.0)
+      },
       width=25,
       height=5,
     ),
     VNodeStory::new(
       "input",
       "disabled",
-      fn() { @vnode.input("value", state=@vnode.InputState::Disabled, min_width=20.0) },
+      fn() {
+        @vnode.input("value", state=@vnode.InputState::Disabled, min_width=20.0)
+      },
       width=25,
       height=5,
     ),
@@ -38,7 +46,12 @@ pub fn input_stories() -> Array[VNodeStory] {
       "input",
       "placeholder",
       fn() {
-        @vnode.input("", placeholder="Enter name...", state=@vnode.InputState::Idle, min_width=20.0)
+        @vnode.input(
+          "",
+          placeholder="Enter name...",
+          state=@vnode.InputState::Idle,
+          min_width=20.0,
+        )
       },
       width=25,
       height=5,
@@ -68,7 +81,12 @@ pub fn textarea_stories() -> Array[VNodeStory] {
       "textarea",
       "idle",
       fn() {
-        @vnode.textarea("Line 1\nLine 2", rows=3, state=@vnode.InputState::Idle, min_width=25.0)
+        @vnode.textarea(
+          "Line 1\nLine 2",
+          rows=3,
+          state=@vnode.InputState::Idle,
+          min_width=25.0,
+        )
       },
       width=31,
       height=9,
@@ -77,7 +95,12 @@ pub fn textarea_stories() -> Array[VNodeStory] {
       "textarea",
       "focused",
       fn() {
-        @vnode.textarea("Line 1\nLine 2", rows=3, state=@vnode.InputState::Focused, min_width=25.0)
+        @vnode.textarea(
+          "Line 1\nLine 2",
+          rows=3,
+          state=@vnode.InputState::Focused,
+          min_width=25.0,
+        )
       },
       width=31,
       height=9,
@@ -86,7 +109,12 @@ pub fn textarea_stories() -> Array[VNodeStory] {
       "textarea",
       "editing",
       fn() {
-        @vnode.textarea("Line 1\nLine 2", rows=3, state=@vnode.InputState::Editing, min_width=25.0)
+        @vnode.textarea(
+          "Line 1\nLine 2",
+          rows=3,
+          state=@vnode.InputState::Editing,
+          min_width=25.0,
+        )
       },
       width=31,
       height=9,
@@ -95,7 +123,13 @@ pub fn textarea_stories() -> Array[VNodeStory] {
       "textarea",
       "placeholder",
       fn() {
-        @vnode.textarea("", rows=3, placeholder="Enter description...", state=@vnode.InputState::Idle, min_width=25.0)
+        @vnode.textarea(
+          "",
+          rows=3,
+          placeholder="Enter description...",
+          state=@vnode.InputState::Idle,
+          min_width=25.0,
+        )
       },
       width=31,
       height=9,
