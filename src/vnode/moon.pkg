@@ -1,5 +1,5 @@
 import {
-  "mizchi/luna/core" as @luna,
+  "mizchi/signals/ui" as @luna,
   "mizchi/crater/types" as @types,
   "mizchi/crater/style" as @style,
   "mizchi/crater/layout/node" as @node,
