@@ -21,6 +21,7 @@ pub using @vnode {
   view,
   grid,
   grid_item,
+  grid_area,
   fragment,
   spacer,
   hspace,
@@ -40,55 +41,6 @@ pub using @vnode {
   is_printable_string,
 }
 
-// === Components (Styled UI) ===
-
-///|
-pub using @components {
-  button,
-  icon_button,
-  text_button,
-  checkbox,
-  radio,
-  switch,
-  tab,
-  tab_bar,
-  listbox,
-  listbox_item,
-  combobox_trigger,
-  combobox_item,
-  menubar_item,
-  menu_item,
-  menu_divider,
-  modal,
-  modal_backdrop,
-  alert_dialog,
-  confirm_dialog,
-  card,
-  accordion_section,
-  divider,
-  progress_bar,
-  spinner,
-  get_spinner_frame,
-}
-
-// === Components (Dashboard) ===
-
-///|
-pub using @components {
-  gauge,
-  meter,
-  sparkline,
-  stat,
-  table,
-  table_header,
-  table_row,
-  build_sparkline,
-  build_gauge,
-  type GaugeStyle,
-  type TableColumn,
-  type ColumnAlign,
-}
-
 // === VNode (Types) ===
 
 ///|
@@ -101,6 +53,8 @@ pub using @vnode {
   // Grid types
   type DisplayValue,
   type GridAutoFlowValue,
+  // Focus management
+  type FocusContext,
 }
 
 // === Headless (State Types) ===

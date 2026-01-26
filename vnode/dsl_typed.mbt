@@ -53,6 +53,8 @@ fn attr_key(attr : TuiAttrValue) -> String {
     TuiAttrValue::GridRow(_) => "grid_row"
     TuiAttrValue::GridColumnSpan(_) => "grid_column_span"
     TuiAttrValue::GridRowSpan(_) => "grid_row_span"
+    TuiAttrValue::GridTemplateAreas(_) => "grid_template_areas"
+    TuiAttrValue::GridArea(_) => "grid_area"
     TuiAttrValue::Padding(_) => "padding"
     TuiAttrValue::PaddingX(_) => "padding_x"
     TuiAttrValue::PaddingY(_) => "padding_y"
@@ -68,6 +70,7 @@ fn attr_key(attr : TuiAttrValue) -> String {
     TuiAttrValue::Bold(_) => "bold"
     TuiAttrValue::Underline(_) => "underline"
     TuiAttrValue::Id(_) => "id"
+    TuiAttrValue::TabIndex(_) => "tab_index"
   }
 }
 
@@ -98,6 +101,7 @@ pub struct BoxProps {
   border : BorderValue
   border_color : ColorValue?
   bg : ColorValue?
+  tab_index : Int
 }
 
 ///|
@@ -123,6 +127,7 @@ pub fn BoxProps::default() -> BoxProps {
     border: None,
     border_color: None,
     bg: None,
+    tab_index: -1,
   }
 }
 
@@ -195,6 +200,9 @@ pub fn BoxProps::to_attrs(self : BoxProps) -> Array[TuiAttrValue] {
   match self.bg {
     Some(v) => attrs.push(TuiAttrValue::Bg(v))
     None => ()
+  }
+  if self.tab_index >= 0 {
+    attrs.push(TuiAttrValue::TabIndex(self.tab_index))
   }
   attrs
 }
@@ -273,6 +281,7 @@ fn build_box_attrs(
   border : String,
   border_color : String,
   bg : String,
+  tab_index : Int,
   on_click : ((TuiEvent) -> Unit)?,
 ) -> Array[(String, TuiAttr)] {
   let attrs : Array[(String, TuiAttr)] = [
@@ -357,6 +366,10 @@ fn build_box_attrs(
   if bg.length() > 0 {
     attrs.push(("bg", attr(TuiAttrValue::Bg(parse_color_value(bg)))))
   }
+  // TabIndex: -1 means not focusable (excluded), 0+ sets tab order
+  if tab_index >= 0 {
+    attrs.push(("tab_index", attr(TuiAttrValue::TabIndex(tab_index))))
+  }
   match on_click {
     Some(handler) => attrs.push(("on_click", on(handler)))
     None => ()
@@ -385,8 +398,9 @@ pub fn row(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
-  children? : Array[TuiNode] = [],
+  children : Array[TuiNode],
 ) -> TuiNode {
   let attrs = build_box_attrs(
     DirectionValue::Row,
@@ -408,6 +422,7 @@ pub fn row(
     border,
     border_color,
     bg,
+    tab_index,
     on_click,
   )
   @luna.h("box", attrs, children)
@@ -434,8 +449,9 @@ pub fn column(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
-  children? : Array[TuiNode] = [],
+  children : Array[TuiNode],
 ) -> TuiNode {
   let attrs = build_box_attrs(
     DirectionValue::Column,
@@ -457,6 +473,7 @@ pub fn column(
     border,
     border_color,
     bg,
+    tab_index,
     on_click,
   )
   @luna.h("box", attrs, children)
@@ -485,8 +502,9 @@ pub fn view(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
-  children? : Array[TuiNode] = [],
+  children : Array[TuiNode],
 ) -> TuiNode {
   let dir = if direction == "row" {
     DirectionValue::Row
@@ -496,16 +514,18 @@ pub fn view(
   let attrs = build_box_attrs(
     dir, id, gap, margin, margin_x, margin_y, padding, padding_x, padding_y, width,
     height, min_width, min_height, flex_grow, justify, align, border, border_color,
-    bg, on_click,
+    bg, tab_index, on_click,
   )
   @luna.h("box", attrs, children)
 }
 
 ///|
 /// Grid container with CSS Grid layout
+/// Supports both explicit columns/rows and named areas
 pub fn grid(
   columns? : Array[Double] = [],
   rows? : Array[Double] = [],
+  areas? : Array[String] = [],
   auto_flow? : String = "row",
   id? : String = "",
   gap? : Double = 0.0,
@@ -517,11 +537,44 @@ pub fn grid(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
-  children? : Array[TuiNode] = [],
+  tab_index? : Int = -1,
+  children : Array[TuiNode],
 ) -> TuiNode {
   let attrs : Array[(String, TuiAttr)] = [
     ("display", attr(TuiAttrValue::Display(DisplayValue::Grid))),
   ]
+  // Grid template areas (takes precedence for column/row count if provided)
+  if areas.length() > 0 {
+    attrs.push(
+      ("grid_template_areas", attr(TuiAttrValue::GridTemplateAreas(areas))),
+    )
+    // Auto-generate rows based on areas count
+    if rows.length() == 0 {
+      let row_tracks = Array::makei(areas.length(), fn(_i) {
+        @types.TrackSizingFunction::Fr(1.0)
+      })
+      attrs.push(
+        ("grid_template_rows", attr(TuiAttrValue::GridTemplateRows(row_tracks))),
+      )
+    }
+    // Auto-generate columns based on first area row
+    if columns.length() == 0 && areas.length() > 0 {
+      let first_row = areas[0]
+        .split(" ")
+        .filter(fn(s) { s.length() > 0 })
+        .collect()
+      let col_count = first_row.length()
+      let col_tracks = Array::makei(col_count, fn(_i) {
+        @types.TrackSizingFunction::Fr(1.0)
+      })
+      attrs.push(
+        (
+          "grid_template_columns",
+          attr(TuiAttrValue::GridTemplateColumns(col_tracks)),
+        ),
+      )
+    }
+  }
   // Grid template columns (convert Double array to fr values)
   if columns.length() > 0 {
     let tracks = columns.map(fn(v) { @types.TrackSizingFunction::Fr(v) })
@@ -586,16 +639,20 @@ pub fn grid(
   if bg.length() > 0 {
     attrs.push(("bg", attr(TuiAttrValue::Bg(parse_color_value(bg)))))
   }
+  if tab_index >= 0 {
+    attrs.push(("tab_index", attr(TuiAttrValue::TabIndex(tab_index))))
+  }
   @luna.h("box", attrs, children)
 }
 
 ///|
-/// Grid item with placement control
+/// Grid item with placement control (explicit column/row positioning)
 pub fn grid_item(
   column? : Int = 0,
   row? : Int = 0,
   column_span? : Int = 1,
   row_span? : Int = 1,
+  tab_index? : Int = -1,
   child~ : TuiNode,
 ) -> TuiNode {
   let attrs : Array[(String, TuiAttr)] = []
@@ -617,6 +674,20 @@ pub fn grid_item(
   if row_span > 1 {
     attrs.push(("grid_row_span", attr(TuiAttrValue::GridRowSpan(row_span))))
   }
+  // Tab index for focus management
+  if tab_index >= 0 {
+    attrs.push(("tab_index", attr(TuiAttrValue::TabIndex(tab_index))))
+  }
+  @luna.h("box", attrs, [child])
+}
+
+///|
+/// Grid area - place child in a named grid area
+/// Used with grid(areas=[...]) for semantic layout
+pub fn grid_area(name : String, child : TuiNode) -> TuiNode {
+  let attrs : Array[(String, TuiAttr)] = [
+    ("grid_area", attr(TuiAttrValue::GridArea(name))),
+  ]
   @luna.h("box", attrs, [child])
 }
 
@@ -799,6 +870,9 @@ pub fn attr_to_string(attr : TuiAttrValue) -> (String, String) {
     TuiAttrValue::GridRow(v) => v.to_string()
     TuiAttrValue::GridColumnSpan(v) => v.to_string()
     TuiAttrValue::GridRowSpan(v) => v.to_string()
+    TuiAttrValue::GridTemplateAreas(v) =>
+      v.map(fn(s) { "\"" + s + "\"" }).join(" ")
+    TuiAttrValue::GridArea(v) => v
     TuiAttrValue::Padding(v) => v.to_int().to_string()
     TuiAttrValue::PaddingX(v) => v.to_int().to_string()
     TuiAttrValue::PaddingY(v) => v.to_int().to_string()
@@ -814,6 +888,7 @@ pub fn attr_to_string(attr : TuiAttrValue) -> (String, String) {
     TuiAttrValue::Bold(v) => if v { "true" } else { "false" }
     TuiAttrValue::Underline(v) => if v { "true" } else { "false" }
     TuiAttrValue::Id(v) => v
+    TuiAttrValue::TabIndex(v) => v.to_string()
   }
   (key, value)
 }

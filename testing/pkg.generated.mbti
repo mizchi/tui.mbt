@@ -2,9 +2,9 @@
 package "mizchi/tui/testing"
 
 import {
-  "mizchi/tui/core",
   "mizchi/tui/events",
   "mizchi/tui/render",
+  "mizchi/tui/vnode",
 }
 
 // Values
@@ -107,7 +107,26 @@ pub fn TestHarness::last_frame_plain(Self) -> String
 pub fn TestHarness::line_contains(Self, Int, String) -> Bool
 pub fn TestHarness::new(width? : Int, height? : Int) -> Self
 pub fn TestHarness::parse_key(Self, String) -> @events.InputEvent
-pub fn TestHarness::render(Self, @core.Component) -> String
+pub fn TestHarness::render(Self, @mizchi/tui/core.Component) -> String
+
+pub(all) struct VNodeTestHarness {
+  app : @vnode.VNodeApp
+  width : Int
+  height : Int
+  frames : Array[String]
+}
+pub fn VNodeTestHarness::clear_frames(Self) -> Unit
+pub fn VNodeTestHarness::contains(Self, String) -> Bool
+pub fn VNodeTestHarness::find_by_id(Self, String) -> @events.HitTestResult?
+pub fn VNodeTestHarness::frame_count(Self) -> Int
+pub fn VNodeTestHarness::get_line(Self, Int) -> String
+pub fn VNodeTestHarness::get_lines(Self) -> Array[String]
+pub fn VNodeTestHarness::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn VNodeTestHarness::last_frame(Self) -> String
+pub fn VNodeTestHarness::last_frame_plain(Self) -> String
+pub fn VNodeTestHarness::line_contains(Self, Int, String) -> Bool
+pub fn VNodeTestHarness::new(width? : Int, height? : Int) -> Self
+pub fn VNodeTestHarness::render(Self, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
 pub(all) struct VirtualTerminal {
   width : Int
@@ -115,8 +134,8 @@ pub(all) struct VirtualTerminal {
   buffer : @render.CharBuffer
   mut cursor_x : Int
   mut cursor_y : Int
-  mut current_fg : @core.Color
-  mut current_bg : @core.Color
+  mut current_fg : @mizchi/tui/core.Color
+  mut current_bg : @mizchi/tui/core.Color
   mut current_bold : Bool
   mut current_underline : Bool
   mut saved_cursor_x : Int

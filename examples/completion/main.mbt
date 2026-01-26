@@ -79,7 +79,7 @@ fn main {
     } else {
       ""
     }
-    @vnode.row(bg~, children=[
+    @vnode.row(bg~, [
       @vnode.text(query, fg="cyan", bold=is_selected),
       @vnode.text(suffix + padding, fg=fg_suffix),
     ])
@@ -106,12 +106,12 @@ fn main {
       let more_text = "..." + more_count.to_string() + " more"
       let padding = " ".repeat(popup_width - more_text.length())
       items.push(
-        @vnode.row(bg="rgb(60,60,60)", children=[
+        @vnode.row(bg="rgb(60,60,60)", [
           @vnode.text(more_text + padding, fg="rgb(100,100,100)"),
         ]),
       )
     }
-    @vnode.column(children=items)
+    @vnode.column(items)
   }
 
   fn render_ghost_text() -> @vnode.TuiNode {
@@ -138,7 +138,7 @@ fn main {
   fn render_main_ui() -> @vnode.TuiNode {
     let confirmed = get_confirmed_text()
     let current = input.get()
-    @vnode.column(width=width.to_double(), height=height.to_double(), children=[
+    @vnode.column(width=width.to_double(), height=height.to_double(), [
       // Title
       @vnode.text(" ◆ Inline Completion Demo", fg="cyan", bold=true),
       // Instructions
@@ -147,7 +147,7 @@ fn main {
         fg="rgb(100,100,100)",
       ),
       // Input line with id for position lookup
-      @vnode.row(id="input-line", children=[
+      @vnode.row(id="input-line", [
         @vnode.text(confirmed, fg="white"),
         @vnode.text(current, fg="white"),
         render_ghost_text(),

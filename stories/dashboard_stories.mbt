@@ -173,14 +173,14 @@ pub fn titled_box_stories() -> Array[VNodeStory] {
           border_color="cyan",
           padding=1.0,
           min_width=20.0,
-          children=[
+          [
             @vnode.text("mem", fg="cyan", bold=true),
             @vnode.text("Content here"),
           ],
         )
       },
       width=25,
-      height=5,
+      height=7,
     ),
     VNodeStory::new(
       "titled_box",
@@ -191,7 +191,7 @@ pub fn titled_box_stories() -> Array[VNodeStory] {
           border_color="cyan",
           padding=1.0,
           min_width=20.0,
-          children=[
+          [
             @vnode.text("cpu", fg="cyan", bold=true),
             @components.stat("Total", "100%"),
             @components.stat("User", "45%"),
@@ -199,7 +199,7 @@ pub fn titled_box_stories() -> Array[VNodeStory] {
         )
       },
       width=25,
-      height=6,
+      height=7,
     ),
   ]
 }

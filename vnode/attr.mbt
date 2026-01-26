@@ -181,6 +181,9 @@ pub(all) enum TuiAttrValue {
   GridRow(Int) // Row position (1-indexed)
   GridColumnSpan(Int) // Column span
   GridRowSpan(Int) // Row span
+  // Grid template areas (for named area layout)
+  GridTemplateAreas(Array[String]) // e.g., ["header header", "sidebar main"]
+  GridArea(String) // Named area for grid item placement
   // Spacing
   Padding(Double)
   PaddingX(Double)
@@ -200,4 +203,6 @@ pub(all) enum TuiAttrValue {
   Underline(Bool)
   // Identity
   Id(String)
+  // Accessibility
+  TabIndex(Int) // Tab order for focus management (-1 = not focusable, 0+ = tab order)
 }

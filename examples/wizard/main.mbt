@@ -49,8 +49,8 @@ fn render_select_prompt(
 ) -> Array[String] {
   let node : TuiNode = if selected_value.length() > 0 {
     // Completed state
-    column(children=[
-      row(children=[
+    column([
+      row([
         text("* ", fg="green"),
         text(question + " ", bold=true),
         text(selected_value, fg="cyan"),
@@ -59,23 +59,20 @@ fn render_select_prompt(
   } else {
     // Active state
     let children : Array[TuiNode] = [
-      row(children=[text("? ", fg="yellow"), text(question, bold=true)]),
+      row([text("? ", fg="yellow"), text(question, bold=true)]),
       text("  (Use arrows, Enter to select)", fg="rgb(128,128,128)"),
     ]
     // Add options
     for i, opt in options {
       if i == cursor {
         children.push(
-          row(children=[
-            text("  > ", fg="cyan"),
-            text(opt, fg="cyan", bold=true),
-          ]),
+          row([text("  > ", fg="cyan"), text(opt, fg="cyan", bold=true)]),
         )
       } else {
         children.push(text("    " + opt, fg="rgb(128,128,128)"))
       }
     }
-    column(children~)
+    column(children)
   }
   render_to_lines(node)
 }
@@ -90,8 +87,8 @@ fn render_confirm_prompt(
   let node : TuiNode = match confirmed {
     Some(value) => {
       let answer = if value { "Yes" } else { "No" }
-      column(children=[
-        row(children=[
+      column([
+        row([
           text("* ", fg="green"),
           text(question + " ", bold=true),
           text(answer, fg="cyan"),
@@ -101,9 +98,9 @@ fn render_confirm_prompt(
     None => {
       let yes_color = if cursor == 0 { "cyan" } else { "rgb(128,128,128)" }
       let no_color = if cursor == 1 { "cyan" } else { "rgb(128,128,128)" }
-      column(children=[
-        row(children=[text("? ", fg="yellow"), text(question, bold=true)]),
-        row(children=[
+      column([
+        row([text("? ", fg="yellow"), text(question, bold=true)]),
+        row([
           text("  "),
           text("Yes", fg=yes_color, bold=cursor == 0),
           text(" / "),

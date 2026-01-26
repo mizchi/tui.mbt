@@ -3,7 +3,6 @@ package "mizchi/tui"
 
 import {
   "mizchi/signals",
-  "mizchi/tui/components",
   "mizchi/tui/events",
   "mizchi/tui/headless",
   "mizchi/tui/io",
@@ -12,35 +11,13 @@ import {
 }
 
 // Values
-pub fn accordion_section(String, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
 pub fn ansi_full_reset() -> String
-
-pub fn build_gauge(Double, Int, style? : @components.GaugeStyle) -> String
-
-pub fn build_sparkline(Array[Double], width? : Int) -> String
-
-pub fn button(String, id? : String, state? : @headless.ButtonState, min_width? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn card(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], title? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn cleanup_stdin() -> Unit
 
-pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn combobox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn combobox_trigger(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn disable_mouse() -> String
-
-pub fn divider(char? : String, fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn enable_mouse() -> String
 
@@ -50,19 +27,15 @@ pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() ->
 
 pub fn fragment(Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn get_spinner_frame(Int) -> String
-
 pub fn get_terminal_size() -> (Int, Int)
 
-pub fn grid(columns? : Array[Double], rows? : Array[Double], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn grid(columns? : Array[Double], rows? : Array[Double], areas? : Array[String], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, tab_index? : Int, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int, child~ : @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn grid_area(String, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int, tab_index? : Int, child~ : @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn hspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn icon_button(String, id? : String, state? : @headless.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn input(String, id? : String, placeholder? : String, state? : @vnode.InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -72,29 +45,9 @@ pub fn is_printable_char(Char) -> Bool
 
 pub fn is_printable_string(String) -> Bool
 
-pub fn listbox(Array[(String, String)], String, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn listbox_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn menu_divider() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn menu_item(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn menubar_item(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn meter(String, Double, width? : Int, label_width? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn modal(String, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn modal_backdrop() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
 pub fn parse_input(String) -> @events.InputEvent
 
 pub fn print_raw(String) -> Unit
-
-pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn radio(String, Bool, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub async fn read_key() -> String
 
@@ -102,17 +55,13 @@ pub fn render_once(Int, Int, @mizchi/tui/core.Component) -> String
 
 pub fn render_vnode_once(Int, Int, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
-pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn run(() -> @mizchi/tui/core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
 
 pub fn run_vnode_app(Int, Int, () -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], (String) -> Unit) -> () -> Unit
 
 pub fn spacer() -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn sparkline(Array[Double], width? : Int, fg? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn spinner(Int, label? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn start_edit(@vnode.EditConfig, String, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
@@ -122,31 +71,15 @@ pub fn start_edit_inplace_in_bounds(@vnode.EditConfig, String, @events.HitTestRe
 
 pub fn start_keypress_listener((String) -> Unit) -> Unit
 
-pub fn stat(String, String, label_width? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
 pub fn stop_keypress_listener() -> Unit
 
-pub fn switch(Bool, String, id? : String, disabled? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn tab(String, Bool, id? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn tab_bar(Array[(String, String)], String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn table(Array[@components.TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn table_header(Array[@components.TableColumn], separator? : String) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn table_row(Array[@components.TableColumn], Array[String], separator? : String, selected? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
 pub fn text(String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
-
-pub fn text_button(String, id? : String, state? : @headless.ButtonState) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, on_click? : ((@vnode.TuiEvent) -> Unit)?, children? : Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn vspace(Double) -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -169,17 +102,15 @@ pub using @render {type CharCell}
 
 pub using @mizchi/tui/core {type Color}
 
-pub using @components {type ColumnAlign}
-
 pub using @mizchi/tui/core {type Component}
 
 pub using @vnode {type DisplayValue}
 
 pub using @vnode {type EditConfig}
 
-pub using @headless {type FocusNav}
+pub using @vnode {type FocusContext}
 
-pub using @components {type GaugeStyle}
+pub using @headless {type FocusNav}
 
 pub using @vnode {type GridAutoFlowValue}
 
@@ -210,8 +141,6 @@ pub using @mizchi/tui/core {type Role}
 pub using @headless {type SelectionState}
 
 pub using @events {type SpecialKey}
-
-pub using @components {type TableColumn}
 
 pub using @mizchi/tui/core {type TextContentMap}
 

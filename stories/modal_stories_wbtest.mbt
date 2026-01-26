@@ -8,7 +8,7 @@ test "centering layout renders correctly" {
     height=5.0,
     justify="center",
     align="center",
-    children=[@vnode.row(justify="center", children=[@vnode.text("CENTER")])],
+    [@vnode.row(justify="center", [@vnode.text("CENTER")])],
   )
   let output = @vnode.render_vnode_once(17, 5, node)
   // Verify the text "CENTER" is rendered

@@ -8,7 +8,7 @@ pub using @headless {type ModalState}
 ///|
 /// Modal backdrop
 pub fn modal_backdrop() -> @vnode.TuiNode {
-  @vnode.column(flex_grow=1.0, bg="rgba(0,0,0,0.5)", children=[])
+  @vnode.column(flex_grow=1.0, bg="rgba(0,0,0,0.5)", [])
 }
 
 ///|
@@ -26,11 +26,11 @@ pub fn modal(
     border_color="cyan",
     bg="rgb(30,30,40)",
     padding=1.0,
-    children=[
-      @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+    [
+      @vnode.row(padding_x=1.0, padding_y=0.5, [
         @vnode.text(title, fg="cyan", bold=true),
       ]),
-      @vnode.row(children=[
+      @vnode.row([
         @vnode.text("-".repeat(width.to_int() - 4), fg="rgb(60,60,60)"),
       ]),
       ..content,
@@ -49,10 +49,8 @@ pub fn alert_dialog(
   modal(
     title,
     [
-      @vnode.row(padding_y=1.0, children=[@vnode.text(message)]),
-      @vnode.row(justify="center", children=[
-        button(button_label, id="alert-ok"),
-      ]),
+      @vnode.row(padding_y=1.0, [@vnode.text(message)]),
+      @vnode.row(justify="center", [button(button_label, id="alert-ok")]),
     ],
     id~,
   )
@@ -70,8 +68,8 @@ pub fn confirm_dialog(
   modal(
     title,
     [
-      @vnode.row(padding_y=1.0, children=[@vnode.text(message)]),
-      @vnode.row(justify="center", children=[
+      @vnode.row(padding_y=1.0, [@vnode.text(message)]),
+      @vnode.row(justify="center", [
         button(confirm_label, id="confirm-yes"),
         @vnode.hspace(2.0),
         button(cancel_label, id="confirm-no"),
@@ -90,9 +88,7 @@ pub fn card(
 ) -> @vnode.TuiNode {
   let children : Array[@vnode.TuiNode] = if title.length() > 0 {
     [
-      @vnode.row(padding_y=0.5, children=[
-        @vnode.text(title, fg="cyan", bold=true),
-      ]),
+      @vnode.row(padding_y=0.5, [@vnode.text(title, fg="cyan", bold=true)]),
       ..content,
     ]
   } else {
@@ -103,6 +99,6 @@ pub fn card(
     border="rounded",
     border_color="rgb(60,60,80)",
     padding=1.0,
-    children~,
+    children,
   )
 }

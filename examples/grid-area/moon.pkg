@@ -1,0 +1,8 @@
+import {
+  "mizchi/tui",
+  "mizchi/tui/vnode",
+}
+
+options(
+  "is-main": true,
+)

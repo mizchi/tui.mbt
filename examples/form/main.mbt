@@ -55,9 +55,9 @@ fn main {
   // Render function
   fn render_ui() -> TuiNode {
     let focus = focus_index.get()
-    view(width=width.to_double(), height=height.to_double(), children=[
+    view(width=width.to_double(), height=height.to_double(), [
       // Header
-      row(justify="center", padding_y=0.5, children=[
+      row(justify="center", padding_y=0.5, [
         text("VNode Form Demo", fg="yellow", bold=true),
       ]),
       // Form content - use grid for label/input alignment
@@ -66,8 +66,8 @@ fn main {
         border="rounded",
         border_color="rgb(80,80,100)",
         flex_grow=1.0,
-        children=[
-          grid(columns=[10.0, 40.0], gap=1.0, children=[
+        [
+          grid(columns=[10.0, 40.0], gap=1.0, [
             // Row 1: Name
             text("Name:", fg="cyan"),
             input(
@@ -98,12 +98,12 @@ fn main {
           ),
           vspace(1.0),
           // Submit button
-          row(children=[
+          row([
             {
               let is_focused = focus == 3
               let bg = if is_focused { "cyan" } else { "rgb(60,60,70)" }
               let fg = if is_focused { "black" } else { "white" }
-              row(id="submit", bg~, padding_x=1.0, padding_y=0.5, children=[
+              row(id="submit", bg~, padding_x=1.0, padding_y=0.5, [
                 text("  Submit  ", fg~, bold=is_focused),
               ])
             },
@@ -111,7 +111,7 @@ fn main {
         ],
       ),
       // Footer
-      row(justify="center", padding_y=0.5, children=[
+      row(justify="center", padding_y=0.5, [
         text(
           "Tab/↑↓: navigate | Enter: edit | Esc: cancel | q: quit",
           fg="rgb(100,100,100)",

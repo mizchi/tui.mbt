@@ -14,9 +14,7 @@ pub fn tab(
 ) -> @vnode.TuiNode {
   let fg = if selected { "black" } else { "white" }
   let bg = if selected { "cyan" } else { "rgb(60,60,70)" }
-  @vnode.row(id~, bg~, padding_x=0.5, children=[
-    @vnode.text(" " + label + " ", fg~),
-  ])
+  @vnode.row(id~, bg~, padding_x=0.5, [@vnode.text(" " + label + " ", fg~)])
 }
 
 ///|
@@ -29,7 +27,7 @@ pub fn tab_bar(
   for t in tabs {
     items.push(tab(t.0, t.1 == selected_id, id=t.1))
   }
-  @vnode.row(gap=0.5, children=items)
+  @vnode.row(gap=0.5, items)
 }
 
 ///|
@@ -42,7 +40,7 @@ pub fn listbox_item(
   let prefix = if selected { "> " } else { "  " }
   let fg = if selected { "cyan" } else { "white" }
   let bg = if selected { "rgb(40,60,90)" } else { "" }
-  @vnode.row(id~, bg~, padding_x=1.0, children=[
+  @vnode.row(id~, bg~, padding_x=1.0, [
     @vnode.text(prefix + label, fg~, bold=selected),
   ])
 }
@@ -58,12 +56,7 @@ pub fn listbox(
   for item in items {
     nodes.push(listbox_item(item.0, item.1 == selected_id, id=item.1))
   }
-  @vnode.column(
-    id~,
-    border="single",
-    border_color="rgb(60,60,80)",
-    children=nodes,
-  )
+  @vnode.column(id~, border="single", border_color="rgb(60,60,80)", nodes)
 }
 
 ///|
@@ -79,10 +72,7 @@ pub fn combobox_trigger(
     border="single",
     border_color="rgb(80,80,100)",
     padding_x=0.5,
-    children=[
-      @vnode.text(" " + label + " ", fg="white"),
-      @vnode.text(arrow, fg="cyan"),
-    ],
+    [@vnode.text(" " + label + " ", fg="white"), @vnode.text(arrow, fg="cyan")],
   )
 }
 
@@ -95,7 +85,5 @@ pub fn combobox_item(
 ) -> @vnode.TuiNode {
   let bg = if selected { "rgb(40,80,120)" } else { "rgb(40,40,50)" }
   let fg = if selected { "cyan" } else { "white" }
-  @vnode.row(id~, bg~, padding_x=0.5, children=[
-    @vnode.text(" " + label + " ", fg~),
-  ])
+  @vnode.row(id~, bg~, padding_x=0.5, [@vnode.text(" " + label + " ", fg~)])
 }

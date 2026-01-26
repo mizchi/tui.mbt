@@ -32,11 +32,11 @@ pub fn panel_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           padding=1.0,
-          children=[@vnode.text("Panel content")],
+          [@vnode.text("Panel content")],
         )
       },
       width=20,
-      height=5,
+      height=6,
     ),
   ]
 }
@@ -48,7 +48,7 @@ pub fn divider_stories() -> Array[VNodeStory] {
       "divider",
       "horizontal",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @vnode.text("Above"),
           @components.divider(),
           @vnode.text("Below"),
@@ -61,7 +61,7 @@ pub fn divider_stories() -> Array[VNodeStory] {
       "divider",
       "vertical",
       fn() {
-        @vnode.row(gap=1.0, height=3.0, children=[
+        @vnode.row(gap=1.0, height=3.0, [
           @vnode.text("Left"),
           @vnode.text("|", fg="rgb(60,60,60)"),
           @vnode.text("Right"),
@@ -80,7 +80,7 @@ pub fn bordered_stories() -> Array[VNodeStory] {
       "bordered",
       "rounded",
       fn() {
-        @vnode.column(border="rounded", border_color="white", padding=1.0, children=[
+        @vnode.column(border="rounded", border_color="white", padding=1.0, [
           @vnode.text("Rounded"),
         ])
       },
@@ -91,7 +91,7 @@ pub fn bordered_stories() -> Array[VNodeStory] {
       "bordered",
       "single",
       fn() {
-        @vnode.column(border="single", border_color="white", padding=1.0, children=[
+        @vnode.column(border="single", border_color="white", padding=1.0, [
           @vnode.text("Single"),
         ])
       },
@@ -102,7 +102,7 @@ pub fn bordered_stories() -> Array[VNodeStory] {
       "bordered",
       "double",
       fn() {
-        @vnode.column(border="double", border_color="white", padding=1.0, children=[
+        @vnode.column(border="double", border_color="white", padding=1.0, [
           @vnode.text("Double"),
         ])
       },
@@ -113,7 +113,7 @@ pub fn bordered_stories() -> Array[VNodeStory] {
       "bordered",
       "ascii",
       fn() {
-        @vnode.column(border="ascii", border_color="white", padding=1.0, children=[
+        @vnode.column(border="ascii", border_color="white", padding=1.0, [
           @vnode.text("ASCII"),
         ])
       },
@@ -150,9 +150,7 @@ pub fn text_stories() -> Array[VNodeStory] {
     VNodeStory::new(
       "text",
       "with_bg",
-      fn() {
-        @vnode.row(bg="yellow", children=[@vnode.text("Highlight", fg="black")])
-      },
+      fn() { @vnode.row(bg="yellow", [@vnode.text("Highlight", fg="black")]) },
       width=15,
       height=3,
     ),

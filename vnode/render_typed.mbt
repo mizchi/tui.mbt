@@ -92,6 +92,12 @@ fn apply_typed_attr(style : @style.Style, attr : TuiAttrValue) -> Unit {
     TuiAttrValue::Bold(_) => ()
     TuiAttrValue::Underline(_) => ()
     TuiAttrValue::Id(_) => ()
+    // Accessibility attributes are handled separately
+    TuiAttrValue::TabIndex(_) => ()
+    // Grid template areas: handled in convert_element for context passing
+    TuiAttrValue::GridTemplateAreas(_) => ()
+    // Grid area: resolved in convert_element_with_area
+    TuiAttrValue::GridArea(_) => ()
   }
 }
 
@@ -145,11 +151,13 @@ pub struct TypedRenderContext {
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
   mut id_counter : Int
+  // Stack of grid area maps (for nested grids) - mirrors RenderContext
+  area_stack : Array[Map[String, GridAreaInfo]]
 }
 
 ///|
 pub fn TypedRenderContext::new() -> TypedRenderContext {
-  { styles: {}, texts: {}, handlers: {}, id_counter: 0 }
+  { styles: {}, texts: {}, handlers: {}, id_counter: 0, area_stack: [] }
 }
 
 ///|
@@ -204,6 +212,7 @@ fn typed_to_crater_node(ctx : TypedRenderContext, node : TuiNode) -> @node.Node 
     texts: ctx.texts,
     handlers: ctx.handlers,
     id_counter: ctx.id_counter,
+    area_stack: ctx.area_stack,
   }
   let result = to_crater_node(string_ctx, node)
   ctx.id_counter = string_ctx.id_counter

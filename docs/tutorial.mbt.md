@@ -19,6 +19,7 @@ Display text content with optional styling.
 
 ```moonbit
 // Plain text
+
 ///|
 let plain = @vnode.text("Hello World")
 
@@ -41,16 +42,14 @@ Generic flex container. Default direction is `column`.
 
 ```moonbit
 // Vertical stack (default)
+
 ///|
-let vertical = @vnode.view(children=[
-  @vnode.text("Line 1"),
-  @vnode.text("Line 2"),
-])
+let vertical = @vnode.view([@vnode.text("Line 1"), @vnode.text("Line 2")])
 
 // Horizontal with direction parameter
 
 ///|
-let horizontal = @vnode.view(direction="row", gap=1.0, children=[
+let horizontal = @vnode.view(direction="row", gap=1.0, [
   @vnode.text("A"),
   @vnode.text("B"),
 ])
@@ -62,8 +61,9 @@ Shorthand for `view()` with fixed direction.
 
 ```moonbit
 // row() = view(..., direction="row")
+
 ///|
-let r = @vnode.row(gap=2.0, justify="space-between", children=[
+let r = @vnode.row(gap=2.0, justify="space-between", [
   @vnode.text("Left"),
   @vnode.text("Right"),
 ])
@@ -71,10 +71,7 @@ let r = @vnode.row(gap=2.0, justify="space-between", children=[
 // column() = view(..., direction="column")
 
 ///|
-let c = @vnode.column(gap=1.0, children=[
-  @vnode.text("Top"),
-  @vnode.text("Bottom"),
-])
+let c = @vnode.column(gap=1.0, [@vnode.text("Top"), @vnode.text("Bottom")])
 ```
 
 ### grid()
@@ -83,11 +80,12 @@ CSS Grid-like layout with `columns` and `rows` as fr values.
 
 ```moonbit
 // 3-column grid
+
 ///|
 let g = @vnode.grid(
   columns=[1.0, 2.0, 1.0], // 1fr 2fr 1fr
   gap=1.0,
-  children=[
+  [
     @vnode.text("A"),
     @vnode.text("B"),
     @vnode.text("C"),
@@ -104,7 +102,7 @@ Position or span grid items explicitly.
 
 ```moonbit
 ///|
-let dashboard = @vnode.grid(columns=[1.0, 2.0, 1.0], children=[
+let dashboard = @vnode.grid(columns=[1.0, 2.0, 1.0], [
   // Header spans all 3 columns
   @vnode.grid_item(column_span=3, child=@vnode.text("Header")),
   // Sidebar spans 2 rows
@@ -115,6 +113,24 @@ let dashboard = @vnode.grid(columns=[1.0, 2.0, 1.0], children=[
 ])
 ```
 
+### grid_area()
+
+Use named areas for semantic grid layouts (like CSS grid-template-areas).
+
+```moonbit
+///|
+let semantic_layout = @vnode.grid(
+  areas=["header header", "sidebar main", "footer footer"],
+  gap=1.0,
+  [
+    @vnode.grid_area("header", @vnode.text("Header")),
+    @vnode.grid_area("sidebar", @vnode.text("Sidebar")),
+    @vnode.grid_area("main", @vnode.text("Main Content")),
+    @vnode.grid_area("footer", @vnode.text("Footer")),
+  ],
+)
+```
+
 ## Styling
 
 ### Borders
@@ -123,7 +139,7 @@ Available border styles: `single`, `double`, `rounded`, `ascii`.
 
 ```moonbit
 ///|
-let bordered = @vnode.view(border="rounded", border_color="cyan", padding=1.0, children=[
+let bordered = @vnode.view(border="rounded", border_color="cyan", padding=1.0, [
   @vnode.text("Content"),
 ])
 ```
@@ -134,13 +150,14 @@ Colors can be specified as named colors or RGB values.
 
 ```moonbit
 // Named colors: red, green, blue, yellow, cyan, magenta, white, black
+
 ///|
 let named = @vnode.text("Warning", fg="yellow")
 
 // RGB format
 
 ///|
-let custom = @vnode.row(bg="rgb(255,200,100)", children=[
+let custom = @vnode.row(bg="rgb(255,200,100)", [
   @vnode.text("Highlight", fg="black"),
 ])
 ```
@@ -156,7 +173,7 @@ let centered = @vnode.view(
   align="center", // start, center, end, stretch
   width=40.0,
   height=10.0,
-  children=[@vnode.text("Centered")],
+  [@vnode.text("Centered")],
 )
 ```
 
@@ -168,7 +185,7 @@ Flexible spacers that grow to fill available space.
 
 ```moonbit
 ///|
-let layout = @vnode.view(children=[
+let layout = @vnode.view([
   @vnode.text("Top"),
   @vnode.vspace(1.0), // Pushes footer to bottom
   @vnode.text("Footer"),
@@ -181,7 +198,7 @@ Convenience for `vspace(1.0)`.
 
 ```moonbit
 ///|
-let with_spacer = @vnode.column(children=[
+let with_spacer = @vnode.column([
   @vnode.text("Header"),
   @vnode.spacer(),
   @vnode.text("Footer"),
@@ -194,18 +211,16 @@ let with_spacer = @vnode.column(children=[
 
 ```moonbit
 ///|
-let fixed = @vnode.view(width=30.0, height=5.0, children=[
-  @vnode.text("Fixed size"),
-])
+let fixed = @vnode.view(width=30.0, height=5.0, [@vnode.text("Fixed size")])
 ```
 
 ### Flexible sizing with flex_grow
 
 ```moonbit
 ///|
-let flexible = @vnode.row(children=[
-  @vnode.view(width=20.0, children=[@vnode.text("Sidebar")]),
-  @vnode.view(flex_grow=1.0, children=[@vnode.text("Main")]), // Takes remaining space
+let flexible = @vnode.row([
+  @vnode.view(width=20.0, [@vnode.text("Sidebar")]),
+  @vnode.view(flex_grow=1.0, [@vnode.text("Main")]), // Takes remaining space
 ])
 ```
 
@@ -221,7 +236,7 @@ fn card(title : String, content : String) -> @vnode.TuiNode {
     border_color="rgb(60,60,80)",
     padding=1.0,
     gap=1.0,
-    children=[@vnode.text(title, fg="cyan", bold=true), @vnode.text(content)],
+    [@vnode.text(title, fg="cyan", bold=true), @vnode.text(content)],
   )
 }
 
@@ -239,41 +254,39 @@ fn dashboard_layout(width : Int, height : Int) -> @vnode.TuiNode {
     rows=[1.0, 1.0, 1.0, 1.0],
     width=width.to_double(),
     height=height.to_double(),
-    children=[
+    [
       // Header - spans all columns
       @vnode.grid_item(
         column_span=3,
-        child=@vnode.row(bg="rgb(40,40,60)", children=[
+        child=@vnode.row(bg="rgb(40,40,60)", [
           @vnode.text("Dashboard", fg="yellow", bold=true),
         ]),
       ),
       // Sidebar
       @vnode.grid_item(
         row_span=2,
-        child=@vnode.view(border="single", children=[
+        child=@vnode.view(border="single", [
           @vnode.text("Menu", fg="cyan"),
           @vnode.text("> Home"),
           @vnode.text("  Settings"),
         ]),
       ),
       // Main content
-      @vnode.view(border="single", flex_grow=1.0, children=[
-        @vnode.text("Main Content"),
-      ]),
+      @vnode.view(border="single", flex_grow=1.0, [@vnode.text("Main Content")]),
       // Right panel
-      @vnode.view(border="single", children=[@vnode.text("Stats")]),
+      @vnode.view(border="single", [@vnode.text("Stats")]),
       // Bottom panels
       @vnode.text("Activity"),
       @vnode.text("Actions"),
       // Footer
       @vnode.grid_item(
         column_span=3,
-        child=@vnode.row(justify="center", children=[@vnode.text("Status")]),
+        child=@vnode.row(justify="center", [@vnode.text("Status")]),
       ),
     ],
   )
 }
 
 ///|
-let layout = dashboard_layout(80, 24)
+let layout_ = dashboard_layout(80, 24)
 ```

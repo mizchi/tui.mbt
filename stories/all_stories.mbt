@@ -9,6 +9,9 @@ pub fn all_stories() -> Array[VNodeStory] {
   for s in button_stories() {
     stories.push(s)
   }
+  for s in text_button_stories() {
+    stories.push(s)
+  }
 
   // Checkbox & Switch
   for s in checkbox_stories() {
@@ -42,12 +45,32 @@ pub fn all_stories() -> Array[VNodeStory] {
   for s in context_menu_stories() {
     stories.push(s)
   }
+  for s in menubar_stories() {
+    stories.push(s)
+  }
 
   // Input
   for s in input_stories() {
     stories.push(s)
   }
   for s in textarea_stories() {
+    stories.push(s)
+  }
+
+  // Form accessibility (Label, Fieldset, Error, Help)
+  for s in label_stories() {
+    stories.push(s)
+  }
+  for s in fieldset_stories() {
+    stories.push(s)
+  }
+  for s in error_message_stories() {
+    stories.push(s)
+  }
+  for s in help_text_stories() {
+    stories.push(s)
+  }
+  for s in form_field_stories() {
     stories.push(s)
   }
 
@@ -86,6 +109,9 @@ pub fn all_stories() -> Array[VNodeStory] {
   for s in grid_item_stories() {
     stories.push(s)
   }
+  for s in grid_area_stories() {
+    stories.push(s)
+  }
   for s in view_stories() {
     stories.push(s)
   }
@@ -112,6 +138,17 @@ pub fn all_stories() -> Array[VNodeStory] {
 
   // Modal & Overlay
   for s in modal_stories() {
+    stories.push(s)
+  }
+
+  // Search
+  for s in search_input_stories() {
+    stories.push(s)
+  }
+  for s in highlight_text_stories() {
+    stories.push(s)
+  }
+  for s in search_result_stories() {
     stories.push(s)
   }
 

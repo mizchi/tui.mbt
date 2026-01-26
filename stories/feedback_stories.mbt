@@ -125,10 +125,7 @@ pub fn loading_dots_stories() -> Array[VNodeStory] {
       "loading_dots",
       "with_label",
       fn() {
-        @vnode.row(children=[
-          @vnode.text("Processing"),
-          @vnode.text("...", fg="cyan"),
-        ])
+        @vnode.row([@vnode.text("Processing"), @vnode.text("...", fg="cyan")])
       },
       width=20,
       height=3,

@@ -171,7 +171,7 @@ pub fn dump_layout(
     w.to_string() +
     "x" +
     h.to_string() +
-    " children=" +
+    " " +
     layout.children.length().to_string() +
     "\n"
   for child in layout.children {

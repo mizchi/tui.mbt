@@ -23,7 +23,7 @@ pub fn checkbox(
     "white"
   }
   let bg = if focused && not(disabled) { "rgb(40,60,90)" } else { "" }
-  @vnode.row(id~, bg~, padding_x=1.0, children=[
+  @vnode.row(id~, bg~, padding_x=1.0, [
     @vnode.text(icon, fg~),
     @vnode.hspace(1.0),
     @vnode.text(label, fg="white"),
@@ -47,7 +47,7 @@ pub fn radio(
     "white"
   }
   let bg = if selected && not(disabled) { "rgb(40,60,90)" } else { "" }
-  @vnode.row(id~, bg~, padding_x=1.0, children=[
+  @vnode.row(id~, bg~, padding_x=1.0, [
     @vnode.text(icon + " " + label, fg~, bold=selected),
   ])
 }
@@ -76,7 +76,7 @@ pub fn switch(
   } else {
     "rgb(100,100,100)"
   }
-  @vnode.row(id~, children=[
+  @vnode.row(id~, [
     @vnode.text(label, fg="white"),
     @vnode.hspace(1.0),
     @vnode.text(track, fg=track_color),

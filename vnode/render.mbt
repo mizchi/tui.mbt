@@ -2,18 +2,76 @@
 /// Render TuiNode to crater Layout and CharBuffer
 
 ///|
+/// Grid area placement info (package-visible for render_typed.mbt)
+pub(all) struct GridAreaInfo {
+  column : Int
+  row : Int
+  column_span : Int
+  row_span : Int
+}
+
+///|
 /// Render context holding styles and handlers
 pub struct RenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
   mut id_counter : Int
+  // Stack of grid area maps (for nested grids)
+  area_stack : Array[Map[String, GridAreaInfo]]
 }
 
 ///|
 /// Create a new render context
 pub fn RenderContext::new() -> RenderContext {
-  { styles: {}, texts: {}, handlers: {}, id_counter: 0 }
+  { styles: {}, texts: {}, handlers: {}, id_counter: 0, area_stack: [] }
+}
+
+///|
+/// Parse grid-template-areas and build area map
+fn parse_grid_template_areas(
+  areas : Array[String],
+) -> Map[String, GridAreaInfo] {
+  let result : Map[String, GridAreaInfo] = {}
+  for row_idx, row_str in areas {
+    let cells = row_str.split(" ").filter(fn(s) { s.length() > 0 }).collect()
+    for col_idx, name_view in cells {
+      let name = name_view.to_string()
+      if name == "." {
+        continue // Skip empty cells
+      }
+      match result.get(name) {
+        Some(info) => {
+          // Extend existing area
+          let new_col_span = col_idx + 1 - info.column + 1
+          let new_row_span = row_idx + 1 - info.row + 1
+          result[name] = {
+            column: info.column,
+            row: info.row,
+            column_span: if new_col_span > info.column_span {
+              new_col_span
+            } else {
+              info.column_span
+            },
+            row_span: if new_row_span > info.row_span {
+              new_row_span
+            } else {
+              info.row_span
+            },
+          }
+        }
+        None =>
+          // New area - 1-indexed
+          result[name] = {
+            column: col_idx + 1,
+            row: row_idx + 1,
+            column_span: 1,
+            row_span: 1,
+          }
+      }
+    }
+  }
+  result
 }
 
 ///|
@@ -105,19 +163,25 @@ fn convert_element(
   ctx : RenderContext,
   el : @luna.VElement[TuiEvent, TuiAttrValue],
 ) -> @node.Node {
-  // Get or generate ID
+  // Get or generate ID and check for grid template areas
   let mut id = ""
+  let mut grid_areas : Array[String]? = None
+  let mut grid_area_name : String? = None
   for attr in el.attrs {
-    if attr.0 == "id" {
-      match attr.1 {
-        @luna.Attr::VStatic(TuiAttrValue::Id(v)) => id = v
-        @luna.Attr::VDynamic(getter) =>
-          match getter() {
-            TuiAttrValue::Id(v) => id = v
-            _ => ()
-          }
-        _ => ()
-      }
+    match attr {
+      ("id", @luna.Attr::VStatic(TuiAttrValue::Id(v))) => id = v
+      ("id", @luna.Attr::VDynamic(getter)) =>
+        match getter() {
+          TuiAttrValue::Id(v) => id = v
+          _ => ()
+        }
+      (
+        "grid_template_areas",
+        @luna.Attr::VStatic(TuiAttrValue::GridTemplateAreas(v)),
+      ) => grid_areas = Some(v)
+      ("grid_area", @luna.Attr::VStatic(TuiAttrValue::GridArea(v))) =>
+        grid_area_name = Some(v)
+      _ => ()
     }
   }
   if id.length() == 0 {
@@ -140,6 +204,28 @@ fn convert_element(
       @luna.Attr::VHandler(handler) => ctx.handlers[id] = handler.get_callback()
       @luna.Attr::VAction(_) => ()
     }
+  }
+
+  // Resolve grid area from parent context
+  match grid_area_name {
+    Some(name) =>
+      if ctx.area_stack.length() > 0 {
+        let current_map = ctx.area_stack[ctx.area_stack.length() - 1]
+        match current_map.get(name) {
+          Some(info) => {
+            style.grid_column = {
+              start: @types.GridPlacement::Line(info.column),
+              end: @types.GridPlacement::Span(info.column_span),
+            }
+            style.grid_row = {
+              start: @types.GridPlacement::Line(info.row),
+              end: @types.GridPlacement::Span(info.row_span),
+            }
+          }
+          None => ()
+        }
+      }
+    None => ()
   }
 
   // Store style if not default
@@ -181,8 +267,21 @@ fn convert_element(
       @node.Node::new(id, style, [])
     }
     _ => {
+      // Push grid area map if this is a grid container
+      match grid_areas {
+        Some(areas) => ctx.area_stack.push(parse_grid_template_areas(areas))
+        None => ()
+      }
       // Convert children
       let crater_children = el.children.map(fn(c) { to_crater_node(ctx, c) })
+      // Pop grid area map
+      match grid_areas {
+        Some(_) => {
+          let _ = ctx.area_stack.pop()
+
+        }
+        None => ()
+      }
       @node.Node::new(id, style, crater_children)
     }
   }
@@ -281,5 +380,11 @@ fn apply_attr(
     TuiAttrValue::Bold(v) => visual.bold = v
     TuiAttrValue::Underline(v) => visual.underline = v
     TuiAttrValue::Id(_) => ()
+    // Accessibility: TabIndex is metadata, doesn't affect layout
+    TuiAttrValue::TabIndex(_) => ()
+    // Grid template areas: handled in convert_element for context passing
+    TuiAttrValue::GridTemplateAreas(_) => ()
+    // Grid area: resolved in convert_element_with_area
+    TuiAttrValue::GridArea(_) => ()
   }
 }

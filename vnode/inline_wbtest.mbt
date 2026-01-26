@@ -18,7 +18,7 @@ test "render_to_lines with colored text" {
 
 ///|
 test "render_to_lines with row" {
-  let node = row(children=[text("A"), text("B"), text("C")])
+  let node = row([text("A"), text("B"), text("C")])
   let lines = render_to_lines(node)
   // Row should produce a single line
   inspect(lines.length(), content="1")
@@ -29,7 +29,7 @@ test "render_to_lines with row" {
 
 ///|
 test "render_to_lines with column" {
-  let node = column(children=[text("Line1"), text("Line2"), text("Line3")])
+  let node = column([text("Line1"), text("Line2"), text("Line3")])
   let lines = render_to_lines(node)
   // Column should produce multiple lines
   inspect(lines.length(), content="3")
@@ -40,8 +40,8 @@ test "render_to_lines with column" {
 
 ///|
 test "render_to_lines with nested structure" {
-  let node = column(children=[
-    row(children=[text("? ", fg="yellow"), text("Question", bold=true)]),
+  let node = column([
+    row([text("? ", fg="yellow"), text("Question", bold=true)]),
     text("  Option 1", fg="cyan"),
     text("  Option 2"),
   ])

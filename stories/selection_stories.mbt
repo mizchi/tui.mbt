@@ -22,7 +22,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_first",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.radio("Small", true),
           @components.radio("Medium", false),
           @components.radio("Large", false),
@@ -35,7 +35,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_middle",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.radio("Small", false),
           @components.radio("Medium", true),
           @components.radio("Large", false),
@@ -48,7 +48,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_focused",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.radio("Small", true),
           @components.radio("Medium", false),
           @components.radio("Large", false),
@@ -61,7 +61,7 @@ pub fn radio_stories() -> Array[VNodeStory] {
       "radio",
       "group_horizontal",
       fn() {
-        @vnode.row(gap=1.0, children=[
+        @vnode.row(gap=1.0, [
           @components.radio("Small", false),
           @components.radio("Medium", true),
           @components.radio("Large", false),
@@ -87,21 +87,21 @@ pub fn listbox_stories() -> Array[VNodeStory] {
       "first_selected",
       fn() { @components.listbox(items, "apple") },
       width=21,
-      height=7,
+      height=15,
     ),
     VNodeStory::new(
       "listbox",
       "middle_selected",
       fn() { @components.listbox(items, "banana") },
       width=21,
-      height=7,
+      height=15,
     ),
     VNodeStory::new(
       "listbox",
       "with_focus",
       fn() { @components.listbox(items, "cherry") },
       width=21,
-      height=7,
+      height=15,
     ),
     VNodeStory::new(
       "listbox",
@@ -113,7 +113,7 @@ pub fn listbox_stories() -> Array[VNodeStory] {
         )
       },
       width=21,
-      height=5,
+      height=11,
     ),
   ]
 }
@@ -139,7 +139,7 @@ pub fn select_stories() -> Array[VNodeStory] {
       "select",
       "open",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.combobox_trigger("JavaScript", true),
           @components.combobox_item("JavaScript", true),
           @components.combobox_item("TypeScript", false),

@@ -134,7 +134,7 @@ fn main {
     let is_selected = idx == palette_selected.get()
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(40,40,50)" }
     let fg = if is_selected { "cyan" } else { "white" }
-    @vnode.row(bg~, padding_x=0.5, children=[
+    @vnode.row(bg~, padding_x=0.5, [
       @vnode.text(" " + cmd.icon + " ", fg="cyan"),
       @vnode.text(cmd.name, fg~, bold=is_selected),
     ])
@@ -155,31 +155,31 @@ fn main {
         items.push(render_palette_item(visible_items[i], i))
       } else if i == 0 && filtered.length() == 0 {
         items.push(
-          @vnode.row(padding_x=1.0, height=1.0, children=[
+          @vnode.row(padding_x=1.0, height=1.0, [
             @vnode.text("No matching commands", fg="rgb(100,100,100)"),
           ]),
         )
       } else {
-        items.push(@vnode.row(height=1.0, children=[]))
+        items.push(@vnode.row(height=1.0, []))
       }
     }
 
     // More indicator
     let more_row = if filtered.length() > palette_max_items {
       let more_count = filtered.length() - palette_max_items
-      @vnode.row(padding_x=1.0, height=1.0, children=[
+      @vnode.row(padding_x=1.0, height=1.0, [
         @vnode.text(
           "..." + more_count.to_string() + " more",
           fg="rgb(100,100,100)",
         ),
       ])
     } else {
-      @vnode.row(height=1.0, children=[])
+      @vnode.row(height=1.0, [])
     }
 
     // Input field
     let query = palette_query.get()
-    let input_row = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+    let input_row = @vnode.row(padding_x=1.0, padding_y=0.5, [
       @vnode.text("> ", fg="yellow", bold=true),
       @vnode.text(
         if query.length() > 0 {
@@ -193,7 +193,7 @@ fn main {
     ])
 
     // Footer
-    let footer = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+    let footer = @vnode.row(padding_x=1.0, padding_y=0.5, [
       @vnode.text(
         filtered.length().to_string() + " commands | Enter: run | Esc: close",
         fg="rgb(100,100,100)",
@@ -207,20 +207,20 @@ fn main {
       border_color="cyan",
       min_width=palette_width.to_double(),
       height=palette_height.to_double(),
-      children=[
-          input_row,
-          @vnode.row(children=[
-            @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
-          ]),
-        ] +
-        items +
-        [
-          more_row,
-          @vnode.row(children=[
-            @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
-          ]),
-          footer,
-        ],
+      [
+        input_row,
+        @vnode.row([
+          @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
+        ]),
+      ] +
+      items +
+      [
+        more_row,
+        @vnode.row([
+          @vnode.text("─".repeat(palette_width - 2), fg="rgb(60,60,60)"),
+        ]),
+        footer,
+      ],
     )
   }
 
@@ -241,18 +241,18 @@ fn main {
     let last_cmd = last_command.get()
 
     // Header
-    let header = @vnode.row(justify="center", children=[
+    let header = @vnode.row(justify="center", [
       @vnode.text("VNode Editor", fg="cyan", bold=true),
     ])
 
     // Last command or hint
     let cmd_row = if last_cmd.length() > 0 {
-      @vnode.row(justify="center", children=[
+      @vnode.row(justify="center", [
         @vnode.text("Last: ", fg="green"),
         @vnode.text(last_cmd, fg="white"),
       ])
     } else {
-      @vnode.row(justify="center", children=[
+      @vnode.row(justify="center", [
         @vnode.text("Ctrl+P: command palette", fg="rgb(80,80,80)"),
       ])
     }
@@ -263,7 +263,7 @@ fn main {
     } else {
       "Enter: edit | q: quit | Ctrl+P: palette"
     }
-    let footer = @vnode.row(justify="center", children=[
+    let footer = @vnode.row(justify="center", [
       @vnode.text(footer_text, fg="rgb(100,100,100)"),
     ])
 
@@ -271,7 +271,7 @@ fn main {
     let main_ui = @vnode.column(
       width=width.to_double(),
       height=(height - 1).to_double(),
-      children=[header, cmd_row, render_editor(), footer],
+      [header, cmd_row, render_editor(), footer],
     )
 
     // Overlay palette if open
@@ -280,9 +280,9 @@ fn main {
         width=width.to_double(),
         height=(height - 1).to_double(),
         bg="rgb(20,20,25)",
-        children=[
+        [
           @vnode.vspace(3.0),
-          @vnode.row(justify="center", children=[render_palette()]),
+          @vnode.row(justify="center", [render_palette()]),
           @vnode.spacer(),
         ],
       )

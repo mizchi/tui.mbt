@@ -28,15 +28,25 @@ pub fn combobox_trigger(String, Bool, id? : String) -> @core.Node[@vnode.TuiEven
 
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn divider(char? : String, fg? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn divider(width? : Int, char? : String, fg? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn error_message(String, visible? : Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn fieldset(legend~ : String, id? : String, children? : Array[@core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn form_field(label_text~ : String, for_id? : String, required? : Bool, help? : String, error? : String, id? : String, child~ : @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn get_spinner_frame(Int) -> String
 
+pub fn help_text(String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
 pub fn highlight_text(String, Int, id? : String, highlight_fg? : String, text_fg? : String, highlight_bold? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn icon_button(String, id? : String, state? : @headless.ButtonState) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn label(String, for_id? : String, required? : Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn listbox(Array[(String, String)], String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 

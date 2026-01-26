@@ -192,21 +192,21 @@ test "attr_to_string: grid_template_columns" {
 
 ///|
 test "view: creates column layout by default" {
-  let node = view(children=[text("A"), text("B")])
+  let node = view([text("A"), text("B")])
   // Should create an Element node
   assert_true(node is @luna.Node::Element(_))
 }
 
 ///|
 test "view: creates row layout with direction param" {
-  let node = view(direction="row", children=[text("A"), text("B")])
+  let node = view(direction="row", [text("A"), text("B")])
   // Should create an Element node
   assert_true(node is @luna.Node::Element(_))
 }
 
 ///|
 test "grid: creates grid layout" {
-  let node = grid(columns=[1.0, 1.0], children=[text("A"), text("B")])
+  let node = grid(columns=[1.0, 1.0], [text("A"), text("B")])
   // Should create an Element node
   assert_true(node is @luna.Node::Element(_))
 }

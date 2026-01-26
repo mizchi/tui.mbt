@@ -13,15 +13,15 @@ fn render_simple_ui(width : Int, height : Int, count : Int) -> TuiNode {
     height=height.to_double(),
     border="rounded",
     border_color="cyan",
-    children=[
+    [
       // Header - matches @tui.title_bar (margin_y=1.0, fg=yellow, bold)
-      row(justify="center", margin_y=1.0, children=[
+      row(justify="center", margin_y=1.0, [
         text("Simple TUI App", fg="yellow", bold=true),
       ]),
       // Main content area - centered both ways
-      view(flex_grow=1.0, justify="center", align="center", children=[
+      view(flex_grow=1.0, justify="center", align="center", [
         text("Press +/- to change count, q to quit"),
-        row(justify="center", children=[
+        row(justify="center", [
           text("Count: "),
           text(
             count.to_string(),
@@ -31,7 +31,7 @@ fn render_simple_ui(width : Int, height : Int, count : Int) -> TuiNode {
         ]),
       ]),
       // Footer - matches @tui.footer (justify=center, fg=gray)
-      row(justify="center", children=[
+      row(justify="center", [
         text("q: quit | +/-: change count", fg="rgb(128,128,128)"),
       ]),
     ],

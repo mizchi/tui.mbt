@@ -34,13 +34,21 @@ pub fn divider_stories() -> Array[VNodeStory]
 
 pub fn edge_case_stories() -> Array[VNodeStory]
 
+pub fn error_message_stories() -> Array[VNodeStory]
+
+pub fn fieldset_stories() -> Array[VNodeStory]
+
 pub fn flex_layout_stories() -> Array[VNodeStory]
+
+pub fn form_field_stories() -> Array[VNodeStory]
 
 pub fn form_layout_stories() -> Array[VNodeStory]
 
 pub fn format_lint_report(Array[LintViolation]) -> String
 
 pub fn gauge_stories() -> Array[VNodeStory]
+
+pub fn grid_area_stories() -> Array[VNodeStory]
 
 pub fn grid_basic_stories() -> Array[VNodeStory]
 
@@ -50,9 +58,15 @@ pub fn grid_layout_stories() -> Array[VNodeStory]
 
 pub fn header_footer_stories() -> Array[VNodeStory]
 
+pub fn help_text_stories() -> Array[VNodeStory]
+
+pub fn highlight_text_stories() -> Array[VNodeStory]
+
 pub fn ide_layout_stories() -> Array[VNodeStory]
 
 pub fn input_stories() -> Array[VNodeStory]
+
+pub fn label_stories() -> Array[VNodeStory]
 
 pub fn lint_all(Array[VNodeStory]) -> Array[LintViolation]
 
@@ -65,6 +79,8 @@ pub fn listbox_stories() -> Array[VNodeStory]
 pub fn loading_dots_stories() -> Array[VNodeStory]
 
 pub fn menu_stories() -> Array[VNodeStory]
+
+pub fn menubar_stories() -> Array[VNodeStory]
 
 pub fn meter_stories() -> Array[VNodeStory]
 
@@ -79,6 +95,10 @@ pub fn progress_stories() -> Array[VNodeStory]
 pub fn radio_stories() -> Array[VNodeStory]
 
 pub fn real_world_stories() -> Array[VNodeStory]
+
+pub fn search_input_stories() -> Array[VNodeStory]
+
+pub fn search_result_stories() -> Array[VNodeStory]
 
 pub fn select_stories() -> Array[VNodeStory]
 
@@ -101,6 +121,8 @@ pub fn switch_stories() -> Array[VNodeStory]
 pub fn table_stories() -> Array[VNodeStory]
 
 pub fn tabs_stories() -> Array[VNodeStory]
+
+pub fn text_button_stories() -> Array[VNodeStory]
 
 pub fn text_stories() -> Array[VNodeStory]
 

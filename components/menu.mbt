@@ -9,7 +9,7 @@ pub fn menubar_item(
   id? : String = "",
 ) -> @vnode.TuiNode {
   let bg = if open { "rgb(60,80,120)" } else { "" }
-  @vnode.row(id~, bg~, padding_x=0.5, children=[
+  @vnode.row(id~, bg~, padding_x=0.5, [
     @vnode.text(" " + label + " ", bold=open),
   ])
 }
@@ -34,7 +34,7 @@ pub fn menu_item(
   } else {
     "white"
   }
-  @vnode.row(id~, bg~, padding_x=1.0, height=1.0, children=[
+  @vnode.row(id~, bg~, padding_x=1.0, height=1.0, [
     @vnode.text(" " + label + " ", fg~),
   ])
 }
@@ -42,7 +42,5 @@ pub fn menu_item(
 ///|
 /// Menu divider
 pub fn menu_divider() -> @vnode.TuiNode {
-  @vnode.row(height=1.0, children=[
-    @vnode.text("-".repeat(20), fg="rgb(60,60,60)"),
-  ])
+  @vnode.row(height=1.0, [@vnode.text("-".repeat(20), fg="rgb(60,60,60)")])
 }

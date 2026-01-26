@@ -22,9 +22,9 @@ test:
 test-update:
     moon test --update --target {{target}}
 
-# Run main
-run:
-    moon run src/main --target {{target}}
+# Run example (default: simple)
+run example="simple":
+    moon run examples/{{example}} --target {{target}}
 
 # Generate type definition files
 info:

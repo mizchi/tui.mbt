@@ -13,9 +13,9 @@ pub fn tabs_stories() -> Array[VNodeStory] {
       "tabs",
       "default_home",
       fn() {
-        @vnode.column(border="rounded", border_color="rgb(60,60,80)", children=[
+        @vnode.column(border="rounded", border_color="rgb(60,60,80)", [
           @components.tab_bar(tabs, "home"),
-          @vnode.row(padding=1.0, children=[@vnode.text("Welcome to Home")]),
+          @vnode.row(padding=1.0, [@vnode.text("Welcome to Home")]),
         ])
       },
       width=41,
@@ -25,9 +25,9 @@ pub fn tabs_stories() -> Array[VNodeStory] {
       "tabs",
       "default_profile",
       fn() {
-        @vnode.column(border="rounded", border_color="rgb(60,60,80)", children=[
+        @vnode.column(border="rounded", border_color="rgb(60,60,80)", [
           @components.tab_bar(tabs, "profile"),
-          @vnode.row(padding=1.0, children=[@vnode.text("User Profile")]),
+          @vnode.row(padding=1.0, [@vnode.text("User Profile")]),
         ])
       },
       width=41,
@@ -37,11 +37,9 @@ pub fn tabs_stories() -> Array[VNodeStory] {
       "tabs",
       "default_focused",
       fn() {
-        @vnode.column(border="rounded", border_color="rgb(60,60,80)", children=[
+        @vnode.column(border="rounded", border_color="rgb(60,60,80)", [
           @components.tab_bar(tabs, "home"),
-          @vnode.row(padding=1.0, children=[
-            @vnode.text("Home (Settings focused)"),
-          ]),
+          @vnode.row(padding=1.0, [@vnode.text("Home (Settings focused)")]),
         ])
       },
       width=41,
@@ -51,11 +49,9 @@ pub fn tabs_stories() -> Array[VNodeStory] {
       "tabs",
       "underline",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.tab_bar(tabs, "home"),
-          @vnode.row(padding=1.0, children=[
-            @vnode.text("Underline style content"),
-          ]),
+          @vnode.row(padding=1.0, [@vnode.text("Underline style content")]),
         ])
       },
       width=41,
@@ -65,9 +61,9 @@ pub fn tabs_stories() -> Array[VNodeStory] {
       "tabs",
       "boxed",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.tab_bar(tabs, "profile"),
-          @vnode.row(padding=1.0, children=[@vnode.text("Boxed style content")]),
+          @vnode.row(padding=1.0, [@vnode.text("Boxed style content")]),
         ])
       },
       width=41,
@@ -83,7 +79,7 @@ pub fn accordion_stories() -> Array[VNodeStory] {
       "accordion",
       "collapsed",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.accordion_section(
             "Section 1",
             @vnode.text("Content 1"),
@@ -97,13 +93,13 @@ pub fn accordion_stories() -> Array[VNodeStory] {
         ])
       },
       width=31,
-      height=7,
+      height=9,
     ),
     VNodeStory::new(
       "accordion",
       "first_expanded",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.accordion_section(
             "Section 1",
             @vnode.text("Content 1"),
@@ -117,13 +113,13 @@ pub fn accordion_stories() -> Array[VNodeStory] {
         ])
       },
       width=31,
-      height=13,
+      height=15,
     ),
     VNodeStory::new(
       "accordion",
       "second_expanded",
       fn() {
-        @vnode.column(children=[
+        @vnode.column([
           @components.accordion_section(
             "Section 1",
             @vnode.text("Content 1"),
@@ -137,7 +133,7 @@ pub fn accordion_stories() -> Array[VNodeStory] {
         ])
       },
       width=31,
-      height=13,
+      height=15,
     ),
   ]
 }
@@ -153,7 +149,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Cut", false),
             @components.menu_item("Copy", false),
             @components.menu_item("Paste", false),
@@ -162,7 +158,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           ],
         )
       },
-      width=21,
+      width=23,
       height=13,
     ),
     VNodeStory::new(
@@ -173,7 +169,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Cut", true),
             @components.menu_item("Copy", false),
             @components.menu_item("Paste", false),
@@ -182,7 +178,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           ],
         )
       },
-      width=21,
+      width=23,
       height=13,
     ),
     VNodeStory::new(
@@ -193,7 +189,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Cut", false),
             @components.menu_item("Copy", true),
             @components.menu_item("Paste", false),
@@ -202,7 +198,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           ],
         )
       },
-      width=21,
+      width=23,
       height=13,
     ),
     VNodeStory::new(
@@ -213,7 +209,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Cut", false),
             @components.menu_item("Copy", false),
             @components.menu_item("Paste", false),
@@ -222,7 +218,7 @@ pub fn menu_stories() -> Array[VNodeStory] {
           ],
         )
       },
-      width=21,
+      width=23,
       height=13,
     ),
   ]
@@ -239,7 +235,7 @@ pub fn context_menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Refresh", false),
             @components.menu_item("Inspect", false),
           ],
@@ -256,7 +252,7 @@ pub fn context_menu_stories() -> Array[VNodeStory] {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             @components.menu_item("Refresh", true),
             @components.menu_item("Inspect", false),
           ],
@@ -264,6 +260,51 @@ pub fn context_menu_stories() -> Array[VNodeStory] {
       },
       width=21,
       height=7,
+    ),
+  ]
+}
+
+///|
+pub fn menubar_stories() -> Array[VNodeStory] {
+  [
+    VNodeStory::new(
+      "menubar",
+      "all_closed",
+      fn() {
+        @vnode.row(bg="rgb(30,30,40)", [
+          @components.menubar_item("File", false),
+          @components.menubar_item("Edit", false),
+          @components.menubar_item("View", false),
+        ])
+      },
+      width=25,
+      height=3,
+    ),
+    VNodeStory::new(
+      "menubar",
+      "file_open",
+      fn() {
+        @vnode.row(bg="rgb(30,30,40)", [
+          @components.menubar_item("File", true),
+          @components.menubar_item("Edit", false),
+          @components.menubar_item("View", false),
+        ])
+      },
+      width=25,
+      height=3,
+    ),
+    VNodeStory::new(
+      "menubar",
+      "edit_open",
+      fn() {
+        @vnode.row(bg="rgb(30,30,40)", [
+          @components.menubar_item("File", false),
+          @components.menubar_item("Edit", true),
+          @components.menubar_item("View", false),
+        ])
+      },
+      width=25,
+      height=3,
     ),
   ]
 }

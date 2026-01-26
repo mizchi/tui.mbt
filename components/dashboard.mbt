@@ -127,13 +127,13 @@ pub fn gauge(
     "cyan"
   }
   if label.length() > 0 {
-    @vnode.row(height=1.0, children=[
+    @vnode.row(height=1.0, [
       @vnode.text(label + " "),
       @vnode.text(bar, fg=bar_color),
       @vnode.text(percent_str, fg="gray"),
     ])
   } else {
-    @vnode.row(height=1.0, children=[
+    @vnode.row(height=1.0, [
       @vnode.text(bar, fg=bar_color),
       @vnode.text(percent_str, fg="gray"),
     ])
@@ -152,7 +152,7 @@ pub fn stat(
   } else {
     label
   }
-  @vnode.row(height=1.0, children=[
+  @vnode.row(height=1.0, [
     @vnode.text(padded_label + ": ", fg="gray"),
     @vnode.text(value, bold=true),
   ])
@@ -199,7 +199,7 @@ pub fn meter(
   } else {
     pct.to_string() + "%"
   }
-  @vnode.row(height=1.0, children=[
+  @vnode.row(height=1.0, [
     @vnode.text(padded_label + " ", fg="gray"),
     @vnode.text("\u{2588}".repeat(filled), fg=bar_color),
     @vnode.text("\u{2591}".repeat(empty), fg="gray"),
@@ -283,7 +283,7 @@ pub fn table_header(
       parts.push(@vnode.text(separator))
     }
   }
-  @vnode.row(height=1.0, children=parts)
+  @vnode.row(height=1.0, parts)
 }
 
 ///|
@@ -305,7 +305,7 @@ pub fn table_row(
     }
   }
   let bg = if selected { "cyan" } else { "" }
-  @vnode.row(height=1.0, bg~, children=parts)
+  @vnode.row(height=1.0, bg~, parts)
 }
 
 ///|
@@ -324,5 +324,5 @@ pub fn table(
       table_row(columns, row_data, separator~, selected=is_selected),
     )
   }
-  @vnode.column(children~)
+  @vnode.column(children)
 }

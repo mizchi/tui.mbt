@@ -28,7 +28,7 @@ pub fn progress_bar(
   }
   if show_percent {
     let pct = (clamped * 100.0).to_int()
-    @vnode.row(children=[
+    @vnode.row([
       @vnode.text(bar, fg=color),
       @vnode.hspace(1.0),
       @vnode.text(pct.to_string() + "%", fg="gray"),
@@ -53,7 +53,7 @@ pub fn get_spinner_frame(tick : Int) -> String {
 pub fn spinner(tick : Int, label? : String = "") -> @vnode.TuiNode {
   let frame = get_spinner_frame(tick)
   if label.length() > 0 {
-    @vnode.row(children=[
+    @vnode.row([
       @vnode.text(frame, fg="cyan"),
       @vnode.hspace(1.0),
       @vnode.text(label),
@@ -66,9 +66,9 @@ pub fn spinner(tick : Int, label? : String = "") -> @vnode.TuiNode {
 ///|
 /// Divider (horizontal line)
 pub fn divider(
-  width~ : Int = 20,
-  char~ : String = "─",
-  fg~ : String = "rgb(60,60,60)",
+  width? : Int = 20,
+  char? : String = "─",
+  fg? : String = "rgb(60,60,60)",
 ) -> @vnode.TuiNode {
   @vnode.text(char.repeat(width), fg~)
 }

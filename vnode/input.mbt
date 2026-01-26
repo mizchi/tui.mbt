@@ -111,7 +111,7 @@ pub fn input(
     width=w,
     padding_x~,
     padding_y~,
-    children=[text(text_with_cursor, fg=actual_fg)],
+    [text(text_with_cursor, fg=actual_fg)],
   )
 }
 
@@ -410,6 +410,6 @@ pub fn textarea(
     min_height=rows.to_double() + 2.0, // +2 for border
     padding_x~,
     padding_y~,
-    children=[text(text_with_cursor, fg=actual_fg)],
+    [text(text_with_cursor, fg=actual_fg)],
   )
 }

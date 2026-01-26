@@ -75,12 +75,12 @@ async fn main {
       2 => "Application configuration and preferences."
       _ => "Unknown tab"
     }
-    column(gap=0.5, children=[
+    column(gap=0.5, [
       text("Tabs Component", fg="yellow", bold=true),
       text("Press 1/2/3 or click", fg="rgb(128,128,128)"),
       vspace(1.0),
-      row(gap=0.5, children=tab_items),
-      column(padding=1.0, border="single", border_color="rgb(80,80,80)", children=[
+      row(gap=0.5, tab_items),
+      column(padding=1.0, border="single", border_color="rgb(80,80,80)", [
         text(content),
       ]),
       vspace(0.5),
@@ -109,7 +109,7 @@ async fn main {
       )
     }
     column(
-      children=[
+      [
         text("Accordion Component", fg="yellow", bold=true),
         text("Press 1/2/3 to expand sections", fg="rgb(128,128,128)"),
         ..section_nodes,
@@ -126,16 +126,12 @@ async fn main {
         @ui.radio(opt, selected == i, id="radio-" + i.to_string()),
       )
     }
-    column(gap=0.5, children=[
+    column(gap=0.5, [
       text("Radio Group", fg="yellow", bold=true),
       text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
       vspace(1.0),
       text("Select mode:"),
-      column(
-        border="single",
-        border_color="rgb(60,60,80)",
-        children=option_nodes,
-      ),
+      column(border="single", border_color="rgb(60,60,80)", option_nodes),
       vspace(0.5),
       text("Selected: " + options[selected], fg="green"),
     ])
@@ -144,7 +140,7 @@ async fn main {
   fn render_switch_demo() -> TuiNode {
     let sw = switch_on.get()
     let cb = checkbox_checked.get()
-    column(gap=0.5, children=[
+    column(gap=0.5, [
       text("Switch & Checkbox", fg="yellow", bold=true),
       text("Space: toggle switch, 1: toggle checkbox", fg="rgb(128,128,128)"),
       vspace(1.0),
@@ -165,12 +161,12 @@ async fn main {
         @ui.listbox_item(item, selected == i, id="list-" + i.to_string()),
       )
     }
-    column(gap=0.5, children=[
+    column(gap=0.5, [
       text("Listbox", fg="yellow", bold=true),
       text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
       vspace(1.0),
       text("Choose a fruit:"),
-      column(border="single", border_color="rgb(60,60,80)", children=list_nodes),
+      column(border="single", border_color="rgb(60,60,80)", list_nodes),
       vspace(0.5),
       text("Selected: " + items[selected], fg="green"),
     ])
@@ -194,7 +190,7 @@ async fn main {
           border="single",
           border_color="cyan",
           bg="rgb(40,40,50)",
-          children=items,
+          items,
         ),
       ]
     } else {
@@ -207,7 +203,7 @@ async fn main {
       [text("Selected: " + options[selected], fg="green")]
     }
     column(
-      children=[
+      [
         text("Combobox (Dropdown)", fg="yellow", bold=true),
         text("Space: open/close, ↑/↓: select", fg="rgb(128,128,128)"),
         text("Select language:"),
@@ -231,15 +227,15 @@ async fn main {
         justify="center",
         align="center",
         bg="rgb(40,40,50)",
-        children=[text("|", fg=color)],
+        [text("|", fg=color)],
       )
     }
 
-    column(gap=0.5, children=[
+    column(gap=0.5, [
       text("Window Splitter", fg="yellow", bold=true),
       text("Use ↑/↓ to resize", fg="rgb(128,128,128)"),
       vspace(1.0),
-      row(id="splitter", children=[
+      row(id="splitter", [
         // Left pane
         column(
           width=left_width.to_double(),
@@ -248,7 +244,7 @@ async fn main {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(40,40,50)",
-          children=[
+          [
             text("Left Pane", fg="cyan"),
             text("Width: " + left_width.to_string()),
           ],
@@ -263,7 +259,7 @@ async fn main {
           border="single",
           border_color="rgb(60,60,80)",
           bg="rgb(50,40,40)",
-          children=[
+          [
             text("Right Pane", fg="yellow"),
             text("Width: " + right_width.to_string()),
           ],
@@ -321,11 +317,11 @@ async fn main {
         border_color="cyan",
         bg="rgb(50,50,60)",
         height=dropdown_height,
-        children=item_nodes,
+        item_nodes,
       )
     } else {
       // Use same column structure as placeholder to keep layout stable
-      column(id="dropdown", height=dropdown_height, children=[])
+      column(id="dropdown", height=dropdown_height, [])
     }
 
     // Get current item name
@@ -339,7 +335,7 @@ async fn main {
     } else {
       "none"
     }
-    column(children=[
+    column([
       text("Menubar", fg="yellow", bold=true),
       text(
         "1/2/3: open menu, ↑/↓: select, Space: close",
@@ -350,7 +346,7 @@ async fn main {
         bg="rgb(40,40,50)",
         border="single",
         border_color="rgb(60,60,80)",
-        children=menu_bar_items,
+        menu_bar_items,
       ),
       dropdown,
       spacer(),
@@ -389,13 +385,13 @@ async fn main {
       _ if current == demo_menubar => render_menubar_demo()
       _ => text("Unknown demo")
     }
-    column(width=width.to_double(), height=height.to_double(), children=[
+    column(width=width.to_double(), height=height.to_double(), [
       // Header
-      row(justify="center", padding_y=0.5, children=[
+      row(justify="center", padding_y=0.5, [
         text("VNode Component Gallery", fg="yellow", bold=true),
       ]),
       // Navigation
-      row(justify="center", gap=0.5, children=nav_items),
+      row(justify="center", gap=0.5, nav_items),
       // Demo content
       column(
         flex_grow=1.0,
@@ -403,10 +399,10 @@ async fn main {
         padding_y=0.5,
         border="rounded",
         border_color="rgb(80,80,100)",
-        children=[demo_content],
+        [demo_content],
       ),
       // Footer
-      row(justify="center", padding_y=1.0, children=[
+      row(justify="center", padding_y=1.0, [
         text(message.get(), fg="rgb(100,100,100)"),
       ]),
     ])

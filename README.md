@@ -1,14 +1,14 @@
 # mizchi/tui
 
-Terminal UI library for MoonBit with reactive signals integration.
+Terminal UI library for MoonBit with virtual DOM-based rendering.
 
 ## Features
 
-- ANSI rendering with diff-based updates
+- Virtual DOM with diff-based ANSI rendering
+- Flexbox and CSS Grid layout (powered by mizchi/crater)
 - Reactive signals integration (mizchi/signals)
-- Component-based architecture (box, text, input, textarea, button)
+- Styled UI components (@components)
 - Keyboard and mouse input handling
-- Layout powered by mizchi/crater
 
 ![alt text](screenshot.png)
 
@@ -16,8 +16,8 @@ Terminal UI library for MoonBit with reactive signals integration.
 
 ```json
 {
-  "deps": {
-    "mizchi/tui": "0.1.1"
+  "import": {
+    "mizchi/tui": "0.3.0"
   }
 }
 ```
@@ -26,61 +26,113 @@ Terminal UI library for MoonBit with reactive signals integration.
 
 ```
 mizchi/tui/
-├── core/       # Component, Color, BorderChars, builders
-├── events/     # InputEvent, parse_input, FocusManager
-├── io/         # Platform I/O (print_raw, read_key, keypress)
-├── render/     # App, ScreenBuffer, ANSI, layout
-└── components/ # UI components (button, input, modal, etc.)
+├── vnode/      # Virtual DOM primitives (row, column, view, grid, text)
+├── components/ # Styled UI components (button, modal, table, etc.)
+├── headless/   # State types (ButtonState, InputState, etc.)
+├── events/     # Input parsing (KeyEvent, MouseEvent)
+├── render/     # ANSI rendering engine
+├── io/         # Platform I/O (terminal size, keypress)
+└── core/       # Low-level types (Component, Color)
 ```
 
 ## Quick Start
 
 ```moonbit
-import {
-  "mizchi/tui/render" as @render,
-  "mizchi/tui/core" as @core,
-  "mizchi/tui/io" as @io,
-  "mizchi/tui/events" as @events,
-  "mizchi/tui/components" as @c,
-  "mizchi/signals",
-}
-
 fn main {
-  let (cols, rows) = @io.get_terminal_size()
-  let count = @signals.signal(0)
+  let node = @vnode.column(gap=1.0, padding=1.0, border="rounded", [
+    @vnode.text("Hello, TUI!", fg="cyan", bold=true),
+    @components.button("Click me"),
+    @components.progress_bar(0.7),
+  ])
 
-  let app = @render.App::new(cols, rows)
-
-  fn render_ui() -> @core.Component {
-    @c.column([
-      @c.text("Count: " + count.get().to_string()),
-      @c.button("Increment"),
-    ])
-  }
-
-  // Initialize terminal
-  @io.print_raw(@render.App::init_terminal())
-
-  // Render
-  @io.print_raw(app.render_frame(render_ui()))
-
-  // Cleanup
-  @io.print_raw(@render.App::restore_terminal())
+  // Render to string
+  let output = @vnode.render_vnode_once(80, 24, node)
+  println(output)
 }
+```
+
+## Layout Primitives (@vnode)
+
+```moonbit
+// Flex containers
+@vnode.view([...])                    // column by default
+@vnode.view(direction="row", [...])   // horizontal
+@vnode.row([...])                     // shorthand for direction="row"
+@vnode.column([...])                  // shorthand for direction="column"
+
+// Grid layout
+@vnode.grid(columns=[1.0, 2.0, 1.0], [...])  // 1fr 2fr 1fr
+@vnode.grid_item(column_span=2, child=...)   // span multiple cells
+
+// Named grid areas
+@vnode.grid(
+  areas=["header header", "sidebar main", "footer footer"],
+  [
+    @vnode.grid_area("header", header_content),
+    @vnode.grid_area("sidebar", sidebar_content),
+    @vnode.grid_area("main", main_content),
+    @vnode.grid_area("footer", footer_content),
+  ]
+)
+
+// Text
+@vnode.text("Hello", fg="cyan", bold=true)
+
+// Spacing
+@vnode.spacer()      // flexible space
+@vnode.hspace(2.0)   // horizontal space
+@vnode.vspace(1.0)   // vertical space
+```
+
+## Styled Components (@components)
+
+```moonbit
+// Buttons
+@components.button("Submit", state=@headless.ButtonState::Focused)
+@components.icon_button("✕")
+@components.text_button("Learn more")
+
+// Form
+@components.checkbox("Remember me", true)
+@components.radio("Option A", true)
+@components.switch(true, "Dark mode")
+@vnode.input("value", placeholder="Enter text...")
+
+// Selection
+@components.listbox(items, selected_id)
+@components.tab_bar(tabs, selected_id)
+@components.combobox_trigger("Select...", open=false)
+
+// Feedback
+@components.progress_bar(0.5)
+@components.spinner(tick)
+@components.gauge("CPU", 0.75)
+@components.sparkline(data)
+
+// Modal
+@components.modal("Title", [...])
+@components.alert_dialog("Error occurred")
+@components.confirm_dialog("Delete?")
+
+// Dashboard
+@components.table(columns, rows)
+@components.stat("Users", "1,234")
+@components.meter("Memory", 0.8)
 ```
 
 ## Examples
 
-- `examples/counter` - Simple counter with keyboard input
-- `examples/chat` - Chat-like interface
-- `examples/form` - Form with input fields
-- `examples/button` - Button states and interactions
-- `examples/layout` - Layout examples
-
-Run examples:
 ```bash
-moon run examples/counter
+moon run examples/counter      # Simple counter
+moon run examples/chat         # Chat interface
+moon run examples/form         # Form with inputs
+moon run examples/grid-layout  # Grid layout demo
+moon run examples/components   # Component showcase
 ```
+
+## Documentation
+
+See [docs/tutorial.mbt.md](docs/tutorial.mbt.md) for detailed API documentation.
 
 ## License
 

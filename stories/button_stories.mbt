@@ -70,3 +70,52 @@ pub fn button_stories() -> Array[VNodeStory] {
     }),
   ]
 }
+
+///|
+pub fn text_button_stories() -> Array[VNodeStory] {
+  [
+    VNodeStory::new(
+      "text_button",
+      "default",
+      fn() { @components.text_button("Learn more") },
+      width=15,
+      height=3,
+    ),
+    VNodeStory::new(
+      "text_button",
+      "focused",
+      fn() {
+        @components.text_button(
+          "Learn more",
+          state=@headless.ButtonState::Focused,
+        )
+      },
+      width=15,
+      height=3,
+    ),
+    VNodeStory::new(
+      "text_button",
+      "pressed",
+      fn() {
+        @components.text_button(
+          "Learn more",
+          state=@headless.ButtonState::Pressed,
+        )
+      },
+      width=15,
+      height=3,
+    ),
+    VNodeStory::new(
+      "text_button",
+      "disabled",
+      fn() {
+        @components.text_button(
+          "Learn more",
+          state=@headless.ButtonState::Disabled,
+        )
+      },
+      width=15,
+      height=3,
+    ),
+  ]
+}

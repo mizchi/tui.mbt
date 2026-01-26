@@ -72,7 +72,7 @@ fn main {
     let is_selected = idx == selected_idx.get()
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(40,40,50)" }
     let fg = if is_selected { "cyan" } else { "white" }
-    @vnode.row(bg~, padding_x=0.5, children=[
+    @vnode.row(bg~, padding_x=0.5, [
       @vnode.text(" " + cmd.icon + " ", fg="cyan"),
       @vnode.text(cmd.name, fg~, bold=is_selected),
     ])
@@ -94,31 +94,31 @@ fn main {
       } else if i == 0 && filtered.length() == 0 {
         // Show "no results" only on first empty row
         items.push(
-          @vnode.row(padding_x=1.0, height=1.0, children=[
+          @vnode.row(padding_x=1.0, height=1.0, [
             @vnode.text("No matching commands", fg="rgb(100,100,100)"),
           ]),
         )
       } else {
         // Empty row placeholder
-        items.push(@vnode.row(height=1.0, children=[]))
+        items.push(@vnode.row(height=1.0, []))
       }
     }
 
     // More indicator (fixed position row)
     let more_row = if filtered.length() > max_items {
       let more_count = filtered.length() - max_items
-      @vnode.row(padding_x=1.0, height=1.0, children=[
+      @vnode.row(padding_x=1.0, height=1.0, [
         @vnode.text(
           "..." + more_count.to_string() + " more",
           fg="rgb(100,100,100)",
         ),
       ])
     } else {
-      @vnode.row(height=1.0, children=[])
+      @vnode.row(height=1.0, [])
     }
 
     // Input field
-    let input_row = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+    let input_row = @vnode.row(padding_x=1.0, padding_y=0.5, [
       @vnode.text("> ", fg="yellow", bold=true),
       @vnode.text(
         if query.get().length() > 0 {
@@ -132,7 +132,7 @@ fn main {
     ])
 
     // Footer
-    let footer = @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+    let footer = @vnode.row(padding_x=1.0, padding_y=0.5, [
       @vnode.text(
         filtered.length().to_string() + " commands | Enter: run | Esc: close",
         fg="rgb(100,100,100)",
@@ -146,32 +146,32 @@ fn main {
       border_color="cyan",
       min_width=launcher_width.to_double(),
       height=launcher_height.to_double(),
-      children=[
-          input_row,
-          @vnode.row(children=[
-            @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
-          ]),
-        ] +
-        items +
-        [
-          more_row,
-          @vnode.row(children=[
-            @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
-          ]),
-          footer,
-        ],
+      [
+        input_row,
+        @vnode.row([
+          @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
+        ]),
+      ] +
+      items +
+      [
+        more_row,
+        @vnode.row([
+          @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
+        ]),
+        footer,
+      ],
     )
   }
 
   fn render_background() -> @vnode.TuiNode {
     let last_cmd = last_command.get()
-    @vnode.column(width=width.to_double(), height=height.to_double(), children=[
+    @vnode.column(width=width.to_double(), height=height.to_double(), [
       // Header
-      @vnode.row(padding=1.0, children=[
+      @vnode.row(padding=1.0, [
         @vnode.text("Command Launcher Demo", fg="cyan", bold=true),
       ]),
       // Instructions
-      @vnode.row(padding_x=1.0, children=[
+      @vnode.row(padding_x=1.0, [
         @vnode.text("Press ", fg="rgb(100,100,100)"),
         @vnode.text("Ctrl+P", fg="yellow", bold=true),
         @vnode.text(" to open command palette, ", fg="rgb(100,100,100)"),
@@ -180,7 +180,7 @@ fn main {
       ]),
       // Last command
       if last_cmd.length() > 0 {
-        @vnode.row(padding_x=1.0, padding_y=0.5, children=[
+        @vnode.row(padding_x=1.0, padding_y=0.5, [
           @vnode.text("Last command: ", fg="green"),
           @vnode.text(last_cmd, fg="white"),
         ])
@@ -188,17 +188,17 @@ fn main {
         @vnode.vspace(1.0)
       },
       // Fake app content
-      @vnode.row(children=[
+      @vnode.row([
         @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
       ]),
-      @vnode.row(children=[
+      @vnode.row([
         @vnode.text("  [Editor]  ", fg="rgb(80,80,80)"),
         @vnode.text("|", fg="rgb(60,60,60)"),
         @vnode.text("  [Terminal]  ", fg="rgb(80,80,80)"),
         @vnode.text("|", fg="rgb(60,60,60)"),
         @vnode.text("  [Output]  ", fg="rgb(80,80,80)"),
       ]),
-      @vnode.row(children=[
+      @vnode.row([
         @vnode.text("─".repeat(launcher_width - 2), fg="rgb(60,60,60)"),
       ]),
       @vnode.spacer(),
@@ -212,12 +212,12 @@ fn main {
         width=width.to_double(),
         height=height.to_double(),
         bg="rgb(20,20,25)",
-        children=[
+        [
           @vnode.vspace(3.0),
-          @vnode.row(justify="center", children=[render_launcher()]),
+          @vnode.row(justify="center", [render_launcher()]),
           @vnode.spacer(),
           // Footer hint
-          @vnode.row(justify="center", padding_y=0.5, children=[
+          @vnode.row(justify="center", padding_y=0.5, [
             @vnode.text("Ctrl+P: toggle | Ctrl+C: quit", fg="rgb(80,80,80)"),
           ]),
         ],
