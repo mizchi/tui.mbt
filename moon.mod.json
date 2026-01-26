@@ -1,11 +1,9 @@
 {
   "name": "mizchi/tui",
-  "version": "0.3.0",
-  "source": "src",
+  "version": "0.4.0",
   "deps": {
-    "mizchi/crater": "0.3.0",
-    "mizchi/signals": "0.5.0",
-    "mizchi/luna": "0.8.1",
+    "mizchi/crater": "0.3.1",
+    "mizchi/signals": "0.6.1",
     "moonbitlang/async": "0.16.0"
   },
   "readme": "README.md",
@@ -18,5 +16,6 @@
     "cli"
   ],
   "description": "Terminal UI library for MoonBit with reactive signals",
+  "source": "src",
   "preferred-target": "js"
 }

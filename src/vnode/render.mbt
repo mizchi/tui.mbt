@@ -202,7 +202,6 @@ fn convert_element(
       @luna.Attr::VStatic(typed_value) => apply_attr(style, visual, typed_value)
       @luna.Attr::VDynamic(getter) => apply_attr(style, visual, getter())
       @luna.Attr::VHandler(handler) => ctx.handlers[id] = handler.get_callback()
-      @luna.Attr::VAction(_) => ()
     }
   }
 

@@ -1,5 +1,5 @@
 .mooncakes/
 _build/
-target/
+target
 
 .env
