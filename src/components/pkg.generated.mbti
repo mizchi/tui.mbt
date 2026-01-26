@@ -2,95 +2,95 @@
 package "mizchi/tui/components"
 
 import {
-  "mizchi/luna/core",
+  "mizchi/signals/ui",
   "mizchi/tui/headless",
   "mizchi/tui/vnode",
 }
 
 // Values
-pub fn accordion_section(String, @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn accordion_section(String, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
 
 pub fn build_sparkline(Array[Double], width? : Int) -> String
 
-pub fn button(String, id? : String, state? : @headless.ButtonState, min_width? : Double) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn button(String, id? : String, state? : @headless.ButtonState, min_width? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn card(Array[@core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], title? : String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn card(Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], title? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn checkbox(String, Bool, id? : String, focused? : Bool, disabled? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn combobox_item(String, Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn combobox_item(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn combobox_trigger(String, Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn combobox_trigger(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn divider(width? : Int, char? : String, fg? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn divider(width? : Int, char? : String, fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn error_message(String, visible? : Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn error_message(String, visible? : Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn fieldset(legend~ : String, id? : String, children? : Array[@core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn fieldset(legend~ : String, id? : String, children? : Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn form_field(label_text~ : String, for_id? : String, required? : Bool, help? : String, error? : String, id? : String, child~ : @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn form_field(label_text~ : String, for_id? : String, required? : Bool, help? : String, error? : String, id? : String, child~ : @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn get_spinner_frame(Int) -> String
 
-pub fn help_text(String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn help_text(String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn highlight_text(String, Int, id? : String, highlight_fg? : String, text_fg? : String, highlight_bold? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn highlight_text(String, Int, id? : String, highlight_fg? : String, text_fg? : String, highlight_bold? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn icon_button(String, id? : String, state? : @headless.ButtonState) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn icon_button(String, id? : String, state? : @headless.ButtonState) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn label(String, for_id? : String, required? : Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn label(String, for_id? : String, required? : Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn listbox(Array[(String, String)], String, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn listbox(Array[(String, String)], String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn listbox_item(String, Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn listbox_item(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn menu_divider() -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn menu_divider() -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn menu_item(String, Bool, id? : String, disabled? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn menu_item(String, Bool, id? : String, disabled? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn menubar_item(String, Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn menubar_item(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn meter(String, Double, width? : Int, label_width? : Int) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn meter(String, Double, width? : Int, label_width? : Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn modal(String, Array[@core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn modal(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn modal_backdrop() -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn modal_backdrop() -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn radio(String, Bool, id? : String, disabled? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn radio(String, Bool, id? : String, disabled? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn search_input(String, id? : String, prompt? : String, placeholder? : String, prompt_fg? : String, text_fg? : String, placeholder_fg? : String, cursor_fg? : String, show_cursor? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn search_input(String, id? : String, prompt? : String, placeholder? : String, prompt_fg? : String, text_fg? : String, placeholder_fg? : String, cursor_fg? : String, show_cursor? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn search_result_item(String, Bool, highlight_len? : Int, id? : String, icon? : String, selected_bg? : String, normal_bg? : String, selected_fg? : String, normal_fg? : String, icon_fg? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn search_result_item(String, Bool, highlight_len? : Int, id? : String, icon? : String, selected_bg? : String, normal_bg? : String, selected_fg? : String, normal_fg? : String, icon_fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn sparkline(Array[Double], width? : Int, fg? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn sparkline(Array[Double], width? : Int, fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn spinner(Int, label? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn spinner(Int, label? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn stat(String, String, label_width? : Int) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn stat(String, String, label_width? : Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn switch(Bool, String, id? : String, disabled? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn switch(Bool, String, id? : String, disabled? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tab(String, Bool, id? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn tab(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tab_bar(Array[(String, String)], String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn tab_bar(Array[(String, String)], String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table(Array[TableColumn], Array[Array[String]], separator? : String, selected_row? : Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table_header(Array[TableColumn], separator? : String) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table_header(Array[TableColumn], separator? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn text_button(String, id? : String, state? : @headless.ButtonState) -> @core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn text_button(String, id? : String, state? : @headless.ButtonState) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 // Errors
 

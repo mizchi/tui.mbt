@@ -3,22 +3,41 @@
 
 ///|
 /// Read a single key from stdin (raw mode)
+/// Falls back to /dev/tty if stdin is not a tty (e.g., when used in a pipe)
 extern "js" fn js_read_key() -> @js_async.Promise[String] =
   #| async () => {
   #|   if (typeof process === 'undefined') return 'q';
+  #|   const fs = await import('node:fs');
   #|
-  #|   if (process.stdin.isTTY) {
-  #|     process.stdin.setRawMode(true);
+  #|   // Use /dev/tty if stdin is not a tty (piped input)
+  #|   let inputStream = process.stdin;
+  #|   let ttyFd = null;
+  #|
+  #|   if (!process.stdin.isTTY) {
+  #|     try {
+  #|       ttyFd = fs.openSync('/dev/tty', 'r');
+  #|       inputStream = fs.createReadStream(null, { fd: ttyFd, encoding: 'utf8' });
+  #|     } catch (e) {
+  #|       // /dev/tty not available, fall back to stdin
+  #|       inputStream = process.stdin;
+  #|     }
   #|   }
-  #|   process.stdin.resume();
-  #|   process.stdin.setEncoding('utf8');
+  #|
+  #|   if (inputStream.isTTY && inputStream.setRawMode) {
+  #|     inputStream.setRawMode(true);
+  #|   }
+  #|   inputStream.resume();
+  #|   if (inputStream.setEncoding) inputStream.setEncoding('utf8');
   #|
   #|   return new Promise((resolve) => {
   #|     const onData = (data) => {
-  #|       process.stdin.removeListener('data', onData);
+  #|       inputStream.removeListener('data', onData);
+  #|       if (ttyFd !== null) {
+  #|         try { fs.closeSync(ttyFd); } catch (e) {}
+  #|       }
   #|       resolve(data);
   #|     };
-  #|     process.stdin.on('data', onData);
+  #|     inputStream.on('data', onData);
   #|   });
   #| }
 
@@ -56,9 +75,27 @@ pub fn debug_stdin_state(label : String) -> Unit {
 
 ///|
 /// Cleanup stdin (turn off raw mode)
+/// Also cleans up /dev/tty if it was used
 extern "js" fn js_cleanup_stdin() =
-  #| () => {
-  #|   if (typeof process !== 'undefined' && process.stdin.isTTY) {
+  #| async () => {
+  #|   if (typeof process === 'undefined') return;
+  #|   const fs = await import('node:fs');
+  #|
+  #|   // Clean up /dev/tty stream if used
+  #|   if (globalThis.__tui_tty_stream) {
+  #|     const stream = globalThis.__tui_tty_stream;
+  #|     if (stream.isTTY && stream.setRawMode) {
+  #|       stream.setRawMode(false);
+  #|     }
+  #|     stream.destroy();
+  #|     globalThis.__tui_tty_stream = null;
+  #|   }
+  #|   if (globalThis.__tui_tty_fd !== undefined && globalThis.__tui_tty_fd !== null) {
+  #|     try { fs.closeSync(globalThis.__tui_tty_fd); } catch (e) {}
+  #|     globalThis.__tui_tty_fd = null;
+  #|   }
+  #|
+  #|   if (process.stdin.isTTY) {
   #|     process.stdin.setRawMode(false);
   #|     process.stdin.pause();
   #|   }
@@ -66,11 +103,28 @@ extern "js" fn js_cleanup_stdin() =
 
 ///|
 /// Enable raw mode
+/// Falls back to /dev/tty if stdin is not a tty
 extern "js" fn js_enable_raw_mode() =
-  #| () => {
-  #|   if (typeof process !== 'undefined' && process.stdin.isTTY) {
+  #| async () => {
+  #|   if (typeof process === 'undefined') return;
+  #|   const fs = await import('node:fs');
+  #|   const tty = await import('node:tty');
+  #|
+  #|   if (process.stdin.isTTY) {
   #|     process.stdin.setRawMode(true);
   #|     process.stdin.resume();
+  #|   } else {
+  #|     // Try /dev/tty
+  #|     try {
+  #|       const fd = fs.openSync('/dev/tty', fs.constants.O_RDONLY);
+  #|       const stream = new tty.ReadStream(fd);
+  #|       stream.setRawMode(true);
+  #|       stream.resume();
+  #|       globalThis.__tui_tty_fd = fd;
+  #|       globalThis.__tui_tty_stream = stream;
+  #|     } catch (e) {
+  #|       // /dev/tty not available
+  #|     }
   #|   }
   #| }
 
@@ -124,31 +178,73 @@ pub fn keep_alive_nonblocking(ms : Int) -> Unit {
 ///|
 /// Start a keypress listener (event-driven, non-blocking)
 /// Uses raw data events for reliability
+/// Falls back to /dev/tty if stdin is not a tty (e.g., when used in a pipe)
 extern "js" fn js_start_keypress_listener(callback : (String) -> Unit) =
   #| async (callback) => {
   #|   const { stdin } = await import('node:process');
+  #|   const fs = await import('node:fs');
+  #|   const tty = await import('node:tty');
   #|
   #|   // Clean up any existing listeners
   #|   stdin.removeAllListeners('keypress');
   #|   stdin.removeAllListeners('data');
   #|
-  #|   if (stdin.isTTY) {
-  #|     stdin.setRawMode(true);
+  #|   // Use /dev/tty if stdin is not a tty (piped input)
+  #|   let inputStream = stdin;
+  #|   let ttyFd = null;
+  #|
+  #|   if (!stdin.isTTY) {
+  #|     try {
+  #|       ttyFd = fs.openSync('/dev/tty', fs.constants.O_RDONLY);
+  #|       // Create a tty.ReadStream for proper raw mode support
+  #|       inputStream = new tty.ReadStream(ttyFd);
+  #|       globalThis.__tui_tty_fd = ttyFd;
+  #|       globalThis.__tui_tty_stream = inputStream;
+  #|     } catch (e) {
+  #|       // /dev/tty not available, fall back to stdin
+  #|       inputStream = stdin;
+  #|     }
   #|   }
-  #|   stdin.resume();
-  #|   stdin.setEncoding('utf8');
+  #|
+  #|   if (inputStream.isTTY && inputStream.setRawMode) {
+  #|     inputStream.setRawMode(true);
+  #|   }
+  #|   inputStream.resume();
+  #|   inputStream.setEncoding('utf8');
   #|
   #|   const onData = (data) => callback(data);
   #|
-  #|   stdin.__dataHandler = onData;
-  #|   stdin.on('data', onData);
+  #|   inputStream.__dataHandler = onData;
+  #|   inputStream.on('data', onData);
   #| }
 
 ///|
 /// Stop the keypress listener
+/// Cleans up /dev/tty if it was opened
 extern "js" fn js_stop_keypress_listener() =
   #| async () => {
   #|   const { stdin } = await import('node:process');
+  #|   const fs = await import('node:fs');
+  #|
+  #|   // Clean up /dev/tty stream if used
+  #|   if (globalThis.__tui_tty_stream) {
+  #|     const stream = globalThis.__tui_tty_stream;
+  #|     if (stream.__dataHandler) {
+  #|       stream.removeListener('data', stream.__dataHandler);
+  #|       stream.__dataHandler = null;
+  #|     }
+  #|     if (stream.isTTY && stream.setRawMode) {
+  #|       stream.setRawMode(false);
+  #|     }
+  #|     stream.destroy();
+  #|     globalThis.__tui_tty_stream = null;
+  #|   }
+  #|   if (globalThis.__tui_tty_fd !== undefined && globalThis.__tui_tty_fd !== null) {
+  #|     try { fs.closeSync(globalThis.__tui_tty_fd); } catch (e) {}
+  #|     globalThis.__tui_tty_fd = null;
+  #|   }
+  #|
+  #|   // Also clean up stdin handlers
   #|   if (stdin.__dataHandler) {
   #|     stdin.removeListener('data', stdin.__dataHandler);
   #|     stdin.__dataHandler = null;
@@ -1379,9 +1475,26 @@ pub fn is_raw_mode() -> Bool {
 }
 
 ///|
-/// Check if stdin is a TTY (always true in JS terminal context)
+/// Check if a TTY is available for input (stdin or /dev/tty)
+extern "js" fn js_is_tty() -> Bool =
+  #| () => {
+  #|   if (typeof process === 'undefined') return false;
+  #|   if (process.stdin.isTTY) return true;
+  #|   // Check if /dev/tty is available
+  #|   try {
+  #|     const fs = require('node:fs');
+  #|     const fd = fs.openSync('/dev/tty', fs.constants.O_RDONLY);
+  #|     fs.closeSync(fd);
+  #|     return true;
+  #|   } catch (e) {
+  #|     return false;
+  #|   }
+  #| }
+
+///|
+/// Check if a TTY is available for input (stdin or /dev/tty)
 pub fn is_tty() -> Bool {
-  true
+  js_is_tty()
 }
 
 ///|
@@ -1552,12 +1665,15 @@ fn render_display_state(
 
 ///|
 /// Setup raw input listener that calls onKey callback for each keystroke
+/// Falls back to /dev/tty if stdin is not a tty
 extern "js" fn js_setup_raw_input_listener(
   on_key : (String) -> Unit,
   on_cleanup : () -> Unit,
 ) -> Unit =
   #| async (onKey, onCleanup) => {
   #|   const { stdin, stdout } = await import('node:process');
+  #|   const fs = await import('node:fs');
+  #|   const tty = await import('node:tty');
   #|
   #|   // Clean up existing handlers
   #|   if (stdin.__rawInputHandler) {
@@ -1565,27 +1681,68 @@ extern "js" fn js_setup_raw_input_listener(
   #|     stdin.__rawInputHandler = null;
   #|   }
   #|
-  #|   if (stdin.isTTY) {
-  #|     stdin.setRawMode(true);
+  #|   // Use /dev/tty if stdin is not a tty (piped input)
+  #|   let inputStream = stdin;
+  #|   let ttyFd = null;
+  #|
+  #|   if (!stdin.isTTY) {
+  #|     try {
+  #|       ttyFd = fs.openSync('/dev/tty', fs.constants.O_RDONLY);
+  #|       inputStream = new tty.ReadStream(ttyFd);
+  #|       globalThis.__tui_raw_tty_fd = ttyFd;
+  #|       globalThis.__tui_raw_tty_stream = inputStream;
+  #|     } catch (e) {
+  #|       // /dev/tty not available, fall back to stdin
+  #|       inputStream = stdin;
+  #|     }
   #|   }
-  #|   stdin.resume();
-  #|   stdin.setEncoding('utf8');
+  #|
+  #|   if (inputStream.isTTY && inputStream.setRawMode) {
+  #|     inputStream.setRawMode(true);
+  #|   }
+  #|   inputStream.resume();
+  #|   inputStream.setEncoding('utf8');
   #|
   #|   const handler = (data) => {
   #|     onKey(data);
   #|   };
   #|
-  #|   stdin.__rawInputHandler = handler;
-  #|   stdin.__rawInputCleanup = onCleanup;
-  #|   stdin.on('data', handler);
+  #|   inputStream.__rawInputHandler = handler;
+  #|   inputStream.__rawInputCleanup = onCleanup;
+  #|   inputStream.on('data', handler);
   #| }
 
 ///|
 /// Cleanup raw input listener
+/// Also cleans up /dev/tty if it was used
 extern "js" fn js_cleanup_raw_input_listener() =
   #| async () => {
   #|   const { stdin } = await import('node:process');
+  #|   const fs = await import('node:fs');
   #|
+  #|   // Clean up /dev/tty stream if used for raw input
+  #|   if (globalThis.__tui_raw_tty_stream) {
+  #|     const stream = globalThis.__tui_raw_tty_stream;
+  #|     if (stream.__rawInputHandler) {
+  #|       stream.removeListener('data', stream.__rawInputHandler);
+  #|       stream.__rawInputHandler = null;
+  #|     }
+  #|     if (stream.__rawInputCleanup) {
+  #|       stream.__rawInputCleanup();
+  #|       stream.__rawInputCleanup = null;
+  #|     }
+  #|     if (stream.isTTY && stream.setRawMode) {
+  #|       stream.setRawMode(false);
+  #|     }
+  #|     stream.destroy();
+  #|     globalThis.__tui_raw_tty_stream = null;
+  #|   }
+  #|   if (globalThis.__tui_raw_tty_fd !== undefined && globalThis.__tui_raw_tty_fd !== null) {
+  #|     try { fs.closeSync(globalThis.__tui_raw_tty_fd); } catch (e) {}
+  #|     globalThis.__tui_raw_tty_fd = null;
+  #|   }
+  #|
+  #|   // Also clean up stdin handlers
   #|   if (stdin.__rawInputHandler) {
   #|     stdin.removeListener('data', stdin.__rawInputHandler);
   #|     stdin.__rawInputHandler = null;

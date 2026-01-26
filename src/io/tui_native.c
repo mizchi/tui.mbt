@@ -14,14 +14,37 @@
 static struct termios orig_termios;
 static int raw_mode_enabled = 0;
 
+// File descriptor for keyboard input (STDIN_FILENO or /dev/tty)
+static int tty_fd = -1;
+static int tty_fd_opened = 0; // 1 if we opened /dev/tty ourselves
+
+// Get the file descriptor for keyboard input
+// Falls back to /dev/tty if stdin is not a tty (e.g., when used in a pipe)
+static int get_tty_fd(void) {
+    if (tty_fd >= 0) return tty_fd;
+
+    if (isatty(STDIN_FILENO)) {
+        tty_fd = STDIN_FILENO;
+        tty_fd_opened = 0;
+    } else {
+        // stdin is not a tty (piped input), try /dev/tty
+        tty_fd = open("/dev/tty", O_RDONLY);
+        if (tty_fd >= 0) {
+            tty_fd_opened = 1;
+        }
+    }
+    return tty_fd;
+}
+
 // Enable raw mode for character-by-character input
 // Uses TCSADRAIN instead of TCSAFLUSH to preserve pending input
 int tui_enable_raw_mode(void) {
     if (raw_mode_enabled) return 0;
 
-    if (!isatty(STDIN_FILENO)) return -1;
+    int fd = get_tty_fd();
+    if (fd < 0) return -1;
 
-    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) return -1;
+    if (tcgetattr(fd, &orig_termios) == -1) return -1;
 
     struct termios raw = orig_termios;
     // Input: no break, no CR to NL, no parity check, no strip, no flow control
@@ -36,7 +59,7 @@ int tui_enable_raw_mode(void) {
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1; // 100ms timeout
 
-    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &raw) == -1) return -1;
+    if (tcsetattr(fd, TCSADRAIN, &raw) == -1) return -1;
 
     raw_mode_enabled = 1;
     return 0;
@@ -47,7 +70,17 @@ int tui_enable_raw_mode(void) {
 int tui_disable_raw_mode(void) {
     if (!raw_mode_enabled) return 0;
 
-    if (tcsetattr(STDIN_FILENO, TCSADRAIN, &orig_termios) == -1) return -1;
+    int fd = get_tty_fd();
+    if (fd < 0) return 0;
+
+    if (tcsetattr(fd, TCSADRAIN, &orig_termios) == -1) return -1;
+
+    // Close /dev/tty if we opened it
+    if (tty_fd_opened && tty_fd >= 0) {
+        close(tty_fd);
+        tty_fd = -1;
+        tty_fd_opened = 0;
+    }
 
     raw_mode_enabled = 0;
     return 0;
@@ -75,11 +108,14 @@ int tui_get_terminal_rows(void) {
     return ws.ws_row;
 }
 
-// Read a single byte from stdin (non-blocking in raw mode)
+// Read a single byte from tty (non-blocking in raw mode)
 // Returns -1 if no data available, or the byte value (0-255)
 int tui_read_byte(void) {
+    int fd = get_tty_fd();
+    if (fd < 0) return -1;
+
     unsigned char c;
-    ssize_t n = read(STDIN_FILENO, &c, 1);
+    ssize_t n = read(fd, &c, 1);
     if (n <= 0) return -1;
     return (int)c;
 }
@@ -87,7 +123,10 @@ int tui_read_byte(void) {
 // Read up to max_len bytes into buffer
 // Returns number of bytes read, or -1 on error
 int tui_read_bytes(unsigned char* buf, int max_len) {
-    ssize_t n = read(STDIN_FILENO, buf, max_len);
+    int fd = get_tty_fd();
+    if (fd < 0) return -1;
+
+    ssize_t n = read(fd, buf, max_len);
     if (n < 0) return -1;
     return (int)n;
 }
@@ -107,9 +146,16 @@ void tui_flush(void) {
     fflush(stdout);
 }
 
-// Check if stdin is a TTY
+// Check if a TTY is available for input (stdin or /dev/tty)
 int tui_is_tty(void) {
-    return isatty(STDIN_FILENO);
+    if (isatty(STDIN_FILENO)) return 1;
+    // Check if /dev/tty is available
+    int fd = open("/dev/tty", O_RDONLY);
+    if (fd >= 0) {
+        close(fd);
+        return 1;
+    }
+    return 0;
 }
 
 // Sleep for milliseconds

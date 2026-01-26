@@ -2,6 +2,8 @@
 package "mizchi/tui/stories"
 
 import {
+  "mizchi/signals/ui",
+  "mizchi/tui/core",
   "mizchi/tui/vnode",
 }
 
@@ -146,9 +148,9 @@ pub(all) struct Story {
   name : String
   width : Int
   height : Int
-  render : () -> @mizchi/tui/core.Component
+  render : () -> @core.Component
 }
-pub fn Story::new(String, String, () -> @mizchi/tui/core.Component, width? : Int, height? : Int) -> Self
+pub fn Story::new(String, String, () -> @core.Component, width? : Int, height? : Int) -> Self
 pub fn Story::snapshot_filename(Self) -> String
 pub fn Story::to_ansi(Self) -> String
 pub fn Story::to_plain(Self) -> String
@@ -159,9 +161,9 @@ pub(all) struct VNodeStory {
   name : String
   width : Int
   height : Int
-  render : () -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+  render : () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 }
-pub fn VNodeStory::new(String, String, () -> @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], width? : Int, height? : Int) -> Self
+pub fn VNodeStory::new(String, String, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], width? : Int, height? : Int) -> Self
 pub fn VNodeStory::snapshot_filename(Self) -> String
 pub fn VNodeStory::to_ansi(Self) -> String
 pub fn VNodeStory::to_plain(Self) -> String

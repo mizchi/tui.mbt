@@ -2,6 +2,8 @@
 package "mizchi/tui/testing"
 
 import {
+  "mizchi/signals/ui",
+  "mizchi/tui/core",
   "mizchi/tui/events",
   "mizchi/tui/render",
   "mizchi/tui/vnode",
@@ -107,7 +109,7 @@ pub fn TestHarness::last_frame_plain(Self) -> String
 pub fn TestHarness::line_contains(Self, Int, String) -> Bool
 pub fn TestHarness::new(width? : Int, height? : Int) -> Self
 pub fn TestHarness::parse_key(Self, String) -> @events.InputEvent
-pub fn TestHarness::render(Self, @mizchi/tui/core.Component) -> String
+pub fn TestHarness::render(Self, @core.Component) -> String
 
 pub(all) struct VNodeTestHarness {
   app : @vnode.VNodeApp
@@ -126,7 +128,7 @@ pub fn VNodeTestHarness::last_frame(Self) -> String
 pub fn VNodeTestHarness::last_frame_plain(Self) -> String
 pub fn VNodeTestHarness::line_contains(Self, Int, String) -> Bool
 pub fn VNodeTestHarness::new(width? : Int, height? : Int) -> Self
-pub fn VNodeTestHarness::render(Self, @mizchi/luna/core.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
+pub fn VNodeTestHarness::render(Self, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
 pub(all) struct VirtualTerminal {
   width : Int
@@ -134,8 +136,8 @@ pub(all) struct VirtualTerminal {
   buffer : @render.CharBuffer
   mut cursor_x : Int
   mut cursor_y : Int
-  mut current_fg : @mizchi/tui/core.Color
-  mut current_bg : @mizchi/tui/core.Color
+  mut current_fg : @core.Color
+  mut current_bg : @core.Color
   mut current_bold : Bool
   mut current_underline : Bool
   mut saved_cursor_x : Int
