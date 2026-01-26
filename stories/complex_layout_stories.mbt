@@ -624,12 +624,12 @@ pub fn card_list_stories() -> Array[VNodeStory] {
       "vertical_list",
       fn() {
         @vnode.column(gap=1.0, children=[
-          @components.card([@vnode.text("Item 1"), @vnode.text("Description")]),
-          @components.card([@vnode.text("Item 2"), @vnode.text("Description")]),
+          @components.card([@vnode.text("Item 1"), @vnode.text("Desc")]),
+          @components.card([@vnode.text("Item 2"), @vnode.text("Desc")]),
         ])
       },
-      width=20,
-      height=10,
+      width=18,
+      height=15,
     ),
     VNodeStory::new(
       "cards",
@@ -637,15 +637,14 @@ pub fn card_list_stories() -> Array[VNodeStory] {
       fn() {
         @components.card([
           @vnode.text("Title", bold=true),
-          @components.divider(),
-          @vnode.text("Content here"),
-          @vnode.text("More content"),
-          @components.divider(),
+          @components.divider(width=12),
+          @vnode.text("Content"),
+          @components.divider(width=12),
           @vnode.text("[Actions]", fg="rgb(128,128,128)"),
         ])
       },
       width=20,
-      height=9,
+      height=10,
     ),
   ]
 }
