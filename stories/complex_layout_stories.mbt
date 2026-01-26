@@ -413,29 +413,37 @@ pub fn ide_layout_stories() -> Array[VNodeStory] {
       "three_pane",
       fn() {
         @vnode.column(children=[
+          // Menu bar
           @vnode.row(height=1.0, bg="rgb(50,50,50)", children=[
             @vnode.text(" File  Edit  View "),
           ]),
+          // Main area
           @vnode.row(flex_grow=1.0, children=[
+            // Explorer sidebar
             @vnode.column(width=12.0, children=[
               @vnode.text("Explorer"),
               @vnode.text("─────────"),
               @vnode.text(" src/"),
+              @vnode.text("   main.mbt"),
+              @vnode.vspace(1.0),
             ]),
+            // Editor
             @vnode.column(border="single", flex_grow=1.0, children=[
-              @vnode.text("main.mbt"),
+              @vnode.text("main.mbt", fg="cyan"),
               @vnode.text("fn main {"),
               @vnode.text("  println()"),
               @vnode.text("}"),
+              @vnode.vspace(1.0),
             ]),
           ]),
+          // Status bar
           @vnode.row(height=1.0, bg="rgb(0,122,204)", children=[
-            @vnode.text(" Ln 1, Col 1 | UTF-8"),
+            @vnode.text(" Ln 1, Col 1 | UTF-8 "),
           ]),
         ])
       },
       width=40,
-      height=12,
+      height=14,
     ),
     VNodeStory::new(
       "ide",
@@ -466,7 +474,7 @@ pub fn form_layout_stories() -> Array[VNodeStory] {
       "login_dialog",
       fn() {
         @vnode.column(border="rounded", padding=1.0, children=[
-          @vnode.text("  Login  "),
+          @vnode.text("Login", bold=true),
           @components.divider(),
           @vnode.row(height=1.0, children=[
             @vnode.text("User: "),
@@ -483,7 +491,7 @@ pub fn form_layout_stories() -> Array[VNodeStory] {
           ]),
         ])
       },
-      width=25,
+      width=26,
       height=10,
     ),
     VNodeStory::new(

@@ -64,10 +64,11 @@ pub fn spinner(tick : Int, label? : String = "") -> @vnode.TuiNode {
 }
 
 ///|
-/// Divider (horizontal)
+/// Divider (horizontal line)
 pub fn divider(
-  char? : String = "-",
-  fg? : String = "rgb(60,60,60)",
+  width~ : Int = 20,
+  char~ : String = "─",
+  fg~ : String = "rgb(60,60,60)",
 ) -> @vnode.TuiNode {
-  @vnode.text(char.repeat(80), fg~)
+  @vnode.text(char.repeat(width), fg~)
 }
