@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/ai"
+package "example-chat/ai"
 
 // Values
 pub fn execute_tool(String, String) -> String

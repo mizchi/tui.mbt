@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/wizard"
+package "example-wizard"
 
 // Values
 

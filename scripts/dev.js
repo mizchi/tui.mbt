@@ -28,6 +28,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 const examplePath = `examples/${example}`;
+const exampleDir = path.join(process.cwd(), examplePath);
 const rootDir = process.cwd();
 
 // Directories to ignore
@@ -70,8 +71,9 @@ function build() {
   log('Building...', colors.yellow);
 
   try {
+    // Build the example (which depends on the main library via path)
     execSync(`moon build --target ${target}`, {
-      cwd: rootDir,
+      cwd: exampleDir,
       stdio: 'pipe',
       encoding: 'utf-8',
     });
@@ -94,8 +96,8 @@ function startChild() {
 
   log(`Starting ${examplePath}...`, colors.cyan);
 
-  child = spawn('moon', ['run', examplePath, '--target', target], {
-    cwd: rootDir,
+  child = spawn('moon', ['run', '.', '--target', target], {
+    cwd: exampleDir,
     stdio: 'inherit',
     env: { ...process.env, FORCE_COLOR: '1' },
   });
@@ -147,6 +149,10 @@ function shouldWatch(filePath) {
 }
 
 function watchDirectory(dir) {
+  if (!fs.existsSync(dir)) {
+    return null;
+  }
+
   const watcher = fs.watch(dir, { recursive: true }, (eventType, filename) => {
     if (!filename) return;
 
@@ -180,17 +186,11 @@ if (build()) {
   startChild();
 }
 
-// Watch for changes
+// Watch for changes in the main library (src/) and examples
 const watchers = [
   watchDirectory(path.join(rootDir, 'src')),
-  watchDirectory(path.join(rootDir, 'core')),
-  watchDirectory(path.join(rootDir, 'components')),
-  watchDirectory(path.join(rootDir, 'io')),
-  watchDirectory(path.join(rootDir, 'events')),
-  watchDirectory(path.join(rootDir, 'ai')),
-  watchDirectory(path.join(rootDir, 'input')),
   watchDirectory(path.join(rootDir, 'examples')),
-];
+].filter(w => w !== null);
 
 // Cleanup on exit
 process.on('SIGINT', () => {

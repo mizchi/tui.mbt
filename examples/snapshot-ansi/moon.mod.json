@@ -1,0 +1,8 @@
+{
+  "name": "example-snapshot-ansi",
+  "version": "0.0.0",
+  "deps": {
+    "mizchi/tui": { "path": "../.." }
+  },
+  "preferred-target": "js"
+}

@@ -3,20 +3,38 @@
 # Default target (js for browser compatibility)
 target := "js"
 
+# Example directories
+examples := "chat command-launcher completion components editor form grid-area grid-layout lint simple snapshot snapshot-ansi wizard"
+
 # Default task: check and test
 default: check test
 
 # Format code
 fmt:
     moon fmt
+    for dir in {{examples}}; do (cd examples/$dir && moon fmt); done
 
-# Type check
+# Type check main library
 check:
     moon check --deny-warn --target {{target}}
 
-# Run tests
+# Check all examples
+check-examples:
+    for dir in {{examples}}; do (cd examples/$dir && moon check --deny-warn --target {{target}}); done
+
+# Check everything
+check-all: check check-examples
+
+# Run tests for main library
 test:
     moon test --target {{target}}
+
+# Run tests for all examples
+test-examples:
+    for dir in {{examples}}; do (cd examples/$dir && moon test --target {{target}}); done
+
+# Test everything
+test-all: test test-examples
 
 # Update snapshot tests
 test-update:
@@ -24,31 +42,33 @@ test-update:
 
 # Run example (default: simple)
 run example="simple":
-    moon run examples/{{example}} --target {{target}}
+    cd examples/{{example}} && moon run . --target {{target}}
 
 # Generate type definition files
 info:
     moon info
+    for dir in {{examples}}; do (cd examples/$dir && moon info); done
 
 # Clean build artifacts
 clean:
     moon clean
+    for dir in {{examples}}; do (cd examples/$dir && moon clean); done
 
 # Generate component snapshots
 snapshot:
     #!/usr/bin/env bash
     mkdir -p __snapshots__
-    moon run examples/snapshot --target {{target}} 2>/dev/null | grep -v "^Generating\|^Done\|^To save\|^  moon" > __snapshots__/components.txt
+    (cd examples/snapshot && moon run . --target {{target}}) 2>/dev/null | grep -v "^Generating\|^Done\|^To save\|^  moon" > __snapshots__/components.txt
     echo "Generated __snapshots__/components.txt ($(wc -l < __snapshots__/components.txt) lines)"
-    moon run examples/snapshot-ansi --target {{target}} 2>/dev/null > __snapshots__/components.ansi
+    (cd examples/snapshot-ansi && moon run . --target {{target}}) 2>/dev/null > __snapshots__/components.ansi
     echo "Generated __snapshots__/components.ansi ($(wc -l < __snapshots__/components.ansi) lines)"
 
 # Run story lints (odd dimensions, reasonable sizes, etc.)
 lint:
-    moon run examples/lint --target {{target}}
+    cd examples/lint && moon run . --target {{target}}
 
 # Pre-release check
-release-check: fmt info check test lint
+release-check: fmt info check-all test-all lint
 
 # Hot reload dev server
 dev example="chat":

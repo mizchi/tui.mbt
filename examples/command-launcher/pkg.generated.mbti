@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mizchi/tui/examples/command-launcher"
+package "example-command-launcher"
 
 // Values
 

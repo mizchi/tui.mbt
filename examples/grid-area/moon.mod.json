@@ -1,0 +1,8 @@
+{
+  "name": "example-grid-area",
+  "version": "0.0.0",
+  "deps": {
+    "mizchi/tui": { "path": "../.." }
+  },
+  "preferred-target": "js"
+}

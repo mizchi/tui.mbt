@@ -4,7 +4,7 @@ import {
   "mizchi/tui/render",
   "mizchi/tui/vnode",
   "mizchi/tui/io",
-  "mizchi/tui/ai",
+  "example-chat/ai",
   "mizchi/signals",
 }
 

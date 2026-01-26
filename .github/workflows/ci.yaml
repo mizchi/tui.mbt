@@ -16,9 +16,16 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Install just
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - name: Moon update
         run: moon update
-      - name: Moon check
+      - name: Moon check (library)
         run: moon check --deny-warn
-      - name: Moon test
+      - name: Moon check (examples)
+        run: just check-examples
+      - name: Moon test (library)
         run: moon test
+      - name: Moon test (examples)
+        run: just test-examples
