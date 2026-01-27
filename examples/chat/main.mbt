@@ -154,13 +154,33 @@ fn wrap_text(text : String, max_width : Int) -> Array[String] {
   lines
 }
 
+///|
+/// Truncate text to fit within max_width (display width)
+fn truncate_text(text : String, max_width : Int) -> String {
+  let buf = StringBuilder::new()
+  let mut current_width = 0
+  for c in text {
+    let char_width = @core.char_display_width(c)
+    if current_width + char_width > max_width {
+      break
+    }
+    buf.write_char(c)
+    current_width = current_width + char_width
+  }
+  buf.to_string()
+}
+
 // =============================================================================
 // Main
 // =============================================================================
 
 ///|
 fn main {
-  let (width, height) = @tui.get_terminal_size()
+  let (initial_width, initial_height) = @tui.get_terminal_size()
+
+  // Mutable terminal size (updated on resize)
+  let width = Ref::new(initial_width)
+  let height = Ref::new(initial_height)
 
   // State
   let messages : Array[Message] = []
@@ -169,16 +189,19 @@ fn main {
   let scroll_offset = @signals.signal(0)
   let streaming = StreamingState::new()
   let input_queue = InputQueue::new()
-  let app = VNodeApp::new(width, height)
+  let app = VNodeApp::new(initial_width, initial_height)
 
   // Layout constants
   let input_rows = 3
   let divider_rows = 1
   let footer_rows = 1
-  let message_area_height = height - input_rows - divider_rows - footer_rows - 1
 
-  // Claude API client
-  let claude_client : @ai.ClaudeClient? = @ai.ClaudeClient::from_env(
+  fn message_area_height() -> Int {
+    height.val - input_rows - divider_rows - footer_rows - 1
+  }
+
+  // AI client (Claude or OpenRouter)
+  let ai_client : @ai.BoxedAIClient? = @ai.create_client_from_env(
     system_prompt="You are a helpful assistant. Keep responses concise.",
   )
 
@@ -191,7 +214,7 @@ fn main {
         Assistant => "  "
       }
       // Wrap long lines
-      let content_lines = wrap_text(msg.content, width - 4)
+      let content_lines = wrap_text(msg.content, width.val - 4)
       for i, line in content_lines {
         if i == 0 {
           lines.push(prefix + line)
@@ -202,7 +225,7 @@ fn main {
     }
     // Add streaming content if any
     if streaming.is_streaming && streaming.text.length() > 0 {
-      let streaming_lines = wrap_text(streaming.text, width - 4)
+      let streaming_lines = wrap_text(streaming.text, width.val - 4)
       for i, line in streaming_lines {
         if i == 0 {
           lines.push("  " + line)
@@ -217,7 +240,7 @@ fn main {
   // Calculate max scroll offset
   fn max_scroll_offset() -> Int {
     let lines = build_message_lines()
-    let max = lines.length() - message_area_height
+    let max = lines.length() - message_area_height()
     if max < 0 {
       0
     } else {
@@ -233,9 +256,14 @@ fn main {
   fn render_message_line(line : String, idx : Int) -> TuiNode {
     let is_user = line.has_prefix("> ")
     let fg = if is_user { "cyan" } else { "white" }
-    row(id="msg-" + idx.to_string(), min_width=width.to_double(), height=1.0, [
-      text(line, fg~),
-    ])
+    // Ensure line doesn't exceed terminal width
+    let display_line = truncate_text(line, width.val - 1)
+    row(
+      id="msg-" + idx.to_string(),
+      min_width=width.val.to_double(),
+      height=1.0,
+      [text(display_line, fg~)],
+    )
   }
 
   fn render_messages() -> TuiNode {
@@ -243,14 +271,15 @@ fn main {
     let total_lines = all_lines.length()
     let offset = scroll_offset.get()
     let visible_lines : Array[TuiNode] = []
+    let area_height = message_area_height()
 
     // Bottom-align: add empty lines at top if content is shorter than area
-    let empty_lines_at_top = if total_lines < message_area_height {
-      message_area_height - total_lines
+    let empty_lines_at_top = if total_lines < area_height {
+      area_height - total_lines
     } else {
       0
     }
-    for i = 0; i < message_area_height; i = i + 1 {
+    for i = 0; i < area_height; i = i + 1 {
       if i < empty_lines_at_top {
         // Empty line for bottom-alignment
         visible_lines.push(row(height=1.0, []))
@@ -264,15 +293,15 @@ fn main {
       }
     }
     column(
-      min_width=width.to_double(),
-      height=message_area_height.to_double(),
+      min_width=width.val.to_double(),
+      height=area_height.to_double(),
       visible_lines,
     )
   }
 
   fn render_divider() -> TuiNode {
     let color = if editing.get() { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
-    text("\u{2500}".repeat(width), fg=color)
+    text("\u{2500}".repeat(width.val), fg=color)
   }
 
   fn render_input() -> TuiNode {
@@ -287,9 +316,11 @@ fn main {
     } else {
       "white"
     }
-    column(height=input_rows.to_double(), min_width=width.to_double(), [
-      row(id="input-line", min_width=width.to_double(), [
-        text(" " + display_text, fg~),
+    // Truncate input display to fit terminal width
+    let truncated_display = truncate_text(" " + display_text, width.val - 1)
+    column(height=input_rows.to_double(), min_width=width.val.to_double(), [
+      row(id="input-line", min_width=width.val.to_double(), [
+        text(truncated_display, fg~),
       ]),
     ])
   }
@@ -305,13 +336,15 @@ fn main {
     } else {
       ""
     }
-    let status = "Enter: send | \u{2191}\u{2193}: scroll | Ctrl+C: quit" +
+    let msg_count = " [" + messages.length().to_string() + " msgs]"
+    let status = "/help | \u{2191}\u{2193}: scroll | Ctrl+C: quit" +
+      msg_count +
       queue_info
-    row(min_width=width.to_double(), [text(" " + status, fg="rgb(80,80,80)")])
+    row(min_width=width.val.to_double(), [text(" " + status, fg="rgb(80,80,80)")])
   }
 
   fn render_ui() -> TuiNode {
-    column(width=width.to_double(), height=(height - 1).to_double(), [
+    column(width=width.val.to_double(), height=(height.val - 1).to_double(), [
       render_messages(),
       render_divider(),
       render_input(),
@@ -326,7 +359,11 @@ fn main {
     if editing.get() {
       match app.find_by_id("input-line") {
         Some(bounds) => {
-          let cursor_x = bounds.x + 1 + @core.string_display_width(input.get())
+          let input_width = @core.string_display_width(input.get())
+          let max_cursor = width.val - 2
+          let cursor_x = bounds.x +
+            1 +
+            (if input_width > max_cursor { max_cursor } else { input_width })
           @tui.print_raw(
             @render.ansi_move_to(bounds.y, cursor_x) +
             @render.ansi_show_cursor(),
@@ -337,6 +374,14 @@ fn main {
     } else {
       @tui.print_raw(@render.ansi_hide_cursor())
     }
+  }
+
+  // Handle terminal resize
+  fn handle_resize(new_width : Int, new_height : Int) -> Unit {
+    width.val = new_width
+    height.val = new_height
+    app.clear_prev_buffer()
+    do_render()
   }
 
   fn do_quit() -> Unit {
@@ -385,9 +430,9 @@ fn main {
     ai_messages
   }
 
-  // Send to Claude
-  fn send_to_claude() -> Unit {
-    match claude_client {
+  // Send to AI
+  fn send_to_ai() -> Unit {
+    match ai_client {
       Some(client) => {
         input_queue.start_processing()
         scroll_to_bottom()
@@ -439,9 +484,9 @@ fn main {
           ""
         }
         streaming.append(
-          "[No ANTHROPIC_API_KEY set]\nYou said: " +
+          "[No API key set]\nYou said: " +
           last_msg +
-          "\n\nSet ANTHROPIC_API_KEY environment variable to use Claude.",
+          "\n\nSet ANTHROPIC_API_KEY or OPENROUTER_API_KEY to use AI.",
         )
         streaming.complete()
         finish_streaming()
@@ -461,7 +506,7 @@ fn main {
       for msg in queued {
         add_message(User, msg)
       }
-      send_to_claude()
+      send_to_ai()
       return true
     }
     false
@@ -469,17 +514,123 @@ fn main {
 
   process_queue_ref.val = process_queue
 
+  // Compact conversation by summarizing past messages
+  fn do_compact() -> Unit {
+    if messages.length() < 4 {
+      add_message(Assistant, "[Compact: Not enough messages to summarize]")
+      do_render()
+      return
+    }
+    match ai_client {
+      Some(client) => {
+        input_queue.start_processing()
+        ignore(streaming.start_realtime())
+        streaming.append("[Compacting conversation...]")
+        do_render()
+
+        // Build summary prompt
+        let conversation_text = StringBuilder::new()
+        for msg in messages {
+          let prefix = match msg.role {
+            User => "User: "
+            Assistant => "Assistant: "
+          }
+          conversation_text.write_string(prefix)
+          conversation_text.write_string(msg.content)
+          conversation_text.write_string("\n\n")
+        }
+
+        let summary_prompt : Array[@ai.Message] = [
+          {
+            role: @ai.Role::User,
+            content: "Summarize this conversation concisely, preserving key context, decisions, and any code/technical details that would be needed to continue the conversation. Format as a brief narrative:\n\n" +
+            conversation_text.to_string(),
+          },
+        ]
+
+        let summary_result = Ref::new("")
+        client.stream(
+          summary_prompt,
+          fn(chunk) {
+            summary_result.val = summary_result.val + chunk
+            streaming.clear()
+            ignore(streaming.start_realtime())
+            streaming.append("[Compacting...]\n" + summary_result.val)
+            do_render()
+          },
+          fn() {
+            // Replace messages with summary
+            messages.clear()
+            messages.push(
+              {
+                role: Assistant,
+                content: "[Conversation Summary]\n" + summary_result.val,
+              },
+            )
+            streaming.clear()
+            input_queue.finish_processing()
+            scroll_offset.set(0)
+            app.clear_prev_buffer()
+            do_render()
+          },
+          fn(error) {
+            streaming.clear()
+            add_message(Assistant, "[Compact failed: " + error + "]")
+            input_queue.finish_processing()
+            do_render()
+          },
+        )
+      }
+      None => {
+        add_message(Assistant, "[Compact requires API key]")
+        do_render()
+      }
+    }
+  }
+
   // Mutually recursive input handling
   letrec restore_tui_and_send: () -> Unit = fn() {
     let raw = input.get()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
       input.set("")
+      // Handle slash commands
+      if text == "/compact" {
+        @tui.print_raw(@render.ansi_full_reset())
+        app.clear_prev_buffer()
+        editing.set(false)
+        do_compact()
+        @io.start_keypress_listener(handle_key)
+        return
+      }
+      if text == "/clear" {
+        messages.clear()
+        scroll_offset.set(0)
+        app.clear_prev_buffer()
+        @tui.print_raw(@render.ansi_full_reset())
+        editing.set(false)
+        do_render()
+        @io.start_keypress_listener(handle_key)
+        return
+      }
+      if text == "/help" {
+        add_message(
+          Assistant,
+          "Available commands:\n  /compact - Summarize conversation to save context\n  /clear   - Clear all messages\n  /help    - Show this help",
+        )
+        @tui.print_raw(@render.ansi_full_reset())
+        app.clear_prev_buffer()
+        editing.set(false)
+        do_render()
+        @io.start_keypress_listener(handle_key)
+        return
+      }
+      // Normal message
       if input_queue.is_busy() {
         input_queue.enqueue(text)
       } else {
         add_message(User, text)
-        send_to_claude()
+        send_to_ai()
       }
     }
     @tui.print_raw(@render.ansi_full_reset())
@@ -581,6 +732,7 @@ fn main {
   // Initialize
   @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
+  @io.start_resize_listener(handle_resize)
   do_render()
   @io.start_keypress_listener(handle_key)
 }

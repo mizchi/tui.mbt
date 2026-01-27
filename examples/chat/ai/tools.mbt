@@ -276,6 +276,320 @@ pub fn execute_tool(tool_name : String, input_json : String) -> String {
         js_run_command("moon doc '" + safe_query + "' 2>&1 | head -100")
       }
     }
+    "moon_find_refs" => {
+      let symbol = js_json_get(input_json, "symbol")
+      if symbol.length() == 0 {
+        "[Error: missing 'symbol' parameter]"
+      } else {
+        let safe_symbol = js_shell_escape(symbol)
+        js_run_command("moon ide find-references " + safe_symbol + " 2>&1 | head -100")
+      }
+    }
     _ => "[Error: unknown tool '" + tool_name + "']"
   }
+}
+
+///|
+/// Get tool definitions in Claude/Anthropic format
+pub fn get_claude_tool_definitions() -> String {
+  let json =
+    #|[
+  #|  {
+  #|    "name": "read_file",
+  #|    "description": "Read the contents of a file at the specified path",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "path": { "type": "string", "description": "The file path to read" }
+  #|      },
+  #|      "required": ["path"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "write_file",
+  #|    "description": "Write content to a file at the specified path",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "path": { "type": "string", "description": "The file path to write to" },
+  #|        "content": { "type": "string", "description": "The content to write" }
+  #|      },
+  #|      "required": ["path", "content"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "list_dir",
+  #|    "description": "List contents of a directory",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "path": { "type": "string", "description": "The directory path to list (defaults to current directory)" }
+  #|      },
+  #|      "required": []
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "run_command",
+  #|    "description": "Run a shell command and return the output",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "command": { "type": "string", "description": "The shell command to execute" }
+  #|      },
+  #|      "required": ["command"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "grep_search",
+  #|    "description": "Search for a pattern in files using grep",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "pattern": { "type": "string", "description": "The search pattern (regex)" },
+  #|        "path": { "type": "string", "description": "Directory to search in (defaults to current directory)" },
+  #|        "file_pattern": { "type": "string", "description": "File glob pattern (e.g. '*.mbt')" }
+  #|      },
+  #|      "required": ["pattern"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "git_diff",
+  #|    "description": "Show git diff for files",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "file": { "type": "string", "description": "Specific file to diff (optional)" },
+  #|        "staged": { "type": "boolean", "description": "Show staged changes if true" }
+  #|      },
+  #|      "required": []
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "tree",
+  #|    "description": "Show directory tree structure",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "path": { "type": "string", "description": "Root directory (defaults to current directory)" },
+  #|        "depth": { "type": "integer", "description": "Maximum depth (default 3)" },
+  #|        "pattern": { "type": "string", "description": "File pattern to filter (e.g. '*.mbt')" }
+  #|      },
+  #|      "required": []
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "moon_peek_def",
+  #|    "description": "Show definition of a MoonBit symbol using moon ide peek-def",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "symbol": { "type": "string", "description": "Symbol name (e.g. 'fib', 'Type::method')" }
+  #|      },
+  #|      "required": ["symbol"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "moon_outline",
+  #|    "description": "List symbols in a MoonBit file using moon ide outline",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "file": { "type": "string", "description": "File path to analyze (e.g. 'src/lib.mbt')" }
+  #|      },
+  #|      "required": ["file"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "moon_doc",
+  #|    "description": "Search MoonBit documentation and standard library using moon doc",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "query": { "type": "string", "description": "Query string (e.g. 'String', '@json', 'Array::*map*')" }
+  #|      },
+  #|      "required": ["query"]
+  #|    }
+  #|  },
+  #|  {
+  #|    "name": "moon_find_refs",
+  #|    "description": "Find all references to a MoonBit symbol using moon ide find-references",
+  #|    "input_schema": {
+  #|      "type": "object",
+  #|      "properties": {
+  #|        "symbol": { "type": "string", "description": "Symbol name to find references for" }
+  #|      },
+  #|      "required": ["symbol"]
+  #|    }
+  #|  }
+  #|]
+  json
+}
+
+///|
+/// Get tool definitions in OpenAI format (for OpenRouter and OpenAI-compatible APIs)
+pub fn get_openai_tool_definitions() -> String {
+  let json =
+    #|[
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "read_file",
+  #|      "description": "Read the contents of a file at the specified path",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "path": { "type": "string", "description": "The file path to read" }
+  #|        },
+  #|        "required": ["path"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "write_file",
+  #|      "description": "Write content to a file at the specified path",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "path": { "type": "string", "description": "The file path to write to" },
+  #|          "content": { "type": "string", "description": "The content to write" }
+  #|        },
+  #|        "required": ["path", "content"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "list_dir",
+  #|      "description": "List contents of a directory",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "path": { "type": "string", "description": "The directory path to list (defaults to current directory)" }
+  #|        },
+  #|        "required": []
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "run_command",
+  #|      "description": "Run a shell command and return the output",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "command": { "type": "string", "description": "The shell command to execute" }
+  #|        },
+  #|        "required": ["command"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "grep_search",
+  #|      "description": "Search for a pattern in files using grep",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "pattern": { "type": "string", "description": "The search pattern (regex)" },
+  #|          "path": { "type": "string", "description": "Directory to search in (defaults to current directory)" },
+  #|          "file_pattern": { "type": "string", "description": "File glob pattern (e.g. '*.mbt')" }
+  #|        },
+  #|        "required": ["pattern"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "git_diff",
+  #|      "description": "Show git diff for files",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "file": { "type": "string", "description": "Specific file to diff (optional)" },
+  #|          "staged": { "type": "boolean", "description": "Show staged changes if true" }
+  #|        },
+  #|        "required": []
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "tree",
+  #|      "description": "Show directory tree structure",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "path": { "type": "string", "description": "Root directory (defaults to current directory)" },
+  #|          "depth": { "type": "integer", "description": "Maximum depth (default 3)" },
+  #|          "pattern": { "type": "string", "description": "File pattern to filter (e.g. '*.mbt')" }
+  #|        },
+  #|        "required": []
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "moon_peek_def",
+  #|      "description": "Show definition of a MoonBit symbol using moon ide peek-def",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "symbol": { "type": "string", "description": "Symbol name (e.g. 'fib', 'Type::method')" }
+  #|        },
+  #|        "required": ["symbol"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "moon_outline",
+  #|      "description": "List symbols in a MoonBit file using moon ide outline",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "file": { "type": "string", "description": "File path to analyze (e.g. 'src/lib.mbt')" }
+  #|        },
+  #|        "required": ["file"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "moon_doc",
+  #|      "description": "Search MoonBit documentation and standard library using moon doc",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "query": { "type": "string", "description": "Query string (e.g. 'String', '@json', 'Array::*map*')" }
+  #|        },
+  #|        "required": ["query"]
+  #|      }
+  #|    }
+  #|  },
+  #|  {
+  #|    "type": "function",
+  #|    "function": {
+  #|      "name": "moon_find_refs",
+  #|      "description": "Find all references to a MoonBit symbol using moon ide find-references",
+  #|      "parameters": {
+  #|        "type": "object",
+  #|        "properties": {
+  #|          "symbol": { "type": "string", "description": "Symbol name to find references for" }
+  #|        },
+  #|        "required": ["symbol"]
+  #|      }
+  #|    }
+  #|  }
+  #|]
+  json
 }
