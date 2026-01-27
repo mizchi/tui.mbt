@@ -1,25 +1,69 @@
 ///|
-/// Filer - File tree browser component
-
-///|
-typealias TuiNode = @vnode.TuiNode
+/// Filer - File tree browser component with git integration
 
 // =============================================================================
 // Types
 // =============================================================================
 
 ///|
-struct FileEntry {
-  name : String
+/// Git status indicator
+enum GitStatus {
+  None // Not tracked or unchanged
+  Modified // M - modified
+  Added // A - added/staged
+  Deleted // D - deleted
+  Untracked // ? - untracked
+  Renamed // R - renamed
+}
+
+///|
+fn GitStatus::to_char(self : GitStatus) -> String {
+  match self {
+    None => " "
+    Modified => "M"
+    Added => "A"
+    Deleted => "D"
+    Untracked => "?"
+    Renamed => "R"
+  }
+}
+
+///|
+fn GitStatus::color(self : GitStatus) -> String {
+  match self {
+    None => "rgb(180,180,180)"
+    Modified => "rgb(255,200,100)" // Yellow/orange
+    Added => "rgb(100,255,100)" // Green
+    Deleted => "rgb(255,100,100)" // Red
+    Untracked => "rgb(150,150,150)" // Gray
+    Renamed => "rgb(100,200,255)" // Cyan
+  }
+}
+
+///|
+/// Visible tree item (used for rendering)
+struct TreeItem {
+  path : String // Full path
+  name : String // Display name
   is_dir : Bool
+  git_status : GitStatus
+  depth : Int // Indentation level
+  is_expanded : Bool // For directories
 }
 
 ///|
 struct FilerState {
   mut current_dir : String
-  entries : Array[FileEntry]
+  visible_items : Array[TreeItem] // Flat list for rendering
+  expanded_dirs : Map[String, Bool] // Tracks expanded directories
+  git_status : Map[String, String] // path -> status code
   mut selected_idx : Int
   mut scroll_offset : Int
+  mut git_only_mode : Bool
+  mut is_git_repo : Bool
+  mut preview_file : String
+  mut preview_content : String
+  mut preview_is_diff : Bool
 }
 
 // =============================================================================
@@ -28,17 +72,31 @@ struct FilerState {
 
 ///|
 fn FilerState::new(initial_dir : String) -> FilerState {
-  { current_dir: initial_dir, entries: [], selected_idx: 0, scroll_offset: 0 }
+  {
+    current_dir: initial_dir,
+    visible_items: [],
+    expanded_dirs: {},
+    git_status: {},
+    selected_idx: 0,
+    scroll_offset: 0,
+    git_only_mode: false,
+    is_git_repo: false,
+    preview_file: "",
+    preview_content: "",
+    preview_is_diff: false,
+  }
 }
 
 ///|
 fn FilerState::refresh(self : FilerState) -> Unit {
-  self.entries.clear()
-  let json = @ai.js_list_dir_json(self.current_dir)
-  parse_file_entries(json, self.entries)
-  if self.selected_idx >= self.entries.length() {
-    self.selected_idx = if self.entries.length() > 0 {
-      self.entries.length() - 1
+  // Load git status first
+  self.load_git_status()
+  // Rebuild visible items
+  self.build_visible_items()
+  // Adjust selection
+  if self.selected_idx >= self.visible_items.length() {
+    self.selected_idx = if self.visible_items.length() > 0 {
+      self.visible_items.length() - 1
     } else {
       0
     }
@@ -46,21 +104,169 @@ fn FilerState::refresh(self : FilerState) -> Unit {
 }
 
 ///|
-/// Enter the selected directory or return file path if file is selected
-fn FilerState::enter_selected(self : FilerState) -> String? {
-  if self.selected_idx < self.entries.length() {
-    let entry = self.entries[self.selected_idx]
-    if entry.is_dir {
-      self.current_dir = @ai.js_path_join(self.current_dir, entry.name)
-      self.refresh()
-      self.selected_idx = 0
-      self.scroll_offset = 0
+/// Build the flat list of visible items by walking the tree
+fn FilerState::build_visible_items(self : FilerState) -> Unit {
+  self.visible_items.clear()
+  self.build_items_recursive(self.current_dir, 0)
+}
+
+///|
+/// Recursively build visible items
+fn FilerState::build_items_recursive(
+  self : FilerState,
+  dir_path : String,
+  depth : Int,
+) -> Unit {
+  let json = @ai.js_list_dir_json(dir_path)
+  let entries : Array[(String, Bool, GitStatus)] = [] // (name, is_dir, git_status)
+  parse_dir_entries(json, entries, self.git_status)
+
+  for entry in entries {
+    let (name, is_dir, git_status) = entry
+
+    // Filter by git status if in git_only_mode
+    if self.git_only_mode && self.is_git_repo {
+      match git_status {
+        GitStatus::None =>
+          if not(is_dir) {
+            continue // Skip unchanged files
+          }
+        _ => ()
+      }
+    }
+
+    let full_path = @ai.js_path_join(dir_path, name)
+    let is_expanded = self.expanded_dirs.get(full_path).unwrap_or(false)
+
+    self.visible_items.push(
+      { path: full_path, name, is_dir, git_status, depth, is_expanded },
+    )
+
+    // If directory is expanded, add its children
+    if is_dir && is_expanded {
+      self.build_items_recursive(full_path, depth + 1)
+    }
+  }
+}
+
+///|
+fn FilerState::load_git_status(self : FilerState) -> Unit {
+  self.git_status.clear()
+  let json = @ai.js_git_status(self.current_dir)
+  let (files, is_repo) = parse_git_status_json(json)
+  self.is_git_repo = is_repo
+  for k, v in files {
+    self.git_status[k] = v
+  }
+}
+
+///|
+/// Toggle git-only mode
+fn FilerState::toggle_git_mode(self : FilerState) -> Unit {
+  self.git_only_mode = not(self.git_only_mode)
+  self.refresh()
+}
+
+///|
+/// Toggle expand/collapse for selected directory
+/// Returns: Some(file_path) if a file was selected, None if directory was toggled
+fn FilerState::toggle_selected(self : FilerState) -> String? {
+  if self.selected_idx < self.visible_items.length() {
+    let item = self.visible_items[self.selected_idx]
+    if item.is_dir {
+      // Toggle expansion
+      let currently_expanded = self.expanded_dirs.get(item.path).unwrap_or(false)
+      self.expanded_dirs[item.path] = not(currently_expanded)
+      self.build_visible_items()
       None
     } else {
-      Some(@ai.js_path_join(self.current_dir, entry.name))
+      // Return file path
+      Some(item.path)
     }
   } else {
     None
+  }
+}
+
+///|
+/// Collapse selected directory (or parent if file/collapsed dir selected)
+fn FilerState::collapse_selected(self : FilerState) -> Unit {
+  if self.selected_idx < self.visible_items.length() {
+    let item = self.visible_items[self.selected_idx]
+    if item.is_dir && item.is_expanded {
+      // Collapse this directory
+      self.expanded_dirs[item.path] = false
+      self.build_visible_items()
+    } else if item.depth > 0 {
+      // Find and select parent directory
+      let parent_path = @ai.js_path_dirname(item.path)
+      for i, vi in self.visible_items {
+        if vi.path == parent_path {
+          self.selected_idx = i
+          break
+        }
+      }
+    }
+  }
+}
+
+///|
+/// Enter the selected directory (change root) or return file path
+fn FilerState::enter_selected(self : FilerState) -> String? {
+  if self.selected_idx < self.visible_items.length() {
+    let item = self.visible_items[self.selected_idx]
+    if item.is_dir {
+      // Change to this directory as new root
+      self.current_dir = item.path
+      self.expanded_dirs.clear()
+      self.selected_idx = 0
+      self.scroll_offset = 0
+      self.refresh()
+      None
+    } else {
+      Some(item.path)
+    }
+  } else {
+    None
+  }
+}
+
+///|
+/// Load file content for preview (shows diff if file has git changes)
+fn FilerState::load_preview(self : FilerState, file_path : String) -> Unit {
+  self.preview_file = file_path
+  if self.is_git_repo {
+    let diff = @ai.js_git_diff_file(file_path)
+    if diff.length() > 0 {
+      self.preview_content = diff
+      self.preview_is_diff = true
+      return
+    }
+  }
+  self.preview_content = @ai.js_read_file_content(file_path)
+  self.preview_is_diff = false
+}
+
+///|
+/// Clear preview
+fn FilerState::clear_preview(self : FilerState) -> Unit {
+  self.preview_file = ""
+  self.preview_content = ""
+  self.preview_is_diff = false
+}
+
+///|
+/// Load preview for currently selected item (if it's a file)
+fn FilerState::load_selected_preview(self : FilerState) -> Unit {
+  if self.selected_idx < self.visible_items.length() {
+    let item = self.visible_items[self.selected_idx]
+    if not(item.is_dir) {
+      self.load_preview(item.path)
+    } else {
+      self.clear_preview()
+    }
+  } else {
+    self.clear_preview()
   }
 }
 
@@ -70,9 +276,10 @@ fn FilerState::go_up(self : FilerState) -> Unit {
   let parent = @ai.js_path_dirname(self.current_dir)
   if parent != self.current_dir {
     self.current_dir = parent
-    self.refresh()
+    self.expanded_dirs.clear()
     self.selected_idx = 0
     self.scroll_offset = 0
+    self.refresh()
   }
 }
 
@@ -80,18 +287,36 @@ fn FilerState::go_up(self : FilerState) -> Unit {
 /// Move selection by delta (-1 for up, +1 for down)
 fn FilerState::move_selection(self : FilerState, delta : Int) -> Unit {
   let new_idx = self.selected_idx + delta
-  if new_idx >= 0 && new_idx < self.entries.length() {
+  if new_idx >= 0 && new_idx < self.visible_items.length() {
     self.selected_idx = new_idx
   }
 }
 
 ///|
-/// Adjust scroll to keep selection visible
-fn FilerState::adjust_scroll(self : FilerState, visible_height : Int) -> Unit {
-  if self.selected_idx < self.scroll_offset {
-    self.scroll_offset = self.selected_idx
-  } else if self.selected_idx >= self.scroll_offset + visible_height {
-    self.scroll_offset = self.selected_idx - visible_height + 1
+/// Handle click at row position (0 = header, 1 = .., 2+ = items)
+fn FilerState::handle_click(self : FilerState, row : Int) -> String? {
+  if row == 0 {
+    None
+  } else if row == 1 {
+    self.go_up()
+    None
+  } else {
+    let item_idx = self.scroll_offset + (row - 2)
+    if item_idx >= 0 && item_idx < self.visible_items.length() {
+      self.selected_idx = item_idx
+      let item = self.visible_items[item_idx]
+      if item.is_dir {
+        // Toggle expansion on click
+        let currently_expanded = self.expanded_dirs.get(item.path).unwrap_or(false)
+        self.expanded_dirs[item.path] = not(currently_expanded)
+        self.build_visible_items()
+        None
+      } else {
+        Some(item.path)
+      }
+    } else {
+      None
+    }
   }
 }
 
@@ -113,7 +338,6 @@ fn render_filer(
 
   let lines : Array[TuiNode] = []
 
-  // Helper to create a row with border
   fn make_row(content : String, fg : String) -> TuiNode {
     let padded = content +
       " ".repeat(content_width - @core.string_display_width(content))
@@ -124,32 +348,57 @@ fn render_filer(
     ])
   }
 
-  // Header with current directory
+  // Header
   let dir_name = @ai.js_path_basename(state.current_dir)
   let header = if dir_name.length() > 0 { dir_name } else { "/" }
-  lines.push(make_row(" [" + header + "]", "rgb(200,200,100)"))
+  let mode_indicator = if state.git_only_mode { " [G]" } else { "" }
+  let git_indicator = if state.is_git_repo { "*" } else { "" }
+  lines.push(
+    make_row(
+      " [" + header + "]" + git_indicator + mode_indicator,
+      "rgb(200,200,100)",
+    ),
+  )
 
   // Parent directory entry
   lines.push(make_row(" ..", "rgb(120,120,120)"))
 
-  // File entries
-  let visible_height = filer_height - 2 // header + parent
+  // Tree items
+  let visible_height = filer_height - 2
   let start_idx = state.scroll_offset
   for i = 0; i < visible_height; i = i + 1 {
-    let entry_idx = start_idx + i
-    if entry_idx < state.entries.length() {
-      let entry = state.entries[entry_idx]
-      let is_selected = entry_idx == state.selected_idx && is_focused
-      let prefix = if is_selected { "> " } else { "  " }
-      let suffix = if entry.is_dir { "/" } else { "" }
+    let item_idx = start_idx + i
+    if item_idx < state.visible_items.length() {
+      let item = state.visible_items[item_idx]
+      let is_selected = item_idx == state.selected_idx && is_focused
+
+      // Build prefix with indentation
+      let indent = "  ".repeat(item.depth)
+      let selector = if is_selected { ">" } else { " " }
+      let git_char = item.git_status.to_char()
+
+      // Directory indicator: [+] collapsed, [-] expanded, or just /
+      let dir_indicator = if item.is_dir {
+        if item.is_expanded { "[-]" } else { "[+]" }
+      } else {
+        "   "
+      }
+
+      let suffix = if item.is_dir { "/" } else { "" }
+
+      // Color
       let fg = if is_selected {
         "rgb(255,255,100)"
-      } else if entry.is_dir {
-        "rgb(100,180,255)"
       } else {
-        "rgb(180,180,180)"
+        match item.git_status {
+          GitStatus::None =>
+            if item.is_dir { "rgb(100,180,255)" } else { "rgb(180,180,180)" }
+          _ => item.git_status.color()
+        }
       }
-      lines.push(make_row(prefix + entry.name + suffix, fg))
+
+      let display = selector + git_char + indent + dir_indicator + item.name + suffix
+      lines.push(make_row(display, fg))
     } else {
       lines.push(make_row("", "rgb(60,60,60)"))
     }
@@ -162,12 +411,93 @@ fn render_filer(
   )
 }
 
+///|
+fn get_diff_line_color(line : String) -> String {
+  if line.length() == 0 {
+    return "rgb(180,180,180)"
+  }
+  match line[0] {
+    '+' => "rgb(100,255,100)"
+    '-' => "rgb(255,100,100)"
+    '@' => "rgb(100,180,255)"
+    _ => "rgb(180,180,180)"
+  }
+}
+
+///|
+fn render_file_preview(
+  state : FilerState,
+  preview_width : Int,
+  preview_height : Int,
+) -> TuiNode {
+  let lines : Array[TuiNode] = []
+
+  if state.preview_file.length() == 0 {
+    lines.push(
+      @vnode.row(min_width=preview_width.to_double(), height=1.0, [
+        @vnode.text(" [No file selected]", fg="rgb(100,100,100)"),
+      ]),
+    )
+    for i = 1; i < preview_height; i = i + 1 {
+      lines.push(@vnode.row(height=1.0, []))
+    }
+  } else {
+    let filename = @ai.js_path_basename(state.preview_file)
+    let header_text = if state.preview_is_diff {
+      " [DIFF] " + filename
+    } else {
+      " " + filename
+    }
+    let header_color = if state.preview_is_diff {
+      "rgb(255,200,100)"
+    } else {
+      "rgb(200,200,100)"
+    }
+    lines.push(
+      @vnode.row(min_width=preview_width.to_double(), height=1.0, [
+        @vnode.text(
+          truncate_filer_text(header_text, preview_width - 1),
+          fg=header_color,
+        ),
+      ]),
+    )
+
+    let content_lines : Array[String] = state.preview_content
+      .split("\n")
+      .map(fn(s) { s.to_string() })
+      .collect()
+    let content_height = preview_height - 1
+    for i = 0; i < content_height; i = i + 1 {
+      if i < content_lines.length() {
+        let line = truncate_filer_text(content_lines[i], preview_width - 1)
+        let fg = if state.preview_is_diff {
+          get_diff_line_color(content_lines[i])
+        } else {
+          "rgb(180,180,180)"
+        }
+        lines.push(
+          @vnode.row(min_width=preview_width.to_double(), height=1.0, [
+            @vnode.text(" " + line, fg~),
+          ]),
+        )
+      } else {
+        lines.push(@vnode.row(height=1.0, []))
+      }
+    }
+  }
+
+  @vnode.column(
+    min_width=preview_width.to_double(),
+    height=preview_height.to_double(),
+    lines,
+  )
+}
+
 // =============================================================================
 // Utilities
 // =============================================================================
 
 ///|
-/// Truncate text to fit within max_width (display width)
 fn truncate_filer_text(text : String, max_width : Int) -> String {
   let buf = StringBuilder::new()
   let mut current_width = 0
@@ -183,8 +513,12 @@ fn truncate_filer_text(text : String, max_width : Int) -> String {
 }
 
 ///|
-/// Parse JSON array of file entries
-fn parse_file_entries(json : String, entries : Array[FileEntry]) -> Unit {
+/// Parse directory entries from JSON
+fn parse_dir_entries(
+  json : String,
+  entries : Array[(String, Bool, GitStatus)],
+  git_status : Map[String, String],
+) -> Unit {
   let chars : Array[Char] = json.iter().collect()
   let mut i = 0
   let len = chars.length()
@@ -274,8 +608,132 @@ fn parse_file_entries(json : String, entries : Array[FileEntry]) -> Unit {
         if i < len {
           i = i + 1
         }
-        entries.push({ name, is_dir })
+        let status = match git_status.get(name) {
+          Some(s) => parse_git_status_code(s)
+          None => GitStatus::None
+        }
+        entries.push((name, is_dir, status))
       }
     }
   }
+}
+
+///|
+fn parse_git_status_code(code : String) -> GitStatus {
+  if code.length() == 0 {
+    return GitStatus::None
+  }
+  match code[0] {
+    'M' => GitStatus::Modified
+    'A' => GitStatus::Added
+    'D' => GitStatus::Deleted
+    '?' => GitStatus::Untracked
+    'R' => GitStatus::Renamed
+    _ => GitStatus::None
+  }
+}
+
+///|
+fn parse_git_status_json(json : String) -> (Map[String, String], Bool) {
+  let files : Map[String, String] = {}
+  let mut is_repo = false
+
+  let chars : Array[Char] = json.iter().collect()
+  let mut i = 0
+  let len = chars.length()
+
+  fn skip_ws() -> Unit {
+    while i < len &&
+      (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\r' || chars[i] == '\t') {
+      i = i + 1
+    }
+  }
+
+  fn parse_string() -> String {
+    let buf = StringBuilder::new()
+    if i < len && chars[i] == '"' {
+      i = i + 1
+      while i < len && chars[i] != '"' {
+        if chars[i] == '\\' && i + 1 < len {
+          i = i + 1
+        }
+        buf.write_char(chars[i])
+        i = i + 1
+      }
+      if i < len {
+        i = i + 1
+      }
+    }
+    buf.to_string()
+  }
+
+  fn parse_bool() -> Bool {
+    if i + 4 <= len &&
+      chars[i] == 't' &&
+      chars[i + 1] == 'r' &&
+      chars[i + 2] == 'u' &&
+      chars[i + 3] == 'e' {
+      i = i + 4
+      return true
+    }
+    if i + 5 <= len &&
+      chars[i] == 'f' &&
+      chars[i + 1] == 'a' &&
+      chars[i + 2] == 'l' &&
+      chars[i + 3] == 's' &&
+      chars[i + 4] == 'e' {
+      i = i + 5
+      return false
+    }
+    false
+  }
+
+  skip_ws()
+  if i < len && chars[i] == '{' {
+    i = i + 1
+    while i < len && chars[i] != '}' {
+      skip_ws()
+      if chars[i] == '"' {
+        let key = parse_string()
+        skip_ws()
+        if i < len && chars[i] == ':' {
+          i = i + 1
+        }
+        skip_ws()
+        if key == "is_repo" {
+          is_repo = parse_bool()
+        } else if key == "files" {
+          if i < len && chars[i] == '{' {
+            i = i + 1
+            while i < len && chars[i] != '}' {
+              skip_ws()
+              if chars[i] == '"' {
+                let file_path = parse_string()
+                skip_ws()
+                if i < len && chars[i] == ':' {
+                  i = i + 1
+                }
+                skip_ws()
+                let status = parse_string()
+                files[file_path] = status
+              }
+              skip_ws()
+              if i < len && chars[i] == ',' {
+                i = i + 1
+              }
+            }
+            if i < len {
+              i = i + 1
+            }
+          }
+        }
+      }
+      skip_ws()
+      if i < len && chars[i] == ',' {
+        i = i + 1
+      }
+    }
+  }
+
+  (files, is_repo)
 }

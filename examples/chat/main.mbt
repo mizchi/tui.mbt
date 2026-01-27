@@ -197,15 +197,20 @@ fn main {
   let file_tree = FilerState::new(@ai.js_get_cwd())
   file_tree.refresh()
 
+  // File preview state
+  let preview_visible = @signals.signal(false)
+
   // Layout constants
   let input_rows = 3
   let divider_rows = 1
   let footer_rows = 1
-  let sidebar_width = 28
+  let sidebar_width = @signals.signal(28)
+  let sidebar_min_width = 20
+  let sidebar_max_width = 60
 
   fn get_chat_width() -> Int {
     if sidebar_visible.get() {
-      width.val - sidebar_width - 1 // 1 for border
+      width.val - sidebar_width.get() - 1 // 1 for border
     } else {
       width.val
     }
@@ -358,9 +363,18 @@ fn main {
     }
     let chat_width = get_chat_width()
     let msg_count = " [" + messages.length().to_string() + "]"
-    let sidebar_hint = if sidebar_visible.get() { "Tab:focus" } else { "Tab:tree" }
+    let sidebar_hint = if sidebar_visible.get() {
+      if sidebar_focused.get() {
+        let git_hint = if file_tree.is_git_repo { " g:git" } else { "" }
+        "Tab:chat \u{2190}\u{2192}:nav" + git_hint
+      } else {
+        "Tab:tree ^L/H:resize"
+      }
+    } else {
+      "b:tree"
+    }
     let status = sidebar_hint +
-      " | \u{2191}\u{2193}:scroll | Ctrl+C:quit" +
+      " | \u{2191}\u{2193}:scroll | ^C:quit" +
       msg_count +
       queue_info
     row(min_width=chat_width.to_double(), [
@@ -381,10 +395,21 @@ fn main {
   fn render_ui() -> TuiNode {
     if sidebar_visible.get() {
       let filer_height = height.val - 2
-      row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
-        render_filer(file_tree, sidebar_width, filer_height, sidebar_focused.get()),
-        render_chat_area(),
-      ])
+      let sw = sidebar_width.get()
+      if preview_visible.get() && file_tree.preview_file.length() > 0 {
+        // Show sidebar + preview panel
+        let preview_width = width.val - sw - 1
+        row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
+          render_filer(file_tree, sw, filer_height, sidebar_focused.get()),
+          render_file_preview(file_tree, preview_width, filer_height),
+        ])
+      } else {
+        // Show sidebar + chat area
+        row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
+          render_filer(file_tree, sw, filer_height, sidebar_focused.get()),
+          render_chat_area(),
+        ])
+      }
     } else {
       render_chat_area()
     }
@@ -747,13 +772,28 @@ fn main {
           // Tab: toggle focus between sidebar and chat
           @tui.KeyEvent::Special(@tui.SpecialKey::Tab, _) => {
             if sidebar_visible.get() {
-              sidebar_focused.set(not(sidebar_focused.get()))
+              let new_focused = not(sidebar_focused.get())
+              sidebar_focused.set(new_focused)
+              // Load preview when focusing on sidebar
+              if new_focused {
+                file_tree.load_selected_preview()
+                if file_tree.preview_file.length() > 0 {
+                  preview_visible.set(true)
+                }
+                app.clear_prev_buffer()
+              }
               do_render()
             }
           }
-          // Escape: hide sidebar or unfocus
+          // Escape: close preview, unfocus sidebar, or hide sidebar
           @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
-            if sidebar_focused.get() {
+            if preview_visible.get() {
+              // Close preview first
+              file_tree.clear_preview()
+              preview_visible.set(false)
+              app.clear_prev_buffer()
+              do_render()
+            } else if sidebar_focused.get() {
               sidebar_focused.set(false)
               do_render()
             } else if sidebar_visible.get() {
@@ -768,6 +808,14 @@ fn main {
             sidebar_visible.set(not(sidebar_visible.get()))
             app.clear_prev_buffer()
             do_render()
+          }
+          // 'g': toggle git-only mode in sidebar
+          @tui.KeyEvent::Char('g', @tui.KeyModifier::None) => {
+            if sidebar_focused.get() && file_tree.is_git_repo {
+              file_tree.toggle_git_mode()
+              app.clear_prev_buffer()
+              do_render()
+            }
           }
           @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
             if sidebar_focused.get() {
@@ -804,6 +852,12 @@ fn main {
               if file_tree.selected_idx < file_tree.scroll_offset {
                 file_tree.scroll_offset = file_tree.selected_idx
               }
+              // Auto-load preview for selected file
+              file_tree.load_selected_preview()
+              if file_tree.preview_file.length() > 0 {
+                preview_visible.set(true)
+              }
+              app.clear_prev_buffer()
               do_render()
             } else {
               let offset = scroll_offset.get()
@@ -821,6 +875,12 @@ fn main {
               if file_tree.selected_idx >= file_tree.scroll_offset + visible_height {
                 file_tree.scroll_offset = file_tree.selected_idx - visible_height + 1
               }
+              // Auto-load preview for selected file
+              file_tree.load_selected_preview()
+              if file_tree.preview_file.length() > 0 {
+                preview_visible.set(true)
+              }
+              app.clear_prev_buffer()
               do_render()
             } else {
               let offset = scroll_offset.get()
@@ -839,14 +899,121 @@ fn main {
               do_render()
             }
           }
+          // Left arrow: collapse directory or go to parent (when sidebar focused)
+          @tui.KeyEvent::Special(@tui.SpecialKey::Left, _) => {
+            if sidebar_focused.get() {
+              file_tree.collapse_selected()
+              file_tree.load_selected_preview()
+              if file_tree.preview_file.length() > 0 {
+                preview_visible.set(true)
+              } else {
+                preview_visible.set(false)
+              }
+              app.clear_prev_buffer()
+              do_render()
+            }
+          }
+          // Right arrow: expand directory or select file (when sidebar focused)
+          @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) => {
+            if sidebar_focused.get() {
+              match file_tree.toggle_selected() {
+                Some(file_path) => {
+                  // File selected - load preview
+                  file_tree.load_preview(file_path)
+                  preview_visible.set(true)
+                  app.clear_prev_buffer()
+                  do_render()
+                }
+                None => {
+                  // Directory toggled
+                  file_tree.load_selected_preview()
+                  if file_tree.preview_file.length() > 0 {
+                    preview_visible.set(true)
+                  } else {
+                    preview_visible.set(false)
+                  }
+                  app.clear_prev_buffer()
+                  do_render()
+                }
+              }
+            }
+          }
+          // Ctrl-L: increase sidebar width (when not focused)
+          @tui.KeyEvent::Char('l', @tui.KeyModifier::Ctrl) => {
+            if sidebar_visible.get() && not(sidebar_focused.get()) {
+              let new_width = sidebar_width.get() + 4
+              if new_width <= sidebar_max_width {
+                sidebar_width.set(new_width)
+                app.clear_prev_buffer()
+                do_render()
+              }
+            }
+          }
+          // Ctrl-H: decrease sidebar width (when not focused)
+          @tui.KeyEvent::Char('h', @tui.KeyModifier::Ctrl) => {
+            if sidebar_visible.get() && not(sidebar_focused.get()) {
+              let new_width = sidebar_width.get() - 4
+              if new_width >= sidebar_min_width {
+                sidebar_width.set(new_width)
+                app.clear_prev_buffer()
+                do_render()
+              }
+            }
+          }
           _ => ()
         }
+      @tui.InputEvent::Mouse(mouse_event) => {
+        // Only handle Press events (not Release to avoid double-trigger)
+        match mouse_event.event_type {
+          @tui.MouseEventType::Press => {
+            // Handle mouse click in sidebar
+            if sidebar_visible.get() {
+              match mouse_event.button {
+                @tui.MouseButton::Left =>
+                  if mouse_event.x < sidebar_width.get() {
+                    // Click in sidebar area
+                    sidebar_focused.set(true)
+                    // Terminal coordinates are 1-indexed, convert to 0-indexed
+                    let row = mouse_event.y - 1
+                    match file_tree.handle_click(row) {
+                      Some(file_path) => {
+                        // File was clicked - load preview
+                        file_tree.load_preview(file_path)
+                        preview_visible.set(true)
+                        app.clear_prev_buffer()
+                        do_render()
+                      }
+                      None => {
+                        // Directory navigation or toggle happened
+                        file_tree.load_selected_preview()
+                        if file_tree.preview_file.length() > 0 {
+                          preview_visible.set(true)
+                        } else {
+                          preview_visible.set(false)
+                        }
+                        app.clear_prev_buffer()
+                        do_render()
+                      }
+                    }
+                  } else {
+                    // Click in chat area
+                    sidebar_focused.set(false)
+                    do_render()
+                  }
+                _ => ()
+              }
+            }
+          }
+          _ => ()
+        }
+      }
       _ => ()
     }
   }
 
   // Initialize
   @tui.print_raw(VNodeApp::init_terminal())
+  @tui.print_raw(@render.enable_mouse())
   @tui.enable_raw_mode()
   @io.start_resize_listener(handle_resize)
   do_render()

@@ -62,6 +62,109 @@ pub extern "js" fn js_path_basename(path : String) -> String =
   #| }
 
 ///|
+/// Get git status for a directory
+/// Returns JSON: {"files": {"path": "status", ...}, "is_repo": true/false}
+/// Status: "M" (modified), "A" (added), "D" (deleted), "?" (untracked), "R" (renamed)
+pub extern "js" fn js_git_status(dir : String) -> String =
+  #| (dir) => {
+  #|   try {
+  #|     const { execSync } = require('child_process');
+  #|     const path = require('path');
+  #|     // Check if in git repo
+  #|     try {
+  #|       execSync('git rev-parse --is-inside-work-tree', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
+  #|     } catch (e) {
+  #|       return JSON.stringify({ files: {}, is_repo: false });
+  #|     }
+  #|     // Get status
+  #|     const status = execSync('git status --porcelain', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
+  #|     const files = {};
+  #|     for (const line of status.split('\n')) {
+  #|       if (line.length < 3) continue;
+  #|       const statusCode = line.substring(0, 2).trim();
+  #|       const filePath = line.substring(3);
+  #|       // Get relative path from current dir
+  #|       const absPath = path.resolve(dir, filePath);
+  #|       files[filePath] = statusCode[0] || statusCode[1] || '?';
+  #|     }
+  #|     return JSON.stringify({ files: files, is_repo: true });
+  #|   } catch (e) {
+  #|     return JSON.stringify({ files: {}, is_repo: false });
+  #|   }
+  #| }
+
+///|
+/// Get list of files with uncommitted changes (git diff + untracked)
+/// Returns JSON array of file paths relative to repo root
+pub extern "js" fn js_git_changed_files(dir : String) -> String =
+  #| (dir) => {
+  #|   try {
+  #|     const { execSync } = require('child_process');
+  #|     const path = require('path');
+  #|     // Check if in git repo
+  #|     try {
+  #|       execSync('git rev-parse --is-inside-work-tree', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
+  #|     } catch (e) {
+  #|       return '[]';
+  #|     }
+  #|     // Get changed files (staged + unstaged + untracked)
+  #|     const status = execSync('git status --porcelain', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
+  #|     const files = [];
+  #|     for (const line of status.split('\n')) {
+  #|       if (line.length < 3) continue;
+  #|       files.push(line.substring(3));
+  #|     }
+  #|     return JSON.stringify(files);
+  #|   } catch (e) {
+  #|     return '[]';
+  #|   }
+  #| }
+
+///|
+/// Read file content (public version for filer)
+pub extern "js" fn js_read_file_content(path : String) -> String =
+  #| (path) => {
+  #|   try {
+  #|     const fs = require('fs');
+  #|     const stat = fs.statSync(path);
+  #|     if (stat.size > 100000) {
+  #|       return '[File too large: ' + stat.size + ' bytes]';
+  #|     }
+  #|     return fs.readFileSync(path, 'utf-8');
+  #|   } catch (e) {
+  #|     return '[Error: ' + e.message + ']';
+  #|   }
+  #| }
+
+///|
+/// Get git diff for a specific file (unified diff format)
+/// Returns empty string if no diff or not in git repo
+pub extern "js" fn js_git_diff_file(file_path : String) -> String =
+  #| (filePath) => {
+  #|   try {
+  #|     const { execSync } = require('child_process');
+  #|     const path = require('path');
+  #|     const dir = path.dirname(filePath);
+  #|     // Check if in git repo
+  #|     try {
+  #|       execSync('git rev-parse --is-inside-work-tree', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
+  #|     } catch (e) {
+  #|       return '';
+  #|     }
+  #|     // Get diff (both staged and unstaged)
+  #|     const diff = execSync(`git diff HEAD -- "${filePath}" 2>/dev/null || git diff -- "${filePath}" 2>/dev/null`, {
+  #|       cwd: dir,
+  #|       encoding: 'utf-8',
+  #|       stdio: 'pipe',
+  #|       maxBuffer: 1024 * 1024
+  #|     });
+  #|     return diff || '';
+  #|   } catch (e) {
+  #|     return '';
+  #|   }
+  #| }
+
+///|
 /// List directory contents as JSON array
 /// Returns: [{"name": "file.txt", "is_dir": false}, ...]
 pub extern "js" fn js_list_dir_json(path : String) -> String =
