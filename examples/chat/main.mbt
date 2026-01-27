@@ -121,6 +121,182 @@ fn InputQueue::length(self : InputQueue) -> Int {
 }
 
 // =============================================================================
+// File Tree State
+// =============================================================================
+
+///|
+struct FileEntry {
+  name : String
+  is_dir : Bool
+}
+
+///|
+struct FileTreeState {
+  mut current_dir : String
+  entries : Array[FileEntry]
+  mut selected_idx : Int
+  mut scroll_offset : Int
+}
+
+///|
+fn FileTreeState::new(initial_dir : String) -> FileTreeState {
+  { current_dir: initial_dir, entries: [], selected_idx: 0, scroll_offset: 0 }
+}
+
+///|
+fn FileTreeState::refresh(self : FileTreeState) -> Unit {
+  self.entries.clear()
+  let json = @ai.js_list_dir_json(self.current_dir)
+  // Parse JSON manually: [{"name":"x","is_dir":true},...]
+  parse_file_entries(json, self.entries)
+  if self.selected_idx >= self.entries.length() {
+    self.selected_idx = if self.entries.length() > 0 {
+      self.entries.length() - 1
+    } else {
+      0
+    }
+  }
+}
+
+///|
+fn FileTreeState::enter_selected(self : FileTreeState) -> String? {
+  if self.selected_idx < self.entries.length() {
+    let entry = self.entries[self.selected_idx]
+    if entry.is_dir {
+      self.current_dir = @ai.js_path_join(self.current_dir, entry.name)
+      self.refresh()
+      self.selected_idx = 0
+      self.scroll_offset = 0
+      None
+    } else {
+      // Return the file path
+      Some(@ai.js_path_join(self.current_dir, entry.name))
+    }
+  } else {
+    None
+  }
+}
+
+///|
+fn FileTreeState::go_up(self : FileTreeState) -> Unit {
+  let parent = @ai.js_path_dirname(self.current_dir)
+  if parent != self.current_dir {
+    self.current_dir = parent
+    self.refresh()
+    self.selected_idx = 0
+    self.scroll_offset = 0
+  }
+}
+
+///|
+fn FileTreeState::move_selection(self : FileTreeState, delta : Int) -> Unit {
+  let new_idx = self.selected_idx + delta
+  if new_idx >= 0 && new_idx < self.entries.length() {
+    self.selected_idx = new_idx
+  }
+}
+
+///|
+/// Simple JSON array parser for file entries
+fn parse_file_entries(json : String, entries : Array[FileEntry]) -> Unit {
+  // Parse: [{"name":"x","is_dir":true},...]
+  let chars : Array[Char] = json.iter().collect()
+  let mut i = 0
+  let len = chars.length()
+
+  fn skip_ws() -> Unit {
+    while i < len && (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\r' ||
+    chars[i] == '\t') {
+      i = i + 1
+    }
+  }
+
+  fn parse_string() -> String {
+    let buf = StringBuilder::new()
+    if i < len && chars[i] == '"' {
+      i = i + 1
+      while i < len && chars[i] != '"' {
+        if chars[i] == '\\' && i + 1 < len {
+          i = i + 1
+        }
+        buf.write_char(chars[i])
+        i = i + 1
+      }
+      if i < len {
+        i = i + 1 // skip closing quote
+      }
+    }
+    buf.to_string()
+  }
+
+  fn parse_bool() -> Bool {
+    if i + 4 <= len &&
+      chars[i] == 't' &&
+      chars[i + 1] == 'r' &&
+      chars[i + 2] == 'u' &&
+      chars[i + 3] == 'e' {
+      i = i + 4
+      return true
+    }
+    if i + 5 <= len &&
+      chars[i] == 'f' &&
+      chars[i + 1] == 'a' &&
+      chars[i + 2] == 'l' &&
+      chars[i + 3] == 's' &&
+      chars[i + 4] == 'e' {
+      i = i + 5
+      return false
+    }
+    false
+  }
+
+  skip_ws()
+  if i < len && chars[i] == '[' {
+    i = i + 1
+    while i < len {
+      skip_ws()
+      if chars[i] == ']' {
+        break
+      }
+      if chars[i] == ',' {
+        i = i + 1
+        continue
+      }
+      // Parse object
+      if chars[i] == '{' {
+        i = i + 1
+        let mut name = ""
+        let mut is_dir = false
+        while i < len && chars[i] != '}' {
+          skip_ws()
+          if chars[i] == '"' {
+            let key = parse_string()
+            skip_ws()
+            if i < len && chars[i] == ':' {
+              i = i + 1
+            }
+            skip_ws()
+            if key == "name" {
+              name = parse_string()
+            } else if key == "is_dir" {
+              is_dir = parse_bool()
+            }
+          }
+          skip_ws()
+          if i < len && chars[i] == ',' {
+            i = i + 1
+          }
+        }
+        if i < len {
+          i = i + 1 // skip }
+        }
+        entries.push({ name, is_dir })
+      }
+    }
+  }
+}
+
+// =============================================================================
 // Text Wrapping
 // =============================================================================
 
@@ -191,10 +367,25 @@ fn main {
   let input_queue = InputQueue::new()
   let app = VNodeApp::new(initial_width, initial_height)
 
+  // Sidebar state
+  let sidebar_visible = @signals.signal(true)
+  let sidebar_focused = @signals.signal(false)
+  let file_tree = FileTreeState::new(@ai.js_get_cwd())
+  file_tree.refresh()
+
   // Layout constants
   let input_rows = 3
   let divider_rows = 1
   let footer_rows = 1
+  let sidebar_width = 28
+
+  fn get_chat_width() -> Int {
+    if sidebar_visible.get() {
+      width.val - sidebar_width - 1 // 1 for border
+    } else {
+      width.val
+    }
+  }
 
   fn message_area_height() -> Int {
     height.val - input_rows - divider_rows - footer_rows - 1
@@ -208,13 +399,14 @@ fn main {
   // Build message lines for display
   fn build_message_lines() -> Array[String] {
     let lines : Array[String] = []
+    let chat_width = get_chat_width()
     for msg in messages {
       let prefix = match msg.role {
         User => "> "
         Assistant => "  "
       }
       // Wrap long lines
-      let content_lines = wrap_text(msg.content, width.val - 4)
+      let content_lines = wrap_text(msg.content, chat_width - 4)
       for i, line in content_lines {
         if i == 0 {
           lines.push(prefix + line)
@@ -225,7 +417,7 @@ fn main {
     }
     // Add streaming content if any
     if streaming.is_streaming && streaming.text.length() > 0 {
-      let streaming_lines = wrap_text(streaming.text, width.val - 4)
+      let streaming_lines = wrap_text(streaming.text, chat_width - 4)
       for i, line in streaming_lines {
         if i == 0 {
           lines.push("  " + line)
@@ -256,11 +448,12 @@ fn main {
   fn render_message_line(line : String, idx : Int) -> TuiNode {
     let is_user = line.has_prefix("> ")
     let fg = if is_user { "cyan" } else { "white" }
-    // Ensure line doesn't exceed terminal width
-    let display_line = truncate_text(line, width.val - 1)
+    let chat_width = get_chat_width()
+    // Ensure line doesn't exceed chat width
+    let display_line = truncate_text(line, chat_width - 1)
     row(
       id="msg-" + idx.to_string(),
-      min_width=width.val.to_double(),
+      min_width=chat_width.to_double(),
       height=1.0,
       [text(display_line, fg~)],
     )
@@ -272,6 +465,7 @@ fn main {
     let offset = scroll_offset.get()
     let visible_lines : Array[TuiNode] = []
     let area_height = message_area_height()
+    let chat_width = get_chat_width()
 
     // Bottom-align: add empty lines at top if content is shorter than area
     let empty_lines_at_top = if total_lines < area_height {
@@ -293,7 +487,7 @@ fn main {
       }
     }
     column(
-      min_width=width.val.to_double(),
+      min_width=chat_width.to_double(),
       height=area_height.to_double(),
       visible_lines,
     )
@@ -301,11 +495,13 @@ fn main {
 
   fn render_divider() -> TuiNode {
     let color = if editing.get() { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
-    text("\u{2500}".repeat(width.val), fg=color)
+    let chat_width = get_chat_width()
+    text("\u{2500}".repeat(chat_width), fg=color)
   }
 
   fn render_input() -> TuiNode {
     let current = input.get()
+    let chat_width = get_chat_width()
     let display_text = if current.length() == 0 && not(editing.get()) {
       "Type a message... (press Enter to start)"
     } else {
@@ -316,10 +512,10 @@ fn main {
     } else {
       "white"
     }
-    // Truncate input display to fit terminal width
-    let truncated_display = truncate_text(" " + display_text, width.val - 1)
-    column(height=input_rows.to_double(), min_width=width.val.to_double(), [
-      row(id="input-line", min_width=width.val.to_double(), [
+    // Truncate input display to fit chat width
+    let truncated_display = truncate_text(" " + display_text, chat_width - 1)
+    column(height=input_rows.to_double(), min_width=chat_width.to_double(), [
+      row(id="input-line", min_width=chat_width.to_double(), [
         text(truncated_display, fg~),
       ]),
     ])
@@ -329,27 +525,102 @@ fn main {
     let queue_info = if input_queue.is_busy() {
       let count = input_queue.length()
       if count > 0 {
-        " [Queue: " + count.to_string() + "]"
+        " [Q:" + count.to_string() + "]"
       } else {
-        " [Processing...]"
+        " [...]"
       }
     } else {
       ""
     }
-    let msg_count = " [" + messages.length().to_string() + " msgs]"
-    let status = "/help | \u{2191}\u{2193}: scroll | Ctrl+C: quit" +
+    let chat_width = get_chat_width()
+    let msg_count = " [" + messages.length().to_string() + "]"
+    let sidebar_hint = if sidebar_visible.get() { "Tab:focus" } else { "Tab:tree" }
+    let status = sidebar_hint +
+      " | \u{2191}\u{2193}:scroll | Ctrl+C:quit" +
       msg_count +
       queue_info
-    row(min_width=width.val.to_double(), [text(" " + status, fg="rgb(80,80,80)")])
+    row(min_width=chat_width.to_double(), [
+      text(" " + truncate_text(status, chat_width - 2), fg="rgb(80,80,80)"),
+    ])
   }
 
-  fn render_ui() -> TuiNode {
-    column(width=width.val.to_double(), height=(height.val - 1).to_double(), [
+  // Render sidebar with file tree
+  fn render_sidebar() -> TuiNode {
+    let area_height = height.val - 2
+    let is_focused = sidebar_focused.get()
+    let border_color = if is_focused { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
+    let border_char = "\u{2502}"
+    let content_width = sidebar_width - 1
+
+    let lines : Array[TuiNode] = []
+
+    // Helper to create a row with border
+    fn make_row(content : String, fg : String) -> TuiNode {
+      let padded = content + " ".repeat(content_width - @core.string_display_width(content))
+      let truncated = truncate_text(padded, content_width)
+      row(min_width=sidebar_width.to_double(), height=1.0, [
+        text(truncated, fg~),
+        text(border_char, fg=border_color),
+      ])
+    }
+
+    // Header with current directory
+    let dir_name = @ai.js_path_basename(file_tree.current_dir)
+    let header = if dir_name.length() > 0 { dir_name } else { "/" }
+    lines.push(make_row(" [" + header + "]", "rgb(200,200,100)"))
+
+    // Parent directory entry
+    lines.push(make_row(" ..", "rgb(120,120,120)"))
+
+    // File entries
+    let visible_height = area_height - 2 // header + parent
+    let start_idx = file_tree.scroll_offset
+    for i = 0; i < visible_height; i = i + 1 {
+      let entry_idx = start_idx + i
+      if entry_idx < file_tree.entries.length() {
+        let entry = file_tree.entries[entry_idx]
+        let is_selected = entry_idx == file_tree.selected_idx && is_focused
+        let prefix = if is_selected { "> " } else { "  " }
+        let suffix = if entry.is_dir { "/" } else { "" }
+        let fg = if is_selected {
+          "rgb(255,255,100)"
+        } else if entry.is_dir {
+          "rgb(100,180,255)"
+        } else {
+          "rgb(180,180,180)"
+        }
+        lines.push(make_row(prefix + entry.name + suffix, fg))
+      } else {
+        lines.push(make_row("", "rgb(60,60,60)"))
+      }
+    }
+
+    column(
+      min_width=sidebar_width.to_double(),
+      height=area_height.to_double(),
+      lines,
+    )
+  }
+
+  fn render_chat_area() -> TuiNode {
+    let chat_width = get_chat_width()
+    column(width=chat_width.to_double(), height=(height.val - 1).to_double(), [
       render_messages(),
       render_divider(),
       render_input(),
       render_footer(),
     ])
+  }
+
+  fn render_ui() -> TuiNode {
+    if sidebar_visible.get() {
+      row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
+        render_sidebar(),
+        render_chat_area(),
+      ])
+    } else {
+      render_chat_area()
+    }
   }
 
   fn do_render() -> Unit {
@@ -706,22 +977,100 @@ fn main {
     match event {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => start_editing()
-          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => start_editing()
-          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) => {
-            let offset = scroll_offset.get()
-            if offset > 0 {
-              scroll_offset.set(offset - 1)
+          // Tab: toggle focus between sidebar and chat
+          @tui.KeyEvent::Special(@tui.SpecialKey::Tab, _) => {
+            if sidebar_visible.get() {
+              sidebar_focused.set(not(sidebar_focused.get()))
+              do_render()
             }
+          }
+          // Escape: hide sidebar or unfocus
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
+            if sidebar_focused.get() {
+              sidebar_focused.set(false)
+              do_render()
+            } else if sidebar_visible.get() {
+              sidebar_visible.set(false)
+              app.clear_prev_buffer()
+              do_render()
+            }
+          }
+          // Backslash or 'b': toggle sidebar visibility
+          @tui.KeyEvent::Char('b', @tui.KeyModifier::None)
+          | @tui.KeyEvent::Char('\\', @tui.KeyModifier::None) => {
+            sidebar_visible.set(not(sidebar_visible.get()))
+            app.clear_prev_buffer()
             do_render()
           }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) => {
-            let offset = scroll_offset.get()
-            let max = max_scroll_offset()
-            if offset < max {
-              scroll_offset.set(offset + 1)
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
+            if sidebar_focused.get() {
+              // Enter directory or select file
+              match file_tree.enter_selected() {
+                Some(file_path) => {
+                  // Insert file path into input
+                  input.set(input.get() + file_path)
+                  sidebar_focused.set(false)
+                  start_editing()
+                }
+                None => {
+                  // Directory entered, clear buffer and refresh
+                  app.clear_prev_buffer()
+                  do_render()
+                }
+              }
+            } else {
+              start_editing()
             }
-            do_render()
+          }
+          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => {
+            if sidebar_focused.get() {
+              // In sidebar, ignore character input
+              ()
+            } else {
+              start_editing()
+            }
+          }
+          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) => {
+            if sidebar_focused.get() {
+              file_tree.move_selection(-1)
+              // Scroll if needed
+              if file_tree.selected_idx < file_tree.scroll_offset {
+                file_tree.scroll_offset = file_tree.selected_idx
+              }
+              do_render()
+            } else {
+              let offset = scroll_offset.get()
+              if offset > 0 {
+                scroll_offset.set(offset - 1)
+              }
+              do_render()
+            }
+          }
+          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) => {
+            if sidebar_focused.get() {
+              file_tree.move_selection(1)
+              // Scroll if needed
+              let visible_height = height.val - 4
+              if file_tree.selected_idx >= file_tree.scroll_offset + visible_height {
+                file_tree.scroll_offset = file_tree.selected_idx - visible_height + 1
+              }
+              do_render()
+            } else {
+              let offset = scroll_offset.get()
+              let max = max_scroll_offset()
+              if offset < max {
+                scroll_offset.set(offset + 1)
+              }
+              do_render()
+            }
+          }
+          @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _) => {
+            // Backspace in sidebar: go to parent directory
+            if sidebar_focused.get() {
+              file_tree.go_up()
+              app.clear_prev_buffer()
+              do_render()
+            }
           }
           _ => ()
         }

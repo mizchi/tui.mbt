@@ -27,6 +27,64 @@ extern "js" fn js_write_file(path : String, content : String) -> String =
   #| }
 
 ///|
+/// Get current working directory
+pub extern "js" fn js_get_cwd() -> String =
+  #| () => {
+  #|   try {
+  #|     return process.cwd();
+  #|   } catch (e) {
+  #|     return '.';
+  #|   }
+  #| }
+
+///|
+/// Join path components
+pub extern "js" fn js_path_join(base : String, name : String) -> String =
+  #| (base, name) => {
+  #|   const path = require('path');
+  #|   return path.join(base, name);
+  #| }
+
+///|
+/// Get parent directory
+pub extern "js" fn js_path_dirname(path : String) -> String =
+  #| (p) => {
+  #|   const path = require('path');
+  #|   return path.dirname(p);
+  #| }
+
+///|
+/// Get basename
+pub extern "js" fn js_path_basename(path : String) -> String =
+  #| (p) => {
+  #|   const path = require('path');
+  #|   return path.basename(p);
+  #| }
+
+///|
+/// List directory contents as JSON array
+/// Returns: [{"name": "file.txt", "is_dir": false}, ...]
+pub extern "js" fn js_list_dir_json(path : String) -> String =
+  #| (path) => {
+  #|   try {
+  #|     const fs = require('fs');
+  #|     const entries = fs.readdirSync(path, { withFileTypes: true });
+  #|     const result = entries
+  #|       .filter(e => !e.name.startsWith('.'))
+  #|       .sort((a, b) => {
+  #|         if (a.isDirectory() !== b.isDirectory()) {
+  #|           return a.isDirectory() ? -1 : 1;
+  #|         }
+  #|         return a.name.localeCompare(b.name);
+  #|       })
+  #|       .map(e => ({ name: e.name, is_dir: e.isDirectory() }));
+  #|     return JSON.stringify(result);
+  #|   } catch (e) {
+  #|     return '[]';
+  #|   }
+  #| }
+
+///|
 /// List directory contents
 extern "js" fn js_list_dir(path : String) -> String =
   #| (path) => {
