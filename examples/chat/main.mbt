@@ -121,182 +121,6 @@ fn InputQueue::length(self : InputQueue) -> Int {
 }
 
 // =============================================================================
-// File Tree State
-// =============================================================================
-
-///|
-struct FileEntry {
-  name : String
-  is_dir : Bool
-}
-
-///|
-struct FileTreeState {
-  mut current_dir : String
-  entries : Array[FileEntry]
-  mut selected_idx : Int
-  mut scroll_offset : Int
-}
-
-///|
-fn FileTreeState::new(initial_dir : String) -> FileTreeState {
-  { current_dir: initial_dir, entries: [], selected_idx: 0, scroll_offset: 0 }
-}
-
-///|
-fn FileTreeState::refresh(self : FileTreeState) -> Unit {
-  self.entries.clear()
-  let json = @ai.js_list_dir_json(self.current_dir)
-  // Parse JSON manually: [{"name":"x","is_dir":true},...]
-  parse_file_entries(json, self.entries)
-  if self.selected_idx >= self.entries.length() {
-    self.selected_idx = if self.entries.length() > 0 {
-      self.entries.length() - 1
-    } else {
-      0
-    }
-  }
-}
-
-///|
-fn FileTreeState::enter_selected(self : FileTreeState) -> String? {
-  if self.selected_idx < self.entries.length() {
-    let entry = self.entries[self.selected_idx]
-    if entry.is_dir {
-      self.current_dir = @ai.js_path_join(self.current_dir, entry.name)
-      self.refresh()
-      self.selected_idx = 0
-      self.scroll_offset = 0
-      None
-    } else {
-      // Return the file path
-      Some(@ai.js_path_join(self.current_dir, entry.name))
-    }
-  } else {
-    None
-  }
-}
-
-///|
-fn FileTreeState::go_up(self : FileTreeState) -> Unit {
-  let parent = @ai.js_path_dirname(self.current_dir)
-  if parent != self.current_dir {
-    self.current_dir = parent
-    self.refresh()
-    self.selected_idx = 0
-    self.scroll_offset = 0
-  }
-}
-
-///|
-fn FileTreeState::move_selection(self : FileTreeState, delta : Int) -> Unit {
-  let new_idx = self.selected_idx + delta
-  if new_idx >= 0 && new_idx < self.entries.length() {
-    self.selected_idx = new_idx
-  }
-}
-
-///|
-/// Simple JSON array parser for file entries
-fn parse_file_entries(json : String, entries : Array[FileEntry]) -> Unit {
-  // Parse: [{"name":"x","is_dir":true},...]
-  let chars : Array[Char] = json.iter().collect()
-  let mut i = 0
-  let len = chars.length()
-
-  fn skip_ws() -> Unit {
-    while i < len && (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\r' ||
-    chars[i] == '\t') {
-      i = i + 1
-    }
-  }
-
-  fn parse_string() -> String {
-    let buf = StringBuilder::new()
-    if i < len && chars[i] == '"' {
-      i = i + 1
-      while i < len && chars[i] != '"' {
-        if chars[i] == '\\' && i + 1 < len {
-          i = i + 1
-        }
-        buf.write_char(chars[i])
-        i = i + 1
-      }
-      if i < len {
-        i = i + 1 // skip closing quote
-      }
-    }
-    buf.to_string()
-  }
-
-  fn parse_bool() -> Bool {
-    if i + 4 <= len &&
-      chars[i] == 't' &&
-      chars[i + 1] == 'r' &&
-      chars[i + 2] == 'u' &&
-      chars[i + 3] == 'e' {
-      i = i + 4
-      return true
-    }
-    if i + 5 <= len &&
-      chars[i] == 'f' &&
-      chars[i + 1] == 'a' &&
-      chars[i + 2] == 'l' &&
-      chars[i + 3] == 's' &&
-      chars[i + 4] == 'e' {
-      i = i + 5
-      return false
-    }
-    false
-  }
-
-  skip_ws()
-  if i < len && chars[i] == '[' {
-    i = i + 1
-    while i < len {
-      skip_ws()
-      if chars[i] == ']' {
-        break
-      }
-      if chars[i] == ',' {
-        i = i + 1
-        continue
-      }
-      // Parse object
-      if chars[i] == '{' {
-        i = i + 1
-        let mut name = ""
-        let mut is_dir = false
-        while i < len && chars[i] != '}' {
-          skip_ws()
-          if chars[i] == '"' {
-            let key = parse_string()
-            skip_ws()
-            if i < len && chars[i] == ':' {
-              i = i + 1
-            }
-            skip_ws()
-            if key == "name" {
-              name = parse_string()
-            } else if key == "is_dir" {
-              is_dir = parse_bool()
-            }
-          }
-          skip_ws()
-          if i < len && chars[i] == ',' {
-            i = i + 1
-          }
-        }
-        if i < len {
-          i = i + 1 // skip }
-        }
-        entries.push({ name, is_dir })
-      }
-    }
-  }
-}
-
-// =============================================================================
 // Text Wrapping
 // =============================================================================
 
@@ -370,7 +194,7 @@ fn main {
   // Sidebar state
   let sidebar_visible = @signals.signal(true)
   let sidebar_focused = @signals.signal(false)
-  let file_tree = FileTreeState::new(@ai.js_get_cwd())
+  let file_tree = FilerState::new(@ai.js_get_cwd())
   file_tree.refresh()
 
   // Layout constants
@@ -544,64 +368,6 @@ fn main {
     ])
   }
 
-  // Render sidebar with file tree
-  fn render_sidebar() -> TuiNode {
-    let area_height = height.val - 2
-    let is_focused = sidebar_focused.get()
-    let border_color = if is_focused { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
-    let border_char = "\u{2502}"
-    let content_width = sidebar_width - 1
-
-    let lines : Array[TuiNode] = []
-
-    // Helper to create a row with border
-    fn make_row(content : String, fg : String) -> TuiNode {
-      let padded = content + " ".repeat(content_width - @core.string_display_width(content))
-      let truncated = truncate_text(padded, content_width)
-      row(min_width=sidebar_width.to_double(), height=1.0, [
-        text(truncated, fg~),
-        text(border_char, fg=border_color),
-      ])
-    }
-
-    // Header with current directory
-    let dir_name = @ai.js_path_basename(file_tree.current_dir)
-    let header = if dir_name.length() > 0 { dir_name } else { "/" }
-    lines.push(make_row(" [" + header + "]", "rgb(200,200,100)"))
-
-    // Parent directory entry
-    lines.push(make_row(" ..", "rgb(120,120,120)"))
-
-    // File entries
-    let visible_height = area_height - 2 // header + parent
-    let start_idx = file_tree.scroll_offset
-    for i = 0; i < visible_height; i = i + 1 {
-      let entry_idx = start_idx + i
-      if entry_idx < file_tree.entries.length() {
-        let entry = file_tree.entries[entry_idx]
-        let is_selected = entry_idx == file_tree.selected_idx && is_focused
-        let prefix = if is_selected { "> " } else { "  " }
-        let suffix = if entry.is_dir { "/" } else { "" }
-        let fg = if is_selected {
-          "rgb(255,255,100)"
-        } else if entry.is_dir {
-          "rgb(100,180,255)"
-        } else {
-          "rgb(180,180,180)"
-        }
-        lines.push(make_row(prefix + entry.name + suffix, fg))
-      } else {
-        lines.push(make_row("", "rgb(60,60,60)"))
-      }
-    }
-
-    column(
-      min_width=sidebar_width.to_double(),
-      height=area_height.to_double(),
-      lines,
-    )
-  }
-
   fn render_chat_area() -> TuiNode {
     let chat_width = get_chat_width()
     column(width=chat_width.to_double(), height=(height.val - 1).to_double(), [
@@ -614,8 +380,9 @@ fn main {
 
   fn render_ui() -> TuiNode {
     if sidebar_visible.get() {
+      let filer_height = height.val - 2
       row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
-        render_sidebar(),
+        render_filer(file_tree, sidebar_width, filer_height, sidebar_focused.get()),
         render_chat_area(),
       ])
     } else {
