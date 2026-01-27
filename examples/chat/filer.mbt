@@ -64,6 +64,7 @@ struct FilerState {
   mut preview_file : String
   mut preview_content : String
   mut preview_is_diff : Bool
+  mut preview_scroll_offset : Int
 }
 
 // =============================================================================
@@ -84,6 +85,7 @@ fn FilerState::new(initial_dir : String) -> FilerState {
     preview_file: "",
     preview_content: "",
     preview_is_diff: false,
+    preview_scroll_offset: 0,
   }
 }
 
@@ -235,6 +237,7 @@ fn FilerState::enter_selected(self : FilerState) -> String? {
 /// Load file content for preview (shows diff if file has git changes)
 fn FilerState::load_preview(self : FilerState, file_path : String) -> Unit {
   self.preview_file = file_path
+  self.preview_scroll_offset = 0 // Reset scroll on new file
   if self.is_git_repo {
     let diff = @ai.js_git_diff_file(file_path)
     if diff.length() > 0 {
@@ -253,6 +256,30 @@ fn FilerState::clear_preview(self : FilerState) -> Unit {
   self.preview_file = ""
   self.preview_content = ""
   self.preview_is_diff = false
+  self.preview_scroll_offset = 0
+}
+
+///|
+/// Scroll preview by delta lines (positive = down, negative = up)
+fn FilerState::scroll_preview(
+  self : FilerState,
+  delta : Int,
+  visible_height : Int,
+) -> Unit {
+  let total_lines = self.preview_content.split("\n").count()
+  let max_offset = if total_lines > visible_height {
+    total_lines - visible_height
+  } else {
+    0
+  }
+  let new_offset = self.preview_scroll_offset + delta
+  self.preview_scroll_offset = if new_offset < 0 {
+    0
+  } else if new_offset > max_offset {
+    max_offset
+  } else {
+    new_offset
+  }
 }
 
 ///|
@@ -443,10 +470,26 @@ fn render_file_preview(
     }
   } else {
     let filename = @ai.js_path_basename(state.preview_file)
-    let header_text = if state.preview_is_diff {
-      " [DIFF] " + filename
+    let content_lines : Array[String] = state.preview_content
+      .split("\n")
+      .map(fn(s) { s.to_string() })
+      .collect()
+    let total_lines = content_lines.length()
+    let scroll_info = if total_lines > preview_height - 1 {
+      " [" +
+      (state.preview_scroll_offset + 1).to_string() +
+      "-" +
+      (state.preview_scroll_offset + preview_height - 1).to_string() +
+      "/" +
+      total_lines.to_string() +
+      "]"
     } else {
-      " " + filename
+      ""
+    }
+    let header_text = if state.preview_is_diff {
+      " [DIFF] " + filename + scroll_info
+    } else {
+      " " + filename + scroll_info
     }
     let header_color = if state.preview_is_diff {
       "rgb(255,200,100)"
@@ -462,16 +505,14 @@ fn render_file_preview(
       ]),
     )
 
-    let content_lines : Array[String] = state.preview_content
-      .split("\n")
-      .map(fn(s) { s.to_string() })
-      .collect()
     let content_height = preview_height - 1
+    let scroll_offset = state.preview_scroll_offset
     for i = 0; i < content_height; i = i + 1 {
-      if i < content_lines.length() {
-        let line = truncate_filer_text(content_lines[i], preview_width - 1)
+      let line_idx = scroll_offset + i
+      if line_idx < content_lines.length() {
+        let line = truncate_filer_text(content_lines[line_idx], preview_width - 1)
         let fg = if state.preview_is_diff {
-          get_diff_line_color(content_lines[i])
+          get_diff_line_color(content_lines[line_idx])
         } else {
           "rgb(180,180,180)"
         }

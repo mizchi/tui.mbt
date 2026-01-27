@@ -817,6 +817,22 @@ fn main {
               do_render()
             }
           }
+          // 'j': scroll preview down (when preview is visible)
+          @tui.KeyEvent::Char('j', @tui.KeyModifier::None) => {
+            if preview_visible.get() && file_tree.preview_file.length() > 0 {
+              let preview_height = height.val - 2 - 1 // filer_height - header
+              file_tree.scroll_preview(1, preview_height)
+              do_render()
+            }
+          }
+          // 'k': scroll preview up (when preview is visible)
+          @tui.KeyEvent::Char('k', @tui.KeyModifier::None) => {
+            if preview_visible.get() && file_tree.preview_file.length() > 0 {
+              let preview_height = height.val - 2 - 1 // filer_height - header
+              file_tree.scroll_preview(-1, preview_height)
+              do_render()
+            }
+          }
           @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
             if sidebar_focused.get() {
               // Enter directory or select file
@@ -966,7 +982,7 @@ fn main {
         // Only handle Press events (not Release to avoid double-trigger)
         match mouse_event.event_type {
           @tui.MouseEventType::Press => {
-            // Handle mouse click in sidebar
+            // Handle mouse click/scroll in sidebar
             if sidebar_visible.get() {
               match mouse_event.button {
                 @tui.MouseButton::Left =>
@@ -996,10 +1012,54 @@ fn main {
                       }
                     }
                   } else {
-                    // Click in chat area
+                    // Click in chat/preview area
                     sidebar_focused.set(false)
                     do_render()
                   }
+                @tui.MouseButton::ScrollUp => {
+                  // Scroll up in preview if visible and in preview area
+                  let sw = sidebar_width.get()
+                  if preview_visible.get() &&
+                    file_tree.preview_file.length() > 0 &&
+                    mouse_event.x >= sw {
+                    let preview_height = height.val - 2 - 1
+                    file_tree.scroll_preview(-3, preview_height)
+                    do_render()
+                  } else if mouse_event.x < sw {
+                    // Scroll in file tree
+                    if file_tree.scroll_offset > 0 {
+                      file_tree.scroll_offset = file_tree.scroll_offset - 3
+                      if file_tree.scroll_offset < 0 {
+                        file_tree.scroll_offset = 0
+                      }
+                      do_render()
+                    }
+                  }
+                }
+                @tui.MouseButton::ScrollDown => {
+                  // Scroll down in preview if visible and in preview area
+                  let sw = sidebar_width.get()
+                  if preview_visible.get() &&
+                    file_tree.preview_file.length() > 0 &&
+                    mouse_event.x >= sw {
+                    let preview_height = height.val - 2 - 1
+                    file_tree.scroll_preview(3, preview_height)
+                    do_render()
+                  } else if mouse_event.x < sw {
+                    // Scroll in file tree
+                    let visible_height = height.val - 4
+                    let max_offset = if file_tree.visible_items.length() > visible_height {
+                      file_tree.visible_items.length() - visible_height
+                    } else {
+                      0
+                    }
+                    file_tree.scroll_offset = file_tree.scroll_offset + 3
+                    if file_tree.scroll_offset > max_offset {
+                      file_tree.scroll_offset = max_offset
+                    }
+                    do_render()
+                  }
+                }
                 _ => ()
               }
             }
