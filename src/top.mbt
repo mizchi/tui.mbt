@@ -75,7 +75,7 @@ pub using @vnode {
 // === VNode (Rendering) ===
 
 ///|
-pub using @vnode {render_vnode_once, run_vnode_app}
+pub using @vnode {render_vnode_once, run_vnode_app, init_vnode_terminal}
 
 // === Headless State Types ===
 

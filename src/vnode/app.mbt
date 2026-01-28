@@ -5,8 +5,8 @@
 ///|
 /// VNodeApp manages the vnode render loop with diff-based updates
 pub struct VNodeApp {
-  width : Int
-  height : Int
+  mut width : Int
+  mut height : Int
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @types.Layout?
   mut render_ctx : RenderContext
@@ -166,6 +166,14 @@ pub fn VNodeApp::clear_prev_buffer(self : VNodeApp) -> Unit {
 }
 
 ///|
+/// Resize the render target and force a full redraw on next render.
+pub fn VNodeApp::resize(self : VNodeApp, width : Int, height : Int) -> Unit {
+  self.width = width
+  self.height = height
+  self.clear_prev_buffer()
+}
+
+///|
 /// Full-screen vnode app helper: sets up alt screen and handles cleanup
 pub fn run_vnode_app(
   width : Int,
@@ -186,6 +194,39 @@ pub fn run_vnode_app(
     dispose()
     output_fn(VNodeApp::restore_terminal())
   }
+}
+
+///|
+/// Initialize a VNodeApp with terminal setup and return a cleanup function.
+pub fn init_vnode_terminal(
+  width : Int,
+  height : Int,
+  output_fn : (String) -> Unit,
+  mouse? : Bool = false,
+  raw_mode? : Bool = true,
+) -> (VNodeApp, () -> Unit) {
+  let app = VNodeApp::new(width, height)
+
+  // Initialize terminal
+  output_fn(VNodeApp::init_terminal())
+  if mouse {
+    output_fn(@render.enable_mouse())
+  }
+  if raw_mode {
+    @io.enable_raw_mode()
+  }
+
+  fn cleanup() {
+    @io.stop_keypress_listener()
+    @io.stop_resize_listener()
+    if mouse {
+      output_fn(@render.disable_mouse())
+    }
+    @io.cleanup_stdin()
+    output_fn(VNodeApp::restore_terminal())
+  }
+
+  (app, cleanup)
 }
 
 ///|

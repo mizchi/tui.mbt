@@ -42,6 +42,8 @@ pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int,
 
 pub fn hspace(Double) -> @ui.Node[TuiEvent, TuiAttrValue]
 
+pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool) -> (VNodeApp, () -> Unit)
+
 pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn input_plain(String, placeholder? : String, state? : InputState, fg? : String, placeholder_fg? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
@@ -289,8 +291,8 @@ pub struct TypedRenderContext {
 pub fn TypedRenderContext::new() -> Self
 
 pub struct VNodeApp {
-  width : Int
-  height : Int
+  mut width : Int
+  mut height : Int
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @types.Layout?
   mut render_ctx : RenderContext
@@ -304,6 +306,7 @@ pub fn VNodeApp::init_terminal() -> String
 pub fn VNodeApp::new(Int, Int) -> Self
 pub fn VNodeApp::render(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 pub fn VNodeApp::render_frame(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn VNodeApp::resize(Self, Int, Int) -> Unit
 pub fn VNodeApp::restore_terminal() -> String
 
 // Type aliases

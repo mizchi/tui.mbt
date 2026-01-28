@@ -2,7 +2,7 @@
 /// VNode Chat - Simple chat UI with Claude API
 
 ///|
-using @vnode {type TuiNode, type VNodeApp, column, row, text}
+using @vnode {type TuiNode, column, row, text}
 
 // =============================================================================
 // Message Types
@@ -189,7 +189,12 @@ fn main {
   let scroll_offset = @signals.signal(0)
   let streaming = StreamingState::new()
   let input_queue = InputQueue::new()
-  let app = VNodeApp::new(initial_width, initial_height)
+  let (app, cleanup) = @vnode.init_vnode_terminal(
+    initial_width,
+    initial_height,
+    @tui.print_raw,
+    mouse=true,
+  )
 
   // Sidebar state
   let sidebar_visible = @signals.signal(true)
@@ -382,10 +387,22 @@ fn main {
     ])
   }
 
+  fn render_main_content() -> TuiNode {
+    let chat_width = get_chat_width()
+    let area_height = message_area_height()
+    if preview_visible.get() && file_tree.preview_file.length() > 0 {
+      // Show file preview in message area
+      render_file_preview(file_tree, chat_width, area_height)
+    } else {
+      // Show messages
+      render_messages()
+    }
+  }
+
   fn render_chat_area() -> TuiNode {
     let chat_width = get_chat_width()
     column(width=chat_width.to_double(), height=(height.val - 1).to_double(), [
-      render_messages(),
+      render_main_content(),
       render_divider(),
       render_input(),
       render_footer(),
@@ -396,20 +413,11 @@ fn main {
     if sidebar_visible.get() {
       let filer_height = height.val - 2
       let sw = sidebar_width.get()
-      if preview_visible.get() && file_tree.preview_file.length() > 0 {
-        // Show sidebar + preview panel
-        let preview_width = width.val - sw - 1
-        row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
-          render_filer(file_tree, sw, filer_height, sidebar_focused.get()),
-          render_file_preview(file_tree, preview_width, filer_height),
-        ])
-      } else {
-        // Show sidebar + chat area
-        row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
-          render_filer(file_tree, sw, filer_height, sidebar_focused.get()),
-          render_chat_area(),
-        ])
-      }
+      // Always show sidebar + chat area (preview is shown in message area)
+      row(width=width.val.to_double(), height=(height.val - 1).to_double(), [
+        render_filer(file_tree, sw, filer_height, sidebar_focused.get()),
+        render_chat_area(),
+      ])
     } else {
       render_chat_area()
     }
@@ -443,14 +451,13 @@ fn main {
   fn handle_resize(new_width : Int, new_height : Int) -> Unit {
     width.val = new_width
     height.val = new_height
-    app.clear_prev_buffer()
+    app.resize(new_width, new_height)
     do_render()
   }
 
   fn do_quit() -> Unit {
     streaming.clear()
-    @io.stop_keypress_listener()
-    @tui.print_raw(VNodeApp::restore_terminal())
+    cleanup()
     println("Goodbye!")
   }
 
@@ -1072,9 +1079,6 @@ fn main {
   }
 
   // Initialize
-  @tui.print_raw(VNodeApp::init_terminal())
-  @tui.print_raw(@render.enable_mouse())
-  @tui.enable_raw_mode()
   @io.start_resize_listener(handle_resize)
   do_render()
   @io.start_keypress_listener(handle_key)

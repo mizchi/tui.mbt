@@ -39,6 +39,8 @@ pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int,
 
 pub fn hspace(Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
+pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool) -> (@vnode.VNodeApp, () -> Unit)
+
 pub fn input(String, id? : String, placeholder? : String, state? : @vnode.InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn input_plain(String, placeholder? : String, state? : @vnode.InputState, fg? : String, placeholder_fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
