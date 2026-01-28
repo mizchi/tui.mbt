@@ -1,0 +1,46 @@
+# eval-1 snapshot
+
+==== split (40x12) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  header dx=0 dy=0 dw=0 dh=0 score=0
+  body dx=0 dy=0 dw=0 dh=0 score=0
+  sidebar dx=0 dy=0 dw=0 dh=0 score=0
+  content dx=0 dy=0 dw=0 dh=0 score=0
+  footer dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== grid (40x12) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  cell-1 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-2 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-3 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-4 dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== mixed-borders (42x7) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  rounded dx=0 dy=0 dw=0 dh=0 score=0
+  double dx=0 dy=0 dw=0 dh=0 score=0
+  ascii dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== areas (42x12) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  head dx=0 dy=0 dw=0 dh=0 score=0
+  side dx=0 dy=0 dw=0 dh=0 score=0
+  main dx=0 dy=0 dw=0 dh=0 score=0
+  foot dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== padding-gap (42x10) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  row dx=0 dy=0 dw=0 dh=0 score=0
+  left dx=0 dy=0 dw=0 dh=0 score=0
+  right dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== overflow (28x6) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  body dx=1 dy=1 dw=-2 dh=-2 score=6
+  total_score=6
+

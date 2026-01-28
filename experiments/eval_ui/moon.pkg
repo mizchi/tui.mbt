@@ -1,0 +1,11 @@
+import {
+  "mizchi/tui/vnode" as @vnode,
+  "mizchi/tui/core" as @core,
+  "mizchi/tui/testing" as @testing,
+  "mizchi/tui/io" as @io,
+  "mizchi/tui/events" as @events,
+}
+
+options(
+  "is-main": true,
+)
