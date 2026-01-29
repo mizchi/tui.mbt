@@ -404,7 +404,9 @@ fn main {
     }
     let chat_width = get_chat_width()
     let msg_count = " [" + messages.length().to_string() + "]"
-    let sidebar_hint = if sidebar_visible.get() {
+    let sidebar_hint = if preview_editing.get() {
+      "^S:save Esc:back"
+    } else if sidebar_visible.get() {
       if sidebar_focused.get() {
         let git_hint = if file_tree.is_git_repo { " g:git" } else { "" }
         "Tab:chat \u{2190}\u{2192}:nav" + git_hint
@@ -878,6 +880,17 @@ fn main {
             app.clear_prev_buffer()
             do_render()
             @io.start_keypress_listener(handle_key)
+          }
+          // Ctrl+S: save file
+          @tui.KeyEvent::Char('s', @tui.KeyModifier::Ctrl) => {
+            if file_tree.preview_file.length() > 0 {
+              let content = preview_editor.val.get_text()
+              let _ = @ai.js_write_file(file_tree.preview_file, content)
+              preview_editor.val.mark_clean()
+              file_tree.refresh()
+              app.clear_prev_buffer()
+              do_render()
+            }
           }
           // Other keys: delegate to preview editor
           _ => {

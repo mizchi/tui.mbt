@@ -15,7 +15,7 @@ extern "js" fn js_read_file(path : String) -> String =
 
 ///|
 /// Write content to file
-extern "js" fn js_write_file(path : String, content : String) -> String =
+pub extern "js" fn js_write_file(path : String, content : String) -> String =
   #| (path, content) => {
   #|   try {
   #|     const fs = require('fs');
