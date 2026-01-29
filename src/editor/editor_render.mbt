@@ -228,6 +228,18 @@ pub fn editor_cursor_position(
   width : Int,
   height : Int,
 ) -> (Int, Int) {
+  let caret = state.selection.active
+  editor_position_for(state, width, height, caret.line, caret.col)
+}
+
+///|
+pub fn editor_position_for(
+  state : EditorState,
+  width : Int,
+  height : Int,
+  line : Int,
+  col : Int,
+) -> (Int, Int) {
   let header_height = 1
   let footer_height = 1
   let content_height = if height - header_height - footer_height > 0 {
@@ -243,17 +255,16 @@ pub fn editor_cursor_position(
     1
   }
   let (start, end) = state.viewport.range(total_lines)
-  let caret = state.selection.active
-  let line = if caret.line < start {
+  let target_line = if line < start {
     start
-  } else if caret.line >= end {
+  } else if line >= end {
     end - 1
   } else {
-    caret.line
+    line
   }
-  let row = header_height + (line - start)
-  let line_text = state.doc.line(line)
-  let display_col = display_width_prefix(line_text, caret.col)
+  let row = header_height + (target_line - start)
+  let line_text = state.doc.line(target_line)
+  let display_col = display_width_prefix(line_text, col)
   let col_in_line = if display_col < content_width {
     display_col
   } else {

@@ -8,6 +8,44 @@ pub struct EditorState {
 }
 
 ///|
+fn is_word_char(c : Char) -> Bool {
+  if c.is_whitespace() || c.is_control() {
+    false
+  } else if c.is_ascii_punctuation() {
+    c == '_'
+  } else {
+    true
+  }
+}
+
+///|
+fn word_bounds(line_text : String, col : Int) -> (Int, Int) {
+  let chars = line_text.to_array()
+  let len = chars.length()
+  let idx = if col < 0 { 0 } else if col > len { len } else { col }
+  let mut start = idx
+  while start > 0 && is_word_char(chars[start - 1]) {
+    start = start - 1
+  }
+  let mut end = idx
+  while end < len && is_word_char(chars[end]) {
+    end = end + 1
+  }
+  (start, end)
+}
+
+///|
+fn slice_chars(chars : Array[Char], start : Int, end : Int) -> String {
+  let sb = StringBuilder::new()
+  let s = if start < 0 { 0 } else { start }
+  let e = if end < s { s } else if end > chars.length() { chars.length() } else { end }
+  for i in s..<e {
+    sb.write_char(chars[i])
+  }
+  sb.to_string()
+}
+
+///|
 pub fn EditorState::new(text : String, height : Int) -> EditorState {
   let doc = Document::from_text(text)
   let caret = { line: 0, col: 0 }
@@ -27,6 +65,51 @@ pub fn EditorState::set_height(self : EditorState, height : Int) -> Unit {
   self.viewport.set_height(height)
   let caret = self.caret()
   self.viewport.ensure_visible(caret.line, self.doc.line_count())
+}
+
+///|
+pub fn EditorState::caret_line(self : EditorState) -> Int {
+  self.caret().line
+}
+
+///|
+pub fn EditorState::caret_col(self : EditorState) -> Int {
+  self.caret().col
+}
+
+///|
+pub fn EditorState::current_word_prefix(self : EditorState) -> String {
+  let caret = self.caret()
+  let line_text = self.doc.line(caret.line)
+  let chars = line_text.to_array()
+  let (start, _) = word_bounds(line_text, caret.col)
+  slice_chars(chars, start, caret.col)
+}
+
+///|
+pub fn EditorState::current_word_bounds(self : EditorState) -> (Int, Int) {
+  let caret = self.caret()
+  let line_text = self.doc.line(caret.line)
+  word_bounds(line_text, caret.col)
+}
+
+///|
+pub fn EditorState::replace_current_word(
+  self : EditorState,
+  word : String,
+) -> Unit {
+  let caret = self.caret()
+  let line_text = self.doc.line(caret.line)
+  let (start_col, end_col) = word_bounds(line_text, caret.col)
+  let start_pos = { line: caret.line, col: start_col }
+  let end_pos = { line: caret.line, col: end_col }
+  let edit_line = caret.line
+  let _ = self.doc.delete_range(start_pos, end_pos)
+  let new_pos = self.doc.insert_text(start_pos, word)
+  self.selection.set_caret(new_pos)
+  self.preferred_col = new_pos.col
+  self.viewport.ensure_visible(new_pos.line, self.doc.line_count())
+  self.highlight.update(self.doc, edit_line)
 }
 
 ///|

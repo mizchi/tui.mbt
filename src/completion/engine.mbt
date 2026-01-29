@@ -110,6 +110,21 @@ pub fn CompletionEngine::get_items(self : CompletionEngine) -> Array[String] {
 }
 
 ///|
+/// Replace completion items directly (synchronous sources)
+pub fn CompletionEngine::set_items(
+  self : CompletionEngine,
+  items : Array[String],
+) -> Unit {
+  self.items.set(items)
+  self.loading.set(false)
+  self.visible.set(items.length() > 0)
+  let idx = self.selected_idx.get()
+  if idx < 0 || idx >= items.length() {
+    self.selected_idx.set(0)
+  }
+}
+
+///|
 /// Get selected index
 pub fn CompletionEngine::get_selected_idx(self : CompletionEngine) -> Int {
   self.selected_idx.get()
