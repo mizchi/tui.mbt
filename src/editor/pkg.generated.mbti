@@ -1,0 +1,167 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/editor"
+
+import {
+  "mizchi/signals/ui",
+  "mizchi/syntree",
+  "mizchi/tui/completion",
+  "mizchi/tui/events",
+  "mizchi/tui/vnode",
+}
+
+// Values
+pub fn editor_cursor_position(EditorState, Int, Int) -> (Int, Int)
+
+pub fn editor_position_for(EditorState, Int, Int, Int, Int) -> (Int, Int)
+
+pub fn handle_key_event(EditorState, @events.KeyEvent) -> Unit
+
+pub fn render_editor(EditorState, Int, Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn tooltip_position(EditorState, Int, Int, TooltipAnchor, Int, Int) -> TooltipRect
+
+// Errors
+
+// Types and methods
+pub(all) struct CompletionAnchor {
+  line : Int
+  col : Int
+}
+
+pub(all) struct CompletionItem {
+  label : String
+  insert_text : String
+  detail : String?
+  documentation : String?
+}
+
+pub(all) struct CompletionRange {
+  start_col : Int
+  end_col : Int
+}
+
+pub(all) struct CompletionRequest {
+  id : Int
+  line : Int
+  col : Int
+  prefix : String
+  line_text : String
+  anchor : CompletionAnchor
+  replace : CompletionRange
+}
+
+pub(all) struct CompletionResponse {
+  id : Int
+  items : Array[CompletionItem]
+  is_incomplete : Bool
+}
+
+pub struct CompletionSession {
+  engine : @completion.CompletionEngine
+  mut items : Array[CompletionItem]
+  mut anchor : CompletionAnchor
+  mut replace : CompletionRange
+  mut request_id : Int
+}
+pub fn CompletionSession::apply_response(Self, CompletionResponse) -> Bool
+pub fn CompletionSession::clear(Self) -> Unit
+pub fn CompletionSession::get_anchor(Self) -> CompletionAnchor
+pub fn CompletionSession::get_items(Self) -> Array[CompletionItem]
+pub fn CompletionSession::get_replace(Self) -> CompletionRange
+pub fn CompletionSession::get_selected_index(Self) -> Int
+pub fn CompletionSession::get_selected_item(Self) -> CompletionItem?
+pub fn CompletionSession::hide(Self) -> Unit
+pub fn CompletionSession::is_visible(Self) -> Bool
+pub fn CompletionSession::new() -> Self
+pub fn CompletionSession::select_next(Self) -> Unit
+pub fn CompletionSession::select_prev(Self) -> Unit
+pub fn CompletionSession::set_request(Self, CompletionRequest) -> Unit
+
+type Document
+
+pub struct EditorState {
+  doc : Document
+  selection : Selection
+  viewport : Viewport
+  mut preferred_col : Int
+  highlight : HighlightState
+}
+pub fn EditorState::caret_col(Self) -> Int
+pub fn EditorState::caret_line(Self) -> Int
+pub fn EditorState::completion_request(Self, Int) -> CompletionRequest
+pub fn EditorState::current_word_bounds(Self) -> (Int, Int)
+pub fn EditorState::current_word_prefix(Self) -> String
+pub fn EditorState::new(String, Int) -> Self
+pub fn EditorState::new_with_filename(String, Int, String) -> Self
+pub fn EditorState::new_with_kind(String, Int, HighlightKind) -> Self
+pub fn EditorState::replace_current_word(Self, String) -> Unit
+pub fn EditorState::replace_selection(Self, String) -> Unit
+pub fn EditorState::scroll_view(Self, Int) -> Unit
+pub fn EditorState::set_height(Self, Int) -> Unit
+
+pub enum HighlightKind {
+  Plain
+  TypeScript
+  Rust
+  Go
+  Python
+  MoonBit
+  Json
+  Yaml
+  Toml
+  Bash
+  C
+  Cpp
+  Markdown
+  Html
+  Css
+}
+pub fn HighlightKind::from_filename(String) -> Self
+
+pub struct HighlightSpan {
+  text : String
+  tag : @syntree.HighlightTag
+}
+
+pub struct HighlightState {
+  kind : HighlightKind
+  mut line_cache : @syntree.LineCache?
+  mut spans : Array[Array[HighlightSpan]]
+}
+
+type Position
+pub impl Eq for Position
+pub impl Show for Position
+
+type Selection
+
+pub(all) struct Tooltip {
+  title : String?
+  content : TooltipContent
+}
+
+pub(all) struct TooltipAnchor {
+  line : Int
+  col : Int
+  prefer_below : Bool
+}
+
+pub(all) enum TooltipContent {
+  Plain(String)
+  Markdown(String)
+}
+
+pub(all) struct TooltipRect {
+  row : Int
+  col : Int
+}
+
+type Viewport
+
+// Type aliases
+pub type CompletionProvider = (CompletionRequest) -> CompletionResponse
+
+pub type CompletionProviderAsync = (CompletionRequest, (CompletionResponse) -> Unit) -> Unit
+
+// Traits
+

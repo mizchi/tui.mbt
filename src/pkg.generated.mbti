@@ -79,9 +79,9 @@ pub fn start_keypress_listener((String) -> Unit) -> Unit
 
 pub fn stop_keypress_listener() -> Unit
 
-pub fn text(String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn text(String, fg? : String, bold? : Bool, underline? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn text_dyn(() -> String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool, underline? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 

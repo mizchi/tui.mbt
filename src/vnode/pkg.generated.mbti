@@ -78,9 +78,9 @@ pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Un
 
 pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
-pub fn text(String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn text(String, fg? : String, bold? : Bool, underline? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
 
-pub fn text_dyn(() -> String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool, underline? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn text_node(TextProps) -> @ui.Node[TuiEvent, TuiAttrValue]
 

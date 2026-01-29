@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/term"
+
+import {
+  "mizchi/tui/events",
+  "mizchi/tui/io",
+}
+
+// Values
+pub fn cleanup_stdin() -> Unit
+
+pub fn enable_raw_mode() -> Unit
+
+pub fn get_terminal_size() -> (Int, Int)
+
+pub fn parse_input(String) -> @events.InputEvent
+
+pub fn print_raw(String) -> Unit
+
+pub async fn read_key() -> String
+
+pub fn start_keypress_listener((String) -> Unit) -> Unit
+
+pub fn stop_keypress_listener() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @events {type HitTestResult}
+
+pub using @events {type InputEvent}
+
+pub using @io {type InputResult}
+
+pub using @events {type KeyEvent}
+
+pub using @events {type KeyModifier}
+
+pub using @events {type MouseButton}
+
+pub using @events {type MouseEvent}
+
+pub using @events {type MouseEventType}
+
+pub using @events {type SpecialKey}
+
+// Traits
+

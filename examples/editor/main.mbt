@@ -58,6 +58,39 @@ fn filter_candidates(prefix : String) -> Array[String] {
 }
 
 ///|
+extern "js" fn js_read_file(path : String) -> String? =
+  #|(path) => {
+  #|  try {
+  #|    const fs = require('fs');
+  #|    return fs.readFileSync(path, 'utf8');
+  #|  } catch (e) {
+  #|    return null;
+  #|  }
+  #|}
+
+///|
+extern "js" fn js_get_args() -> Array[String] =
+  #|() => {
+  #|  return process.argv.slice(2);
+  #|}
+
+///|
+fn load_file_or_sample() -> (String, String) {
+  let args = js_get_args()
+  if args.length() > 0 {
+    let filename = args[0]
+    match js_read_file(filename) {
+      Some(content) => (content, filename)
+      None => {
+        println("Failed to read file: \{filename}")
+        (sample_text(), "sample.ts")
+      }
+    }
+  } else {
+    (sample_text(), "sample.ts")
+  }
+}
+
 ///|
 fn main {
   let (initial_width, initial_height) = @term.get_terminal_size()
@@ -65,7 +98,8 @@ fn main {
   let mut height = initial_height
   let app = @vnode.VNodeApp::new(width, height)
   let editor_height = if height > 2 { height - 2 } else { 1 }
-  let state = @editor.EditorState::new(sample_text(), editor_height)
+  let (text, filename) = load_file_or_sample()
+  let state = @editor.EditorState::new_with_filename(text, editor_height, filename)
   let completion_session = @editor.CompletionSession::new()
   let max_items = 6
   let suppress_popup : Ref[Bool] = Ref::new(false)

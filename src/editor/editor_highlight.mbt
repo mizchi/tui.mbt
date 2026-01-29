@@ -1,6 +1,41 @@
 ///|
 pub enum HighlightKind {
+  Plain
   TypeScript
+  Rust
+  Go
+  Python
+  MoonBit
+  Json
+  Yaml
+  Toml
+  Bash
+  C
+  Cpp
+  Markdown
+  Html
+  Css
+}
+
+///|
+pub fn HighlightKind::from_filename(filename : String) -> HighlightKind {
+  match @syntree.get_language_for_filename(filename) {
+    Some("typescript") => TypeScript
+    Some("rust") => Rust
+    Some("go") => Go
+    Some("python") => Python
+    Some("moonbit") => MoonBit
+    Some("json") => Json
+    Some("yaml") => Yaml
+    Some("toml") => Toml
+    Some("bash") => Bash
+    Some("c") => C
+    Some("cpp") => Cpp
+    Some("mdx") => Markdown
+    Some("html") => Html
+    Some("css") => Css
+    _ => Plain
+  }
 }
 
 ///|
@@ -80,10 +115,34 @@ fn highlight_color(
 }
 
 ///|
+fn get_highlighter(
+  kind : HighlightKind,
+) -> ((String) -> Array[@syntree.HighlightToken])? {
+  match kind {
+    Plain => None
+    TypeScript => Some(@syn_ts.highlight_typescript)
+    Rust => Some(@syn_rust.highlight_rust)
+    Go => Some(@syn_go.highlight_go)
+    Python => Some(@syn_python.highlight_python)
+    MoonBit => Some(@syn_mbt.highlight_moonbit)
+    Json => Some(@syn_json.highlight_json)
+    Yaml => Some(@syn_yaml.highlight_yaml)
+    Toml => Some(@syn_toml.highlight_toml)
+    Bash => Some(@syn_bash.highlight_bash)
+    C => Some(@syn_c.highlight_c)
+    Cpp => Some(@syn_cpp.highlight_cpp)
+    Markdown => Some(@syn_mdx.highlight_mdx)
+    Html => Some(@syn_html.highlight_html)
+    Css => Some(@syn_css.highlight_css)
+  }
+}
+
+///|
 fn HighlightState::new(kind : HighlightKind, doc : Document) -> HighlightState {
   let text = doc.to_text()
-  let cache = match kind {
-    TypeScript => Some(@syntree.LineCache::new(text, @syn_ts.highlight_typescript))
+  let cache = match get_highlighter(kind) {
+    Some(highlighter) => Some(@syntree.LineCache::new(text, highlighter))
+    None => None
   }
   let state : HighlightState = { kind, line_cache: cache, spans: [] }
   state.rebuild(doc)
@@ -108,38 +167,28 @@ fn HighlightState::update(
   doc : Document,
   edit_line : Int,
 ) -> Unit {
-  match self.kind {
-    TypeScript => {
+  match get_highlighter(self.kind) {
+    Some(highlighter) =>
       match self.line_cache {
         Some(cache) => {
-          let _ = cache.update(doc.to_text(), edit_line, @syn_ts.highlight_typescript)
+          let _ = cache.update(doc.to_text(), edit_line, highlighter)
           ()
         }
-        None => {
-          self.line_cache = Some(
-            @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript),
-          )
-        }
+        None => self.line_cache = Some(@syntree.LineCache::new(doc.to_text(), highlighter))
       }
-    }
+    None => ()
   }
   self.rebuild(doc)
 }
 
 ///|
 fn HighlightState::rebuild(self : HighlightState, doc : Document) -> Unit {
-  match self.kind {
-    TypeScript => {
-      match self.line_cache {
-        Some(cache) => {
-          let tokens = cache.all_tokens()
-          self.spans = build_highlight_line_spans(doc, tokens)
-        }
-        None => {
-          self.spans = build_plain_spans(doc)
-        }
-      }
+  match self.line_cache {
+    Some(cache) => {
+      let tokens = cache.all_tokens()
+      self.spans = build_highlight_line_spans(doc, tokens)
     }
+    None => self.spans = build_plain_spans(doc)
   }
 }
 

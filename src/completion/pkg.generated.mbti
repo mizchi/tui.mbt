@@ -47,6 +47,7 @@ pub fn CompletionEngine::new() -> Self
 pub fn CompletionEngine::select_next(Self) -> Unit
 pub fn CompletionEngine::select_prev(Self) -> Unit
 pub fn CompletionEngine::set_input(Self, String) -> Int
+pub fn CompletionEngine::set_items(Self, Array[String]) -> Unit
 pub fn CompletionEngine::set_loading(Self, Bool) -> Unit
 pub fn CompletionEngine::set_selected_idx(Self, Int) -> Unit
 

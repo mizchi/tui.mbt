@@ -47,12 +47,31 @@ fn slice_chars(chars : Array[Char], start : Int, end : Int) -> String {
 
 ///|
 pub fn EditorState::new(text : String, height : Int) -> EditorState {
+  EditorState::new_with_kind(text, height, HighlightKind::TypeScript)
+}
+
+///|
+pub fn EditorState::new_with_kind(
+  text : String,
+  height : Int,
+  kind : HighlightKind,
+) -> EditorState {
   let doc = Document::from_text(text)
   let caret : Position = { line: 0, col: 0 }
   let selection = Selection::caret(caret)
   let viewport = Viewport::new(height)
-  let highlight = HighlightState::new(HighlightKind::TypeScript, doc)
+  let highlight = HighlightState::new(kind, doc)
   { doc, selection, viewport, preferred_col: 0, highlight }
+}
+
+///|
+pub fn EditorState::new_with_filename(
+  text : String,
+  height : Int,
+  filename : String,
+) -> EditorState {
+  let kind = HighlightKind::from_filename(filename)
+  EditorState::new_with_kind(text, height, kind)
 }
 
 ///|
