@@ -524,6 +524,10 @@ fn main {
 
   // Set up file watcher callback
   on_file_change.val = fn() {
+    // Skip refresh if user is actively editing to avoid cursor reset
+    if preview_editing.get() || editing.get() {
+      return
+    }
     file_tree.refresh()
     if preview_visible.get() && file_tree.preview_file.length() > 0 {
       file_tree.load_selected_preview()
