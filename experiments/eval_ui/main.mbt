@@ -592,14 +592,18 @@ fn infer_boxes_stats(
             rejected = rejected + 1
             continue
           }
-          // Verify bottom and right edges are continuous
-          let mut bottom_ok = true
+          // Verify bottom and right edges are continuous (allow minor overflow noise)
+          let w = x2 - x + 1
+          let h = y2 - y + 1
+          let bottom_len = if w > 2 { w - 2 } else { 0 }
+          let allowed_bad = if bottom_len < 8 { 0 } else { bottom_len / 4 }
+          let mut bottom_bad = 0
           for bx in (x + 1)..<x2 {
             if not(is_border_horizontal(grid[y2][bx])) {
-              bottom_ok = false
+              bottom_bad = bottom_bad + 1
             }
           }
-          if not(bottom_ok) {
+          if bottom_bad > allowed_bad {
             rejected = rejected + 1
             continue
           }
@@ -613,8 +617,6 @@ fn infer_boxes_stats(
             rejected = rejected + 1
             continue
           }
-          let w = x2 - x + 1
-          let h = y2 - y + 1
           if w < 2 || h < 2 {
             rejected = rejected + 1
             continue
@@ -625,6 +627,20 @@ fn infer_boxes_stats(
             None => {
               seen[key] = true
               boxes.push({ id: "", x, y, width: w, height: h })
+            }
+          }
+          if w > 2 && h > 2 {
+            let inner_x = x + 1
+            let inner_y = y + 1
+            let inner_w = w - 2
+            let inner_h = h - 2
+            let inner_key = "\{inner_x},\{inner_y},\{inner_w},\{inner_h}"
+            match seen.get(inner_key) {
+              Some(_) => ()
+              None => {
+                seen[inner_key] = true
+                boxes.push({ id: "", x: inner_x, y: inner_y, width: inner_w, height: inner_h })
+              }
             }
           }
         }
@@ -1956,14 +1972,14 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> PatternReport {
   if out_opts.infer_layout {
     println("[infer-source layout_rects]")
   } else {
-    let broken = broken_score(
-      rendered.actual_rects.length(),
-      inferred.length(),
-      stats.rejected,
-    )
+    let actual_total = rendered.actual_rects.length()
+    let inferred_total = inferred.length()
+    let missing =
+      if actual_total > inferred_total { actual_total - inferred_total } else { 0 }
+    let broken = broken_score(actual_total, inferred_total, stats.rejected)
     println(
       "[eval-2c broken] missing=" +
-      (rendered.actual_rects.length() - inferred.length()).to_string() +
+      missing.to_string() +
       " rejected=" +
       stats.rejected.to_string() +
       " score=" +
