@@ -1,5 +1,5 @@
 ///|
-struct EditorState {
+pub struct EditorState {
   doc : Document
   selection : Selection
   viewport : Viewport
@@ -8,7 +8,7 @@ struct EditorState {
 }
 
 ///|
-fn EditorState::new(text : String, height : Int) -> EditorState {
+pub fn EditorState::new(text : String, height : Int) -> EditorState {
   let doc = Document::from_text(text)
   let caret = { line: 0, col: 0 }
   let selection = Selection::caret(caret)
@@ -23,7 +23,7 @@ fn EditorState::caret(self : EditorState) -> Position {
 }
 
 ///|
-fn EditorState::set_height(self : EditorState, height : Int) -> Unit {
+pub fn EditorState::set_height(self : EditorState, height : Int) -> Unit {
   self.viewport.set_height(height)
   let caret = self.caret()
   self.viewport.ensure_visible(caret.line, self.doc.line_count())
@@ -49,7 +49,7 @@ fn EditorState::set_caret(
 }
 
 ///|
-fn EditorState::replace_selection(self : EditorState, text : String) -> Unit {
+pub fn EditorState::replace_selection(self : EditorState, text : String) -> Unit {
   let (start, end) = self.selection.ordered()
   let edit_line = start.line
   if !self.selection.is_empty() {
@@ -200,6 +200,6 @@ fn EditorState::move_page_down(self : EditorState, extend : Bool) -> Unit {
 }
 
 ///|
-fn EditorState::scroll_view(self : EditorState, delta : Int) -> Unit {
+pub fn EditorState::scroll_view(self : EditorState, delta : Int) -> Unit {
   self.viewport.scroll(delta, self.doc.line_count())
 }

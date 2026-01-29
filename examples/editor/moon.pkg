@@ -1,13 +1,7 @@
 import {
-  "mizchi/tui",
-  "mizchi/tui/core",
-  "mizchi/tui/render",
   "mizchi/tui/vnode",
-  "mizchi/tui/io",
-  "mizchi/signals",
-  "mizchi/syntree" as @syntree,
-  "mizchi/syntree/highlight" as @syn_highlight,
-  "mizchi/syntree/typescript" as @syn_ts,
+  "mizchi/tui/term",
+  "mizchi/tui/editor",
 }
 
 options(

@@ -1,7 +1,7 @@
 using @vnode { type TuiNode, column, row, text }
 
 ///|
-struct RenderSegment {
+priv struct RenderSegment {
   text : String
   tag : @syntree.HighlightTag
   is_caret : Bool
@@ -135,7 +135,7 @@ fn render_line(
 }
 
 ///|
-fn render_editor(state : EditorState, width : Int, height : Int) -> TuiNode {
+pub fn render_editor(state : EditorState, width : Int, height : Int) -> TuiNode {
   let header_height = 1
   let footer_height = 1
   let content_height = if height - header_height - footer_height > 0 {

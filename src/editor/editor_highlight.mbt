@@ -1,16 +1,16 @@
 ///|
-enum HighlightKind {
+pub enum HighlightKind {
   TypeScript
 }
 
 ///|
-struct HighlightSpan {
+pub struct HighlightSpan {
   text : String
   tag : @syntree.HighlightTag
 }
 
 ///|
-struct HighlightState {
+pub struct HighlightState {
   kind : HighlightKind
   mut line_cache : @syntree.LineCache?
   mut spans : Array[Array[HighlightSpan]]

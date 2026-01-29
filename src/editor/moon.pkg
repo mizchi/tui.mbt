@@ -1,0 +1,7 @@
+import {
+  "mizchi/tui/vnode",
+  "mizchi/tui/events",
+  "mizchi/syntree",
+  "mizchi/syntree/highlight" as @syn_highlight,
+  "mizchi/syntree/typescript" as @syn_ts,
+}
