@@ -208,7 +208,9 @@ fn main {
   let preview_visible = @signals.signal(false)
 
   // Layout constants
-  let input_rows = 3
+  let input_rows = @signals.signal(3)
+  let input_min_rows = 1
+  let input_max_rows = 15
   let divider_rows = 1
   let footer_rows = 1
   let sidebar_width = @signals.signal(28)
@@ -217,14 +219,15 @@ fn main {
 
   fn get_chat_width() -> Int {
     if sidebar_visible.get() {
-      width.val - sidebar_width.get() - 1 // 1 for border
+      // Border is already part of sidebar_width (filer renders content + border)
+      width.val - sidebar_width.get()
     } else {
       width.val
     }
   }
 
   fn message_area_height() -> Int {
-    height.val - input_rows - divider_rows - footer_rows - 1
+    height.val - input_rows.get() - divider_rows - footer_rows - 1
   }
 
   // Sync preview content to preview editor
@@ -354,9 +357,13 @@ fn main {
   fn render_input() -> TuiNode {
     let current = input_editor.get_text()
     let chat_width = get_chat_width()
+    let rows = input_rows.get()
     if editing.get() {
       // Use editor component without header/footer for input
-      @editor.render_editor(input_editor, chat_width, input_rows, show_header=false, show_footer=false)
+      // Wrap in column with explicit height to ensure consistent layout
+      column(height=rows.to_double(), min_width=chat_width.to_double(), [
+        @editor.render_editor(input_editor, chat_width, rows, show_header=false, show_footer=false),
+      ])
     } else {
       // Show placeholder when not editing
       let display_text = if current.length() == 0 {
@@ -370,7 +377,7 @@ fn main {
         "white"
       }
       let truncated_display = truncate_text(" " + display_text, chat_width - 1)
-      column(height=input_rows.to_double(), min_width=chat_width.to_double(), [
+      column(height=rows.to_double(), min_width=chat_width.to_double(), [
         row(id="input-line", min_width=chat_width.to_double(), [
           text(truncated_display, fg~),
         ]),
@@ -401,7 +408,15 @@ fn main {
     } else {
       "b:tree"
     }
+    let rows_hint = if not(editing.get()) &&
+      not(sidebar_focused.get()) &&
+      not(preview_visible.get()) {
+      " j/k:rows"
+    } else {
+      ""
+    }
     let status = sidebar_hint +
+      rows_hint +
       " | \u{2191}\u{2193}:scroll | ^C:quit" +
       msg_count +
       queue_info
@@ -415,8 +430,11 @@ fn main {
     let area_height = message_area_height()
     if preview_visible.get() && file_tree.preview_file.length() > 0 {
       // Show file preview using editor
+      // Wrap in column with explicit height to ensure consistent layout
       let filename = @ai.js_path_basename(file_tree.preview_file)
-      @editor.render_editor(preview_editor.val, chat_width, area_height, show_footer=false, title=filename)
+      column(height=area_height.to_double(), min_width=chat_width.to_double(), [
+        @editor.render_editor(preview_editor.val, chat_width, area_height, show_footer=false, title=filename),
+      ])
     } else {
       // Show messages
       render_messages()
@@ -475,7 +493,7 @@ fn main {
       let (cursor_row, cursor_col) = @editor.editor_cursor_position(
         input_editor,
         chat_width,
-        input_rows,
+        input_rows.get(),
         show_header=false,
         show_footer=false,
       )
@@ -753,6 +771,7 @@ fn main {
   and start_editing: () -> Unit = fn() {
     @io.stop_keypress_listener()
     editing.set(true)
+    preview_visible.set(false) // Hide file preview when entering edit mode
     @tui.enable_raw_mode()
     do_render()
     @io.start_keypress_listener(handle_edit_key)
@@ -906,20 +925,38 @@ fn main {
               do_render()
             }
           }
-          // 'j': scroll preview down (when preview is visible)
+          // 'j': scroll preview down or expand input area
           @tui.KeyEvent::Char('j', @tui.KeyModifier::None) => {
             if preview_visible.get() && file_tree.preview_file.length() > 0 {
               let preview_height = height.val - 2 - 1 // filer_height - header
               file_tree.scroll_preview(1, preview_height)
               do_render()
+            } else if not(sidebar_focused.get()) {
+              // Expand input area
+              let new_rows = input_rows.get() + 1
+              if new_rows <= input_max_rows {
+                input_rows.set(new_rows)
+                input_editor.set_height(new_rows)
+                app.clear_prev_buffer()
+                do_render()
+              }
             }
           }
-          // 'k': scroll preview up (when preview is visible)
+          // 'k': scroll preview up or shrink input area
           @tui.KeyEvent::Char('k', @tui.KeyModifier::None) => {
             if preview_visible.get() && file_tree.preview_file.length() > 0 {
               let preview_height = height.val - 2 - 1 // filer_height - header
               file_tree.scroll_preview(-1, preview_height)
               do_render()
+            } else if not(sidebar_focused.get()) {
+              // Shrink input area
+              let new_rows = input_rows.get() - 1
+              if new_rows >= input_min_rows {
+                input_rows.set(new_rows)
+                input_editor.set_height(new_rows)
+                app.clear_prev_buffer()
+                do_render()
+              }
             }
           }
           // Ctrl+Enter: focus input form directly (from sidebar)
@@ -940,6 +977,7 @@ fn main {
                   // Insert file path into input
                   input_editor.replace_selection(file_path)
                   sidebar_focused.set(false)
+                  app.clear_prev_buffer()
                   start_editing()
                 }
                 None => {

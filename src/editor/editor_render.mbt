@@ -186,8 +186,9 @@ pub fn render_editor(
   }
   let total_lines = state.doc.line_count()
   let gutter_width = total_lines.to_string().length()
-  let content_width = if width - gutter_width - 2 > 0 {
-    width - gutter_width - 2
+  // gutter takes gutter_width + 1 characters (line number + space)
+  let content_width = if width - gutter_width - 1 > 0 {
+    width - gutter_width - 1
   } else {
     1
   }
@@ -269,8 +270,9 @@ pub fn editor_position_for(
   }
   let total_lines = state.doc.line_count()
   let gutter_width = total_lines.to_string().length()
-  let content_width = if width - gutter_width - 2 > 0 {
-    width - gutter_width - 2
+  // gutter takes gutter_width + 1 characters (line number + space)
+  let content_width = if width - gutter_width - 1 > 0 {
+    width - gutter_width - 1
   } else {
     1
   }
