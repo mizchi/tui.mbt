@@ -1,6 +1,7 @@
 import {
   "mizchi/tui/vnode",
   "mizchi/tui/term",
+  "mizchi/tui/render",
   "mizchi/tui/editor",
 }
 

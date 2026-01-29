@@ -722,15 +722,19 @@ pub fn text(
   content : String,
   fg? : String = "",
   bold? : Bool = false,
+  underline? : Bool = false,
   role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold || role.length() > 0 {
+  if fg.length() > 0 || bold || underline || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
     }
     if bold {
       attrs.push(("bold", attr(TuiAttrValue::Bold(true))))
+    }
+    if underline {
+      attrs.push(("underline", attr(TuiAttrValue::Underline(true))))
     }
     if role.length() > 0 {
       attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
@@ -747,15 +751,19 @@ pub fn text_dyn(
   getter : () -> String,
   fg? : String = "",
   bold? : Bool = false,
+  underline? : Bool = false,
   role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold || role.length() > 0 {
+  if fg.length() > 0 || bold || underline || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
     }
     if bold {
       attrs.push(("bold", attr(TuiAttrValue::Bold(true))))
+    }
+    if underline {
+      attrs.push(("underline", attr(TuiAttrValue::Underline(true))))
     }
     if role.length() > 0 {
       attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))

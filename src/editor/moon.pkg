@@ -1,4 +1,5 @@
 import {
+  "mizchi/tui/core",
   "mizchi/tui/vnode",
   "mizchi/tui/events",
   "mizchi/syntree",

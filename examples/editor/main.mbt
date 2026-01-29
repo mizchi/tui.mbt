@@ -32,7 +32,11 @@ fn main {
   }
 
   fn do_render() -> Unit {
-    @term.print_raw(app.render_frame(render_ui()))
+    let frame = app.render_frame(render_ui())
+    let (row, col) = @editor.editor_cursor_position(state, width, height)
+    @term.print_raw(
+      frame + @render.ansi_move_to(row, col) + @render.ansi_show_cursor(),
+    )
   }
 
   fn cleanup() -> Unit {
@@ -42,6 +46,13 @@ fn main {
   }
 
   fn handle_input(input : String) -> Unit {
+    if input.length() > 1 &&
+      input[0].to_int() != 0x1b &&
+      @vnode.is_printable_string(input) {
+      state.replace_selection(input)
+      do_render()
+      return
+    }
     let event = @term.parse_input(input)
     if event.is_ctrl_c() || event.is_escape() {
       cleanup()

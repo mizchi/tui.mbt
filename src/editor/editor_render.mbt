@@ -21,17 +21,51 @@ fn truncate_spans(
     if remaining <= 0 {
       break
     }
-    let len = span.text.length()
-    if len <= remaining {
+    let span_width = @core.string_display_width(span.text)
+    if span_width <= remaining {
       result.push(span)
-      remaining = remaining - len
+      remaining = remaining - span_width
     } else {
-      let text = span.text.unsafe_substring(start=0, end=remaining)
-      result.push({ text, tag: span.tag })
+      let text = take_display_width(span.text, remaining)
+      if text.length() > 0 {
+        result.push({ text, tag: span.tag })
+      }
       break
     }
   }
   result
+}
+
+///|
+fn take_display_width(text : String, max_width : Int) -> String {
+  if max_width <= 0 {
+    return ""
+  }
+  let sb = StringBuilder::new()
+  let mut width = 0
+  for c in text {
+    let w = @core.char_display_width(c)
+    if width + w > max_width {
+      break
+    }
+    sb.write_char(c)
+    width = width + w
+  }
+  sb.to_string()
+}
+
+///|
+fn display_width_prefix(text : String, char_count : Int) -> Int {
+  if char_count <= 0 {
+    return 0
+  }
+  let chars = text.to_array()
+  let limit = if char_count > chars.length() { chars.length() } else { char_count }
+  let mut width = 0
+  for i in 0..<limit {
+    width = width + @core.char_display_width(chars[i])
+  }
+  width
 }
 
 ///|
@@ -186,4 +220,48 @@ pub fn render_editor(state : EditorState, width : Int, height : Int) -> TuiNode 
       [text(" " + status, fg="rgb(160,160,160)")],
     ),
   ])
+}
+
+///|
+pub fn editor_cursor_position(
+  state : EditorState,
+  width : Int,
+  height : Int,
+) -> (Int, Int) {
+  let header_height = 1
+  let footer_height = 1
+  let content_height = if height - header_height - footer_height > 0 {
+    height - header_height - footer_height
+  } else {
+    1
+  }
+  let total_lines = state.doc.line_count()
+  let gutter_width = total_lines.to_string().length()
+  let content_width = if width - gutter_width - 2 > 0 {
+    width - gutter_width - 2
+  } else {
+    1
+  }
+  let (start, end) = state.viewport.range(total_lines)
+  let caret = state.selection.active
+  let line = if caret.line < start {
+    start
+  } else if caret.line >= end {
+    end - 1
+  } else {
+    caret.line
+  }
+  let row = header_height + (line - start)
+  let line_text = state.doc.line(line)
+  let display_col = display_width_prefix(line_text, caret.col)
+  let col_in_line = if display_col < content_width {
+    display_col
+  } else {
+    content_width - 1
+  }
+  let col = gutter_width + 1 + col_in_line
+  let max_row = header_height + content_height - 1
+  let safe_row = if row < 0 { 0 } else if row > max_row { max_row } else { row }
+  let safe_col = if col < 0 { 0 } else if col >= width { width - 1 } else { col }
+  (safe_row, safe_col)
 }
