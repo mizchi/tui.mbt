@@ -10,13 +10,13 @@ import {
 }
 
 // Values
-pub fn editor_cursor_position(EditorState, Int, Int) -> (Int, Int)
+pub fn editor_cursor_position(EditorState, Int, Int, show_header? : Bool, show_footer? : Bool) -> (Int, Int)
 
-pub fn editor_position_for(EditorState, Int, Int, Int, Int) -> (Int, Int)
+pub fn editor_position_for(EditorState, Int, Int, Int, Int, show_header? : Bool, show_footer? : Bool) -> (Int, Int)
 
 pub fn handle_key_event(EditorState, @events.KeyEvent) -> Unit
 
-pub fn render_editor(EditorState, Int, Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn render_editor(EditorState, Int, Int, show_header? : Bool, show_footer? : Bool, title? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn tooltip_position(EditorState, Int, Int, TooltipAnchor, Int, Int) -> TooltipRect
 

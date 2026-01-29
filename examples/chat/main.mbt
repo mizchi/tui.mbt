@@ -184,8 +184,10 @@ fn main {
 
   // State
   let messages : Array[Message] = []
-  let editor_state = @editor.EditorState::new_with_filename("", 3, "input.txt")
+  let input_editor = @editor.EditorState::new_with_kind("", 3, @editor.HighlightKind::Plain)
+  let preview_editor : Ref[@editor.EditorState] = Ref::new(@editor.EditorState::new_with_kind("", 10, @editor.HighlightKind::Plain))
   let editing = @signals.signal(false)
+  let preview_editing = @signals.signal(false)
   let scroll_offset = @signals.signal(0)
   let streaming = StreamingState::new()
   let input_queue = InputQueue::new()
@@ -223,6 +225,20 @@ fn main {
 
   fn message_area_height() -> Int {
     height.val - input_rows - divider_rows - footer_rows - 1
+  }
+
+  // Sync preview content to preview editor
+  fn sync_preview_editor() -> Unit {
+    if file_tree.preview_file.length() > 0 && not(file_tree.preview_is_diff) {
+      let kind = @editor.HighlightKind::from_filename(file_tree.preview_file)
+      let area_height = message_area_height()
+      // Create new editor state with file content and proper highlighting
+      preview_editor.val = @editor.EditorState::new_with_kind(
+        file_tree.preview_content,
+        area_height,
+        kind,
+      )
+    }
   }
 
   // AI client (Claude or OpenRouter)
@@ -330,15 +346,17 @@ fn main {
   fn render_divider() -> TuiNode {
     let color = if editing.get() { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
     let chat_width = get_chat_width()
-    text("\u{2500}".repeat(chat_width), fg=color)
+    row(height=1.0, min_width=chat_width.to_double(), [
+      text("\u{2500}".repeat(chat_width), fg=color),
+    ])
   }
 
   fn render_input() -> TuiNode {
-    let current = editor_state.get_text()
+    let current = input_editor.get_text()
     let chat_width = get_chat_width()
     if editing.get() {
-      // Use editor component when editing
-      @editor.render_editor(editor_state, chat_width, input_rows)
+      // Use editor component without header/footer for input
+      @editor.render_editor(input_editor, chat_width, input_rows, show_header=false, show_footer=false)
     } else {
       // Show placeholder when not editing
       let display_text = if current.length() == 0 {
@@ -387,7 +405,7 @@ fn main {
       " | \u{2191}\u{2193}:scroll | ^C:quit" +
       msg_count +
       queue_info
-    row(min_width=chat_width.to_double(), [
+    row(height=1.0, min_width=chat_width.to_double(), [
       text(" " + truncate_text(status, chat_width - 2), fg="rgb(80,80,80)"),
     ])
   }
@@ -396,8 +414,9 @@ fn main {
     let chat_width = get_chat_width()
     let area_height = message_area_height()
     if preview_visible.get() && file_tree.preview_file.length() > 0 {
-      // Show file preview in message area
-      render_file_preview(file_tree, chat_width, area_height)
+      // Show file preview using editor
+      let filename = @ai.js_path_basename(file_tree.preview_file)
+      @editor.render_editor(preview_editor.val, chat_width, area_height, show_footer=false, title=filename)
     } else {
       // Show messages
       render_messages()
@@ -431,15 +450,34 @@ fn main {
   fn do_render() -> Unit {
     let output = app.render_frame(render_ui())
     @tui.print_raw(output)
-    // Position cursor at input line
-    if editing.get() {
+    // Position cursor
+    if preview_editing.get() {
+      // Cursor in preview editor
       let chat_width = get_chat_width()
-      let editor_x = if sidebar_visible.get() { sidebar_width.get() + 1 } else { 0 }
+      let area_height = message_area_height()
+      let editor_x = if sidebar_visible.get() { sidebar_width.get() } else { 0 }
+      let editor_y = 0
+      let (cursor_row, cursor_col) = @editor.editor_cursor_position(
+        preview_editor.val,
+        chat_width,
+        area_height,
+        show_footer=false,
+      )
+      @tui.print_raw(
+        @render.ansi_move_to(editor_y + cursor_row, editor_x + cursor_col) +
+        @render.ansi_show_cursor(),
+      )
+    } else if editing.get() {
+      // Cursor in input editor
+      let chat_width = get_chat_width()
+      let editor_x = if sidebar_visible.get() { sidebar_width.get() } else { 0 }
       let editor_y = message_area_height() + divider_rows
       let (cursor_row, cursor_col) = @editor.editor_cursor_position(
-        editor_state,
+        input_editor,
         chat_width,
         input_rows,
+        show_header=false,
+        show_footer=false,
       )
       @tui.print_raw(
         @render.ansi_move_to(editor_y + cursor_row, editor_x + cursor_col) +
@@ -663,10 +701,10 @@ fn main {
 
   // Mutually recursive input handling
   letrec restore_tui_and_send: () -> Unit = fn() {
-    let raw = editor_state.get_text()
+    let raw = input_editor.get_text()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
-      editor_state.set_text("")
+      input_editor.set_text("")
       // Handle slash commands
       if text == "/compact" {
         @tui.print_raw(@render.ansi_full_reset())
@@ -727,7 +765,7 @@ fn main {
     if key.length() > 1 &&
       key[0].to_int() != 0x1b &&
       @tui.is_printable_string(key) {
-      editor_state.replace_selection(key)
+      input_editor.replace_selection(key)
       do_render()
       return
     }
@@ -754,7 +792,53 @@ fn main {
             restore_tui_and_send()
           // Other keys: delegate to editor
           _ => {
-            @editor.handle_key_event(editor_state, key_event)
+            @editor.handle_key_event(input_editor, key_event)
+            do_render()
+          }
+        }
+      _ => ()
+    }
+  }
+  and start_preview_editing: () -> Unit = fn() {
+    @io.stop_keypress_listener()
+    preview_editing.set(true)
+    @tui.enable_raw_mode()
+    do_render()
+    @io.start_keypress_listener(handle_preview_edit_key)
+  }
+  and handle_preview_edit_key: (String) -> Unit = fn(key) {
+    if key.length() == 0 {
+      return
+    }
+    // Handle multi-character printable input (IME)
+    if key.length() > 1 &&
+      key[0].to_int() != 0x1b &&
+      @tui.is_printable_string(key) {
+      preview_editor.val.replace_selection(key)
+      do_render()
+      return
+    }
+    let event = @tui.parse_input(key)
+    if event.is_ctrl_c() {
+      do_quit()
+      return
+    }
+    match event {
+      @tui.InputEvent::Key(key_event) =>
+        match key_event {
+          // Escape: go back to sidebar
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
+            @io.stop_keypress_listener()
+            preview_editing.set(false)
+            sidebar_focused.set(true)
+            @tui.print_raw(@render.ansi_full_reset())
+            app.clear_prev_buffer()
+            do_render()
+            @io.start_keypress_listener(handle_key)
+          }
+          // Other keys: delegate to preview editor
+          _ => {
+            @editor.handle_key_event(preview_editor.val, key_event)
             do_render()
           }
         }
@@ -781,6 +865,7 @@ fn main {
               // Load preview when focusing on sidebar
               if new_focused {
                 file_tree.load_selected_preview()
+                sync_preview_editor()
                 if file_tree.preview_file.length() > 0 {
                   preview_visible.set(true)
                 }
@@ -853,7 +938,7 @@ fn main {
               match file_tree.enter_selected() {
                 Some(file_path) => {
                   // Insert file path into input
-                  editor_state.replace_selection(file_path)
+                  input_editor.replace_selection(file_path)
                   sidebar_focused.set(false)
                   start_editing()
                 }
@@ -884,6 +969,7 @@ fn main {
               }
               // Auto-load preview for selected file
               file_tree.load_selected_preview()
+              sync_preview_editor()
               if file_tree.preview_file.length() > 0 {
                 preview_visible.set(true)
               }
@@ -907,6 +993,7 @@ fn main {
               }
               // Auto-load preview for selected file
               file_tree.load_selected_preview()
+              sync_preview_editor()
               if file_tree.preview_file.length() > 0 {
                 preview_visible.set(true)
               }
@@ -934,6 +1021,7 @@ fn main {
             if sidebar_focused.get() {
               file_tree.collapse_selected()
               file_tree.load_selected_preview()
+              sync_preview_editor()
               if file_tree.preview_file.length() > 0 {
                 preview_visible.set(true)
               } else {
@@ -943,18 +1031,19 @@ fn main {
               do_render()
             }
           }
-          // Right arrow: expand directory, select file, or move to editor (when sidebar focused)
+          // Right arrow: expand directory, select file, or move to preview editor (when sidebar focused)
           @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) => {
             if sidebar_focused.get() {
-              // If preview is already visible (file selected), move to editor
+              // If preview is already visible (file selected), move to preview editor
               if preview_visible.get() && file_tree.preview_file.length() > 0 {
                 sidebar_focused.set(false)
-                start_editing()
+                start_preview_editing()
               } else {
                 match file_tree.toggle_selected() {
                   Some(file_path) => {
                     // File selected - load preview
                     file_tree.load_preview(file_path)
+                    sync_preview_editor()
                     preview_visible.set(true)
                     app.clear_prev_buffer()
                     do_render()
@@ -962,6 +1051,7 @@ fn main {
                   None => {
                     // Directory toggled
                     file_tree.load_selected_preview()
+                    sync_preview_editor()
                     if file_tree.preview_file.length() > 0 {
                       preview_visible.set(true)
                     } else {
@@ -1015,6 +1105,7 @@ fn main {
                       Some(file_path) => {
                         // File was clicked - load preview
                         file_tree.load_preview(file_path)
+                        sync_preview_editor()
                         preview_visible.set(true)
                         app.clear_prev_buffer()
                         do_render()
@@ -1022,6 +1113,7 @@ fn main {
                       None => {
                         // Directory navigation or toggle happened
                         file_tree.load_selected_preview()
+                        sync_preview_editor()
                         if file_tree.preview_file.length() > 0 {
                           preview_visible.set(true)
                         } else {

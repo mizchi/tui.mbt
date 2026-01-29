@@ -169,9 +169,16 @@ fn render_line(
 }
 
 ///|
-pub fn render_editor(state : EditorState, width : Int, height : Int) -> TuiNode {
-  let header_height = 1
-  let footer_height = 1
+pub fn render_editor(
+  state : EditorState,
+  width : Int,
+  height : Int,
+  show_header~ : Bool = true,
+  show_footer~ : Bool = true,
+  title~ : String = "",
+) -> TuiNode {
+  let header_height = if show_header { 1 } else { 0 }
+  let footer_height = if show_footer { 1 } else { 0 }
   let content_height = if height - header_height - footer_height > 0 {
     height - header_height - footer_height
   } else {
@@ -205,21 +212,30 @@ pub fn render_editor(state : EditorState, width : Int, height : Int) -> TuiNode 
   while rows.length() < content_height {
     rows.push(row(height=1.0, [text(" ")]))
   }
-  let caret = state.selection.active
-  let status = "Ln \{caret.line + 1}, Col \{caret.col + 1}"
-  column([
-    row(
-      bg="rgb(30,30,40)",
-      height=1.0,
-      [text(" examples/editor ", fg="rgb(180,180,180)", bold=true)],
-    ),
-    column(rows),
-    row(
-      bg="rgb(30,30,40)",
-      height=1.0,
-      [text(" " + status, fg="rgb(160,160,160)")],
-    ),
-  ])
+  let result : Array[TuiNode] = []
+  if show_header {
+    let header_text = if title.length() > 0 { " " + title + " " } else { " editor " }
+    result.push(
+      row(
+        bg="rgb(30,30,40)",
+        height=1.0,
+        [text(header_text, fg="rgb(180,180,180)", bold=true)],
+      ),
+    )
+  }
+  result.push(column(rows))
+  if show_footer {
+    let caret = state.selection.active
+    let status = "Ln \{caret.line + 1}, Col \{caret.col + 1}"
+    result.push(
+      row(
+        bg="rgb(30,30,40)",
+        height=1.0,
+        [text(" " + status, fg="rgb(160,160,160)")],
+      ),
+    )
+  }
+  column(result)
 }
 
 ///|
@@ -227,9 +243,11 @@ pub fn editor_cursor_position(
   state : EditorState,
   width : Int,
   height : Int,
+  show_header~ : Bool = true,
+  show_footer~ : Bool = true,
 ) -> (Int, Int) {
   let caret = state.selection.active
-  editor_position_for(state, width, height, caret.line, caret.col)
+  editor_position_for(state, width, height, caret.line, caret.col, show_header~, show_footer~)
 }
 
 ///|
@@ -239,9 +257,11 @@ pub fn editor_position_for(
   height : Int,
   line : Int,
   col : Int,
+  show_header~ : Bool = true,
+  show_footer~ : Bool = true,
 ) -> (Int, Int) {
-  let header_height = 1
-  let footer_height = 1
+  let header_height = if show_header { 1 } else { 0 }
+  let footer_height = if show_footer { 1 } else { 0 }
   let content_height = if height - header_height - footer_height > 0 {
     height - header_height - footer_height
   } else {

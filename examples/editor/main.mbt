@@ -92,6 +92,7 @@ fn main {
   let editor_height = if height > 2 { height - 2 } else { 1 }
   let (text, filename) = load_file_or_sample()
   let state = @editor.EditorState::new_with_filename(text, editor_height, filename)
+  let title = filename
   let completion_session = @editor.CompletionSession::new()
   let completion_popup = @editor.CompletionPopup::new(completion_session)
   let suppress_popup : Ref[Bool] = Ref::new(false)
@@ -99,7 +100,7 @@ fn main {
   let completion_request_id : Ref[Int] = Ref::new(0)
 
   fn render_ui() -> @vnode.TuiNode {
-    @editor.render_editor(state, width, height)
+    @editor.render_editor(state, width, height, title~)
   }
 
   fn update_completion() -> Unit {
