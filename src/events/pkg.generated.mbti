@@ -19,6 +19,8 @@ pub fn hit_test(@types.Layout, Int, Int, Int, Int) -> HitTestResult?
 
 pub fn hit_test_root(@types.Layout, Int, Int) -> HitTestResult?
 
+pub fn layout_rects_root(@types.Layout) -> Array[HitTestResult]
+
 pub fn parse_input(String) -> InputEvent
 
 // Errors

@@ -89,6 +89,25 @@ test "VNodeApp: hit test" {
 }
 
 ///|
+test "VNodeApp: layout rects" {
+  let app = VNodeApp::new(20, 5)
+  let node = column(id="root", [row(id="row", [text("A")])])
+  let _ = app.render(node)
+  let rects = app.layout_rects()
+  let mut has_root = false
+  let mut has_row = false
+  for rect in rects {
+    if rect.id == "root" {
+      has_root = true
+    }
+    if rect.id == "row" {
+      has_row = true
+    }
+  }
+  assert_true(has_root && has_row)
+}
+
+///|
 test "render_vnode_once: simple" {
   let output = render_vnode_once(20, 5, text("Test"))
   assert_true(output.contains("Test"))

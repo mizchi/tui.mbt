@@ -1,0 +1,18 @@
+# layout snapshot (p5)
+
+==== p5-menu (400x400) ====
+  menu-header(1,1) 398x12
+  menu-body(1,13) 398x378
+  menu-list(2,14) 120x376
+  menu-detail(122,14) 276x376
+  menu-status(124,16) 272x120
+  menu-info(124,137) 272x251
+  menu-footer(1,391) 398x8
+
+==== p5-battle (400x400) ====
+  battle-enemy(1,1) 398x60
+  battle-log(1,61) 398x218
+  battle-bottom(1,279) 398x120
+  battle-commands(2,280) 140x118
+  battle-party(142,280) 256x118
+

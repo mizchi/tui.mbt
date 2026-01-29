@@ -143,6 +143,32 @@ pub fn find_layout_by_id_root(
 }
 
 ///|
+/// Collect all layout rectangles (absolute coordinates) into a flat list.
+fn collect_layout_rects(
+  layout : @types.Layout,
+  offset_x : Int,
+  offset_y : Int,
+  out : Array[HitTestResult],
+) -> Unit {
+  let x = offset_x + layout.x.to_int()
+  let y = offset_y + layout.y.to_int()
+  let w = layout.width.to_int()
+  let h = layout.height.to_int()
+  out.push({ id: layout.id, x, y, width: w, height: h, role: None })
+  for child in layout.children {
+    collect_layout_rects(child, x, y, out)
+  }
+}
+
+///|
+/// Flatten layout tree into rects (root is included).
+pub fn layout_rects_root(layout : @types.Layout) -> Array[HitTestResult] {
+  let out : Array[HitTestResult] = []
+  collect_layout_rects(layout, 0, 0, out)
+  out
+}
+
+///|
 /// Debug: dump layout tree structure
 pub fn dump_layout(
   layout : @types.Layout,

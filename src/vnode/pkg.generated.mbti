@@ -303,6 +303,7 @@ pub fn VNodeApp::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn VNodeApp::handle_click(Self, @events.MouseEvent) -> String?
 pub fn VNodeApp::hit_test(Self, Int, Int) -> @events.HitTestResult?
 pub fn VNodeApp::init_terminal() -> String
+pub fn VNodeApp::layout_rects(Self) -> Array[@events.HitTestResult]
 pub fn VNodeApp::new(Int, Int) -> Self
 pub fn VNodeApp::render(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 pub fn VNodeApp::render_frame(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String

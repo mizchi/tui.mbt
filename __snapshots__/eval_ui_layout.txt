@@ -1,0 +1,62 @@
+# layout snapshot
+
+==== split (40x12) ====
+  header(1,1) 38x3
+  body(1,4) 38x5
+  sidebar(2,5) 12x3
+  content(14,5) 24x3
+  footer(1,9) 38x3
+
+==== grid (40x12) ====
+  cell-1(1,1) 3x5
+  cell-2(20,1) 3x5
+  cell-3(1,6) 3x5
+  cell-4(20,6) 3x5
+
+==== mixed-borders (42x7) ====
+  rounded(0,0) 12x7
+  double(13,0) 12x7
+  ascii(26,0) 16x7
+
+==== areas (42x12) ====
+  head(1,1) 8x3
+  side(1,4) 6x3
+  main(21,4) 6x3
+  foot(1,7) 8x3
+
+==== deep-nesting (44x18) ====
+  outer(1,1) 42x16
+  row(3,3) 38x7
+  left(5,5) 10x3
+  right(16,5) 23x3
+  bottom(3,11) 38x4
+
+==== asym-layout (50x12) ====
+  main(1,1) 48x10
+  left(2,2) 14x8
+  right(16,2) 32x8
+  top(17,3) 30x3
+  bottom(17,7) 30x3
+
+==== grid-mix (60x16) ====
+  cell-1(1,1) 18x7
+  c1-row(2,2) 16x5
+  c1-left(3,3) 10x3
+  c1-right(14,3) 3x3
+  cell-2(30,1) 5x7
+  c2-inner(31,2) 3x5
+  cell-3(1,8) 5x7
+  c3-inner(2,9) 3x5
+  cell-4(30,8) 29x7
+  c4-row(31,9) 27x5
+  c4-a(32,10) 12x3
+  c4-b(45,10) 12x3
+
+==== padding-gap (42x10) ====
+  row(2,2) 38x7
+  left(4,4) 10x3
+  right(15,4) 23x3
+
+==== overflow (28x6) ====
+  body(1,1) 26x4
+

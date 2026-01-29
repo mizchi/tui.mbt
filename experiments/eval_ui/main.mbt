@@ -66,6 +66,7 @@ struct Pattern {
 struct RenderResult {
   plain_lines : Array[String]
   actual_rects : Array[Rect]
+  layout_rects : Array[Rect]
 }
 
 ///|
@@ -75,6 +76,7 @@ struct OutputOptions {
   clip_h : Int
   clip_x : Int
   clip_y : Int
+  infer_layout : Bool
 }
 
 ///|
@@ -205,23 +207,74 @@ fn plain_lines_from_output(
 }
 
 ///|
-fn rects_from_ids(app : @vnode.VNodeApp, expected : Array[Rect]) -> Array[Rect] {
+fn rects_from_ids(
+  layout_rects : Array[Rect],
+  expected : Array[Rect],
+) -> Array[Rect] {
+  let map : Map[String, Rect] = {}
+  for rect in layout_rects {
+    if rect.id != "" {
+      map[rect.id] = rect
+    }
+  }
   let rects : Array[Rect] = []
   for exp in expected {
-    match app.find_by_id(exp.id) {
-      Some(hit) => rects.push(
-        {
-          id: exp.id,
-          x: hit.x,
-          y: hit.y,
-          width: hit.width,
-          height: hit.height,
-        },
-      )
+    match map.get(exp.id) {
+      Some(rect) => rects.push({ ..rect, id: exp.id })
       None => rects.push({ id: exp.id, x: -1, y: -1, width: 0, height: 0 })
     }
   }
   rects
+}
+
+///|
+fn rects_from_layout(app : @vnode.VNodeApp) -> Array[Rect] {
+  let rects : Array[Rect] = []
+  for hit in app.layout_rects() {
+    rects.push(
+      {
+        id: hit.id,
+        x: hit.x,
+        y: hit.y,
+        width: hit.width,
+        height: hit.height,
+      },
+    )
+  }
+  rects
+}
+
+///|
+fn is_auto_id(id : String) -> Bool {
+  if id.length() < 2 {
+    false
+  } else {
+    let chars = id.to_array()
+    if chars[0] != 'v' {
+      false
+    } else {
+      let mut ok = true
+      for i in 1..<chars.length() {
+        let c = chars[i]
+        if c < '0' || c > '9' {
+          ok = false
+        }
+      }
+      ok
+    }
+  }
+}
+
+///|
+fn named_layout_rects(rects : Array[Rect]) -> Array[Rect] {
+  let named : Array[Rect] = []
+  for rect in rects {
+    let is_root = rect.id == "root" || rect.id.has_suffix("-root")
+    if rect.id != "" && !is_auto_id(rect.id) && !is_root {
+      named.push(rect)
+    }
+  }
+  named
 }
 
 ///|
@@ -230,8 +283,9 @@ fn render_pattern(pattern : Pattern) -> RenderResult {
   let node = (pattern.render)()
   let output = app.render_frame(node)
   let lines = plain_lines_from_output(output, pattern.width, pattern.height)
-  let actual = rects_from_ids(app, pattern.expected)
-  { plain_lines: lines, actual_rects: actual }
+  let layout_rects = rects_from_layout(app)
+  let actual = rects_from_ids(layout_rects, pattern.expected)
+  { plain_lines: lines, actual_rects: actual, layout_rects }
 }
 
 ///|
@@ -1536,8 +1590,6 @@ fn patterns() -> Array[Pattern] {
   let asym_height = 12
   let mix_width = 60
   let mix_height = 16
-  let p5_width = 400
-  let p5_height = 400
   let pad_width = 42
   let pad_height = 10
   let overflow_width = 28
@@ -1591,20 +1643,6 @@ fn patterns() -> Array[Pattern] {
       height: mix_height,
       render: fn() { render_grid_mix(mix_width, mix_height) },
       expected: expected_grid_mix(mix_width, mix_height),
-    },
-    {
-      name: "p5-menu",
-      width: p5_width,
-      height: p5_height,
-      render: fn() { render_p5_menu(p5_width, p5_height) },
-      expected: expected_p5_menu(p5_width, p5_height),
-    },
-    {
-      name: "p5-battle",
-      width: p5_width,
-      height: p5_height,
-      render: fn() { render_p5_battle(p5_width, p5_height) },
-      expected: expected_p5_battle(p5_width, p5_height),
     },
     {
       name: "padding-gap",
@@ -1702,7 +1740,12 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
     pattern.width,
     pattern.height,
   )
-  let inferred = stats.boxes
+  let inferred =
+    if out_opts.infer_layout {
+      rendered.layout_rects
+    } else {
+      stats.boxes
+    }
   let inferred_diffs = eval_inferred(rendered.actual_rects, inferred)
   let inferred_filtered = eval_inferred_filtered(
     rendered.actual_rects,
@@ -1711,21 +1754,25 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
   )
   print_diffs("[eval-2 inferred->actual]", inferred_diffs)
   print_diffs("[eval-2b inferred->actual (no root)]", inferred_filtered)
-  let broken = broken_score(
-    rendered.actual_rects.length(),
-    inferred.length(),
-    stats.rejected,
-  )
-  println(
-    "[eval-2c broken] missing=" +
-    (rendered.actual_rects.length() - inferred.length()).to_string() +
-    " rejected=" +
-    stats.rejected.to_string() +
-    " score=" +
-    broken.to_string(),
-  )
-  if infer_warning(rendered.actual_rects, inferred) {
-    println("WARNING: inferred boxes < actual boxes")
+  if out_opts.infer_layout {
+    println("[infer-source layout_rects]")
+  } else {
+    let broken = broken_score(
+      rendered.actual_rects.length(),
+      inferred.length(),
+      stats.rejected,
+    )
+    println(
+      "[eval-2c broken] missing=" +
+      (rendered.actual_rects.length() - inferred.length()).to_string() +
+      " rejected=" +
+      stats.rejected.to_string() +
+      " score=" +
+      broken.to_string(),
+    )
+    if infer_warning(rendered.actual_rects, inferred) {
+      println("WARNING: inferred boxes < actual boxes")
+    }
   }
   println("inferred_boxes=" + inferred.length().to_string())
   println("")
@@ -1755,6 +1802,27 @@ fn eval1_block(pattern : Pattern) -> String {
 }
 
 ///|
+fn layout_block(pattern : Pattern) -> String {
+  let rendered = render_pattern(pattern)
+  let rects = named_layout_rects(rendered.layout_rects)
+  let sb = StringBuilder::new()
+  sb.write_string(
+    "==== " +
+    pattern.name +
+    " (" +
+    pattern.width.to_string() +
+    "x" +
+    pattern.height.to_string() +
+    ") ====\n",
+  )
+  for rect in rects {
+    sb.write_string("  " + rect_label(rect) + "\n")
+  }
+  sb.write_string("\n")
+  sb.to_string()
+}
+
+///|
 fn snapshot_eval1(path : String) -> Unit {
   let sb = StringBuilder::new()
   sb.write_string("# eval-1 snapshot\n\n")
@@ -1771,6 +1839,17 @@ fn snapshot_eval1_p5(path : String) -> Unit {
   sb.write_string("# eval-1 snapshot (p5)\n\n")
   for pattern in patterns_p5() {
     sb.write_string(eval1_block(pattern))
+  }
+  let result = write_file(path, sb.to_string())
+  println(result)
+}
+
+///|
+fn snapshot_layout(path : String, list : Array[Pattern], label : String) -> Unit {
+  let sb = StringBuilder::new()
+  sb.write_string("# layout snapshot" + label + "\n\n")
+  for pattern in list {
+    sb.write_string(layout_block(pattern))
   }
   let result = write_file(path, sb.to_string())
   println(result)
@@ -2066,8 +2145,11 @@ fn main {
   let mut run_eval1_snapshot = false
   let mut run_p5 = false
   let mut run_eval1_p5 = false
+  let mut run_layout_snapshot = false
+  let mut run_layout_snapshot_p5 = false
   let mut show_output = true
   let mut force_full_output = false
+  let mut infer_layout = false
   let mut clip_w = 0
   let mut clip_h = 0
   let mut clip_x = 0
@@ -2075,6 +2157,8 @@ fn main {
   let mut snapshot_path = "../../__snapshots__/eval_ui_scroll.txt"
   let mut eval1_path = "../../__snapshots__/eval_ui_eval1.txt"
   let mut eval1_p5_path = "../../__snapshots__/eval_ui_eval1_p5.txt"
+  let mut layout_path = "../../__snapshots__/eval_ui_layout.txt"
+  let mut layout_p5_path = "../../__snapshots__/eval_ui_layout_p5.txt"
   let mut i = 0
   while i < args.length() {
     let arg = args[i]
@@ -2093,11 +2177,20 @@ fn main {
     if arg == "--eval1-p5" {
       run_eval1_p5 = true
     }
+    if arg == "--layout-snapshot" {
+      run_layout_snapshot = true
+    }
+    if arg == "--layout-snapshot-p5" {
+      run_layout_snapshot_p5 = true
+    }
     if arg == "--no-output" {
       show_output = false
     }
     if arg == "--full-output" {
       force_full_output = true
+    }
+    if arg == "--infer-layout" {
+      infer_layout = true
     }
     if arg == "--compact-output" {
       clip_w = 120
@@ -2127,12 +2220,24 @@ fn main {
       eval1_p5_path = args[i + 1]
       i = i + 1
     }
+    if arg == "--layout-path" && i + 1 < args.length() {
+      layout_path = args[i + 1]
+      i = i + 1
+    }
+    if arg == "--layout-p5-path" && i + 1 < args.length() {
+      layout_p5_path = args[i + 1]
+      i = i + 1
+    }
     i = i + 1
   }
   if run_eval1_p5 {
     snapshot_eval1_p5(eval1_p5_path)
   } else if run_eval1_snapshot {
     snapshot_eval1(eval1_path)
+  } else if run_layout_snapshot_p5 {
+    snapshot_layout(layout_p5_path, patterns_p5(), " (p5)")
+  } else if run_layout_snapshot {
+    snapshot_layout(layout_path, patterns(), "")
   } else if run_scroll_snapshot {
     snapshot_scroll(snapshot_path)
   } else if run_scroll {
@@ -2150,6 +2255,7 @@ fn main {
       clip_h,
       clip_x,
       clip_y,
+      infer_layout,
     }
     let list = if run_p5 { patterns_p5() } else { patterns() }
     for pattern in list {

@@ -134,6 +134,17 @@ pub fn VNodeApp::find_by_id(
 }
 
 ///|
+/// Get all layout rects from the last render (absolute coordinates).
+pub fn VNodeApp::layout_rects(
+  self : VNodeApp,
+) -> Array[@events.HitTestResult] {
+  match self.last_layout {
+    Some(layout) => @events.layout_rects_root(layout)
+    None => []
+  }
+}
+
+///|
 /// Handle a mouse event using the render context's handlers
 /// Returns the clicked component ID if found and handler was invoked
 pub fn VNodeApp::handle_click(
