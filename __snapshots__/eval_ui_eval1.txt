@@ -32,6 +32,40 @@
   foot dx=0 dy=0 dw=0 dh=0 score=0
   total_score=0
 
+==== deep-nesting (44x18) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  outer dx=0 dy=0 dw=0 dh=0 score=0
+  row dx=0 dy=0 dw=0 dh=0 score=0
+  left dx=0 dy=0 dw=0 dh=0 score=0
+  right dx=0 dy=0 dw=0 dh=0 score=0
+  bottom dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== asym-layout (50x12) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  main dx=0 dy=0 dw=0 dh=0 score=0
+  left dx=0 dy=0 dw=0 dh=0 score=0
+  right dx=0 dy=0 dw=0 dh=0 score=0
+  top dx=0 dy=0 dw=0 dh=0 score=0
+  bottom dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== grid-mix (60x16) ====
+  root dx=0 dy=0 dw=0 dh=0 score=0
+  cell-1 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-2 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-3 dx=0 dy=0 dw=0 dh=0 score=0
+  cell-4 dx=0 dy=0 dw=0 dh=0 score=0
+  c1-row dx=0 dy=0 dw=0 dh=0 score=0
+  c1-left dx=0 dy=0 dw=0 dh=0 score=0
+  c1-right dx=0 dy=0 dw=0 dh=0 score=0
+  c2-inner dx=0 dy=0 dw=0 dh=0 score=0
+  c3-inner dx=0 dy=0 dw=0 dh=0 score=0
+  c4-row dx=0 dy=0 dw=0 dh=0 score=0
+  c4-a dx=0 dy=0 dw=0 dh=0 score=0
+  c4-b dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
 ==== padding-gap (42x10) ====
   root dx=0 dy=0 dw=0 dh=0 score=0
   row dx=0 dy=0 dw=0 dh=0 score=0

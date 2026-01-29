@@ -1,0 +1,22 @@
+# eval-1 snapshot (p5)
+
+==== p5-menu (400x400) ====
+  menu-root dx=0 dy=0 dw=0 dh=0 score=0
+  menu-header dx=0 dy=0 dw=0 dh=0 score=0
+  menu-body dx=0 dy=0 dw=0 dh=0 score=0
+  menu-list dx=0 dy=0 dw=0 dh=0 score=0
+  menu-detail dx=0 dy=0 dw=0 dh=0 score=0
+  menu-status dx=0 dy=0 dw=0 dh=0 score=0
+  menu-info dx=0 dy=0 dw=0 dh=0 score=0
+  menu-footer dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+
+==== p5-battle (400x400) ====
+  battle-root dx=0 dy=0 dw=0 dh=0 score=0
+  battle-enemy dx=0 dy=0 dw=0 dh=0 score=0
+  battle-log dx=0 dy=0 dw=0 dh=0 score=0
+  battle-bottom dx=0 dy=0 dw=0 dh=0 score=0
+  battle-commands dx=0 dy=0 dw=0 dh=0 score=0
+  battle-party dx=0 dy=0 dw=0 dh=0 score=0
+  total_score=0
+

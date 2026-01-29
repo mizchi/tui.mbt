@@ -4,6 +4,7 @@ import {
   "mizchi/tui/testing" as @testing,
   "mizchi/tui/io" as @io,
   "mizchi/tui/events" as @events,
+  "moonbitlang/core/strconv" as @strconv,
 }
 
 options(
