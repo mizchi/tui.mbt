@@ -48,7 +48,7 @@ fn slice_chars(chars : Array[Char], start : Int, end : Int) -> String {
 ///|
 pub fn EditorState::new(text : String, height : Int) -> EditorState {
   let doc = Document::from_text(text)
-  let caret = { line: 0, col: 0 }
+  let caret : Position = { line: 0, col: 0 }
   let selection = Selection::caret(caret)
   let viewport = Viewport::new(height)
   let highlight = HighlightState::new(HighlightKind::TypeScript, doc)
@@ -94,6 +94,26 @@ pub fn EditorState::current_word_bounds(self : EditorState) -> (Int, Int) {
 }
 
 ///|
+pub fn EditorState::completion_request(
+  self : EditorState,
+  request_id : Int,
+) -> CompletionRequest {
+  let caret = self.caret()
+  let line_text = self.doc.line(caret.line)
+  let (start_col, end_col) = word_bounds(line_text, caret.col)
+  let prefix = slice_chars(line_text.to_array(), start_col, caret.col)
+  {
+    id: request_id,
+    line: caret.line,
+    col: caret.col,
+    prefix,
+    line_text,
+    anchor: { line: caret.line, col: start_col },
+    replace: { start_col, end_col },
+  }
+}
+
+///|
 pub fn EditorState::replace_current_word(
   self : EditorState,
   word : String,
@@ -101,8 +121,8 @@ pub fn EditorState::replace_current_word(
   let caret = self.caret()
   let line_text = self.doc.line(caret.line)
   let (start_col, end_col) = word_bounds(line_text, caret.col)
-  let start_pos = { line: caret.line, col: start_col }
-  let end_pos = { line: caret.line, col: end_col }
+  let start_pos : Position = { line: caret.line, col: start_col }
+  let end_pos : Position = { line: caret.line, col: end_col }
   let edit_line = caret.line
   let _ = self.doc.delete_range(start_pos, end_pos)
   let new_pos = self.doc.insert_text(start_pos, word)

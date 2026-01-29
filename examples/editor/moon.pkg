@@ -1,6 +1,5 @@
 import {
   "mizchi/tui/core",
-  "mizchi/tui/completion",
   "mizchi/tui/vnode",
   "mizchi/tui/term",
   "mizchi/tui/render",

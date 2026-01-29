@@ -66,10 +66,11 @@ fn main {
   let app = @vnode.VNodeApp::new(width, height)
   let editor_height = if height > 2 { height - 2 } else { 1 }
   let state = @editor.EditorState::new(sample_text(), editor_height)
-  let completion_engine = @completion.CompletionEngine::new()
+  let completion_session = @editor.CompletionSession::new()
   let max_items = 6
   let suppress_popup : Ref[Bool] = Ref::new(false)
   let last_popup_rect : Ref[PopupRect?] = Ref::new(None)
+  let completion_request_id : Ref[Int] = Ref::new(0)
 
   fn render_ui() -> @vnode.TuiNode {
     @editor.render_editor(state, width, height)
@@ -90,10 +91,10 @@ fn main {
     (head.to_string(), tail.to_string())
   }
 
-  fn popup_width(items : Array[String]) -> Int {
+  fn popup_width(items : Array[@editor.CompletionItem]) -> Int {
     let mut max_width = 0
     for item in items {
-      let w = @core.string_display_width(item)
+      let w = @core.string_display_width(item.label)
       if w > max_width {
         max_width = w
       }
@@ -115,15 +116,16 @@ fn main {
   }
 
   fn render_popup_item(
-    item : String,
+    item : @editor.CompletionItem,
     idx : Int,
     prefix : String,
     width : Int,
   ) -> @vnode.TuiNode {
-    let is_selected = idx == completion_engine.get_selected_idx()
+    let is_selected = idx == completion_session.get_selected_index()
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
     let prefix_len = prefix.to_array().length()
-    let (head, tail) = split_by_chars(item, prefix_len)
+    let label = item.label
+    let (head, tail) = split_by_chars(label, prefix_len)
     let suffix_width = width - @core.string_display_width(head)
     let suffix = pad_to_width(tail, suffix_width)
     let fg_suffix = if is_selected { "white" } else { "rgb(150,150,150)" }
@@ -133,12 +135,15 @@ fn main {
     ])
   }
 
-  fn render_completion_popup(items : Array[String], width : Int) -> @vnode.TuiNode {
+  fn render_completion_popup(
+    items : Array[@editor.CompletionItem],
+    width : Int,
+    prefix : String,
+  ) -> @vnode.TuiNode {
     if items.length() == 0 {
       return @vnode.text("")
     }
     let count = if items.length() > max_items { max_items } else { items.length() }
-    let prefix = completion_engine.get_input()
     let nodes : Array[@vnode.TuiNode] = []
     for i = 0; i < count; i = i + 1 {
       nodes.push(render_popup_item(items[i], i, prefix, width))
@@ -146,25 +151,42 @@ fn main {
     @vnode.column(nodes)
   }
 
-  fn popup_height(items : Array[String]) -> Int {
+  fn popup_height(items : Array[@editor.CompletionItem]) -> Int {
     if items.length() > max_items { max_items } else { items.length() }
   }
 
   fn update_completion() -> Unit {
-    let prefix = state.current_word_prefix()
-    let _ = completion_engine.set_input(prefix)
-    if prefix.length() == 0 {
-      completion_engine.clear()
+    let next_id = completion_request_id.val + 1
+    completion_request_id.val = next_id
+    let req = state.completion_request(next_id)
+    if req.prefix.length() == 0 {
+      completion_session.clear()
       return
     }
-    let items = filter_candidates(prefix)
-    completion_engine.set_items(items)
+    completion_session.set_request(req)
+    let items = filter_candidates(req.prefix)
+    let response : @editor.CompletionResponse = {
+      id: req.id,
+      items: items.map(fn(item) {
+        @editor.CompletionItem::{
+          label: item,
+          insert_text: item,
+          detail: None,
+          documentation: None,
+        }
+      }),
+      is_incomplete: false,
+    }
+    let _ = completion_session.apply_response(response)
+    if items.length() == 1 && items[0] == req.prefix {
+      completion_session.hide()
+    }
   }
 
   fn apply_completion() -> Bool {
-    match completion_engine.get_selected_item() {
-      Some(word) => {
-        state.replace_current_word(word)
+    match completion_session.get_selected_item() {
+      Some(item) => {
+        state.replace_current_word(item.insert_text)
         update_completion()
         true
       }
@@ -189,25 +211,29 @@ fn main {
   }
 
   fn do_render() -> Unit {
-    let items = completion_engine.get_items()
+    let items = completion_session.get_items()
     let show_popup =
       not(suppress_popup.val) &&
-      completion_engine.is_visible() &&
+      completion_session.is_visible() &&
       items.length() > 0
-    let caret_line = state.caret_line()
     let (cursor_row, cursor_col) = @editor.editor_cursor_position(
       state,
       width,
       height,
     )
-    let (word_start, _) = state.current_word_bounds()
-    let (anchor_row, anchor_col) = @editor.editor_position_for(
-      state,
-      width,
-      height,
-      caret_line,
-      word_start,
-    )
+    let prefix = if show_popup { state.current_word_prefix() } else { "" }
+    let (anchor_row, anchor_col) = if show_popup {
+      let anchor = completion_session.get_anchor()
+      @editor.editor_position_for(
+        state,
+        width,
+        height,
+        anchor.line,
+        anchor.col,
+      )
+    } else {
+      (0, 0)
+    }
 
     let next_rect = if show_popup {
       let popup_h = popup_height(items)
@@ -248,7 +274,7 @@ fn main {
 
     match next_rect {
       Some(rect) => {
-        let popup = render_completion_popup(items, rect.width)
+        let popup = render_completion_popup(items, rect.width, prefix)
         @term.print_raw(@vnode.render_overlay_at(rect.col, rect.row, popup))
         last_popup_rect.val = Some(rect)
       }
@@ -302,42 +328,49 @@ fn main {
         do_render()
       }
       @term.InputEvent::Key(key_event) => {
+        let mut should_update_completion = false
         match key_event {
           @term.KeyEvent::Special(@term.SpecialKey::Up, _) =>
-            if completion_engine.is_visible() && not(suppress_popup.val) {
-              completion_engine.select_prev()
+            if completion_session.is_visible() && not(suppress_popup.val) {
+              completion_session.select_prev()
               do_render()
               return
             }
           @term.KeyEvent::Special(@term.SpecialKey::Down, _) =>
-            if completion_engine.is_visible() && not(suppress_popup.val) {
-              completion_engine.select_next()
+            if completion_session.is_visible() && not(suppress_popup.val) {
+              completion_session.select_next()
               do_render()
               return
             }
           @term.KeyEvent::Special(@term.SpecialKey::Tab, _) =>
-            if completion_engine.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && not(suppress_popup.val) {
               if apply_completion() {
                 do_render()
                 return
               }
             }
           @term.KeyEvent::Special(@term.SpecialKey::Enter, _) =>
-            if completion_engine.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && not(suppress_popup.val) {
               if apply_completion() {
                 do_render()
                 return
               }
             }
-          @term.KeyEvent::Special(@term.SpecialKey::Backspace, _) =>
+          @term.KeyEvent::Special(@term.SpecialKey::Backspace, _) => {
             suppress_popup.val = true
+            should_update_completion = true
+          }
           @term.KeyEvent::Char(_, @term.KeyModifier::None)
-          | @term.KeyEvent::Char(_, @term.KeyModifier::Shift) =>
+          | @term.KeyEvent::Char(_, @term.KeyModifier::Shift) => {
             suppress_popup.val = false
+            should_update_completion = true
+          }
           _ => ()
         }
         @editor.handle_key_event(state, key_event)
-        update_completion()
+        if should_update_completion {
+          update_completion()
+        }
         do_render()
       }
       _ => ()
@@ -345,7 +378,6 @@ fn main {
   }
 
   @term.print_raw(@vnode.VNodeApp::init_terminal())
-  update_completion()
   do_render()
   @term.start_keypress_listener(handle_input)
 }
