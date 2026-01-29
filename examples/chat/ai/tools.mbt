@@ -65,6 +65,7 @@ pub extern "js" fn js_path_basename(path : String) -> String =
 /// Get git status for a directory
 /// Returns JSON: {"files": {"path": "status", ...}, "is_repo": true/false}
 /// Status: "M" (modified), "A" (added), "D" (deleted), "?" (untracked), "R" (renamed)
+/// File paths are relative to the given directory
 pub extern "js" fn js_git_status(dir : String) -> String =
   #| (dir) => {
   #|   try {
@@ -76,16 +77,22 @@ pub extern "js" fn js_git_status(dir : String) -> String =
   #|     } catch (e) {
   #|       return JSON.stringify({ files: {}, is_repo: false });
   #|     }
-  #|     // Get status
+  #|     // Get git root directory
+  #|     const gitRoot = execSync('git rev-parse --show-toplevel', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' }).trim();
+  #|     // Get status (paths are relative to git root)
   #|     const status = execSync('git status --porcelain', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
   #|     const files = {};
   #|     for (const line of status.split('\n')) {
   #|       if (line.length < 3) continue;
   #|       const statusCode = line.substring(0, 2).trim();
   #|       const filePath = line.substring(3);
-  #|       // Get relative path from current dir
-  #|       const absPath = path.resolve(dir, filePath);
-  #|       files[filePath] = statusCode[0] || statusCode[1] || '?';
+  #|       // Convert to path relative to current dir
+  #|       const absPath = path.join(gitRoot, filePath);
+  #|       const relPath = path.relative(dir, absPath);
+  #|       // Only include files that are in or under current dir (not parent dirs)
+  #|       if (!relPath.startsWith('..')) {
+  #|         files[relPath] = statusCode[0] || statusCode[1] || '?';
+  #|       }
   #|     }
   #|     return JSON.stringify({ files: files, is_repo: true });
   #|   } catch (e) {
@@ -95,7 +102,7 @@ pub extern "js" fn js_git_status(dir : String) -> String =
 
 ///|
 /// Get list of files with uncommitted changes (git diff + untracked)
-/// Returns JSON array of file paths relative to repo root
+/// Returns JSON array of file paths relative to current directory
 pub extern "js" fn js_git_changed_files(dir : String) -> String =
   #| (dir) => {
   #|   try {
@@ -107,12 +114,21 @@ pub extern "js" fn js_git_changed_files(dir : String) -> String =
   #|     } catch (e) {
   #|       return '[]';
   #|     }
+  #|     // Get git root directory
+  #|     const gitRoot = execSync('git rev-parse --show-toplevel', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' }).trim();
   #|     // Get changed files (staged + unstaged + untracked)
   #|     const status = execSync('git status --porcelain', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' });
   #|     const files = [];
   #|     for (const line of status.split('\n')) {
   #|       if (line.length < 3) continue;
-  #|       files.push(line.substring(3));
+  #|       const filePath = line.substring(3);
+  #|       // Convert to path relative to current dir
+  #|       const absPath = path.join(gitRoot, filePath);
+  #|       const relPath = path.relative(dir, absPath);
+  #|       // Only include files that are in or under current dir
+  #|       if (!relPath.startsWith('..')) {
+  #|         files.push(relPath);
+  #|       }
   #|     }
   #|     return JSON.stringify(files);
   #|   } catch (e) {
@@ -754,3 +770,84 @@ pub fn get_openai_tool_definitions() -> String {
   #|]
   json
 }
+
+///|
+/// Start watching a directory for file changes
+/// Calls callback when files are added, changed, or deleted
+/// Uses debouncing to avoid excessive callbacks
+/// Also watches git index for status changes
+pub extern "js" fn js_watch_directory(
+  dir : String,
+  callback : () -> Unit,
+) -> Unit =
+  #| (dir, callback) => {
+  #|   const fs = require('fs');
+  #|   const path = require('path');
+  #|   const { execSync } = require('child_process');
+  #|
+  #|   // Stop any existing watchers
+  #|   if (globalThis.__file_watcher) {
+  #|     globalThis.__file_watcher.close();
+  #|     globalThis.__file_watcher = null;
+  #|   }
+  #|   if (globalThis.__git_watcher) {
+  #|     globalThis.__git_watcher.close();
+  #|     globalThis.__git_watcher = null;
+  #|   }
+  #|
+  #|   let debounceTimer = null;
+  #|   const DEBOUNCE_MS = 300;
+  #|
+  #|   const debouncedCallback = () => {
+  #|     if (debounceTimer) clearTimeout(debounceTimer);
+  #|     debounceTimer = setTimeout(() => {
+  #|       callback();
+  #|     }, DEBOUNCE_MS);
+  #|   };
+  #|
+  #|   try {
+  #|     // Watch current directory for file changes
+  #|     globalThis.__file_watcher = fs.watch(dir, { recursive: true }, (eventType, filename) => {
+  #|       if (!filename) return;
+  #|       // Ignore common non-source files
+  #|       if (filename.includes('node_modules') ||
+  #|           filename.includes('.git') ||
+  #|           filename.includes('_build') ||
+  #|           filename.includes('.mooncakes') ||
+  #|           filename.endsWith('.swp') ||
+  #|           filename.endsWith('~')) {
+  #|         return;
+  #|       }
+  #|       debouncedCallback();
+  #|     });
+  #|
+  #|     // Also watch git index for status changes
+  #|     try {
+  #|       const gitRoot = execSync('git rev-parse --show-toplevel', { cwd: dir, encoding: 'utf-8', stdio: 'pipe' }).trim();
+  #|       const gitIndexPath = path.join(gitRoot, '.git', 'index');
+  #|       if (fs.existsSync(gitIndexPath)) {
+  #|         globalThis.__git_watcher = fs.watch(gitIndexPath, (eventType) => {
+  #|           debouncedCallback();
+  #|         });
+  #|       }
+  #|     } catch (e) {
+  #|       // Not in a git repo, ignore
+  #|     }
+  #|   } catch (e) {
+  #|     console.error('Failed to watch directory:', e.message);
+  #|   }
+  #| }
+
+///|
+/// Stop watching directory and git index
+pub extern "js" fn js_stop_watch() -> Unit =
+  #| () => {
+  #|   if (globalThis.__file_watcher) {
+  #|     globalThis.__file_watcher.close();
+  #|     globalThis.__file_watcher = null;
+  #|   }
+  #|   if (globalThis.__git_watcher) {
+  #|     globalThis.__git_watcher.close();
+  #|     globalThis.__git_watcher = null;
+  #|   }
+  #| }

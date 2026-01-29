@@ -215,7 +215,12 @@ pub fn render_editor(
   }
   let result : Array[TuiNode] = []
   if show_header {
-    let header_text = if title.length() > 0 { " " + title + " " } else { " editor " }
+    let dirty_mark = if state.is_dirty() { "*" } else { "" }
+    let header_text = if title.length() > 0 {
+      " " + dirty_mark + title + " "
+    } else {
+      " " + dirty_mark + "editor "
+    }
     result.push(
       row(
         bg="rgb(30,30,40)",

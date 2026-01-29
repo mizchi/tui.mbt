@@ -204,6 +204,12 @@ fn main {
   let file_tree = FilerState::new(@ai.js_get_cwd())
   file_tree.refresh()
 
+  // File watcher callback (forward reference, set later)
+  let on_file_change : Ref[() -> Unit] = Ref::new(fn() { () })
+
+  // Start file watcher
+  @ai.js_watch_directory(file_tree.current_dir, fn() { (on_file_change.val)() })
+
   // File preview state
   let preview_visible = @signals.signal(false)
 
@@ -514,8 +520,26 @@ fn main {
     do_render()
   }
 
+  // Set up file watcher callback
+  on_file_change.val = fn() {
+    file_tree.refresh()
+    if preview_visible.get() && file_tree.preview_file.length() > 0 {
+      file_tree.load_selected_preview()
+      sync_preview_editor()
+    }
+    app.clear_prev_buffer()
+    do_render()
+  }
+
+  // Restart file watcher for new directory
+  fn restart_watcher() -> Unit {
+    @ai.js_stop_watch()
+    @ai.js_watch_directory(file_tree.current_dir, fn() { (on_file_change.val)() })
+  }
+
   fn do_quit() -> Unit {
     streaming.clear()
+    @ai.js_stop_watch() // Stop file watcher
     cleanup()
     println("Goodbye!")
   }
@@ -981,7 +1005,8 @@ fn main {
                   start_editing()
                 }
                 None => {
-                  // Directory entered, clear buffer and refresh
+                  // Directory entered, restart watcher and refresh
+                  restart_watcher()
                   app.clear_prev_buffer()
                   do_render()
                 }
@@ -1050,6 +1075,7 @@ fn main {
             // Backspace in sidebar: go to parent directory
             if sidebar_focused.get() {
               file_tree.go_up()
+              restart_watcher() // Restart watcher for new directory
               app.clear_prev_buffer()
               do_render()
             }

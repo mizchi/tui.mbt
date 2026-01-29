@@ -104,6 +104,7 @@ pub struct EditorState {
   viewport : Viewport
   mut preferred_col : Int
   highlight : HighlightState
+  mut dirty : Bool
 }
 pub fn EditorState::caret_col(Self) -> Int
 pub fn EditorState::caret_line(Self) -> Int
@@ -111,6 +112,8 @@ pub fn EditorState::completion_request(Self, Int) -> CompletionRequest
 pub fn EditorState::current_word_bounds(Self) -> (Int, Int)
 pub fn EditorState::current_word_prefix(Self) -> String
 pub fn EditorState::get_text(Self) -> String
+pub fn EditorState::is_dirty(Self) -> Bool
+pub fn EditorState::mark_clean(Self) -> Unit
 pub fn EditorState::new(String, Int) -> Self
 pub fn EditorState::new_with_filename(String, Int, String) -> Self
 pub fn EditorState::new_with_kind(String, Int, HighlightKind) -> Self

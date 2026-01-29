@@ -5,6 +5,7 @@ pub struct EditorState {
   viewport : Viewport
   mut preferred_col : Int
   highlight : HighlightState
+  mut dirty : Bool
 }
 
 ///|
@@ -61,7 +62,7 @@ pub fn EditorState::new_with_kind(
   let selection = Selection::caret(caret)
   let viewport = Viewport::new(height)
   let highlight = HighlightState::new(kind, doc)
-  { doc, selection, viewport, preferred_col: 0, highlight }
+  { doc, selection, viewport, preferred_col: 0, highlight, dirty: false }
 }
 
 ///|
@@ -89,6 +90,16 @@ pub fn EditorState::set_height(self : EditorState, height : Int) -> Unit {
 ///|
 pub fn EditorState::get_text(self : EditorState) -> String {
   self.doc.to_text()
+}
+
+///|
+pub fn EditorState::is_dirty(self : EditorState) -> Bool {
+  self.dirty
+}
+
+///|
+pub fn EditorState::mark_clean(self : EditorState) -> Unit {
+  self.dirty = false
 }
 
 ///|
@@ -162,6 +173,7 @@ pub fn EditorState::replace_current_word(
   self.preferred_col = new_pos.col
   self.viewport.ensure_visible(new_pos.line, self.doc.line_count())
   self.highlight.update(self.doc, edit_line)
+  self.dirty = true
 }
 
 ///|
@@ -195,6 +207,7 @@ pub fn EditorState::replace_selection(self : EditorState, text : String) -> Unit
   self.preferred_col = new_pos.col
   self.viewport.ensure_visible(new_pos.line, self.doc.line_count())
   self.highlight.update(self.doc, edit_line)
+  self.dirty = true
 }
 
 ///|
@@ -210,6 +223,7 @@ fn EditorState::delete_backward(self : EditorState) -> Unit {
   self.preferred_col = new_pos.col
   self.viewport.ensure_visible(new_pos.line, self.doc.line_count())
   self.highlight.update(self.doc, edit_line)
+  self.dirty = true
 }
 
 ///|
@@ -225,6 +239,7 @@ fn EditorState::delete_forward(self : EditorState) -> Unit {
   self.preferred_col = new_pos.col
   self.viewport.ensure_visible(new_pos.line, self.doc.line_count())
   self.highlight.update(self.doc, edit_line)
+  self.dirty = true
 }
 
 ///|
