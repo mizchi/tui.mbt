@@ -97,6 +97,7 @@ struct OutputOptions {
   clip_x : Int
   clip_y : Int
   infer_layout : Bool
+  aa_labels : Bool
 }
 
 ///|
@@ -475,13 +476,27 @@ fn named_layout_rects(rects : Array[Rect]) -> Array[Rect] {
 
 ///|
 fn render_pattern(pattern : Pattern) -> RenderResult {
+  render_pattern_with_labels(pattern, false)
+}
+
+///|
+fn render_pattern_with_labels(
+  pattern : Pattern,
+  aa_labels : Bool,
+) -> RenderResult {
   let app = @vnode.VNodeApp::new(pattern.width, pattern.height)
   let node = (pattern.render)()
   let output = app.render_frame(node)
   let lines = plain_lines_from_output(output, pattern.width, pattern.height)
   let layout_rects = rects_from_layout(app)
+  let labeled_lines =
+    if aa_labels {
+      apply_aa_labels(lines, layout_rects, pattern.width, pattern.height)
+    } else {
+      lines
+    }
   let actual = rects_from_ids(layout_rects, pattern.expected)
-  { plain_lines: lines, actual_rects: actual, layout_rects }
+  { plain_lines: labeled_lines, actual_rects: actual, layout_rects }
 }
 
 ///|
@@ -505,6 +520,75 @@ fn to_grid(
     grid.push(row)
   }
   grid
+}
+
+///|
+fn grid_to_lines(grid : Array[Array[Char]]) -> Array[String] {
+  let lines : Array[String] = []
+  for row in grid {
+    lines.push(String::from_array(row))
+  }
+  lines
+}
+
+///|
+fn label_text(rect : Rect) -> String {
+  rect.id + "@" + rect.x.to_string() + "," + rect.y.to_string()
+}
+
+///|
+fn apply_aa_labels(
+  lines : Array[String],
+  rects : Array[Rect],
+  width : Int,
+  height : Int,
+) -> Array[String] {
+  let grid = to_grid(lines, width, height)
+  let named = named_layout_rects(rects)
+  for rect in named {
+    if rect.id == "" {
+      continue
+    }
+    let x = rect.x
+    let y = rect.y
+    let w = rect.width
+    let h = rect.height
+    if w <= 0 || h <= 0 {
+      continue
+    }
+    if x < 0 || y < 0 || x >= width || y >= height {
+      continue
+    }
+    let has_border = is_border_corner(grid[y][x])
+    let inner_left = x + (if has_border { 1 } else { 0 })
+    let inner_top = y + (if has_border { 1 } else { 0 })
+    let inner_right = x + w - 1 - (if has_border { 1 } else { 0 })
+    let inner_bottom = y + h - 1 - (if has_border { 1 } else { 0 })
+    if inner_left > inner_right || inner_top > inner_bottom {
+      continue
+    }
+    if inner_top < 0 || inner_top >= height {
+      continue
+    }
+    let label = label_text(rect)
+    let chars = label.to_array()
+    let label_len = chars.length()
+    let inner_w = inner_right - inner_left + 1
+    if label_len <= 0 || label_len > inner_w {
+      continue
+    }
+    let start_x = inner_right - label_len + 1
+    if start_x < inner_left {
+      continue
+    }
+    for i in 0..<label_len {
+      let col = start_x + i
+      if col >= 0 && col < width {
+        grid[inner_top][col] = chars[i]
+      }
+    }
+  }
+  grid_to_lines(grid)
 }
 
 ///|
@@ -1934,7 +2018,7 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> PatternReport {
     pattern.height.to_string() +
     ") ===",
   )
-  let rendered = render_pattern(pattern)
+  let rendered = render_pattern_with_labels(pattern, out_opts.aa_labels)
   if out_opts.show_output {
     let lines =
       if out_opts.clip_w > 0 && out_opts.clip_h > 0 {
@@ -2380,6 +2464,7 @@ fn main {
   let mut summary = true
   let mut force_full_output = false
   let mut infer_layout = false
+  let mut aa_labels = false
   let mut clip_w = 0
   let mut clip_h = 0
   let mut clip_x = 0
@@ -2427,6 +2512,9 @@ fn main {
     }
     if arg == "--infer-layout" {
       infer_layout = true
+    }
+    if arg == "--aa-labels" {
+      aa_labels = true
     }
     if arg == "--compact-output" {
       clip_w = 120
@@ -2492,6 +2580,7 @@ fn main {
       clip_x,
       clip_y,
       infer_layout,
+      aa_labels,
     }
     let list = if run_p5 { patterns_p5() } else { patterns() }
     let reports : Array[PatternReport] = []

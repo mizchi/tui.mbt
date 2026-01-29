@@ -17,9 +17,11 @@ pub fn ansi_full_reset() -> String
 
 pub fn cleanup_stdin() -> Unit
 
-pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn disable_mouse() -> String
+
+pub fn dump_a11y_tree(Array[@vnode.A11yNode]) -> String
 
 pub fn enable_mouse() -> String
 
@@ -31,7 +33,7 @@ pub fn fragment(Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.No
 
 pub fn get_terminal_size() -> (Int, Int)
 
-pub fn grid(columns? : Array[Double], rows? : Array[Double], areas? : Array[String], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, tab_index? : Int, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn grid(columns? : Array[Double], rows? : Array[Double], areas? : Array[String], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn grid_area(String, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -59,7 +61,7 @@ pub fn render_once(Int, Int, @core.Component) -> String
 
 pub fn render_vnode_once(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
-pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
 
@@ -77,13 +79,13 @@ pub fn start_keypress_listener((String) -> Unit) -> Unit
 
 pub fn stop_keypress_listener() -> Unit
 
-pub fn text(String, fg? : String, bold? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn text(String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn textarea(String, id? : String, placeholder? : String, state? : @vnode.InputState, rows? : Int, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn vspace(Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -92,6 +94,8 @@ pub fn vspace(Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 // Types and methods
 
 // Type aliases
+pub using @vnode {type A11yNode}
+
 pub using @headless {type AccordionState}
 
 pub using @render {type App}

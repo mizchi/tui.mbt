@@ -22,9 +22,13 @@ pub fn box_node(BoxProps, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[T
 
 pub fn box_to_crater(TypedRenderContext, BoxProps, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @node.Node
 
-pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn build_a11y_tree(@types.Layout, RenderContext) -> Array[A11yNode]
+
+pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn component(() -> @ui.Node[TuiEvent, TuiAttrValue]) -> @ui.Node[TuiEvent, TuiAttrValue]
+
+pub fn dump_a11y_tree(Array[A11yNode]) -> String
 
 pub fn extract_tab_index(Array[(String, @ui.Attr[TuiEvent, TuiAttrValue])]) -> Int?
 
@@ -34,7 +38,7 @@ pub fn form_edit_config(String, @signals.Signal[String], on_edit_start? : (() ->
 
 pub fn fragment(Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
-pub fn grid(columns? : Array[Double], rows? : Array[Double], areas? : Array[String], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, tab_index? : Int, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn grid(columns? : Array[Double], rows? : Array[Double], areas? : Array[String], auto_flow? : String, id? : String, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn grid_area(String, @ui.Node[TuiEvent, TuiAttrValue]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
@@ -60,7 +64,7 @@ pub fn render_to_lines(@ui.Node[TuiEvent, TuiAttrValue]) -> Array[String]
 
 pub fn render_vnode_once(Int, Int, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 
-pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn run_vnode_app(Int, Int, () -> @ui.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
 
@@ -74,9 +78,9 @@ pub fn start_edit_inplace(EditConfig, String, Int, Int, Int, Int, Bool, () -> Un
 
 pub fn start_edit_inplace_in_bounds(EditConfig, String, @events.HitTestResult, Bool, () -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, border? : Int, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
 
-pub fn text(String, fg? : String, bold? : Bool) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn text(String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
 
-pub fn text_dyn(() -> String, fg? : String, bold? : Bool) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn text_dyn(() -> String, fg? : String, bold? : Bool, role? : String) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn text_node(TextProps) -> @ui.Node[TuiEvent, TuiAttrValue]
 
@@ -84,13 +88,30 @@ pub fn textarea(String, id? : String, placeholder? : String, state? : InputState
 
 pub fn to_crater_node(RenderContext, @ui.Node[TuiEvent, TuiAttrValue]) -> @node.Node
 
-pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
+pub fn view(direction? : String, id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 pub fn vspace(Double) -> @ui.Node[TuiEvent, TuiAttrValue]
 
 // Errors
 
 // Types and methods
+pub struct A11yNode {
+  id : String
+  role : @core.Role
+  name : String
+  rect : A11yRect
+  children : Array[A11yNode]
+}
+pub impl Show for A11yNode
+
+pub struct A11yRect {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+pub impl Show for A11yRect
+
 pub(all) enum AlignmentValue {
   Start
   Center
@@ -135,6 +156,7 @@ pub struct BoxProps {
   border_color : ColorValue?
   bg : ColorValue?
   tab_index : Int
+  role : @core.Role?
 }
 pub fn BoxProps::default() -> Self
 pub fn BoxProps::to_attrs(Self) -> Array[TuiAttrValue]
@@ -225,6 +247,7 @@ pub struct RenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
+  roles : Map[String, @core.Role]
   mut id_counter : Int
   area_stack : Array[Map[String, GridAreaInfo]]
 }
@@ -235,6 +258,7 @@ pub struct TextProps {
   fg : ColorValue?
   bold : Bool
   underline : Bool
+  role : @core.Role?
 }
 pub fn TextProps::default(String) -> Self
 pub fn TextProps::to_attrs(Self) -> Array[TuiAttrValue]
@@ -274,6 +298,7 @@ pub(all) enum TuiAttrValue {
   Underline(Bool)
   Id(String)
   TabIndex(Int)
+  Role(@core.Role)
 }
 
 pub(all) enum TuiEvent {
@@ -285,6 +310,7 @@ pub struct TypedRenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
+  roles : Map[String, @core.Role]
   mut id_counter : Int
   area_stack : Array[Map[String, GridAreaInfo]]
 }
@@ -297,8 +323,10 @@ pub struct VNodeApp {
   mut last_layout : @types.Layout?
   mut render_ctx : RenderContext
 }
+pub fn VNodeApp::a11y_tree(Self) -> Array[A11yNode]
 pub fn VNodeApp::clear_prev_buffer(Self) -> Unit
 pub fn VNodeApp::create_render_effect(Self, () -> @ui.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
+pub fn VNodeApp::dump_a11y_tree(Self) -> String
 pub fn VNodeApp::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn VNodeApp::handle_click(Self, @events.MouseEvent) -> String?
 pub fn VNodeApp::hit_test(Self, Int, Int) -> @events.HitTestResult?
