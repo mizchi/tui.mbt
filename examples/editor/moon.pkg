@@ -5,6 +5,9 @@ import {
   "mizchi/tui/vnode",
   "mizchi/tui/io",
   "mizchi/signals",
+  "mizchi/syntree" as @syntree,
+  "mizchi/syntree/highlight" as @syn_highlight,
+  "mizchi/syntree/typescript" as @syn_ts,
 }
 
 options(
