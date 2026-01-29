@@ -54,6 +54,26 @@ struct RectDiff {
 }
 
 ///|
+struct DiffStats {
+  total : Int
+  matched : Int
+  total_score : Int
+  max_score : Int
+  sum_abs_dx : Int
+  sum_abs_dy : Int
+  sum_abs_dw : Int
+  sum_abs_dh : Int
+}
+
+///|
+struct PatternReport {
+  name : String
+  eval1 : DiffStats
+  eval2 : DiffStats
+  eval2b : DiffStats
+}
+
+///|
 struct Pattern {
   name : String
   width : Int
@@ -96,6 +116,182 @@ fn rect_diff(pred : Rect, actual : Rect) -> RectDiff {
   let dh = actual.height - pred.height
   let score = abs_int(dx) + abs_int(dy) + abs_int(dw) + abs_int(dh)
   { id: pred.id, dx, dy, dw, dh, score }
+}
+
+///|
+fn max_int(a : Int, b : Int) -> Int {
+  if a >= b { a } else { b }
+}
+
+///|
+fn diff_stats(diffs : Array[RectDiff]) -> DiffStats {
+  let mut total = 0
+  let mut matched = 0
+  let mut total_score = 0
+  let mut max_score = 0
+  let mut sum_abs_dx = 0
+  let mut sum_abs_dy = 0
+  let mut sum_abs_dw = 0
+  let mut sum_abs_dh = 0
+  for diff in diffs {
+    total = total + 1
+    if diff.score == 0 {
+      matched = matched + 1
+    }
+    total_score = total_score + diff.score
+    max_score = max_int(max_score, diff.score)
+    sum_abs_dx = sum_abs_dx + abs_int(diff.dx)
+    sum_abs_dy = sum_abs_dy + abs_int(diff.dy)
+    sum_abs_dw = sum_abs_dw + abs_int(diff.dw)
+    sum_abs_dh = sum_abs_dh + abs_int(diff.dh)
+  }
+  {
+    total,
+    matched,
+    total_score,
+    max_score,
+    sum_abs_dx,
+    sum_abs_dy,
+    sum_abs_dw,
+    sum_abs_dh,
+  }
+}
+
+///|
+fn add_stats(a : DiffStats, b : DiffStats) -> DiffStats {
+  {
+    total: a.total + b.total,
+    matched: a.matched + b.matched,
+    total_score: a.total_score + b.total_score,
+    max_score: max_int(a.max_score, b.max_score),
+    sum_abs_dx: a.sum_abs_dx + b.sum_abs_dx,
+    sum_abs_dy: a.sum_abs_dy + b.sum_abs_dy,
+    sum_abs_dw: a.sum_abs_dw + b.sum_abs_dw,
+    sum_abs_dh: a.sum_abs_dh + b.sum_abs_dh,
+  }
+}
+
+///|
+fn avg_int(sum : Int, total : Int) -> Int {
+  if total == 0 { 0 } else { sum / total }
+}
+
+///|
+fn format_percent(n : Int, total : Int) -> String {
+  if total == 0 {
+    "n/a"
+  } else {
+    let per10 = n * 1000 / total
+    let whole = per10 / 10
+    let frac = per10 % 10
+    whole.to_string() + "." + frac.to_string() + "%"
+  }
+}
+
+///|
+fn stats_line(stats : DiffStats) -> String {
+  let avg_score = avg_int(stats.total_score, stats.total)
+  let avg_dx = avg_int(stats.sum_abs_dx, stats.total)
+  let avg_dy = avg_int(stats.sum_abs_dy, stats.total)
+  let avg_dw = avg_int(stats.sum_abs_dw, stats.total)
+  let avg_dh = avg_int(stats.sum_abs_dh, stats.total)
+  let match_label = stats.matched.to_string() +
+    "/" +
+    stats.total.to_string() +
+    " (" +
+    format_percent(stats.matched, stats.total) +
+    ")"
+  "score=" +
+  stats.total_score.to_string() +
+  " match=" +
+  match_label +
+  " max=" +
+  stats.max_score.to_string() +
+  " avg=" +
+  avg_score.to_string() +
+  " avg_abs(dx,dy,dw,dh)=" +
+  avg_dx.to_string() +
+  "," +
+  avg_dy.to_string() +
+  "," +
+  avg_dw.to_string() +
+  "," +
+  avg_dh.to_string()
+}
+
+///|
+fn summary_block(
+  title : String,
+  reports : Array[PatternReport],
+  pick : (PatternReport) -> DiffStats,
+) -> String {
+  let sb = StringBuilder::new()
+  sb.write_string("[summary " + title + "]\n")
+  let mut total_patterns = 0
+  let mut ok_patterns = 0
+  let mut agg = {
+    total: 0,
+    matched: 0,
+    total_score: 0,
+    max_score: 0,
+    sum_abs_dx: 0,
+    sum_abs_dy: 0,
+    sum_abs_dw: 0,
+    sum_abs_dh: 0,
+  }
+  for report in reports {
+    let stats = pick(report)
+    total_patterns = total_patterns + 1
+    if stats.total > 0 && stats.matched == stats.total {
+      ok_patterns = ok_patterns + 1
+    }
+    agg = add_stats(agg, stats)
+    sb.write_string("  " + report.name + ": " + stats_line(stats) + "\n")
+  }
+  sb.write_string(
+    "  patterns_ok=" +
+    ok_patterns.to_string() +
+    "/" +
+    total_patterns.to_string() +
+    " (" +
+    format_percent(ok_patterns, total_patterns) +
+    ")\n",
+  )
+  sb.write_string(
+    "  rect_match=" +
+    agg.matched.to_string() +
+    "/" +
+    agg.total.to_string() +
+    " (" +
+    format_percent(agg.matched, agg.total) +
+    ")\n",
+  )
+  let avg_score = avg_int(agg.total_score, agg.total)
+  let avg_dx = avg_int(agg.sum_abs_dx, agg.total)
+  let avg_dy = avg_int(agg.sum_abs_dy, agg.total)
+  let avg_dw = avg_int(agg.sum_abs_dw, agg.total)
+  let avg_dh = avg_int(agg.sum_abs_dh, agg.total)
+  sb.write_string(
+    "  total_score=" +
+    agg.total_score.to_string() +
+    " avg_score=" +
+    avg_score.to_string() +
+    " max_score=" +
+    agg.max_score.to_string() +
+    "\n",
+  )
+  sb.write_string(
+    "  avg_abs(dx,dy,dw,dh)=" +
+    avg_dx.to_string() +
+    "," +
+    avg_dy.to_string() +
+    "," +
+    avg_dw.to_string() +
+    "," +
+    avg_dh.to_string() +
+    "\n",
+  )
+  sb.to_string()
 }
 
 ///|
@@ -1704,7 +1900,7 @@ fn print_diffs(title : String, diffs : Array[RectDiff]) -> Unit {
 }
 
 ///|
-fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
+fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> PatternReport {
   println(
     "=== " +
     pattern.name +
@@ -1734,6 +1930,7 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
   }
   print_rects("[actual_rects]", rendered.actual_rects)
   let pred_diffs = eval_predicted(pattern, rendered.actual_rects)
+  let eval1_stats = diff_stats(pred_diffs)
   print_diffs("[eval-1 predicted->actual]", pred_diffs)
   let stats = infer_boxes_stats(
     rendered.plain_lines,
@@ -1752,6 +1949,8 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
     inferred,
     ["root"],
   )
+  let eval2_stats = diff_stats(inferred_diffs)
+  let eval2b_stats = diff_stats(inferred_filtered)
   print_diffs("[eval-2 inferred->actual]", inferred_diffs)
   print_diffs("[eval-2b inferred->actual (no root)]", inferred_filtered)
   if out_opts.infer_layout {
@@ -1776,6 +1975,12 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> Unit {
   }
   println("inferred_boxes=" + inferred.length().to_string())
   println("")
+  {
+    name: pattern.name,
+    eval1: eval1_stats,
+    eval2: eval2_stats,
+    eval2b: eval2b_stats,
+  }
 }
 
 ///|
@@ -2148,6 +2353,7 @@ fn main {
   let mut run_layout_snapshot = false
   let mut run_layout_snapshot_p5 = false
   let mut show_output = true
+  let mut summary = true
   let mut force_full_output = false
   let mut infer_layout = false
   let mut clip_w = 0
@@ -2185,6 +2391,12 @@ fn main {
     }
     if arg == "--no-output" {
       show_output = false
+    }
+    if arg == "--no-summary" {
+      summary = false
+    }
+    if arg == "--summary" {
+      summary = true
     }
     if arg == "--full-output" {
       force_full_output = true
@@ -2258,8 +2470,20 @@ fn main {
       infer_layout,
     }
     let list = if run_p5 { patterns_p5() } else { patterns() }
+    let reports : Array[PatternReport] = []
     for pattern in list {
-      run_pattern(pattern, out_opts)
+      reports.push(run_pattern(pattern, out_opts))
+    }
+    if summary {
+      let eval2_label =
+        if infer_layout {
+          "eval-2 inferred->actual (layout_rects)"
+        } else {
+          "eval-2 inferred->actual (ascii)"
+        }
+      println(summary_block("eval-1 predicted->actual", reports, fn(r) { r.eval1 }))
+      println(summary_block(eval2_label, reports, fn(r) { r.eval2 }))
+      println(summary_block("eval-2b inferred->actual (no root)", reports, fn(r) { r.eval2b }))
     }
   }
 }
