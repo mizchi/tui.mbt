@@ -1,7 +1,7 @@
 ///|
 pub struct EditorState {
-  doc : Document
-  selection : Selection
+  mut doc : Document
+  mut selection : Selection
   viewport : Viewport
   mut preferred_col : Int
   highlight : HighlightState
@@ -84,6 +84,19 @@ pub fn EditorState::set_height(self : EditorState, height : Int) -> Unit {
   self.viewport.set_height(height)
   let caret = self.caret()
   self.viewport.ensure_visible(caret.line, self.doc.line_count())
+}
+
+///|
+pub fn EditorState::get_text(self : EditorState) -> String {
+  self.doc.to_text()
+}
+
+///|
+pub fn EditorState::set_text(self : EditorState, text : String) -> Unit {
+  self.doc = Document::from_text(text)
+  self.selection = Selection::caret({ line: 0, col: 0 })
+  self.viewport.ensure_visible(0, self.doc.line_count())
+  self.highlight.update(self.doc, 0)
 }
 
 ///|

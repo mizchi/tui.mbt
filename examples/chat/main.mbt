@@ -184,7 +184,7 @@ fn main {
 
   // State
   let messages : Array[Message] = []
-  let input = @signals.signal("")
+  let editor_state = @editor.EditorState::new_with_filename("", 3, "input.txt")
   let editing = @signals.signal(false)
   let scroll_offset = @signals.signal(0)
   let streaming = StreamingState::new()
@@ -334,25 +334,30 @@ fn main {
   }
 
   fn render_input() -> TuiNode {
-    let current = input.get()
+    let current = editor_state.get_text()
     let chat_width = get_chat_width()
-    let display_text = if current.length() == 0 && not(editing.get()) {
-      "Type a message... (press Enter to start)"
+    if editing.get() {
+      // Use editor component when editing
+      @editor.render_editor(editor_state, chat_width, input_rows)
     } else {
-      current
+      // Show placeholder when not editing
+      let display_text = if current.length() == 0 {
+        "Type a message... (press Enter to start)"
+      } else {
+        current
+      }
+      let fg = if current.length() == 0 {
+        "rgb(100,100,100)"
+      } else {
+        "white"
+      }
+      let truncated_display = truncate_text(" " + display_text, chat_width - 1)
+      column(height=input_rows.to_double(), min_width=chat_width.to_double(), [
+        row(id="input-line", min_width=chat_width.to_double(), [
+          text(truncated_display, fg~),
+        ]),
+      ])
     }
-    let fg = if current.length() == 0 && not(editing.get()) {
-      "rgb(100,100,100)"
-    } else {
-      "white"
-    }
-    // Truncate input display to fit chat width
-    let truncated_display = truncate_text(" " + display_text, chat_width - 1)
-    column(height=input_rows.to_double(), min_width=chat_width.to_double(), [
-      row(id="input-line", min_width=chat_width.to_double(), [
-        text(truncated_display, fg~),
-      ]),
-    ])
   }
 
   fn render_footer() -> TuiNode {
@@ -428,20 +433,18 @@ fn main {
     @tui.print_raw(output)
     // Position cursor at input line
     if editing.get() {
-      match app.find_by_id("input-line") {
-        Some(bounds) => {
-          let input_width = @core.string_display_width(input.get())
-          let max_cursor = width.val - 2
-          let cursor_x = bounds.x +
-            1 +
-            (if input_width > max_cursor { max_cursor } else { input_width })
-          @tui.print_raw(
-            @render.ansi_move_to(bounds.y, cursor_x) +
-            @render.ansi_show_cursor(),
-          )
-        }
-        None => ()
-      }
+      let chat_width = get_chat_width()
+      let editor_x = if sidebar_visible.get() { sidebar_width.get() + 1 } else { 0 }
+      let editor_y = message_area_height() + divider_rows
+      let (cursor_row, cursor_col) = @editor.editor_cursor_position(
+        editor_state,
+        chat_width,
+        input_rows,
+      )
+      @tui.print_raw(
+        @render.ansi_move_to(editor_y + cursor_row, editor_x + cursor_col) +
+        @render.ansi_show_cursor(),
+      )
     } else {
       @tui.print_raw(@render.ansi_hide_cursor())
     }
@@ -660,10 +663,10 @@ fn main {
 
   // Mutually recursive input handling
   letrec restore_tui_and_send: () -> Unit = fn() {
-    let raw = input.get()
+    let raw = editor_state.get_text()
     let text = raw.trim(chars=" \t\n\r").to_string()
     if text.length() > 0 {
-      input.set("")
+      editor_state.set_text("")
       // Handle slash commands
       if text == "/compact" {
         @tui.print_raw(@render.ansi_full_reset())
@@ -724,7 +727,7 @@ fn main {
     if key.length() > 1 &&
       key[0].to_int() != 0x1b &&
       @tui.is_printable_string(key) {
-      input.set(input.get() + key)
+      editor_state.replace_selection(key)
       do_render()
       return
     }
@@ -736,30 +739,24 @@ fn main {
     match event {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
+          // Escape: go back to sidebar (keep input)
           @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
-            input.set("")
-            restore_tui_and_send()
+            @io.stop_keypress_listener()
+            editing.set(false)
+            sidebar_focused.set(true)
+            @tui.print_raw(@render.ansi_full_reset())
+            app.clear_prev_buffer()
+            do_render()
+            @io.start_keypress_listener(handle_key)
           }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) =>
+          // Enter without modifier: send message
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::None) =>
             restore_tui_and_send()
-          @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _) => {
-            let current = input.get()
-            if current.length() > 0 {
-              let chars : Array[Char] = current.iter().collect()
-              let buf = StringBuilder::new()
-              for i = 0; i < chars.length() - 1; i = i + 1 {
-                buf.write_char(chars[i])
-              }
-              input.set(buf.to_string())
-            }
+          // Other keys: delegate to editor
+          _ => {
+            @editor.handle_key_event(editor_state, key_event)
             do_render()
           }
-          @tui.KeyEvent::Char(c, @tui.KeyModifier::None)
-          | @tui.KeyEvent::Char(c, @tui.KeyModifier::Shift) => {
-            input.set(input.get() + c.to_string())
-            do_render()
-          }
-          _ => ()
         }
       _ => ()
     }
@@ -840,13 +837,23 @@ fn main {
               do_render()
             }
           }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, _) => {
+          // Ctrl+Enter: focus input form directly (from sidebar)
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::Ctrl) => {
+            if sidebar_focused.get() {
+              sidebar_focused.set(false)
+              start_editing()
+            } else {
+              start_editing()
+            }
+          }
+          // Enter: enter directory or select file (in sidebar), or start editing
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::None) => {
             if sidebar_focused.get() {
               // Enter directory or select file
               match file_tree.enter_selected() {
                 Some(file_path) => {
                   // Insert file path into input
-                  input.set(input.get() + file_path)
+                  editor_state.replace_selection(file_path)
                   sidebar_focused.set(false)
                   start_editing()
                 }
@@ -936,27 +943,33 @@ fn main {
               do_render()
             }
           }
-          // Right arrow: expand directory or select file (when sidebar focused)
+          // Right arrow: expand directory, select file, or move to editor (when sidebar focused)
           @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) => {
             if sidebar_focused.get() {
-              match file_tree.toggle_selected() {
-                Some(file_path) => {
-                  // File selected - load preview
-                  file_tree.load_preview(file_path)
-                  preview_visible.set(true)
-                  app.clear_prev_buffer()
-                  do_render()
-                }
-                None => {
-                  // Directory toggled
-                  file_tree.load_selected_preview()
-                  if file_tree.preview_file.length() > 0 {
+              // If preview is already visible (file selected), move to editor
+              if preview_visible.get() && file_tree.preview_file.length() > 0 {
+                sidebar_focused.set(false)
+                start_editing()
+              } else {
+                match file_tree.toggle_selected() {
+                  Some(file_path) => {
+                    // File selected - load preview
+                    file_tree.load_preview(file_path)
                     preview_visible.set(true)
-                  } else {
-                    preview_visible.set(false)
+                    app.clear_prev_buffer()
+                    do_render()
                   }
-                  app.clear_prev_buffer()
-                  do_render()
+                  None => {
+                    // Directory toggled
+                    file_tree.load_selected_preview()
+                    if file_tree.preview_file.length() > 0 {
+                      preview_visible.set(true)
+                    } else {
+                      preview_visible.set(false)
+                    }
+                    app.clear_prev_buffer()
+                    do_render()
+                  }
                 }
               }
             }

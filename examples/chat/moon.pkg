@@ -4,6 +4,7 @@ import {
   "mizchi/tui/render",
   "mizchi/tui/vnode",
   "mizchi/tui/io",
+  "mizchi/tui/editor",
   "mizchi/tmgrammar/tui" as @tm_tui,
   "mizchi/tmgrammar/oniguruma" as @tm_onig,
   "mizchi/syntree" as @syntree,

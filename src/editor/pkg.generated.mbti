@@ -35,6 +35,25 @@ pub(all) struct CompletionItem {
   documentation : String?
 }
 
+pub struct CompletionPopup {
+  session : CompletionSession
+  max_items : Int
+  style : CompletionPopupStyle
+}
+pub fn CompletionPopup::calculate_rect(Self, Int, Int, Int, Int) -> PopupRect?
+pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : CompletionPopupStyle) -> Self
+pub fn CompletionPopup::render(Self, EditorState, Int, Int) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], PopupRect)?
+pub fn CompletionPopup::render_overlay(Self, EditorState, Int, Int) -> (String, PopupRect)?
+
+pub struct CompletionPopupStyle {
+  selected_bg : String
+  normal_bg : String
+  prefix_fg : String
+  selected_suffix_fg : String
+  normal_suffix_fg : String
+}
+pub fn CompletionPopupStyle::default() -> Self
+
 pub(all) struct CompletionRange {
   start_col : Int
   end_col : Int
@@ -80,8 +99,8 @@ pub fn CompletionSession::set_request(Self, CompletionRequest) -> Unit
 type Document
 
 pub struct EditorState {
-  doc : Document
-  selection : Selection
+  mut doc : Document
+  mut selection : Selection
   viewport : Viewport
   mut preferred_col : Int
   highlight : HighlightState
@@ -91,6 +110,7 @@ pub fn EditorState::caret_line(Self) -> Int
 pub fn EditorState::completion_request(Self, Int) -> CompletionRequest
 pub fn EditorState::current_word_bounds(Self) -> (Int, Int)
 pub fn EditorState::current_word_prefix(Self) -> String
+pub fn EditorState::get_text(Self) -> String
 pub fn EditorState::new(String, Int) -> Self
 pub fn EditorState::new_with_filename(String, Int, String) -> Self
 pub fn EditorState::new_with_kind(String, Int, HighlightKind) -> Self
@@ -98,8 +118,9 @@ pub fn EditorState::replace_current_word(Self, String) -> Unit
 pub fn EditorState::replace_selection(Self, String) -> Unit
 pub fn EditorState::scroll_view(Self, Int) -> Unit
 pub fn EditorState::set_height(Self, Int) -> Unit
+pub fn EditorState::set_text(Self, String) -> Unit
 
-pub enum HighlightKind {
+pub(all) enum HighlightKind {
   Plain
   TypeScript
   Rust
@@ -128,6 +149,14 @@ pub struct HighlightState {
   mut line_cache : @syntree.LineCache?
   mut spans : Array[Array[HighlightSpan]]
 }
+
+pub struct PopupRect {
+  row : Int
+  col : Int
+  width : Int
+  height : Int
+}
+pub fn PopupRect::eq(Self, Self) -> Bool
 
 type Position
 pub impl Eq for Position

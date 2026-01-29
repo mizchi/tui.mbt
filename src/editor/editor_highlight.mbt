@@ -1,5 +1,5 @@
 ///|
-pub enum HighlightKind {
+pub(all) enum HighlightKind {
   Plain
   TypeScript
   Rust
