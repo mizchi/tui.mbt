@@ -647,6 +647,14 @@ fn infer_boxes_stats(
       }
     }
   }
+  let canvas_key = "0,0,\{width},\{height}"
+  match seen.get(canvas_key) {
+    Some(_) => ()
+    None => {
+      seen[canvas_key] = true
+      boxes.push({ id: "", x: 0, y: 0, width, height })
+    }
+  }
   { boxes, rejected }
 }
 
