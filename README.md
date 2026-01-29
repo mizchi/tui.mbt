@@ -120,6 +120,29 @@ fn main {
 @components.meter("Memory", 0.8)
 ```
 
+## Layout Evaluation (experiments/eval_ui)
+
+The `experiments/eval_ui` package provides a layout regression harness and
+layout-rect snapshots (IDs only, auto/root filtered).
+
+```bash
+# Base patterns
+moon -C experiments/eval_ui run . -- --layout-snapshot
+
+# Persona 5 patterns
+moon -C experiments/eval_ui run . -- --layout-snapshot-p5
+```
+
+For running eval with layout-rect inference (no AA parsing), add `--infer-layout`:
+
+```bash
+moon -C experiments/eval_ui run . -- --infer-layout
+```
+
+Snapshots:
+- `__snapshots__/eval_ui_layout.txt`
+- `__snapshots__/eval_ui_layout_p5.txt`
+
 ## Examples
 
 ```bash
