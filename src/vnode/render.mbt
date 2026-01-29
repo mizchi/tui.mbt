@@ -16,6 +16,7 @@ pub struct RenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
+  roles : Map[String, @core.Role]
   mut id_counter : Int
   // Stack of grid area maps (for nested grids)
   area_stack : Array[Map[String, GridAreaInfo]]
@@ -24,7 +25,14 @@ pub struct RenderContext {
 ///|
 /// Create a new render context
 pub fn RenderContext::new() -> RenderContext {
-  { styles: {}, texts: {}, handlers: {}, id_counter: 0, area_stack: [] }
+  {
+    styles: {},
+    texts: {},
+    handlers: {},
+    roles: {},
+    id_counter: 0,
+    area_stack: [],
+  }
 }
 
 ///|
@@ -199,8 +207,15 @@ fn convert_element(
   for attr in el.attrs {
     let (_, value) = attr
     match value {
-      @luna.Attr::VStatic(typed_value) => apply_attr(style, visual, typed_value)
-      @luna.Attr::VDynamic(getter) => apply_attr(style, visual, getter())
+      @luna.Attr::VStatic(typed_value) => {
+        apply_a11y_attr(ctx, id, typed_value)
+        apply_attr(style, visual, typed_value)
+      }
+      @luna.Attr::VDynamic(getter) => {
+        let typed_value = getter()
+        apply_a11y_attr(ctx, id, typed_value)
+        apply_attr(style, visual, typed_value)
+      }
       @luna.Attr::VHandler(handler) => ctx.handlers[id] = handler.get_callback()
     }
   }
@@ -381,9 +396,22 @@ fn apply_attr(
     TuiAttrValue::Id(_) => ()
     // Accessibility: TabIndex is metadata, doesn't affect layout
     TuiAttrValue::TabIndex(_) => ()
+    TuiAttrValue::Role(_) => ()
     // Grid template areas: handled in convert_element for context passing
     TuiAttrValue::GridTemplateAreas(_) => ()
     // Grid area: resolved in convert_element_with_area
     TuiAttrValue::GridArea(_) => ()
+  }
+}
+
+///|
+fn apply_a11y_attr(
+  ctx : RenderContext,
+  id : String,
+  attr : TuiAttrValue,
+) -> Unit {
+  match attr {
+    TuiAttrValue::Role(role) => ctx.roles[id] = role
+    _ => ()
   }
 }

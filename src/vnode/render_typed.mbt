@@ -94,6 +94,7 @@ fn apply_typed_attr(style : @style.Style, attr : TuiAttrValue) -> Unit {
     TuiAttrValue::Id(_) => ()
     // Accessibility attributes are handled separately
     TuiAttrValue::TabIndex(_) => ()
+    TuiAttrValue::Role(_) => ()
     // Grid template areas: handled in convert_element for context passing
     TuiAttrValue::GridTemplateAreas(_) => ()
     // Grid area: resolved in convert_element_with_area
@@ -150,6 +151,7 @@ pub struct TypedRenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
   handlers : Map[String, (TuiEvent) -> Unit]
+  roles : Map[String, @core.Role]
   mut id_counter : Int
   // Stack of grid area maps (for nested grids) - mirrors RenderContext
   area_stack : Array[Map[String, GridAreaInfo]]
@@ -157,7 +159,14 @@ pub struct TypedRenderContext {
 
 ///|
 pub fn TypedRenderContext::new() -> TypedRenderContext {
-  { styles: {}, texts: {}, handlers: {}, id_counter: 0, area_stack: [] }
+  {
+    styles: {},
+    texts: {},
+    handlers: {},
+    roles: {},
+    id_counter: 0,
+    area_stack: [],
+  }
 }
 
 ///|
@@ -175,6 +184,12 @@ pub fn box_to_crater(
 ) -> @node.Node {
   let id = if props.id.length() > 0 { props.id } else { ctx.gen_id() }
   let attrs = props.to_attrs()
+  for attr in attrs {
+    match attr {
+      TuiAttrValue::Role(role) => ctx.roles[id] = role
+      _ => ()
+    }
+  }
   // Apply layout attributes to style
   let style = @style.Style::default()
   style.display = @types.Display::Flex
@@ -211,6 +226,7 @@ fn typed_to_crater_node(ctx : TypedRenderContext, node : TuiNode) -> @node.Node 
     styles: ctx.styles,
     texts: ctx.texts,
     handlers: ctx.handlers,
+    roles: ctx.roles,
     id_counter: ctx.id_counter,
     area_stack: ctx.area_stack,
   }

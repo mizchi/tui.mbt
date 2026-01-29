@@ -205,4 +205,5 @@ pub(all) enum TuiAttrValue {
   Id(String)
   // Accessibility
   TabIndex(Int) // Tab order for focus management (-1 = not focusable, 0+ = tab order)
+  Role(@core.Role)
 }

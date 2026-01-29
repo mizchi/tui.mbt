@@ -22,6 +22,7 @@ pub fn button(
   @vnode.row(
     id~,
     bg~,
+    role="button",
     border="rounded",
     border_color~,
     padding_x=1.0,
@@ -46,7 +47,13 @@ pub fn icon_button(
     Pressed => ("black", "cyan")
     Disabled => ("rgb(80,80,80)", "")
   }
-  @vnode.row(id~, bg~, padding_x=0.5, [@vnode.text(icon, fg~)])
+  @vnode.row(
+    id~,
+    bg~,
+    role="button",
+    padding_x=0.5,
+    [@vnode.text(icon, fg~)],
+  )
 }
 
 ///|
@@ -64,5 +71,5 @@ pub fn text_button(
     Disabled => ("rgb(80,80,80)", false)
   }
   // Note: underline not supported in vnode yet, using bold as visual indicator
-  @vnode.text(label, fg~, bold=underline)
+  @vnode.text(label, fg~, bold=underline, role="button")
 }

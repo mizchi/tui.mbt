@@ -145,6 +145,21 @@ pub fn VNodeApp::layout_rects(
 }
 
 ///|
+/// Get accessibility tree from the last render.
+pub fn VNodeApp::a11y_tree(self : VNodeApp) -> Array[A11yNode] {
+  match self.last_layout {
+    Some(layout) => build_a11y_tree(layout, self.render_ctx)
+    None => []
+  }
+}
+
+///|
+/// Debug: dump accessibility tree structure.
+pub fn VNodeApp::dump_a11y_tree(self : VNodeApp) -> String {
+  dump_a11y_tree(self.a11y_tree())
+}
+
+///|
 /// Handle a mouse event using the render context's handlers
 /// Returns the clicked component ID if found and handler was invoked
 pub fn VNodeApp::handle_click(

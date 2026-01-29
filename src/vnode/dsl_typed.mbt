@@ -71,6 +71,7 @@ fn attr_key(attr : TuiAttrValue) -> String {
     TuiAttrValue::Underline(_) => "underline"
     TuiAttrValue::Id(_) => "id"
     TuiAttrValue::TabIndex(_) => "tab_index"
+    TuiAttrValue::Role(_) => "role"
   }
 }
 
@@ -102,6 +103,7 @@ pub struct BoxProps {
   border_color : ColorValue?
   bg : ColorValue?
   tab_index : Int
+  role : @core.Role?
 }
 
 ///|
@@ -128,6 +130,7 @@ pub fn BoxProps::default() -> BoxProps {
     border_color: None,
     bg: None,
     tab_index: -1,
+    role: None,
   }
 }
 
@@ -204,6 +207,10 @@ pub fn BoxProps::to_attrs(self : BoxProps) -> Array[TuiAttrValue] {
   if self.tab_index >= 0 {
     attrs.push(TuiAttrValue::TabIndex(self.tab_index))
   }
+  match self.role {
+    Some(v) => attrs.push(TuiAttrValue::Role(v))
+    None => ()
+  }
   attrs
 }
 
@@ -221,11 +228,12 @@ pub struct TextProps {
   fg : ColorValue?
   bold : Bool
   underline : Bool
+  role : @core.Role?
 }
 
 ///|
 pub fn TextProps::default(content : String) -> TextProps {
-  { content, fg: None, bold: false, underline: false }
+  { content, fg: None, bold: false, underline: false, role: None }
 }
 
 ///|
@@ -240,6 +248,10 @@ pub fn TextProps::to_attrs(self : TextProps) -> Array[TuiAttrValue] {
   }
   if self.underline {
     attrs.push(TuiAttrValue::Underline(true))
+  }
+  match self.role {
+    Some(v) => attrs.push(TuiAttrValue::Role(v))
+    None => ()
   }
   attrs
 }
@@ -281,6 +293,7 @@ fn build_box_attrs(
   border : String,
   border_color : String,
   bg : String,
+  role : String,
   tab_index : Int,
   on_click : ((TuiEvent) -> Unit)?,
 ) -> Array[(String, TuiAttr)] {
@@ -366,6 +379,9 @@ fn build_box_attrs(
   if bg.length() > 0 {
     attrs.push(("bg", attr(TuiAttrValue::Bg(parse_color_value(bg)))))
   }
+  if role.length() > 0 {
+    attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
+  }
   // TabIndex: -1 means not focusable (excluded), 0+ sets tab order
   if tab_index >= 0 {
     attrs.push(("tab_index", attr(TuiAttrValue::TabIndex(tab_index))))
@@ -398,6 +414,7 @@ pub fn row(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  role? : String = "",
   tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
   children : Array[TuiNode],
@@ -422,6 +439,7 @@ pub fn row(
     border,
     border_color,
     bg,
+    role,
     tab_index,
     on_click,
   )
@@ -449,6 +467,7 @@ pub fn column(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  role? : String = "",
   tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
   children : Array[TuiNode],
@@ -473,6 +492,7 @@ pub fn column(
     border,
     border_color,
     bg,
+    role,
     tab_index,
     on_click,
   )
@@ -502,6 +522,7 @@ pub fn view(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  role? : String = "",
   tab_index? : Int = -1,
   on_click? : ((TuiEvent) -> Unit)? = None,
   children : Array[TuiNode],
@@ -514,7 +535,7 @@ pub fn view(
   let attrs = build_box_attrs(
     dir, id, gap, margin, margin_x, margin_y, padding, padding_x, padding_y, width,
     height, min_width, min_height, flex_grow, justify, align, border, border_color,
-    bg, tab_index, on_click,
+    bg, role, tab_index, on_click,
   )
   @luna.h("box", attrs, children)
 }
@@ -537,6 +558,7 @@ pub fn grid(
   border? : String = "",
   border_color? : String = "",
   bg? : String = "",
+  role? : String = "",
   tab_index? : Int = -1,
   children : Array[TuiNode],
 ) -> TuiNode {
@@ -639,6 +661,9 @@ pub fn grid(
   if bg.length() > 0 {
     attrs.push(("bg", attr(TuiAttrValue::Bg(parse_color_value(bg)))))
   }
+  if role.length() > 0 {
+    attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
+  }
   if tab_index >= 0 {
     attrs.push(("tab_index", attr(TuiAttrValue::TabIndex(tab_index))))
   }
@@ -697,14 +722,18 @@ pub fn text(
   content : String,
   fg? : String = "",
   bold? : Bool = false,
+  role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold {
+  if fg.length() > 0 || bold || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
     }
     if bold {
       attrs.push(("bold", attr(TuiAttrValue::Bold(true))))
+    }
+    if role.length() > 0 {
+      attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
     }
     @luna.h("text", attrs, [@luna.text(content)])
   } else {
@@ -718,14 +747,18 @@ pub fn text_dyn(
   getter : () -> String,
   fg? : String = "",
   bold? : Bool = false,
+  role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold {
+  if fg.length() > 0 || bold || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
     }
     if bold {
       attrs.push(("bold", attr(TuiAttrValue::Bold(true))))
+    }
+    if role.length() > 0 {
+      attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
     }
     @luna.h("text", attrs, [@luna.text_dyn(getter)])
   } else {
@@ -841,6 +874,122 @@ fn parse_color_value(s : String) -> ColorValue {
   ColorValue::Named(s)
 }
 
+///|
+fn parse_role_value(s : String) -> @core.Role {
+  let v = s.to_lower()
+  if v.has_prefix("custom:") && v.length() > 7 {
+    return @core.Role::Custom(v.view(start_offset=7).to_string())
+  }
+  match v {
+    "button" => @core.Role::Button
+    "checkbox" => @core.Role::Checkbox
+    "link" => @core.Role::Link
+    "menuitem" => @core.Role::Menuitem
+    "option" => @core.Role::Option
+    "radio" => @core.Role::Radio
+    "slider" => @core.Role::Slider
+    "switch" => @core.Role::Switch
+    "tab" => @core.Role::Tab
+    "textbox" => @core.Role::Textbox
+    "listbox" => @core.Role::Listbox
+    "menu" => @core.Role::Menu
+    "menubar" => @core.Role::Menubar
+    "radiogroup" => @core.Role::Radiogroup
+    "tablist" => @core.Role::Tablist
+    "tree" => @core.Role::Tree
+    "treegrid" => @core.Role::Treegrid
+    "article" => @core.Role::Article
+    "cell" => @core.Role::Cell
+    "columnheader" => @core.Role::Columnheader
+    "definition" => @core.Role::Definition
+    "directory" => @core.Role::Directory
+    "document" => @core.Role::Document
+    "group" => @core.Role::Group
+    "heading" => @core.Role::Heading
+    "img" => @core.Role::Img
+    "list" => @core.Role::List
+    "listitem" => @core.Role::Listitem
+    "row" => @core.Role::Row
+    "rowgroup" => @core.Role::Rowgroup
+    "rowheader" => @core.Role::Rowheader
+    "separator" => @core.Role::Separator
+    "table" => @core.Role::Table
+    "term" => @core.Role::Term
+    "banner" => @core.Role::Banner
+    "complementary" => @core.Role::Complementary
+    "contentinfo" => @core.Role::Contentinfo
+    "form" => @core.Role::Form
+    "main" => @core.Role::Main
+    "navigation" => @core.Role::Navigation
+    "region" => @core.Role::Region
+    "search" => @core.Role::Search
+    "alert" => @core.Role::Alert
+    "log" => @core.Role::Log
+    "marquee" => @core.Role::Marquee
+    "status" => @core.Role::Status
+    "timer" => @core.Role::Timer
+    "alertdialog" => @core.Role::Alertdialog
+    "dialog" => @core.Role::Dialog
+    _ => @core.Role::Custom(s)
+  }
+}
+
+///|
+fn role_to_string(role : @core.Role) -> String {
+  match role {
+    Button => "button"
+    Checkbox => "checkbox"
+    Link => "link"
+    Menuitem => "menuitem"
+    Option => "option"
+    Radio => "radio"
+    Slider => "slider"
+    Switch => "switch"
+    Tab => "tab"
+    Textbox => "textbox"
+    Listbox => "listbox"
+    Menu => "menu"
+    Menubar => "menubar"
+    Radiogroup => "radiogroup"
+    Tablist => "tablist"
+    Tree => "tree"
+    Treegrid => "treegrid"
+    Article => "article"
+    Cell => "cell"
+    Columnheader => "columnheader"
+    Definition => "definition"
+    Directory => "directory"
+    Document => "document"
+    Group => "group"
+    Heading => "heading"
+    Img => "img"
+    List => "list"
+    Listitem => "listitem"
+    Row => "row"
+    Rowgroup => "rowgroup"
+    Rowheader => "rowheader"
+    Separator => "separator"
+    Table => "table"
+    Term => "term"
+    Banner => "banner"
+    Complementary => "complementary"
+    Contentinfo => "contentinfo"
+    Form => "form"
+    Main => "main"
+    Navigation => "navigation"
+    Region => "region"
+    Search => "search"
+    Alert => "alert"
+    Log => "log"
+    Marquee => "marquee"
+    Status => "status"
+    Timer => "timer"
+    Alertdialog => "alertdialog"
+    Dialog => "dialog"
+    Custom(name) => name
+  }
+}
+
 // =============================================================================
 // Attribute to string conversion (for debugging/testing)
 // =============================================================================
@@ -889,6 +1038,7 @@ pub fn attr_to_string(attr : TuiAttrValue) -> (String, String) {
     TuiAttrValue::Underline(v) => if v { "true" } else { "false" }
     TuiAttrValue::Id(v) => v
     TuiAttrValue::TabIndex(v) => v.to_string()
+    TuiAttrValue::Role(v) => role_to_string(v)
   }
   (key, value)
 }

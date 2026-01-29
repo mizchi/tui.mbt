@@ -55,6 +55,9 @@ pub using @vnode {
   type GridAutoFlowValue,
   // Focus management
   type FocusContext,
+  // Accessibility
+  type A11yNode,
+  dump_a11y_tree,
 }
 
 // === Headless (State Types) ===
