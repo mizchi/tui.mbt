@@ -127,10 +127,8 @@ fn FilerState::build_items_recursive(
   let json = @ai.js_list_dir_json(dir_path)
   let entries : Array[(String, Bool, GitStatus)] = [] // (name, is_dir, git_status)
   parse_dir_entries(json, entries, self.git_status)
-
   for entry in entries {
     let (name, is_dir, git_status) = entry
-
     if is_filtered_entry(name) {
       continue
     }
@@ -145,13 +143,16 @@ fn FilerState::build_items_recursive(
         _ => ()
       }
     }
-
     let full_path = @ai.js_path_join(dir_path, name)
     let is_expanded = self.expanded_dirs.get(full_path).unwrap_or(false)
-
-    self.visible_items.push(
-      { path: full_path, name, is_dir, git_status, depth, is_expanded },
-    )
+    self.visible_items.push({
+      path: full_path,
+      name,
+      is_dir,
+      git_status,
+      depth,
+      is_expanded,
+    })
 
     // If directory is expanded, add its children
     if is_dir && is_expanded {
@@ -186,7 +187,9 @@ fn FilerState::toggle_selected(self : FilerState) -> String? {
     let item = self.visible_items[self.selected_idx]
     if item.is_dir {
       // Toggle expansion
-      let currently_expanded = self.expanded_dirs.get(item.path).unwrap_or(false)
+      let currently_expanded = self.expanded_dirs
+        .get(item.path)
+        .unwrap_or(false)
       self.expanded_dirs[item.path] = not(currently_expanded)
       self.build_visible_items()
       None
@@ -343,7 +346,9 @@ fn FilerState::handle_click(self : FilerState, row : Int) -> String? {
       let item = self.visible_items[item_idx]
       if item.is_dir {
         // Toggle expansion on click
-        let currently_expanded = self.expanded_dirs.get(item.path).unwrap_or(false)
+        let currently_expanded = self.expanded_dirs
+          .get(item.path)
+          .unwrap_or(false)
         self.expanded_dirs[item.path] = not(currently_expanded)
         self.build_visible_items()
         None
@@ -370,10 +375,14 @@ fn parse_dir_entries(
   let chars : Array[Char] = json.iter().collect()
   let mut i = 0
   let len = chars.length()
-
   fn skip_ws() -> Unit {
     while i < len &&
-      (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\r' || chars[i] == '\t') {
+          (
+            chars[i] == ' ' ||
+            chars[i] == '\n' ||
+            chars[i] == '\r' ||
+            chars[i] == '\t'
+          ) {
       i = i + 1
     }
   }
@@ -485,14 +494,17 @@ fn parse_git_status_code(code : String) -> GitStatus {
 fn parse_git_status_json(json : String) -> (Map[String, String], Bool) {
   let files : Map[String, String] = {}
   let mut is_repo = false
-
   let chars : Array[Char] = json.iter().collect()
   let mut i = 0
   let len = chars.length()
-
   fn skip_ws() -> Unit {
     while i < len &&
-      (chars[i] == ' ' || chars[i] == '\n' || chars[i] == '\r' || chars[i] == '\t') {
+          (
+            chars[i] == ' ' ||
+            chars[i] == '\n' ||
+            chars[i] == '\r' ||
+            chars[i] == '\t'
+          ) {
       i = i + 1
     }
   }
@@ -582,6 +594,5 @@ fn parse_git_status_json(json : String) -> (Map[String, String], Bool) {
       }
     }
   }
-
   (files, is_repo)
 }

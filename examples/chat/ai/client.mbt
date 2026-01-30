@@ -67,11 +67,7 @@ pub fn BoxedAIClient::stream_with_tools(
   on_error : (String) -> Unit,
 ) -> Unit {
   self.inner.stream_with_tools(
-    messages,
-    on_chunk,
-    on_tool_call,
-    on_complete,
-    on_error,
+    messages, on_chunk, on_tool_call, on_complete, on_error,
   )
 }
 
@@ -128,7 +124,6 @@ pub fn create_client_from_env(
     )
     return Some({ inner: client })
   }
-
   None
 }
 

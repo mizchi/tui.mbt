@@ -1,8 +1,8 @@
 {
   "name": "mizchi/tui",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "deps": {
-    "mizchi/crater": "0.3.1",
+    "mizchi/crater": "0.4.1",
     "mizchi/signals": "0.6.1",
     "moonbitlang/async": "0.16.0",
     "mizchi/syntree": "0.2.0"

@@ -184,8 +184,14 @@ fn main {
 
   // State
   let messages : Array[Message] = []
-  let input_editor = @editor.EditorState::new_with_kind("", 3, @editor.HighlightKind::Plain)
-  let preview_editor : Ref[@editor.EditorState] = Ref::new(@editor.EditorState::new_with_kind("", 10, @editor.HighlightKind::Plain))
+  let input_editor = @editor.EditorState::new_with_kind(
+    "",
+    3,
+    @editor.HighlightKind::Plain,
+  )
+  let preview_editor : Ref[@editor.EditorState] = Ref::new(
+    @editor.EditorState::new_with_kind("", 10, @editor.HighlightKind::Plain),
+  )
   let editing = @signals.signal(false)
   let preview_editing = @signals.signal(false)
   let scroll_offset = @signals.signal(0)
@@ -222,7 +228,6 @@ fn main {
   let sidebar_width = @signals.signal(28)
   let sidebar_min_width = 20
   let sidebar_max_width = 60
-
   fn get_chat_width() -> Int {
     if sidebar_visible.get() {
       // Border is already part of sidebar_width (filer renders content + border)
@@ -368,7 +373,13 @@ fn main {
       // Use editor component without header/footer for input
       // Wrap in column with explicit height to ensure consistent layout
       column(height=rows.to_double(), min_width=chat_width.to_double(), [
-        @editor.render_editor(input_editor, chat_width, rows, show_header=false, show_footer=false),
+        @editor.render_editor(
+          input_editor,
+          chat_width,
+          rows,
+          show_header=false,
+          show_footer=false,
+        ),
       ])
     } else {
       // Show placeholder when not editing
@@ -377,11 +388,7 @@ fn main {
       } else {
         current
       }
-      let fg = if current.length() == 0 {
-        "rgb(100,100,100)"
-      } else {
-        "white"
-      }
+      let fg = if current.length() == 0 { "rgb(100,100,100)" } else { "white" }
       let truncated_display = truncate_text(" " + display_text, chat_width - 1)
       column(height=rows.to_double(), min_width=chat_width.to_double(), [
         row(id="input-line", min_width=chat_width.to_double(), [
@@ -441,7 +448,13 @@ fn main {
       // Wrap in column with explicit height to ensure consistent layout
       let filename = @ai.js_path_basename(file_tree.preview_file)
       column(height=area_height.to_double(), min_width=chat_width.to_double(), [
-        @editor.render_editor(preview_editor.val, chat_width, area_height, show_footer=false, title=filename),
+        @editor.render_editor(
+          preview_editor.val,
+          chat_width,
+          area_height,
+          show_footer=false,
+          title=filename,
+        ),
       ])
     } else {
       // Show messages
@@ -540,7 +553,9 @@ fn main {
   // Restart file watcher for new directory
   fn restart_watcher() -> Unit {
     @ai.js_stop_watch()
-    @ai.js_watch_directory(file_tree.current_dir, fn() { (on_file_change.val)() })
+    @ai.js_watch_directory(file_tree.current_dir, fn() {
+      (on_file_change.val)()
+    })
   }
 
   fn do_quit() -> Unit {
@@ -698,7 +713,6 @@ fn main {
           conversation_text.write_string(msg.content)
           conversation_text.write_string("\n\n")
         }
-
         let summary_prompt : Array[@ai.Message] = [
           {
             role: @ai.Role::User,
@@ -706,7 +720,6 @@ fn main {
             conversation_text.to_string(),
           },
         ]
-
         let summary_result = Ref::new("")
         client.stream(
           summary_prompt,
@@ -720,12 +733,10 @@ fn main {
           fn() {
             // Replace messages with summary
             messages.clear()
-            messages.push(
-              {
-                role: Assistant,
-                content: "[Conversation Summary]\n" + summary_result.val,
-              },
-            )
+            messages.push({
+              role: Assistant,
+              content: "[Conversation Summary]\n" + summary_result.val,
+            })
             streaming.clear()
             input_queue.finish_processing()
             scroll_offset.set(0)
@@ -886,7 +897,7 @@ fn main {
             @io.start_keypress_listener(handle_key)
           }
           // Ctrl+S: save file
-          @tui.KeyEvent::Char('s', @tui.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Char('s', @tui.KeyModifier::Ctrl) =>
             if file_tree.preview_file.length() > 0 {
               let content = preview_editor.val.get_text()
               let _ = @ai.js_write_file(file_tree.preview_file, content)
@@ -895,7 +906,6 @@ fn main {
               app.clear_prev_buffer()
               do_render()
             }
-          }
           // Other keys: delegate to preview editor
           _ => {
             @editor.handle_key_event(preview_editor.val, key_event)
@@ -918,7 +928,7 @@ fn main {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
           // Tab: toggle focus between sidebar and chat
-          @tui.KeyEvent::Special(@tui.SpecialKey::Tab, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Tab, _) =>
             if sidebar_visible.get() {
               let new_focused = not(sidebar_focused.get())
               sidebar_focused.set(new_focused)
@@ -933,9 +943,8 @@ fn main {
               }
               do_render()
             }
-          }
           // Escape: close preview, unfocus sidebar, or hide sidebar
-          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Escape, _) =>
             if preview_visible.get() {
               // Close preview first
               file_tree.clear_preview()
@@ -950,7 +959,6 @@ fn main {
               app.clear_prev_buffer()
               do_render()
             }
-          }
           // Backslash or 'b': toggle sidebar visibility
           @tui.KeyEvent::Char('b', @tui.KeyModifier::None)
           | @tui.KeyEvent::Char('\\', @tui.KeyModifier::None) => {
@@ -959,15 +967,14 @@ fn main {
             do_render()
           }
           // 'g': toggle git-only mode in sidebar
-          @tui.KeyEvent::Char('g', @tui.KeyModifier::None) => {
+          @tui.KeyEvent::Char('g', @tui.KeyModifier::None) =>
             if sidebar_focused.get() && file_tree.is_git_repo {
               file_tree.toggle_git_mode()
               app.clear_prev_buffer()
               do_render()
             }
-          }
           // 'j': scroll preview down or expand input area
-          @tui.KeyEvent::Char('j', @tui.KeyModifier::None) => {
+          @tui.KeyEvent::Char('j', @tui.KeyModifier::None) =>
             if preview_visible.get() && file_tree.preview_file.length() > 0 {
               let preview_height = height.val - 2 - 1 // filer_height - header
               file_tree.scroll_preview(1, preview_height)
@@ -982,9 +989,8 @@ fn main {
                 do_render()
               }
             }
-          }
           // 'k': scroll preview up or shrink input area
-          @tui.KeyEvent::Char('k', @tui.KeyModifier::None) => {
+          @tui.KeyEvent::Char('k', @tui.KeyModifier::None) =>
             if preview_visible.get() && file_tree.preview_file.length() > 0 {
               let preview_height = height.val - 2 - 1 // filer_height - header
               file_tree.scroll_preview(-1, preview_height)
@@ -999,18 +1005,16 @@ fn main {
                 do_render()
               }
             }
-          }
           // Ctrl+Enter: focus input form directly (from sidebar)
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::Ctrl) =>
             if sidebar_focused.get() {
               sidebar_focused.set(false)
               start_editing()
             } else {
               start_editing()
             }
-          }
           // Enter: enter directory or select file (in sidebar), or start editing
-          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::None) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Enter, @tui.KeyModifier::None) =>
             if sidebar_focused.get() {
               // Enter directory or select file
               match file_tree.enter_selected() {
@@ -1031,16 +1035,14 @@ fn main {
             } else {
               start_editing()
             }
-          }
-          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) => {
+          @tui.KeyEvent::Char(_, @tui.KeyModifier::None) =>
             if sidebar_focused.get() {
               // In sidebar, ignore character input
               ()
             } else {
               start_editing()
             }
-          }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Up, _) =>
             if sidebar_focused.get() {
               file_tree.move_selection(-1)
               // Scroll if needed
@@ -1062,14 +1064,16 @@ fn main {
               }
               do_render()
             }
-          }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Down, _) =>
             if sidebar_focused.get() {
               file_tree.move_selection(1)
               // Scroll if needed
               let visible_height = height.val - 4
-              if file_tree.selected_idx >= file_tree.scroll_offset + visible_height {
-                file_tree.scroll_offset = file_tree.selected_idx - visible_height + 1
+              if file_tree.selected_idx >=
+                file_tree.scroll_offset + visible_height {
+                file_tree.scroll_offset = file_tree.selected_idx -
+                  visible_height +
+                  1
               }
               // Auto-load preview for selected file
               file_tree.load_selected_preview()
@@ -1087,8 +1091,7 @@ fn main {
               }
               do_render()
             }
-          }
-          @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Backspace, _) =>
             // Backspace in sidebar: go to parent directory
             if sidebar_focused.get() {
               file_tree.go_up()
@@ -1096,9 +1099,8 @@ fn main {
               app.clear_prev_buffer()
               do_render()
             }
-          }
           // Left arrow: collapse directory or go to parent (when sidebar focused)
-          @tui.KeyEvent::Special(@tui.SpecialKey::Left, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Left, _) =>
             if sidebar_focused.get() {
               file_tree.collapse_selected()
               file_tree.load_selected_preview()
@@ -1111,9 +1113,8 @@ fn main {
               app.clear_prev_buffer()
               do_render()
             }
-          }
           // Right arrow: expand directory, select file, or move to preview editor (when sidebar focused)
-          @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) => {
+          @tui.KeyEvent::Special(@tui.SpecialKey::Right, _) =>
             if sidebar_focused.get() {
               // If preview is already visible (file selected), move to preview editor
               if preview_visible.get() && file_tree.preview_file.length() > 0 {
@@ -1144,9 +1145,8 @@ fn main {
                 }
               }
             }
-          }
           // Ctrl-L: increase sidebar width (when not focused)
-          @tui.KeyEvent::Char('l', @tui.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Char('l', @tui.KeyModifier::Ctrl) =>
             if sidebar_visible.get() && not(sidebar_focused.get()) {
               let new_width = sidebar_width.get() + 4
               if new_width <= sidebar_max_width {
@@ -1155,9 +1155,8 @@ fn main {
                 do_render()
               }
             }
-          }
           // Ctrl-H: decrease sidebar width (when not focused)
-          @tui.KeyEvent::Char('h', @tui.KeyModifier::Ctrl) => {
+          @tui.KeyEvent::Char('h', @tui.KeyModifier::Ctrl) =>
             if sidebar_visible.get() && not(sidebar_focused.get()) {
               let new_width = sidebar_width.get() - 4
               if new_width >= sidebar_min_width {
@@ -1166,13 +1165,12 @@ fn main {
                 do_render()
               }
             }
-          }
           _ => ()
         }
-      @tui.InputEvent::Mouse(mouse_event) => {
+      @tui.InputEvent::Mouse(mouse_event) =>
         // Only handle Press events (not Release to avoid double-trigger)
         match mouse_event.event_type {
-          @tui.MouseEventType::Press => {
+          @tui.MouseEventType::Press =>
             // Handle mouse click/scroll in sidebar
             if sidebar_visible.get() {
               match mouse_event.button {
@@ -1241,7 +1239,8 @@ fn main {
                   } else if mouse_event.x < sw {
                     // Scroll in file tree
                     let visible_height = height.val - 4
-                    let max_offset = if file_tree.visible_items.length() > visible_height {
+                    let max_offset = if file_tree.visible_items.length() >
+                      visible_height {
                       file_tree.visible_items.length() - visible_height
                     } else {
                       0
@@ -1256,10 +1255,8 @@ fn main {
                 _ => ()
               }
             }
-          }
           _ => ()
         }
-      }
       _ => ()
     }
   }

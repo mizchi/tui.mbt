@@ -43,7 +43,10 @@ pub(all) struct CompletionResponse {
 pub type CompletionProvider = (CompletionRequest) -> CompletionResponse
 
 ///|
-pub type CompletionProviderAsync = (CompletionRequest, (CompletionResponse) -> Unit) -> Unit
+pub type CompletionProviderAsync = (
+  CompletionRequest,
+  (CompletionResponse) -> Unit,
+) -> Unit
 
 ///|
 pub struct CompletionSession {
@@ -74,6 +77,7 @@ pub fn CompletionSession::set_request(
   self.anchor = req.anchor
   self.replace = req.replace
   let _ = self.engine.set_input(req.prefix)
+
 }
 
 ///|
@@ -91,7 +95,9 @@ pub fn CompletionSession::apply_response(
 }
 
 ///|
-pub fn CompletionSession::get_items(self : CompletionSession) -> Array[CompletionItem] {
+pub fn CompletionSession::get_items(
+  self : CompletionSession,
+) -> Array[CompletionItem] {
   self.items
 }
 
@@ -139,11 +145,15 @@ pub fn CompletionSession::clear(self : CompletionSession) -> Unit {
 }
 
 ///|
-pub fn CompletionSession::get_anchor(self : CompletionSession) -> CompletionAnchor {
+pub fn CompletionSession::get_anchor(
+  self : CompletionSession,
+) -> CompletionAnchor {
   self.anchor
 }
 
 ///|
-pub fn CompletionSession::get_replace(self : CompletionSession) -> CompletionRange {
+pub fn CompletionSession::get_replace(
+  self : CompletionSession,
+) -> CompletionRange {
   self.replace
 }

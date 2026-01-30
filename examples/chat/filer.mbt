@@ -13,12 +13,14 @@ fn render_filer(
   filer_height : Int,
   is_focused : Bool,
 ) -> TuiNode {
-  let border_color = if is_focused { "rgb(100,150,255)" } else { "rgb(60,60,60)" }
+  let border_color = if is_focused {
+    "rgb(100,150,255)"
+  } else {
+    "rgb(60,60,60)"
+  }
   let border_char = "\u{2502}"
   let content_width = filer_width - 1
-
   let lines : Array[TuiNode] = []
-
   fn make_row(content : String, fg : String) -> TuiNode {
     let padded = content +
       " ".repeat(content_width - @core.string_display_width(content))
@@ -60,11 +62,14 @@ fn render_filer(
 
       // Directory indicator: [+] collapsed, [-] expanded, or just /
       let dir_indicator = if item.is_dir {
-        if item.is_expanded { "[-]" } else { "[+]" }
+        if item.is_expanded {
+          "[-]"
+        } else {
+          "[+]"
+        }
       } else {
         "   "
       }
-
       let suffix = if item.is_dir { "/" } else { "" }
 
       // Color
@@ -73,18 +78,25 @@ fn render_filer(
       } else {
         match item.git_status {
           GitStatus::None =>
-            if item.is_dir { "rgb(100,180,255)" } else { "rgb(180,180,180)" }
+            if item.is_dir {
+              "rgb(100,180,255)"
+            } else {
+              "rgb(180,180,180)"
+            }
           _ => item.git_status.color()
         }
       }
-
-      let display = selector + git_char + indent + dir_indicator + item.name + suffix
+      let display = selector +
+        git_char +
+        indent +
+        dir_indicator +
+        item.name +
+        suffix
       lines.push(make_row(display, fg))
     } else {
       lines.push(make_row("", "rgb(60,60,60)"))
     }
   }
-
   @vnode.column(
     min_width=filer_width.to_double(),
     height=filer_height.to_double(),

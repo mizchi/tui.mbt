@@ -11,7 +11,7 @@ struct Document {
 
 ///|
 fn split_text_lines(text : String) -> Array[String] {
-  let parts = text.split("\n").map((part) => part.to_string()).collect()
+  let parts = text.split("\n").map(part => part.to_string()).collect()
   if parts.length() == 0 {
     [""]
   } else {
@@ -99,7 +99,11 @@ fn order_positions(a : Position, b : Position) -> (Position, Position) {
 }
 
 ///|
-fn Document::insert_text(self : Document, pos : Position, text : String) -> Position {
+fn Document::insert_text(
+  self : Document,
+  pos : Position,
+  text : String,
+) -> Position {
   let pos = self.clamp_position(pos)
   if text.length() == 0 {
     return pos
@@ -107,10 +111,7 @@ fn Document::insert_text(self : Document, pos : Position, text : String) -> Posi
   let parts = split_text_lines(text)
   let line_text = self.lines[pos.line]
   let prefix = line_text.unsafe_substring(start=0, end=pos.col)
-  let suffix = line_text.unsafe_substring(
-    start=pos.col,
-    end=line_text.length(),
-  )
+  let suffix = line_text.unsafe_substring(start=pos.col, end=line_text.length())
   if parts.length() == 1 {
     self.lines[pos.line] = prefix + parts[0] + suffix
     { line: pos.line, col: pos.col + parts[0].length() }
@@ -124,7 +125,10 @@ fn Document::insert_text(self : Document, pos : Position, text : String) -> Posi
       insert_at = insert_at + 1
     }
     self.lines.insert(insert_at, last)
-    { line: pos.line + parts.length() - 1, col: parts[parts.length() - 1].length() }
+    {
+      line: pos.line + parts.length() - 1,
+      col: parts[parts.length() - 1].length(),
+    }
   }
 }
 
@@ -134,7 +138,10 @@ fn Document::delete_range(
   start : Position,
   end : Position,
 ) -> Position {
-  let (start, end) = order_positions(self.clamp_position(start), self.clamp_position(end))
+  let (start, end) = order_positions(
+    self.clamp_position(start),
+    self.clamp_position(end),
+  )
   if start == end {
     return start
   }
@@ -159,6 +166,7 @@ fn Document::delete_range(
     let remove_count = end.line - start.line
     for _ in 0..<remove_count {
       let _ = self.lines.remove(start.line + 1)
+
     }
     start
   }

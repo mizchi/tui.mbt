@@ -45,9 +45,15 @@ pub fn tooltip_position(
   let below = anchor_row + 1
   let above = anchor_row - tooltip_height
   let row = if anchor.prefer_below {
-    if below + tooltip_height <= height { below } else { above }
+    if below + tooltip_height <= height {
+      below
+    } else {
+      above
+    }
+  } else if above >= 0 {
+    above
   } else {
-    if above >= 0 { above } else { below }
+    below
   }
   let col = if anchor_col + tooltip_width <= width {
     anchor_col

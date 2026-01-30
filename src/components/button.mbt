@@ -47,13 +47,7 @@ pub fn icon_button(
     Pressed => ("black", "cyan")
     Disabled => ("rgb(80,80,80)", "")
   }
-  @vnode.row(
-    id~,
-    bg~,
-    role="button",
-    padding_x=0.5,
-    [@vnode.text(icon, fg~)],
-  )
+  @vnode.row(id~, bg~, role="button", padding_x=0.5, [@vnode.text(icon, fg~)])
 }
 
 ///|

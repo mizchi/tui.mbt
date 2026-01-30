@@ -39,7 +39,13 @@ fn word_bounds(line_text : String, col : Int) -> (Int, Int) {
 fn slice_chars(chars : Array[Char], start : Int, end : Int) -> String {
   let sb = StringBuilder::new()
   let s = if start < 0 { 0 } else { start }
-  let e = if end < s { s } else if end > chars.length() { chars.length() } else { end }
+  let e = if end < s {
+    s
+  } else if end > chars.length() {
+    chars.length()
+  } else {
+    end
+  }
   for i in s..<e {
     sb.write_char(chars[i])
   }
@@ -196,11 +202,15 @@ fn EditorState::set_caret(
 }
 
 ///|
-pub fn EditorState::replace_selection(self : EditorState, text : String) -> Unit {
+pub fn EditorState::replace_selection(
+  self : EditorState,
+  text : String,
+) -> Unit {
   let (start, end) = self.selection.ordered()
   let edit_line = start.line
   if !self.selection.is_empty() {
     let _ = self.doc.delete_range(start, end)
+
   }
   let new_pos = self.doc.insert_text(start, text)
   self.selection.set_caret(new_pos)

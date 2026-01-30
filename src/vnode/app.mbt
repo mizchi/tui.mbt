@@ -135,9 +135,7 @@ pub fn VNodeApp::find_by_id(
 
 ///|
 /// Get all layout rects from the last render (absolute coordinates).
-pub fn VNodeApp::layout_rects(
-  self : VNodeApp,
-) -> Array[@events.HitTestResult] {
+pub fn VNodeApp::layout_rects(self : VNodeApp) -> Array[@events.HitTestResult] {
   match self.last_layout {
     Some(layout) => @events.layout_rects_root(layout)
     None => []
@@ -241,7 +239,6 @@ pub fn init_vnode_terminal(
   if raw_mode {
     @io.enable_raw_mode()
   }
-
   fn cleanup() {
     @io.stop_keypress_listener()
     @io.stop_resize_listener()

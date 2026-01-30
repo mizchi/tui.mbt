@@ -174,7 +174,10 @@ fn HighlightState::update(
           let _ = cache.update(doc.to_text(), edit_line, highlighter)
           ()
         }
-        None => self.line_cache = Some(@syntree.LineCache::new(doc.to_text(), highlighter))
+        None =>
+          self.line_cache = Some(
+            @syntree.LineCache::new(doc.to_text(), highlighter),
+          )
       }
     None => ()
   }
@@ -240,6 +243,7 @@ fn to_utf16_offset(offsets : Array[Int], pos : Int, text_len : Int) -> Int {
 }
 
 ///|
+
 ///|
 fn build_highlight_line_spans(
   doc : Document,
@@ -305,7 +309,10 @@ fn build_highlight_line_spans(
       idx = idx + 1
     }
     if cursor < line_text.length() {
-      let text = line_text.unsafe_substring(start=cursor, end=line_text.length())
+      let text = line_text.unsafe_substring(
+        start=cursor,
+        end=line_text.length(),
+      )
       spans.push({ text, tag: @syntree.HighlightTag::None })
     }
     result.push(spans)

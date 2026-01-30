@@ -90,13 +90,7 @@ pub fn AIConfig::new(
 /// AI Client trait - common interface for all providers
 pub(open) trait AIClient {
   /// Stream response without tools
-  stream(
-    Self,
-    Array[Message],
-    (String) -> Unit,
-    () -> Unit,
-    (String) -> Unit,
-  ) -> Unit
+  stream(Self, Array[Message], (String) -> Unit, () -> Unit, (String) -> Unit) -> Unit
   /// Stream response with tool support
   stream_with_tools(
     Self,

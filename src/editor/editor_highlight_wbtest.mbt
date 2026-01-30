@@ -1,5 +1,9 @@
 ///|
-fn render_lines(state : EditorState, width : Int, height : Int) -> Array[String] {
+fn render_lines(
+  state : EditorState,
+  width : Int,
+  height : Int,
+) -> Array[String] {
   render_lines_plain(state, width, height)
 }
 
@@ -20,10 +24,12 @@ test "highlight spans keep line text after edit" {
     #|console.log(greet(user.name))
     #|
   let doc = Document::from_text(text)
-  let cache = @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript)
+  let cache = @syntree.LineCache::new(
+    doc.to_text(),
+    @syn_ts.highlight_typescript,
+  )
   let spans = build_highlight_line_spans(doc, cache.all_tokens())
   assert_spans_match_lines(doc.lines, spans)
-
   let _ = doc.insert_text({ line: 4, col: 2 }, "aaaaaaa")
   let _ = cache.update(doc.to_text(), 4, @syn_ts.highlight_typescript)
   let spans_after = build_highlight_line_spans(doc, cache.all_tokens())
@@ -43,13 +49,19 @@ test "highlight after edit matches full retokenize" {
     #|console.log(greet("hi"))
     #|
   let doc = Document::from_text(text)
-  let cache = @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript)
+  let cache = @syntree.LineCache::new(
+    doc.to_text(),
+    @syn_ts.highlight_typescript,
+  )
   let _ = doc.insert_text({ line: 1, col: 13 }, "`")
   let _ = doc.insert_text({ line: 1, col: 14 }, "value")
   let _ = doc.insert_text({ line: 1, col: 19 }, "`")
   let _ = cache.update(doc.to_text(), 1, @syn_ts.highlight_typescript)
   let spans_updated = build_highlight_line_spans(doc, cache.all_tokens())
-  let fresh_cache = @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript)
+  let fresh_cache = @syntree.LineCache::new(
+    doc.to_text(),
+    @syn_ts.highlight_typescript,
+  )
   let spans_fresh = build_highlight_line_spans(doc, fresh_cache.all_tokens())
   assert_spans_equal(spans_updated, spans_fresh)
 }
@@ -71,7 +83,10 @@ test "unchanged lines keep highlight after edit" {
     #|console.log(greet(user.name))
     #|
   let doc = Document::from_text(text)
-  let cache = @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript)
+  let cache = @syntree.LineCache::new(
+    doc.to_text(),
+    @syn_ts.highlight_typescript,
+  )
   let spans_before = build_highlight_line_spans(doc, cache.all_tokens())
   let _ = doc.insert_text({ line: 4, col: 2 }, "aaaaaaa")
   let _ = cache.update(doc.to_text(), 4, @syn_ts.highlight_typescript)
@@ -112,7 +127,11 @@ test "rendered lines after edit keep unchanged content" {
   let body_start = 1
   let edit_line = 0
   let total_lines = state.doc.line_count()
-  let last_line = if total_lines < height - 1 { total_lines } else { height - 2 }
+  let last_line = if total_lines < height - 1 {
+    total_lines
+  } else {
+    height - 2
+  }
   for line_idx in (edit_line + 1)..<last_line {
     let render_idx = body_start + line_idx
     assert_eq(after[render_idx], before[render_idx])
@@ -139,37 +158,42 @@ test "highlight update matches full after varied edits" {
   let line_count = base_doc.line_count()
   for line_idx in 0..<line_count {
     let line_len = base_doc.line_length(line_idx)
-    let cols : Array[Int] = [
-      0,
-      line_len / 2,
-      line_len,
-    ]
+    let cols : Array[Int] = [0, line_len / 2, line_len]
     for col in cols {
       let doc = Document::from_text(text)
       let state = HighlightState::new(HighlightKind::TypeScript, doc)
       let _ = doc.insert_text({ line: line_idx, col }, "x")
       state.update(doc, line_idx)
-      let fresh = @syntree.LineCache::new(doc.to_text(), @syn_ts.highlight_typescript)
+      let fresh = @syntree.LineCache::new(
+        doc.to_text(),
+        @syn_ts.highlight_typescript,
+      )
       let spans_fresh = build_highlight_line_spans(doc, fresh.all_tokens())
       for i in 0..<state.spans.length() {
         let a = spans_signature(state.spans[i])
         let b = spans_signature(spans_fresh[i])
         if a != b {
-          fail("mismatch at line \{line_idx} col \{col} => line \{i}: \{a} != \{b}")
+          fail(
+            "mismatch at line \{line_idx} col \{col} => line \{i}: \{a} != \{b}",
+          )
         }
       }
-
       let doc2 = Document::from_text(text)
       let state2 = HighlightState::new(HighlightKind::TypeScript, doc2)
       let _ = doc2.insert_text({ line: line_idx, col }, "\n")
       state2.update(doc2, line_idx)
-      let fresh2 = @syntree.LineCache::new(doc2.to_text(), @syn_ts.highlight_typescript)
+      let fresh2 = @syntree.LineCache::new(
+        doc2.to_text(),
+        @syn_ts.highlight_typescript,
+      )
       let spans_fresh2 = build_highlight_line_spans(doc2, fresh2.all_tokens())
       for i in 0..<state2.spans.length() {
         let a = spans_signature(state2.spans[i])
         let b = spans_signature(spans_fresh2[i])
         if a != b {
-          fail("mismatch newline at line \{line_idx} col \{col} => line \{i}: \{a} != \{b}")
+          fail(
+            "mismatch newline at line \{line_idx} col \{col} => line \{i}: \{a} != \{b}",
+          )
         }
       }
     }

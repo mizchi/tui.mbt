@@ -108,8 +108,7 @@ pub fn build_a11y_tree(
 fn dump_a11y_node(node : A11yNode, depth : Int) -> String {
   let indent = "  ".repeat(depth)
   let role = node.role.to_string()
-  let name =
-    if node.name == "" { "" } else { " name=\"" + node.name + "\"" }
+  let name = if node.name == "" { "" } else { " name=\"" + node.name + "\"" }
   let rect = " rect=(" +
     node.rect.x.to_string() +
     "," +

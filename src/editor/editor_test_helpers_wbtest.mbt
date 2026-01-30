@@ -34,7 +34,10 @@ fn assert_spans_match_lines(
 }
 
 ///|
-fn assert_spans_equal(a : Array[Array[HighlightSpan]], b : Array[Array[HighlightSpan]]) -> Unit raise {
+fn assert_spans_equal(
+  a : Array[Array[HighlightSpan]],
+  b : Array[Array[HighlightSpan]],
+) -> Unit raise {
   assert_eq(a.length(), b.length())
   for i in 0..<a.length() {
     assert_eq(spans_signature(a[i]), spans_signature(b[i]))
@@ -68,14 +71,22 @@ fn strip_ansi(s : String) -> String {
 }
 
 ///|
-fn render_lines_plain(state : EditorState, width : Int, height : Int) -> Array[String] {
+fn render_lines_plain(
+  state : EditorState,
+  width : Int,
+  height : Int,
+) -> Array[String] {
   let node = render_editor(state, width, height)
-  let plain = @vnode.render_to_lines(node).map((line) => strip_ansi(line))
+  let plain = @vnode.render_to_lines(node).map(line => strip_ansi(line))
   restore_caret_in_lines(plain, state, width)
 }
 
 ///|
-fn render_lines_ansi(state : EditorState, width : Int, height : Int) -> Array[String] {
+fn render_lines_ansi(
+  state : EditorState,
+  width : Int,
+  height : Int,
+) -> Array[String] {
   let node = render_editor(state, width, height)
   @vnode.render_to_lines(node)
 }
@@ -108,7 +119,8 @@ fn restore_caret_in_lines(
   }
   let row_chars = lines[render_idx].to_array()
   let line_text = state.doc.line(caret.line)
-  let caret_render_col = gutter_width + 1 +
+  let caret_render_col = gutter_width +
+    1 +
     display_width_prefix(line_text, caret.col)
   if caret_render_col < 0 || caret_render_col >= row_chars.length() {
     return lines

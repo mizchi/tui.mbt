@@ -25,13 +25,12 @@ fn modifier_has_ctrl_or_alt(mod : @events.KeyModifier) -> Bool {
 ///|
 pub fn handle_key_event(state : EditorState, key : @events.KeyEvent) -> Unit {
   match key {
-    @events.KeyEvent::Char(c, mod) => {
+    @events.KeyEvent::Char(c, mod) =>
       if modifier_has_ctrl_or_alt(mod) {
         ()
       } else if @vnode.is_printable_char(c) {
         state.replace_selection(c.to_string())
       }
-    }
     @events.KeyEvent::Special(special, mod) => {
       let extend = modifier_has_shift(mod)
       match special {

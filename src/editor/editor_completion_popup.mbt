@@ -83,8 +83,8 @@ pub struct CompletionPopup {
 ///|
 pub fn CompletionPopup::new(
   session : CompletionSession,
-  max_items~ : Int = 6,
-  style~ : CompletionPopupStyle = CompletionPopupStyle::default(),
+  max_items? : Int = 6,
+  style? : CompletionPopupStyle = CompletionPopupStyle::default(),
 ) -> CompletionPopup {
   { session, max_items, style }
 }
@@ -99,7 +99,11 @@ fn CompletionPopup::popup_width(self : CompletionPopup) -> Int {
       max_width = w
     }
   }
-  if max_width < 4 { 4 } else { max_width }
+  if max_width < 4 {
+    4
+  } else {
+    max_width
+  }
 }
 
 ///|
@@ -121,7 +125,11 @@ fn CompletionPopup::render_item(
   width : Int,
 ) -> @vnode.TuiNode {
   let is_selected = idx == self.session.get_selected_index()
-  let bg = if is_selected { self.style.selected_bg } else { self.style.normal_bg }
+  let bg = if is_selected {
+    self.style.selected_bg
+  } else {
+    self.style.normal_bg
+  }
   let prefix_len = prefix.to_array().length()
   let label = item.label
   let (head, tail) = split_by_chars(label, prefix_len)
@@ -175,7 +183,11 @@ pub fn CompletionPopup::calculate_rect(
   }
   let popup_h = self.popup_height()
   let raw_width = self.popup_width()
-  let popup_w = if raw_width > viewport_width { viewport_width } else { raw_width }
+  let popup_w = if raw_width > viewport_width {
+    viewport_width
+  } else {
+    raw_width
+  }
   let below = anchor_row + 1
   let popup_row = if below + popup_h <= viewport_height {
     below
@@ -216,7 +228,8 @@ pub fn CompletionPopup::render(
     anchor.line,
     anchor.col,
   )
-  match self.calculate_rect(anchor_row, anchor_col, viewport_width, viewport_height) {
+  match
+    self.calculate_rect(anchor_row, anchor_col, viewport_width, viewport_height) {
     Some(rect) => {
       let prefix = state.current_word_prefix()
       let node = self.render_items(prefix, rect.width)

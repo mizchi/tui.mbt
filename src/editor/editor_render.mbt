@@ -1,4 +1,5 @@
-using @vnode { type TuiNode, column, row, text }
+///|
+using @vnode {type TuiNode, column, row, text}
 
 ///|
 priv struct RenderSegment {
@@ -60,7 +61,11 @@ fn display_width_prefix(text : String, char_count : Int) -> Int {
     return 0
   }
   let chars = text.to_array()
-  let limit = if char_count > chars.length() { chars.length() } else { char_count }
+  let limit = if char_count > chars.length() {
+    chars.length()
+  } else {
+    char_count
+  }
   let mut width = 0
   for i in 0..<limit {
     width = width + @core.char_display_width(chars[i])
@@ -89,7 +94,10 @@ fn apply_caret(
         let text = span.text.unsafe_substring(start=0, end=before_len)
         result.push({ text, tag: span.tag, is_caret: false })
       }
-      let caret_text = span.text.unsafe_substring(start=before_len, end=before_len + 1)
+      let caret_text = span.text.unsafe_substring(
+        start=before_len,
+        end=before_len + 1,
+      )
       result.push({ text: caret_text, tag: span.tag, is_caret: true })
       if after_len > 0 {
         let text = span.text.unsafe_substring(start=before_len + 1, end=len)
@@ -114,12 +122,10 @@ fn render_segments(
     let fg = highlight_color(theme, seg.tag)
     if seg.is_caret {
       nodes.push(
-        @vnode.row(bg="rgb(220,220,220)", [
-          text(seg.text, fg="rgb(20,20,20)"),
-        ]),
+        @vnode.row(bg="rgb(220,220,220)", [text(seg.text, fg="rgb(20,20,20)")]),
       )
     } else {
-      nodes.push(text(seg.text, fg=fg))
+      nodes.push(text(seg.text, fg~))
     }
   }
   if nodes.length() == 0 {
@@ -158,14 +164,10 @@ fn render_line(
     }
   }
   let gutter_text = pad_left((line_idx + 1).to_string(), gutter_width)
-  row(
-    height=1.0,
-    gap=0.0,
-    [
-      text(gutter_text + " ", fg="rgb(120,120,120)"),
-      row(gap=0.0, render_segments(segments, theme)),
-    ],
-  )
+  row(height=1.0, gap=0.0, [
+    text(gutter_text + " ", fg="rgb(120,120,120)"),
+    row(gap=0.0, render_segments(segments, theme)),
+  ])
 }
 
 ///|
@@ -173,9 +175,9 @@ pub fn render_editor(
   state : EditorState,
   width : Int,
   height : Int,
-  show_header~ : Bool = true,
-  show_footer~ : Bool = true,
-  title~ : String = "",
+  show_header? : Bool = true,
+  show_footer? : Bool = true,
+  title? : String = "",
 ) -> TuiNode {
   let header_height = if show_header { 1 } else { 0 }
   let footer_height = if show_footer { 1 } else { 0 }
@@ -222,11 +224,9 @@ pub fn render_editor(
       " " + dirty_mark + "editor "
     }
     result.push(
-      row(
-        bg="rgb(30,30,40)",
-        height=1.0,
-        [text(header_text, fg="rgb(180,180,180)", bold=true)],
-      ),
+      row(bg="rgb(30,30,40)", height=1.0, [
+        text(header_text, fg="rgb(180,180,180)", bold=true),
+      ]),
     )
   }
   result.push(column(rows))
@@ -234,11 +234,9 @@ pub fn render_editor(
     let caret = state.selection.active
     let status = "Ln \{caret.line + 1}, Col \{caret.col + 1}"
     result.push(
-      row(
-        bg="rgb(30,30,40)",
-        height=1.0,
-        [text(" " + status, fg="rgb(160,160,160)")],
-      ),
+      row(bg="rgb(30,30,40)", height=1.0, [
+        text(" " + status, fg="rgb(160,160,160)"),
+      ]),
     )
   }
   column(result)
@@ -249,11 +247,19 @@ pub fn editor_cursor_position(
   state : EditorState,
   width : Int,
   height : Int,
-  show_header~ : Bool = true,
-  show_footer~ : Bool = true,
+  show_header? : Bool = true,
+  show_footer? : Bool = true,
 ) -> (Int, Int) {
   let caret = state.selection.active
-  editor_position_for(state, width, height, caret.line, caret.col, show_header~, show_footer~)
+  editor_position_for(
+    state,
+    width,
+    height,
+    caret.line,
+    caret.col,
+    show_header~,
+    show_footer~,
+  )
 }
 
 ///|
@@ -263,8 +269,8 @@ pub fn editor_position_for(
   height : Int,
   line : Int,
   col : Int,
-  show_header~ : Bool = true,
-  show_footer~ : Bool = true,
+  show_header? : Bool = true,
+  show_footer? : Bool = true,
 ) -> (Int, Int) {
   let header_height = if show_header { 1 } else { 0 }
   let footer_height = if show_footer { 1 } else { 0 }
@@ -300,6 +306,12 @@ pub fn editor_position_for(
   let col = gutter_width + 1 + col_in_line
   let max_row = header_height + content_height - 1
   let safe_row = if row < 0 { 0 } else if row > max_row { max_row } else { row }
-  let safe_col = if col < 0 { 0 } else if col >= width { width - 1 } else { col }
+  let safe_col = if col < 0 {
+    0
+  } else if col >= width {
+    width - 1
+  } else {
+    col
+  }
   (safe_row, safe_col)
 }

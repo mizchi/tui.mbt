@@ -19,22 +19,8 @@ fn sample_text() -> String {
 
 ///|
 let completion_candidates : Array[String] = [
-  "const",
-  "let",
-  "function",
-  "return",
-  "type",
-  "interface",
-  "string",
-  "number",
-  "boolean",
-  "console",
-  "log",
-  "user",
-  "name",
-  "greet",
-  "こんにちは",
-  "日本語",
+  "const", "let", "function", "return", "type", "interface", "string", "number",
+  "boolean", "console", "log", "user", "name", "greet", "こんにちは", "日本語",
 ]
 
 ///|
@@ -91,14 +77,15 @@ fn main {
   let app = @vnode.VNodeApp::new(width, height)
   let editor_height = if height > 2 { height - 2 } else { 1 }
   let (text, filename) = load_file_or_sample()
-  let state = @editor.EditorState::new_with_filename(text, editor_height, filename)
+  let state = @editor.EditorState::new_with_filename(
+    text, editor_height, filename,
+  )
   let title = filename
   let completion_session = @editor.CompletionSession::new()
   let completion_popup = @editor.CompletionPopup::new(completion_session)
   let suppress_popup : Ref[Bool] = Ref::new(false)
   let last_popup_rect : Ref[@editor.PopupRect?] = Ref::new(None)
   let completion_request_id : Ref[Int] = Ref::new(0)
-
   fn render_ui() -> @vnode.TuiNode {
     @editor.render_editor(state, width, height, title~)
   }
@@ -145,19 +132,15 @@ fn main {
   fn clear_rect(rect : @editor.PopupRect) -> Unit {
     for i = 0; i < rect.height; i = i + 1 {
       @term.print_raw(
-        @render.ansi_move_to(rect.row + i, rect.col) +
-        " ".repeat(rect.width),
+        @render.ansi_move_to(rect.row + i, rect.col) + " ".repeat(rect.width),
       )
     }
   }
 
   fn do_render() -> Unit {
     let (cursor_row, cursor_col) = @editor.editor_cursor_position(
-      state,
-      width,
-      height,
+      state, width, height,
     )
-
     let next_rect : @editor.PopupRect? = if suppress_popup.val {
       None
     } else {
@@ -166,7 +149,6 @@ fn main {
         None => None
       }
     }
-
     let mut need_clear = false
     match (last_popup_rect.val, next_rect) {
       (Some(prev), Some(next)) =>
@@ -185,7 +167,6 @@ fn main {
     }
     let frame = app.render_frame(render_ui())
     @term.print_raw(frame)
-
     if not(suppress_popup.val) {
       match completion_popup.render_overlay(state, width, height) {
         Some((overlay, rect)) => {
@@ -197,10 +178,8 @@ fn main {
     } else {
       last_popup_rect.val = None
     }
-
     @term.print_raw(
-      @render.ansi_move_to(cursor_row, cursor_col) +
-      @render.ansi_show_cursor(),
+      @render.ansi_move_to(cursor_row, cursor_col) + @render.ansi_show_cursor(),
     )
   }
 

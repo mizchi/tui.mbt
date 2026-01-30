@@ -216,7 +216,13 @@ pub fn ClaudeClient::from_env(
   } else {
     Some(
       ClaudeClient::new(
-        AIConfig::new(api_key, model, max_tokens~, system_prompt~, provider=Claude),
+        AIConfig::new(
+          api_key,
+          model,
+          max_tokens~,
+          system_prompt~,
+          provider=Claude,
+        ),
       ),
     )
   }
