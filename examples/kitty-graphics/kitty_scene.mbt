@@ -32,6 +32,7 @@ pub struct ImageSprite {
   y : Int
   cols : Int
   rows : Int
+  crop : @image.ImageRect?
   vx : Int
   vy : Int
 } derive(Show, Eq)
@@ -47,7 +48,22 @@ pub fn image_sprite(
   vx : Int,
   vy : Int,
 ) -> ImageSprite {
-  ImageSprite::{ id, placement_id, x, y, cols, rows, vx, vy }
+  ImageSprite::{ id, placement_id, x, y, cols, rows, crop: None, vx, vy }
+}
+
+///|
+pub fn image_sprite_with_crop(
+  id : Int,
+  placement_id : Int,
+  x : Int,
+  y : Int,
+  cols : Int,
+  rows : Int,
+  crop : @image.ImageRect,
+  vx : Int,
+  vy : Int,
+) -> ImageSprite {
+  ImageSprite::{ id, placement_id, x, y, cols, rows, crop: Some(crop), vx, vy }
 }
 
 ///|
@@ -111,7 +127,28 @@ pub fn step_image(
     y: clamp_range(step_y.pos, 0, max_y),
     cols: image.cols,
     rows: image.rows,
+    crop: image.crop,
     vx: step_x.vel,
     vy: step_y.vel,
+  }
+}
+
+///|
+pub fn rect_changed(prev : RectSprite, next : RectSprite) -> Bool {
+  prev.x != next.x || prev.y != next.y || prev.w != next.w || prev.h != next.h
+}
+
+///|
+pub fn image_changed(prev : ImageSprite, next : ImageSprite) -> Bool {
+  if prev.x != next.x {
+    true
+  } else if prev.y != next.y {
+    true
+  } else if prev.cols != next.cols {
+    true
+  } else if prev.rows != next.rows {
+    true
+  } else {
+    prev.crop != next.crop
   }
 }

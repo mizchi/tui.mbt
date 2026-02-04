@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "deps": {
     "mizchi/tui": { "path": "../.." },
-    "moonbitlang/async": "0.16.0"
+    "moonbitlang/async": "0.16.0",
+    "moonbitlang/x": "0.4.40"
   },
   "preferred-target": "js"
 }

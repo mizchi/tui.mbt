@@ -1,10 +1,13 @@
 import {
   "mizchi/tui",
   "mizchi/tui/io",
+  "mizchi/tui/image",
   "moonbitlang/async",
   "moonbitlang/core/buffer",
   "moonbitlang/core/math",
   "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/strconv",
+  "moonbitlang/x/sys",
 }
 
 options(
