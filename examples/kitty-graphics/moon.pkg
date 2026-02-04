@@ -1,0 +1,12 @@
+import {
+  "mizchi/tui",
+  "mizchi/tui/io",
+  "moonbitlang/async",
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/math",
+  "moonbitlang/core/encoding/utf8",
+}
+
+options(
+  "is-main": true,
+)
