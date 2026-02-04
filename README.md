@@ -147,7 +147,7 @@ Snapshots:
 
 ```bash
 moon run examples/counter      # Simple counter
-moon run examples/chat         # Chat interface
+moon run examples/command-launcher  # Command launcher
 moon run examples/form         # Form with inputs
 moon run examples/grid-layout  # Grid layout demo
 moon run examples/components   # Component showcase

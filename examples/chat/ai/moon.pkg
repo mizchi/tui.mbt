@@ -1,7 +1,0 @@
-import {
-  "mizchi/tui/io",
-}
-
-options(
-  targets: { "client.mbt": [ "js" ], "tools.mbt": [ "js" ] },
-)

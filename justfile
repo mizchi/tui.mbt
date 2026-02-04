@@ -4,7 +4,7 @@
 target := "js"
 
 # Example directories
-examples := "chat command-launcher completion components editor form grid-area grid-layout lint simple snapshot snapshot-ansi wizard"
+examples := "command-launcher completion components editor form grid-area grid-layout lint simple snapshot snapshot-ansi wizard"
 
 # Default task: check and test
 default: check test
@@ -71,5 +71,5 @@ lint:
 release-check: fmt info check-all test-all lint
 
 # Hot reload dev server
-dev example="chat":
+dev example="simple":
     node scripts/dev.js {{example}} --target {{target}}
