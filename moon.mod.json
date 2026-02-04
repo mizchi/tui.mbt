@@ -1,6 +1,6 @@
 {
   "name": "mizchi/tui",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "deps": {
     "mizchi/crater": "0.4.1",
     "mizchi/signals": "0.6.1",

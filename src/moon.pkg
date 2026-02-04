@@ -12,5 +12,5 @@ options(
   description: "Terminal UI library for MoonBit with reactive signals",
   license: "MIT",
   readme: "README.md",
-  version: "0.3.0",
+  version: "0.5.0",
 )
