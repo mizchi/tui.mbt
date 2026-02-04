@@ -11,14 +11,7 @@ let candidates : Array[String] = [
 
 ///|
 fn filter_candidates(query : String) -> Array[String] {
-  if query.length() == 0 {
-    return []
-  }
-  let lower_query = query.to_lower()
-  candidates
-  .iter()
-  .filter(fn(c) { c.to_lower().has_prefix(lower_query) })
-  .collect()
+  @examples.filter_prefix_candidates(candidates, query)
 }
 
 ///|
@@ -59,59 +52,28 @@ fn main {
     get_confirmed_text() + input.get()
   }
 
-  fn render_popup_item(item : String, idx : Int) -> @vnode.TuiNode {
-    let is_selected = idx == selected_idx.get()
-    let query = input.get()
-    let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(60,60,60)" }
-
-    // Highlight matching prefix
-    let suffix = if item.length() > query.length() {
-      item.unsafe_substring(start=query.length(), end=item.length())
-    } else {
-      ""
-    }
-    let fg_suffix = if is_selected { "white" } else { "rgb(150,150,150)" }
-
-    // Pad to popup_width
-    let item_len = item.length()
-    let padding = if item_len < popup_width {
-      " ".repeat(popup_width - item_len)
-    } else {
-      ""
-    }
-    @vnode.row(bg~, [
-      @vnode.text(query, fg="cyan", bold=is_selected),
-      @vnode.text(suffix + padding, fg=fg_suffix),
-    ])
+  fn popup_metrics(matches : Array[String]) -> (Int, Int) {
+    @components.completion_popup_metrics(
+      matches,
+      fn(item) { item },
+      max_items~,
+      min_width=popup_width,
+      show_more=true,
+    )
   }
 
-  fn render_popup() -> @vnode.TuiNode {
-    let matches = get_matches()
-    if matches.length() == 0 {
-      return @vnode.text("")
-    }
-    let visible_count = if matches.length() > max_items {
-      max_items
-    } else {
-      matches.length()
-    }
-    let items : Array[@vnode.TuiNode] = []
-    for i = 0; i < visible_count; i = i + 1 {
-      items.push(render_popup_item(matches[i], i))
-    }
-
-    // More indicator
-    if matches.length() > max_items {
-      let more_count = matches.length() - max_items
-      let more_text = "..." + more_count.to_string() + " more"
-      let padding = " ".repeat(popup_width - more_text.length())
-      items.push(
-        @vnode.row(bg="rgb(60,60,60)", [
-          @vnode.text(more_text + padding, fg="rgb(100,100,100)"),
-        ]),
-      )
-    }
-    @vnode.column(items)
+  fn render_popup(matches : Array[String], width : Int) -> @vnode.TuiNode {
+    @components.completion_popup_node(
+      matches,
+      fn(item) { item },
+      selected_idx.get(),
+      input.get(),
+      width,
+      max_items~,
+      show_more=true,
+      item_id_prefix="completion-item-",
+      more_id="completion-more",
+    )
   }
 
   fn render_ghost_text() -> @vnode.TuiNode {
@@ -190,15 +152,25 @@ fn main {
 
         // Render popup as overlay if should show
         if show_popup {
-          // Popup appears right below input line
-          let popup_x = input_bounds.x + confirmed_width
-          let popup_y = input_bounds.y + input_bounds.height
-          let popup_output = @vnode.render_overlay_at(
-            popup_x,
-            popup_y,
-            render_popup(),
-          )
-          @tui.print_raw(popup_output)
+          let (raw_width, popup_h) = popup_metrics(matches)
+          if popup_h > 0 {
+            let popup_w = if raw_width > width { width } else { raw_width }
+            let rect = @components.completion_popup_rect(
+              input_bounds.y,
+              input_bounds.x + confirmed_width,
+              input_bounds.height,
+              width,
+              height,
+              popup_w,
+              popup_h,
+            )
+            let popup_output = @vnode.render_overlay_at(
+              rect.col,
+              rect.row,
+              render_popup(matches, rect.width),
+            )
+            @tui.print_raw(popup_output)
+          }
         }
 
         // Position cursor at end of input

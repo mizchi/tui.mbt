@@ -68,8 +68,13 @@ fn main {
     filter_commands(query.get())
   }
 
-  fn render_launcher_item(cmd : Command, idx : Int) -> @vnode.TuiNode {
-    let is_selected = idx == selected_idx.get()
+  fn render_launcher_item(
+    cmd : Command,
+    idx : Int,
+    selected_idx_val : Int,
+    _ : Int,
+  ) -> @vnode.TuiNode {
+    let is_selected = idx == selected_idx_val
     let bg = if is_selected { "rgb(30,80,120)" } else { "rgb(40,40,50)" }
     let fg = if is_selected { "cyan" } else { "white" }
     @vnode.row(bg~, padding_x=0.5, [
@@ -80,36 +85,44 @@ fn main {
 
   fn render_launcher() -> @vnode.TuiNode {
     let filtered = get_filtered_commands()
-    let visible_items = if filtered.length() > max_items {
-      filtered.iter().take(max_items).collect()
-    } else {
-      filtered
-    }
+    let visible_nodes = @components.completion_popup_list_nodes(
+      filtered,
+      selected_idx.get(),
+      launcher_width - 2,
+      render_launcher_item,
+      max_items~,
+    )
 
     // Build item list - always render max_items rows for stable height
-    let items : Array[@vnode.TuiNode] = []
-    for i = 0; i < max_items; i = i + 1 {
-      if i < visible_items.length() {
-        items.push(render_launcher_item(visible_items[i], i))
-      } else if i == 0 && filtered.length() == 0 {
-        // Show "no results" only on first empty row
-        items.push(
-          @vnode.row(padding_x=1.0, height=1.0, [
-            @vnode.text("No matching commands", fg="rgb(100,100,100)"),
-          ]),
-        )
-      } else {
-        // Empty row placeholder
-        items.push(@vnode.row(height=1.0, []))
-      }
+    let items = if filtered.length() == 0 {
+      [
+        @vnode.row(padding_x=1.0, height=1.0, [
+          @vnode.text("No matching commands", fg="rgb(100,100,100)"),
+        ]),
+      ]
+    } else {
+      visible_nodes
+    }
+    let filled = items.length()
+    for i = filled; i < max_items; i = i + 1 {
+      items.push(@vnode.row(height=1.0, []))
     }
 
     // More indicator (fixed position row)
     let more_row = if filtered.length() > max_items {
       let more_count = filtered.length() - max_items
+      let more_text = @components.completion_popup_more_label(more_count)
+      let padding_width = launcher_width -
+        2 -
+        @core.string_display_width(more_text)
+      let padding = if padding_width > 0 {
+        " ".repeat(padding_width)
+      } else {
+        ""
+      }
       @vnode.row(padding_x=1.0, height=1.0, [
         @vnode.text(
-          "..." + more_count.to_string() + " more",
+          more_text + padding,
           fg="rgb(100,100,100)",
         ),
       ])
