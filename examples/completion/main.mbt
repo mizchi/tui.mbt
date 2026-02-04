@@ -11,7 +11,14 @@ let candidates : Array[String] = [
 
 ///|
 fn filter_candidates(query : String) -> Array[String] {
-  @examples.filter_prefix_candidates(candidates, query)
+  if query.length() == 0 {
+    return candidates.copy()
+  }
+  let lower_query = query.to_lower()
+  candidates
+  .iter()
+  .filter(fn(c) { c.to_lower().has_prefix(lower_query) })
+  .collect()
 }
 
 ///|

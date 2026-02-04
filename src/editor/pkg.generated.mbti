@@ -5,6 +5,7 @@ import {
   "mizchi/signals/ui",
   "mizchi/syntree",
   "mizchi/tui/completion",
+  "mizchi/tui/components",
   "mizchi/tui/events",
   "mizchi/tui/vnode",
 }
@@ -38,21 +39,12 @@ pub(all) struct CompletionItem {
 pub struct CompletionPopup {
   session : CompletionSession
   max_items : Int
-  style : CompletionPopupStyle
+  style : @components.CompletionPopupStyle
 }
-pub fn CompletionPopup::calculate_rect(Self, Int, Int, Int, Int) -> PopupRect?
-pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : CompletionPopupStyle) -> Self
-pub fn CompletionPopup::render(Self, EditorState, Int, Int) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], PopupRect)?
-pub fn CompletionPopup::render_overlay(Self, EditorState, Int, Int) -> (String, PopupRect)?
-
-pub struct CompletionPopupStyle {
-  selected_bg : String
-  normal_bg : String
-  prefix_fg : String
-  selected_suffix_fg : String
-  normal_suffix_fg : String
-}
-pub fn CompletionPopupStyle::default() -> Self
+pub fn CompletionPopup::calculate_rect(Self, Int, Int, Int, Int) -> @components.PopupRect?
+pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : @components.CompletionPopupStyle) -> Self
+pub fn CompletionPopup::render(Self, EditorState, Int, Int) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], @components.PopupRect)?
+pub fn CompletionPopup::render_overlay(Self, EditorState, Int, Int) -> (String, @components.PopupRect)?
 
 pub(all) struct CompletionRange {
   start_col : Int
@@ -153,14 +145,6 @@ pub struct HighlightState {
   mut spans : Array[Array[HighlightSpan]]
 }
 
-pub struct PopupRect {
-  row : Int
-  col : Int
-  width : Int
-  height : Int
-}
-pub fn PopupRect::eq(Self, Self) -> Bool
-
 type Position
 pub impl Eq for Position
 pub impl Show for Position
@@ -191,9 +175,13 @@ pub(all) struct TooltipRect {
 type Viewport
 
 // Type aliases
+pub using @components {type CompletionPopupStyle}
+
 pub type CompletionProvider = (CompletionRequest) -> CompletionResponse
 
 pub type CompletionProviderAsync = (CompletionRequest, (CompletionResponse) -> Unit) -> Unit
+
+pub using @components {type PopupRect}
 
 // Traits
 

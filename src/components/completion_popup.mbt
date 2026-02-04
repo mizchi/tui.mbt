@@ -172,15 +172,10 @@ fn render_item(
   } else {
     style.normal_suffix_fg
   }
-  @vnode.row(
-    id=item_id,
-    role=item_role,
-    bg~,
-    [
-      @vnode.text(head, fg=style.prefix_fg, bold=is_selected),
-      @vnode.text(suffix, fg=fg_suffix),
-    ],
-  )
+  @vnode.row(id=item_id, role=item_role, bg~, [
+    @vnode.text(head, fg=style.prefix_fg, bold=is_selected),
+    @vnode.text(suffix, fg=fg_suffix),
+  ])
 }
 
 ///|

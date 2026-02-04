@@ -121,10 +121,7 @@ fn main {
         ""
       }
       @vnode.row(padding_x=1.0, height=1.0, [
-        @vnode.text(
-          more_text + padding,
-          fg="rgb(100,100,100)",
-        ),
+        @vnode.text(more_text + padding, fg="rgb(100,100,100)"),
       ])
     } else {
       @vnode.row(height=1.0, [])

@@ -26,6 +26,16 @@ pub fn combobox_item(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @v
 
 pub fn combobox_trigger(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
+pub fn[T] completion_popup_list_nodes(Array[T], Int, Int, (T, Int, Int, Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], max_items? : Int, show_more? : Bool, render_more? : (Int, Int) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]
+
+pub fn[T] completion_popup_metrics(Array[T], (T) -> String, max_items? : Int, min_width? : Int, show_more? : Bool) -> (Int, Int)
+
+pub fn completion_popup_more_label(Int) -> String
+
+pub fn[T] completion_popup_node(Array[T], (T) -> String, Int, String, Int, max_items? : Int, show_more? : Bool, style? : CompletionPopupStyle, item_id_prefix? : String, item_role? : String, more_id? : String, more_role? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn completion_popup_rect(Int, Int, Int, Int, Int, Int, Int, prefer_below? : Bool) -> PopupRect
+
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn divider(width? : Int, char? : String, fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
@@ -101,11 +111,28 @@ pub(all) enum ColumnAlign {
   Center
 }
 
+pub struct CompletionPopupStyle {
+  selected_bg : String
+  normal_bg : String
+  prefix_fg : String
+  selected_suffix_fg : String
+  normal_suffix_fg : String
+}
+pub fn CompletionPopupStyle::default() -> Self
+
 pub(all) enum GaugeStyle {
   Bar
   Thin
   Blocks
 }
+
+pub struct PopupRect {
+  row : Int
+  col : Int
+  width : Int
+  height : Int
+}
+pub fn PopupRect::eq(Self, Self) -> Bool
 
 pub(all) struct TableColumn {
   header : String
