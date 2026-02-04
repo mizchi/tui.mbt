@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/image"
+
+// Values
+pub fn base64_encode(BytesView) -> String
+
+pub fn center_rect(Int, Int, Int, Int) -> ImageRect
+
+pub fn clamp_rect(Int, Int, ImageRect) -> ImageRect
+
+pub fn image_asset_png(Int, Int, BytesView) -> ImageAsset
+
+pub fn image_asset_rgb(Int, Int, BytesView) -> ImageAsset
+
+pub fn image_rect(Int, Int, Int, Int) -> ImageRect
+
+pub fn read_png_asset(String, Int, Int) -> ImageAsset?
+
+// Errors
+
+// Types and methods
+pub struct ImageAsset {
+  width : Int
+  height : Int
+  format : ImageFormat
+  payload_base64 : String
+}
+pub impl Show for ImageAsset
+
+pub enum ImageFormat {
+  Png
+  Rgb
+}
+pub impl Eq for ImageFormat
+pub impl Show for ImageFormat
+
+pub struct ImageRect {
+  x : Int
+  y : Int
+  w : Int
+  h : Int
+}
+pub impl Eq for ImageRect
+pub impl Show for ImageRect
+
+// Type aliases
+
+// Traits
+
