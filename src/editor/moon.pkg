@@ -1,5 +1,6 @@
 import {
   "mizchi/tui/completion",
+  "mizchi/tui/components",
   "mizchi/tui/core",
   "mizchi/tui/vnode",
   "mizchi/tui/events",
