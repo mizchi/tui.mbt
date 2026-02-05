@@ -79,7 +79,11 @@ pub fn compute_layout(@node.Node, Int, Int) -> @types.Layout
 
 pub fn disable_mouse() -> String
 
+pub fn disable_mouse_all() -> String
+
 pub fn enable_mouse() -> String
+
+pub fn enable_mouse_all() -> String
 
 pub fn render_layout(CharBuffer, @types.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> Unit
 

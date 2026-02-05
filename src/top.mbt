@@ -102,6 +102,8 @@ pub using @render {
   render_once,
   enable_mouse,
   disable_mouse,
+  enable_mouse_all,
+  disable_mouse_all,
   ansi_full_reset,
 }
 

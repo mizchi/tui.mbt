@@ -17,16 +17,9 @@ pub fn toast(state : @headless.ToastState, id? : String = "") -> @vnode.TuiNode 
     Warning => ("black", "rgb(80,60,20)", "yellow", "!")
     Error => ("white", "rgb(80,30,30)", "red", "x")
   }
-  @vnode.row(
-    id~,
-    bg~,
-    border="rounded",
-    border_color~,
-    padding_x=1.0,
-    [
-      @vnode.text("[" + icon + "]", fg=border_color),
-      @vnode.hspace(1.0),
-      @vnode.text(state.message, fg~),
-    ],
-  )
+  @vnode.row(id~, bg~, border="rounded", border_color~, padding_x=1.0, [
+    @vnode.text("[" + icon + "]", fg=border_color),
+    @vnode.hspace(1.0),
+    @vnode.text(state.message, fg~),
+  ])
 }

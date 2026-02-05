@@ -243,6 +243,19 @@ pub(all) enum MouseButton {
   Middle
 }
 
+pub(all) struct OverlayEntry {
+  node : @ui.Node[TuiEvent, TuiAttrValue]
+  position : PopupPosition
+  backdrop : Bool
+}
+
+pub(all) enum PopupPosition {
+  Center
+  Top
+  Bottom
+  At(Int, Int)
+}
+
 pub struct RenderContext {
   styles : Map[String, @core.RenderStyle]
   texts : Map[String, String]
@@ -321,6 +334,7 @@ pub struct VNodeApp {
   mut height : Int
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @types.Layout?
+  mut overlay_layouts : Array[@types.Layout]
   mut render_ctx : RenderContext
 }
 pub fn VNodeApp::a11y_tree(Self) -> Array[A11yNode]
@@ -335,6 +349,8 @@ pub fn VNodeApp::layout_rects(Self) -> Array[@events.HitTestResult]
 pub fn VNodeApp::new(Int, Int) -> Self
 pub fn VNodeApp::render(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 pub fn VNodeApp::render_frame(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn VNodeApp::render_frame_with_overlays(Self, @ui.Node[TuiEvent, TuiAttrValue], Array[OverlayEntry]) -> String
+pub fn VNodeApp::render_with_overlays(Self, @ui.Node[TuiEvent, TuiAttrValue], Array[OverlayEntry]) -> String
 pub fn VNodeApp::resize(Self, Int, Int) -> Unit
 pub fn VNodeApp::restore_terminal() -> String
 

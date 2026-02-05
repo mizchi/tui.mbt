@@ -1,0 +1,9 @@
+{
+  "name": "example-popup",
+  "version": "0.0.0",
+  "deps": {
+    "mizchi/tui": { "path": "../.." },
+    "mizchi/signals": "0.6.1"
+  },
+  "preferred-target": "js"
+}

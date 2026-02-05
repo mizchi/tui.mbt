@@ -261,3 +261,98 @@ test "modal/spotlight_top_center story snapshot" {
     }
   }
 }
+
+///|
+test "overlay/popup_centered" {
+  let main = @vnode.column(width=30.0, height=10.0, [
+    @vnode.text("Background Line 1"),
+    @vnode.text("Background Line 2"),
+    @vnode.text("Background Line 3"),
+  ])
+  let overlay = @components.popup(
+    @vnode.column(border="rounded", padding=1.0, bg="rgb(30,30,40)", [
+      @vnode.text("Popup!"),
+    ]),
+  )
+  let plain = render_overlay_plain(30, 10, main, [overlay])
+  inspect(
+    plain,
+    content=(
+      #|          ╭────────╮
+      #|          │        │
+      #|          │ Popup! │
+      #|          │        │
+      #|          ╰────────╯
+    ),
+  )
+}
+
+///|
+test "overlay/popup_with_backdrop" {
+  let main = @vnode.column(width=20.0, height=7.0, [
+    @vnode.text("AAAAAAAAAA"),
+    @vnode.text("BBBBBBBBBB"),
+    @vnode.text("CCCCCCCCCC"),
+  ])
+  let overlay = @components.popup(
+    @vnode.column(border="single", bg="rgb(30,30,40)", [@vnode.text("HI")]),
+    backdrop=true,
+  )
+  let plain = render_overlay_plain(20, 7, main, [overlay])
+  inspect(
+    plain,
+    content=(
+      #|        ┌──┐
+      #|        │HI│
+      #|        └──┘
+    ),
+  )
+}
+
+///|
+test "overlay/popup_at_top" {
+  let main = @vnode.column(width=20.0, height=7.0, [@vnode.text("Background")])
+  let overlay = @components.popup(
+    @vnode.column(border="rounded", bg="rgb(30,30,40)", padding=1.0, [
+      @vnode.text("Top"),
+    ]),
+    backdrop=false,
+    position=@vnode.PopupPosition::Top,
+  )
+  let plain = render_overlay_plain(20, 7, main, [overlay])
+  inspect(
+    plain,
+    content=(
+      #|Backgr╭─────╮
+      #|      │     │
+      #|      │ Top │
+      #|      │     │
+      #|      ╰─────╯
+    ),
+  )
+}
+
+///|
+test "overlay/popup_at_bottom" {
+  let main = @vnode.column(width=20.0, height=7.0, [@vnode.text("Background")])
+  let overlay = @components.popup(
+    @vnode.column(border="rounded", bg="rgb(30,30,40)", padding=1.0, [
+      @vnode.text("Bot"),
+    ]),
+    backdrop=false,
+    position=@vnode.PopupPosition::Bottom,
+  )
+  let plain = render_overlay_plain(20, 7, main, [overlay])
+  inspect(
+    plain,
+    content=(
+      #|Background
+      #|
+      #|      ╭─────╮
+      #|      │     │
+      #|      │ Bot │
+      #|      │     │
+      #|      ╰─────╯
+    ),
+  )
+}

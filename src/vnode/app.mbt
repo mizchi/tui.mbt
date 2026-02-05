@@ -9,6 +9,7 @@ pub struct VNodeApp {
   mut height : Int
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @types.Layout?
+  mut overlay_layouts : Array[@types.Layout]
   mut render_ctx : RenderContext
 }
 
@@ -19,6 +20,7 @@ pub fn VNodeApp::new(width : Int, height : Int) -> VNodeApp {
     height,
     prev_buffer: None,
     last_layout: None,
+    overlay_layouts: [],
     render_ctx: RenderContext::new(),
   }
 }
@@ -74,6 +76,122 @@ pub fn VNodeApp::render(self : VNodeApp, root : TuiNode) -> String {
 }
 
 ///|
+/// Render main content with overlay layers on top
+pub fn VNodeApp::render_with_overlays(
+  self : VNodeApp,
+  main : TuiNode,
+  overlays : Array[OverlayEntry],
+) -> String {
+  // Reset context for new render
+  self.reset_context()
+  self.overlay_layouts = []
+
+  // Convert main vnode to crater node
+  let crater_node = to_crater_node(self.render_ctx, main)
+
+  // Compute layout
+  let layout = @render.compute_layout(crater_node, self.width, self.height)
+
+  // Save layout for hit testing
+  self.last_layout = Some(layout)
+
+  // Create style map from render context
+  let styles = @core.RenderStyleMap::new()
+  for entry in self.render_ctx.styles {
+    styles.set(entry.0, entry.1)
+  }
+
+  // Create text map from render context
+  let texts = @core.TextContentMap::new()
+  for entry in self.render_ctx.texts {
+    texts.set(entry.0, entry.1)
+  }
+
+  // Create buffer and render main content (1st pass)
+  let buf = @render.CharBuffer::new(self.width, self.height)
+  @render.render_layout(buf, layout, styles, texts, 0, 0)
+
+  // Render each overlay (2nd+ pass)
+  for overlay in overlays {
+    // Draw backdrop if requested
+    if overlay.backdrop {
+      buf.fill_bg(0, 0, self.width, self.height, @core.Color::rgb(0, 0, 0))
+    }
+
+    // Create a new render context for the overlay
+    let overlay_ctx = RenderContext::new()
+    let overlay_crater = to_crater_node(overlay_ctx, overlay.node)
+    let overlay_layout = @render.compute_layout(
+      overlay_crater,
+      self.width,
+      self.height,
+    )
+
+    // Calculate offset based on position
+    let overlay_w = overlay_layout.width.to_int()
+    let overlay_h = overlay_layout.height.to_int()
+    let (offset_x, offset_y) = match overlay.position {
+      PopupPosition::Center =>
+        ((self.width - overlay_w) / 2, (self.height - overlay_h) / 2)
+      PopupPosition::Top => ((self.width - overlay_w) / 2, 0)
+      PopupPosition::Bottom =>
+        ((self.width - overlay_w) / 2, self.height - overlay_h)
+      PopupPosition::At(x, y) => (x, y)
+    }
+
+    // Build style/text maps for overlay
+    let overlay_styles = @core.RenderStyleMap::new()
+    for entry in overlay_ctx.styles {
+      overlay_styles.set(entry.0, entry.1)
+    }
+    let overlay_texts = @core.TextContentMap::new()
+    for entry in overlay_ctx.texts {
+      overlay_texts.set(entry.0, entry.1)
+    }
+
+    // Render overlay onto the same buffer
+    @render.render_layout(
+      buf, overlay_layout, overlay_styles, overlay_texts, offset_x, offset_y,
+    )
+
+    // Merge handlers into main render context
+    for entry in overlay_ctx.handlers {
+      self.render_ctx.handlers[entry.0] = entry.1
+    }
+    for entry in overlay_ctx.roles {
+      self.render_ctx.roles[entry.0] = entry.1
+    }
+
+    // Save overlay layout with offset applied
+    self.overlay_layouts.push({
+      ..overlay_layout,
+      x: overlay_layout.x + offset_x.to_double(),
+      y: overlay_layout.y + offset_y.to_double(),
+    })
+  }
+
+  // Generate output with diff if possible
+  let output = match self.prev_buffer {
+    Some(prev) => buf.diff_to_ansi(prev)
+    None => @render.ansi_clear_screen() + buf.to_ansi()
+  }
+
+  // Save current buffer for next diff
+  self.prev_buffer = Some(buf)
+  output
+}
+
+///|
+/// Render with overlays and cursor hidden
+pub fn VNodeApp::render_frame_with_overlays(
+  self : VNodeApp,
+  main : TuiNode,
+  overlays : Array[OverlayEntry],
+) -> String {
+  @render.ansi_hide_cursor() + self.render_with_overlays(main, overlays)
+}
+
+///|
 /// Render with cursor hidden and positioned at origin
 pub fn VNodeApp::render_frame(self : VNodeApp, root : TuiNode) -> String {
   @render.ansi_hide_cursor() + self.render(root)
@@ -110,11 +228,20 @@ pub fn VNodeApp::restore_terminal() -> String {
 
 ///|
 /// Perform hit test at coordinates
+/// Checks overlays first (top-most layer) before main layout
 pub fn VNodeApp::hit_test(
   self : VNodeApp,
   x : Int,
   y : Int,
 ) -> @events.HitTestResult? {
+  // Check overlays in reverse order (top-most first)
+  let len = self.overlay_layouts.length()
+  for i = len - 1; i >= 0; i = i - 1 {
+    let result = @events.hit_test_root(self.overlay_layouts[i], x, y)
+    if result is Some(_) {
+      return result
+    }
+  }
   match self.last_layout {
     Some(layout) => @events.hit_test_root(layout, x, y)
     None => None

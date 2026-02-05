@@ -4,6 +4,7 @@ package "mizchi/tui/components"
 import {
   "mizchi/signals/ui",
   "mizchi/tui/headless",
+  "mizchi/tui/logics",
   "mizchi/tui/vnode",
 }
 
@@ -11,6 +12,10 @@ import {
 pub fn accordion_section(String, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn alert_popup(String, title? : String, button_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+
+pub fn breadcrumb(Array[String], separator? : String, id? : String, active_fg? : String, inactive_fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn build_gauge(Double, Int, style? : GaugeStyle) -> String
 
@@ -36,7 +41,15 @@ pub fn[T] completion_popup_node(Array[T], (T) -> String, Int, String, Int, max_i
 
 pub fn completion_popup_rect(Int, Int, Int, Int, Int, Int, Int, prefer_below? : Bool) -> PopupRect
 
+pub fn condensed_breadcrumb(String, max_segments? : Int, separator? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn confirm_popup(String, title? : String, confirm_label? : String, cancel_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+
+pub fn diff_view(Array[String], Array[String], id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn diff_view_from_ops(Array[@logics.DiffOp], id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn divider(width? : Int, char? : String, fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -49,6 +62,10 @@ pub fn form_field(label_text~ : String, for_id? : String, required? : Bool, help
 pub fn gauge(String, Double, bar_width? : Int, show_percent? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn get_spinner_frame(Int) -> String
+
+pub fn grid_select(Array[String], @headless.GridSelectState, id? : String, min_item_width? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn grid_select_item(String, Bool, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn help_text(String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -73,6 +90,10 @@ pub fn meter(String, Double, width? : Int, label_width? : Int) -> @ui.Node[@vnod
 pub fn modal(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn modal_backdrop() -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn modal_popup(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+
+pub fn popup(@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], backdrop? : Bool, position? : @vnode.PopupPosition) -> @vnode.OverlayEntry
 
 pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -101,6 +122,12 @@ pub fn table_header(Array[TableColumn], separator? : String) -> @ui.Node[@vnode.
 pub fn table_row(Array[TableColumn], Array[String], separator? : String, selected? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn text_button(String, id? : String, state? : @headless.ButtonState) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn toast(@headless.ToastState, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn tree_view(@logics.TreeNode[String], @headless.TreeState, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+
+pub fn tree_view_forest(Array[@logics.TreeNode[String]], @headless.TreeState, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 // Errors
 
@@ -146,11 +173,19 @@ pub using @headless {type AccordionState}
 
 pub using @headless {type ButtonState}
 
+pub using @headless {type GridSelectState}
+
 pub using @headless {type ModalState}
 
 pub using @headless {type SelectionState}
 
+pub using @headless {type ToastLevel}
+
+pub using @headless {type ToastState}
+
 pub using @headless {type ToggleState}
+
+pub using @headless {type TreeState}
 
 // Traits
 

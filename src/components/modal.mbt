@@ -80,6 +80,60 @@ pub fn confirm_dialog(
 }
 
 ///|
+/// Wrap any TuiNode as an overlay entry
+pub fn popup(
+  content : @vnode.TuiNode,
+  backdrop? : Bool = true,
+  position? : @vnode.PopupPosition = Center,
+) -> @vnode.OverlayEntry {
+  { node: content, position, backdrop }
+}
+
+///|
+/// Create a modal overlay entry
+pub fn modal_popup(
+  title : String,
+  content : Array[@vnode.TuiNode],
+  width? : Double = 40.0,
+  backdrop? : Bool = true,
+  position? : @vnode.PopupPosition = Center,
+  id? : String = "",
+) -> @vnode.OverlayEntry {
+  popup(modal(title, content, width~, id~), backdrop~, position~)
+}
+
+///|
+/// Create an alert overlay entry
+pub fn alert_popup(
+  message : String,
+  title? : String = "Alert",
+  button_label? : String = "OK",
+  backdrop? : Bool = true,
+  position? : @vnode.PopupPosition = Center,
+  id? : String = "",
+) -> @vnode.OverlayEntry {
+  popup(alert_dialog(message, title~, button_label~, id~), backdrop~, position~)
+}
+
+///|
+/// Create a confirm overlay entry
+pub fn confirm_popup(
+  message : String,
+  title? : String = "Confirm",
+  confirm_label? : String = "Yes",
+  cancel_label? : String = "No",
+  backdrop? : Bool = true,
+  position? : @vnode.PopupPosition = Center,
+  id? : String = "",
+) -> @vnode.OverlayEntry {
+  popup(
+    confirm_dialog(message, title~, confirm_label~, cancel_label~, id~),
+    backdrop~,
+    position~,
+  )
+}
+
+///|
 /// Card container
 pub fn card(
   content : Array[@vnode.TuiNode],

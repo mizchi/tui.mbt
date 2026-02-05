@@ -43,13 +43,11 @@ async fn main {
   )
 
   // Tree state (start with root focused and expanded so tree is interactive)
-  let tree_state = @signals.signal(
-    @headless.TreeState::{
-      expanded_ids: ["root"],
-      selected_id: "",
-      focused_id: "root",
-    },
-  )
+  let tree_state = @signals.signal(@headless.TreeState::{
+    expanded_ids: ["root"],
+    selected_id: "",
+    focused_id: "root",
+  })
 
   // Fuzzy state
   let fuzzy_query = @signals.signal("")
@@ -213,21 +211,15 @@ async fn main {
       row(gap=2.0, align="start", [
         column([
           text("Old:", fg="rgb(150,150,150)"),
-          column(
-            border="single",
-            border_color="rgb(60,60,60)",
-            padding_x=1.0,
-            [text(old_content, fg="rgb(150,150,150)")],
-          ),
+          column(border="single", border_color="rgb(60,60,60)", padding_x=1.0, [
+            text(old_content, fg="rgb(150,150,150)"),
+          ]),
         ]),
         column([
           text("New:", fg="rgb(150,150,150)"),
-          column(
-            border="single",
-            border_color="rgb(60,60,60)",
-            padding_x=1.0,
-            [text(new_content, fg="rgb(150,150,150)")],
-          ),
+          column(border="single", border_color="rgb(60,60,60)", padding_x=1.0, [
+            text(new_content, fg="rgb(150,150,150)"),
+          ]),
         ]),
       ]),
       vspace(0.5),

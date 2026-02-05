@@ -33,6 +33,18 @@ pub fn FocusNav::new(Array[String]) -> Self
 pub fn FocusNav::next(Self) -> Self
 pub fn FocusNav::prev(Self) -> Self
 
+pub(all) struct GridSelectState {
+  columns : Int
+  selected : Int
+  total : Int
+}
+pub fn GridSelectState::move_down(Self) -> Self
+pub fn GridSelectState::move_left(Self) -> Self
+pub fn GridSelectState::move_right(Self) -> Self
+pub fn GridSelectState::move_up(Self) -> Self
+pub fn GridSelectState::new(Int, Int, selected? : Int) -> Self
+pub fn GridSelectState::position(Self) -> (Int, Int)
+
 pub(all) enum InputState {
   Idle
   Focused
@@ -61,6 +73,21 @@ pub fn SelectionState::new(selected_id? : String) -> Self
 pub fn SelectionState::select(Self, String) -> Self
 pub fn SelectionState::toggle_open(Self) -> Self
 
+pub(all) enum ToastLevel {
+  Info
+  Success
+  Warning
+  Error
+}
+
+pub(all) struct ToastState {
+  message : String
+  level : ToastLevel
+  visible : Bool
+}
+pub fn ToastState::dismiss(Self) -> Self
+pub fn ToastState::new(String, level? : ToastLevel) -> Self
+
 pub(all) struct ToggleState {
   checked : Bool
   focused : Bool
@@ -69,6 +96,17 @@ pub(all) struct ToggleState {
 pub fn ToggleState::new(checked? : Bool) -> Self
 pub fn ToggleState::set_focused(Self, Bool) -> Self
 pub fn ToggleState::toggle(Self) -> Self
+
+pub(all) struct TreeState {
+  expanded_ids : Array[String]
+  selected_id : String
+  focused_id : String
+}
+pub fn TreeState::focus(Self, String) -> Self
+pub fn TreeState::is_expanded(Self, String) -> Bool
+pub fn TreeState::new() -> Self
+pub fn TreeState::select(Self, String) -> Self
+pub fn TreeState::toggle_expand(Self, String) -> Self
 
 // Type aliases
 

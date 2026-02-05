@@ -2,6 +2,50 @@
 /// Modal and overlay component stories - vnode version
 
 ///|
+/// Render main content with overlays to plain text for testing
+pub fn render_overlay_plain(
+  width : Int,
+  height : Int,
+  main : @vnode.TuiNode,
+  overlays : Array[@vnode.OverlayEntry],
+) -> String {
+  let app = @vnode.VNodeApp::new(width, height)
+  let frame = app.render_frame_with_overlays(main, overlays)
+  let plain = @testing.strip_ansi(frame)
+
+  // Parse by width accounting for CJK characters
+  let chars = plain.to_array()
+  let lines : Array[String] = []
+  let mut pos = 0
+  for row = 0; row < height; row = row + 1 {
+    let line_chars : Array[Char] = []
+    let mut col = 0
+    while col < width && pos < chars.length() {
+      let c = chars[pos]
+      line_chars.push(c)
+      pos = pos + 1
+      col = col + @core.char_display_width(c)
+    }
+    lines.push(trim_end(String::from_array(line_chars)))
+  }
+
+  // Remove trailing empty lines
+  while lines.length() > 0 && lines[lines.length() - 1] == "" {
+    let _ = lines.pop()
+
+  }
+  lines
+  .iter()
+  .fold(init="", fn(acc, line) {
+    if acc == "" {
+      line
+    } else {
+      acc + "\n" + line
+    }
+  })
+}
+
+///|
 pub fn modal_stories() -> Array[VNodeStory] {
   [
     // Simple box overlay test

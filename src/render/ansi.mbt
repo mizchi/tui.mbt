@@ -503,3 +503,15 @@ pub fn enable_mouse() -> String {
 pub fn disable_mouse() -> String {
   "\u001b[?1006l\u001b[?1000l"
 }
+
+///|
+/// Enable mouse with motion tracking (reports move events even without button press)
+pub fn enable_mouse_all() -> String {
+  "\u001b[?1003h\u001b[?1006h"
+}
+
+///|
+/// Disable mouse motion tracking
+pub fn disable_mouse_all() -> String {
+  "\u001b[?1006l\u001b[?1003l"
+}

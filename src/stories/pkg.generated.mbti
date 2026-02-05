@@ -98,6 +98,8 @@ pub fn radio_stories() -> Array[VNodeStory]
 
 pub fn real_world_stories() -> Array[VNodeStory]
 
+pub fn render_overlay_plain(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Array[@vnode.OverlayEntry]) -> String
+
 pub fn search_input_stories() -> Array[VNodeStory]
 
 pub fn search_result_stories() -> Array[VNodeStory]

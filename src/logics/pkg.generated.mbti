@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui/logics"
+
+// Values
+pub fn diff_lines(Array[String], Array[String]) -> Array[DiffOp]
+
+pub fn[T] flatten_forest(Array[TreeNode[T]], Array[String]) -> Array[(Int, TreeNode[T])]
+
+pub fn fuzzy_match(String, String) -> FuzzyMatch?
+
+pub fn fuzzy_sort(String, Array[String]) -> Array[(Int, FuzzyMatch)]
+
+pub fn fuzzy_visible_rows(Int, Int) -> FuzzyVisibleRows
+
+// Errors
+
+// Types and methods
+pub(all) enum DiffOp {
+  Equal(String)
+  Insert(String)
+  Delete(String)
+}
+pub fn DiffOp::is_equal(Self) -> Bool
+pub impl Show for DiffOp
+
+pub(all) struct FuzzyMatch {
+  score : Int
+  positions : Array[Int]
+}
+
+pub(all) struct FuzzyVisibleRows {
+  show : Int
+  has_more : Bool
+  pad : Int
+}
+pub fn FuzzyVisibleRows::rows(Self) -> Int
+
+pub(all) struct TreeNode[T] {
+  id : String
+  label : String
+  children : Array[TreeNode[T]]
+  data : T?
+}
+pub fn[T] TreeNode::ancestors(Self[T], String) -> Array[String]?
+pub fn[T] TreeNode::branch(String, String, Array[Self[T]]) -> Self[T]
+pub fn[T] TreeNode::find(Self[T], String) -> Self[T]?
+pub fn[T] TreeNode::flatten(Self[T], Array[String]) -> Array[(Int, Self[T])]
+pub fn[T] TreeNode::is_leaf(Self[T]) -> Bool
+pub fn[T] TreeNode::leaf(String, String, data? : T) -> Self[T]
+
+// Type aliases
+
+// Traits
+

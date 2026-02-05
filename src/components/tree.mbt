@@ -23,11 +23,7 @@ fn tree_line(
   } else {
     "> "
   }
-  let label = if is_selected {
-    "[" + node.label + "]"
-  } else {
-    node.label
-  }
+  let label = if is_selected { "[" + node.label + "]" } else { node.label }
   marker + " " + indent_str + icon + label
 }
 
