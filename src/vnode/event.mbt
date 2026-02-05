@@ -14,6 +14,8 @@ pub(all) enum MouseButton {
 pub(all) enum TuiEvent {
   /// Mouse click event
   Click(x~ : Int, y~ : Int, button~ : MouseButton)
+  /// Mouse hover event
+  Hover(x~ : Int, y~ : Int, id~ : String)
   /// Key press event
   Key(key~ : String, modifiers~ : Int)
 }

@@ -239,6 +239,20 @@ pub fn App::dispatch_click_with_result(
 }
 
 ///|
+/// Dispatch hover event - returns hovered component ID on Move/Drag events
+pub fn App::dispatch_hover(self : App, event : @events.MouseEvent) -> String? {
+  match (event.event_type, event.button) {
+    (@events.MouseEventType::Drag, @events.MouseButton::None)
+    | (@events.MouseEventType::Move, _) =>
+      match self.hit_test(event.x, event.y) {
+        Some(hit) => Some(hit.id)
+        None => Some("")
+      }
+    _ => None
+  }
+}
+
+///|
 /// Dispatch a click event using Component's click_handlers
 /// Returns the clicked component ID if found and handler was invoked, None otherwise
 pub fn App::dispatch_click_from_component(

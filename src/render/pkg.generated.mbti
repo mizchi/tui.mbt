@@ -110,6 +110,7 @@ pub fn App::create_render_effect(Self, () -> @core.Component, (String) -> Unit) 
 pub fn App::dispatch_click(Self, @events.MouseEvent, Map[String, () -> Unit]) -> String?
 pub fn App::dispatch_click_from_component(Self, @events.MouseEvent, @core.Component) -> String?
 pub fn App::dispatch_click_with_result(Self, @events.MouseEvent) -> @events.HitTestResult?
+pub fn App::dispatch_hover(Self, @events.MouseEvent) -> String?
 pub fn App::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn App::handle_mouse(Self, @events.MouseEvent) -> Bool
 pub fn App::hit_test(Self, Int, Int) -> @events.HitTestResult?

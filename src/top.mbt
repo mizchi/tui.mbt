@@ -63,7 +63,7 @@ pub using @vnode {
 // === Headless (State Types) ===
 
 ///|
-pub using @headless {type ButtonState}
+pub using @headless {type ButtonState, resolve_button_state}
 
 // === VNode (Edit/Form) ===
 
@@ -158,6 +158,7 @@ pub fn run(
   render_fn : () -> @core.Component,
   on_event : (@events.InputEvent) -> Bool,
   mouse? : Bool = true,
+  on_hover? : ((String) -> Unit)? = None,
 ) -> Unit {
   // Get terminal size
   let (cols, rows) = @io.get_terminal_size()
@@ -168,10 +169,13 @@ pub fn run(
   // Store last rendered component for click handling
   let last_component : Ref[@core.Component?] = { val: None }
 
+  // Track hover state
+  let last_hover_id : Ref[String] = { val: "" }
+
   // Initialize terminal
   @io.print_raw(@render.App::init_terminal())
   if mouse {
-    @io.print_raw(@render.enable_mouse())
+    @io.print_raw(@render.enable_mouse_all())
   }
 
   // Render helper - stores component for click dispatch
@@ -191,9 +195,25 @@ pub fn run(
     }
     let event = @events.parse_input(key)
 
-    // Auto-dispatch mouse clicks to component's on_click handlers
+    // Auto-dispatch mouse events
     match event {
-      @events.InputEvent::Mouse(mouse_event) =>
+      @events.InputEvent::Mouse(mouse_event) => {
+        // Hover dispatch
+        match app.dispatch_hover(mouse_event) {
+          Some(new_id) => {
+            if new_id != last_hover_id.val {
+              last_hover_id.val = new_id
+              match on_hover {
+                Some(cb) => cb(new_id)
+                None => ()
+              }
+              do_render()
+            }
+            return
+          }
+          None => ()
+        }
+        // Click dispatch
         match last_component.val {
           Some(component) => {
             let _ = app.dispatch_click_from_component(mouse_event, component)
@@ -201,6 +221,7 @@ pub fn run(
           }
           None => ()
         }
+      }
       _ => ()
     }
     let continue_running = on_event(event)
@@ -208,7 +229,7 @@ pub fn run(
       // Cleanup and exit
       @io.stop_keypress_listener()
       if mouse {
-        @io.print_raw(@render.disable_mouse())
+        @io.print_raw(@render.disable_mouse_all())
       }
       @io.cleanup_stdin()
       @io.print_raw(@render.App::restore_terminal())

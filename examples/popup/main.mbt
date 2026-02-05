@@ -76,13 +76,7 @@ fn button_state(
   focus : @tui.FocusNav,
   hover_id : String,
 ) -> @tui.ButtonState {
-  if focus.is_focused(id) {
-    @tui.ButtonState::Focused
-  } else if hover_id == id {
-    @tui.ButtonState::Focused
-  } else {
-    @tui.ButtonState::Default
-  }
+  @tui.resolve_button_state(id, hover_id, focus=Some(focus))
 }
 
 ///|

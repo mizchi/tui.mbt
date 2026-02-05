@@ -10,6 +10,7 @@
 /// Button state enum
 pub(all) enum ButtonState {
   Default
+  Hovered
   Focused
   Pressed
   Disabled
@@ -436,4 +437,29 @@ pub fn FocusNav::focus_id(self : FocusNav, id : String) -> FocusNav {
 /// Check if ID is focused
 pub fn FocusNav::is_focused(self : FocusNav, id : String) -> Bool {
   self.current() == id
+}
+
+// =============================================================================
+// Button State Resolution
+// =============================================================================
+
+///|
+/// Resolve button state from hover_id and optional FocusNav
+pub fn resolve_button_state(
+  id : String,
+  hover_id : String,
+  focus? : FocusNav? = None,
+  disabled? : Bool = false,
+) -> ButtonState {
+  if disabled {
+    return Disabled
+  }
+  if hover_id == id {
+    return Hovered
+  }
+  match focus {
+    Some(nav) => if nav.is_focused(id) { return Focused }
+    None => ()
+  }
+  Default
 }

@@ -316,6 +316,7 @@ pub(all) enum TuiAttrValue {
 
 pub(all) enum TuiEvent {
   Click(x~ : Int, y~ : Int, button~ : MouseButton)
+  Hover(x~ : Int, y~ : Int, id~ : String)
   Key(key~ : String, modifiers~ : Int)
 }
 
@@ -340,6 +341,7 @@ pub struct VNodeApp {
 pub fn VNodeApp::a11y_tree(Self) -> Array[A11yNode]
 pub fn VNodeApp::clear_prev_buffer(Self) -> Unit
 pub fn VNodeApp::create_render_effect(Self, () -> @ui.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
+pub fn VNodeApp::dispatch_hover(Self, @events.MouseEvent) -> String?
 pub fn VNodeApp::dump_a11y_tree(Self) -> String
 pub fn VNodeApp::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn VNodeApp::handle_click(Self, @events.MouseEvent) -> String?

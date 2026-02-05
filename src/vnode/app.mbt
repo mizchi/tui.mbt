@@ -311,6 +311,31 @@ pub fn VNodeApp::handle_click(
 }
 
 ///|
+/// Dispatch hover event - returns hovered component ID on Move/Drag events
+/// Also dispatches TuiEvent::Hover to handlers for overlay-aware hit testing
+pub fn VNodeApp::dispatch_hover(
+  self : VNodeApp,
+  event : @events.MouseEvent,
+) -> String? {
+  match (event.event_type, event.button) {
+    (@events.MouseEventType::Drag, @events.MouseButton::None)
+    | (@events.MouseEventType::Move, _) =>
+      match self.hit_test(event.x, event.y) {
+        Some(hit) => {
+          match self.render_ctx.handlers.get(hit.id) {
+            Some(handler) =>
+              handler(TuiEvent::Hover(x=event.x, y=event.y, id=hit.id))
+            None => ()
+          }
+          Some(hit.id)
+        }
+        None => Some("")
+      }
+    _ => None
+  }
+}
+
+///|
 /// Clear the previous buffer to force a full re-render on next render call
 pub fn VNodeApp::clear_prev_buffer(self : VNodeApp) -> Unit {
   self.prev_buffer = None
@@ -361,7 +386,7 @@ pub fn init_vnode_terminal(
   // Initialize terminal
   output_fn(VNodeApp::init_terminal())
   if mouse {
-    output_fn(@render.enable_mouse())
+    output_fn(@render.enable_mouse_all())
   }
   if raw_mode {
     @io.enable_raw_mode()
@@ -370,7 +395,7 @@ pub fn init_vnode_terminal(
     @io.stop_keypress_listener()
     @io.stop_resize_listener()
     if mouse {
-      output_fn(@render.disable_mouse())
+      output_fn(@render.disable_mouse_all())
     }
     @io.cleanup_stdin()
     output_fn(VNodeApp::restore_terminal())

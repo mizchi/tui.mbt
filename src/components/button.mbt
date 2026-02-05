@@ -15,6 +15,7 @@ pub fn button(
 ) -> @vnode.TuiNode {
   let (fg, bg, border_color) = match state {
     Default => ("white", "", "cyan")
+    Hovered => ("cyan", "rgb(30,50,60)", "cyan")
     Focused => ("black", "cyan", "cyan")
     Pressed => ("black", "rgb(0,180,180)", "rgb(0,180,180)")
     Disabled => ("rgb(100,100,100)", "", "rgb(60,60,60)")
@@ -43,6 +44,7 @@ pub fn icon_button(
 ) -> @vnode.TuiNode {
   let (fg, bg) = match state {
     Default => ("white", "")
+    Hovered => ("cyan", "rgb(40,40,50)")
     Focused => ("cyan", "rgb(60,60,80)")
     Pressed => ("black", "cyan")
     Disabled => ("rgb(80,80,80)", "")
@@ -60,6 +62,7 @@ pub fn text_button(
   let _ = id // ID reserved for future ARIA support
   let (fg, underline) = match state {
     Default => ("cyan", false)
+    Hovered => ("white", false)
     Focused => ("white", true)
     Pressed => ("rgb(0,180,180)", false)
     Disabled => ("rgb(80,80,80)", false)

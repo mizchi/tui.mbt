@@ -65,9 +65,11 @@ pub fn render_once(Int, Int, @core.Component) -> String
 
 pub fn render_vnode_once(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
+pub fn resolve_button_state(String, String, focus? : @headless.FocusNav?, disabled? : Bool) -> @headless.ButtonState
+
 pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool) -> Unit
+pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool, on_hover? : ((String) -> Unit)?) -> Unit
 
 pub fn run_vnode_app(Int, Int, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], (String) -> Unit) -> () -> Unit
 

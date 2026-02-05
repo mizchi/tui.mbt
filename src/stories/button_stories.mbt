@@ -13,10 +13,9 @@ pub fn button_stories() -> Array[VNodeStory] {
       )
     }),
     VNodeStory::new("button", "hover", fn() {
-      // TUI has no hover state, use Focused instead
       @components.button(
         "Submit",
-        state=@headless.ButtonState::Focused,
+        state=@headless.ButtonState::Hovered,
         min_width=12.0,
       )
     }),
@@ -66,7 +65,7 @@ pub fn button_stories() -> Array[VNodeStory] {
       @components.icon_button("✕", state=@headless.ButtonState::Default)
     }),
     VNodeStory::new("button", "icon_hover", fn() {
-      @components.icon_button("✕", state=@headless.ButtonState::Focused)
+      @components.icon_button("✕", state=@headless.ButtonState::Hovered)
     }),
   ]
 }
