@@ -153,6 +153,8 @@ moon run examples/grid-layout  # Grid layout demo
 moon run examples/components   # Component showcase
 ```
 
+Note: The chat example moved to `mizchi/vivebox`.
+
 ## Documentation
 
 See [docs/tutorial.mbt.md](docs/tutorial.mbt.md) for detailed API documentation.
