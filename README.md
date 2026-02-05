@@ -146,11 +146,17 @@ Snapshots:
 ## Examples
 
 ```bash
-moon run examples/counter      # Simple counter
-moon run examples/command-launcher  # Command launcher
-moon run examples/form         # Form with inputs
-moon run examples/grid-layout  # Grid layout demo
-moon run examples/components   # Component showcase
+moon run examples/simple            # Minimal counter app
+moon run examples/command-launcher   # Raycast-style command palette
+moon run examples/completion         # Inline completion UI
+moon run examples/components         # Component showcase gallery
+moon run examples/editor             # Text editor with syntax highlighting
+moon run examples/form               # Form with inline editing
+moon run examples/grid-area          # Named grid area layout
+moon run examples/grid-layout        # Grid layout demo (dashboard/calendar)
+moon run examples/kitty-graphics     # Kitty terminal graphics protocol demo
+moon run examples/roguelike          # Roguelike game UI
+moon run examples/wizard             # Multi-step setup wizard (inquirer.js-style)
 ```
 
 Note: The chat example moved to `mizchi/vivebox`.

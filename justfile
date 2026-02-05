@@ -4,7 +4,7 @@
 target := "js"
 
 # Example directories
-examples := "command-launcher completion components editor form grid-area grid-layout lint simple snapshot snapshot-ansi wizard"
+examples := "command-launcher completion components editor form grid-area grid-layout lint simple snapshot snapshot-ansi toadlike wizard"
 
 # Default task: check and test
 default: check test

@@ -213,6 +213,162 @@ pub fn AccordionState::toggle(
 }
 
 // =============================================================================
+// Toast State
+// =============================================================================
+
+///|
+/// Toast notification severity level
+pub(all) enum ToastLevel {
+  Info
+  Success
+  Warning
+  Error
+}
+
+///|
+/// Toast notification state
+pub(all) struct ToastState {
+  message : String
+  level : ToastLevel
+  visible : Bool
+}
+
+///|
+/// Create a new toast state
+pub fn ToastState::new(
+  message : String,
+  level? : ToastLevel = Info,
+) -> ToastState {
+  { message, level, visible: true }
+}
+
+///|
+/// Dismiss the toast
+pub fn ToastState::dismiss(self : ToastState) -> ToastState {
+  { ..self, visible: false }
+}
+
+// =============================================================================
+// Grid Select State
+// =============================================================================
+
+///|
+/// 2D grid selection state
+pub(all) struct GridSelectState {
+  columns : Int
+  selected : Int
+  total : Int
+}
+
+///|
+/// Create a new grid select state
+pub fn GridSelectState::new(
+  columns : Int,
+  total : Int,
+  selected? : Int = 0,
+) -> GridSelectState {
+  { columns, total, selected }
+}
+
+///|
+/// Move selection right
+pub fn GridSelectState::move_right(self : GridSelectState) -> GridSelectState {
+  let next = self.selected + 1
+  if next < self.total {
+    { ..self, selected: next }
+  } else {
+    self
+  }
+}
+
+///|
+/// Move selection left
+pub fn GridSelectState::move_left(self : GridSelectState) -> GridSelectState {
+  if self.selected > 0 {
+    { ..self, selected: self.selected - 1 }
+  } else {
+    self
+  }
+}
+
+///|
+/// Move selection down
+pub fn GridSelectState::move_down(self : GridSelectState) -> GridSelectState {
+  let next = self.selected + self.columns
+  if next < self.total {
+    { ..self, selected: next }
+  } else {
+    self
+  }
+}
+
+///|
+/// Move selection up
+pub fn GridSelectState::move_up(self : GridSelectState) -> GridSelectState {
+  let next = self.selected - self.columns
+  if next >= 0 {
+    { ..self, selected: next }
+  } else {
+    self
+  }
+}
+
+///|
+/// Get row and column of current selection
+pub fn GridSelectState::position(self : GridSelectState) -> (Int, Int) {
+  (self.selected / self.columns, self.selected % self.columns)
+}
+
+// =============================================================================
+// Tree State
+// =============================================================================
+
+///|
+/// Tree view state
+pub(all) struct TreeState {
+  expanded_ids : Array[String]
+  selected_id : String
+  focused_id : String
+}
+
+///|
+/// Create a new tree state
+pub fn TreeState::new() -> TreeState {
+  { expanded_ids: [], selected_id: "", focused_id: "" }
+}
+
+///|
+/// Toggle expand/collapse for a node
+pub fn TreeState::toggle_expand(self : TreeState, id : String) -> TreeState {
+  if self.expanded_ids.contains(id) {
+    let new_ids = self.expanded_ids.filter(fn(x) { x != id })
+    { ..self, expanded_ids: new_ids }
+  } else {
+    let new_ids = self.expanded_ids.copy()
+    new_ids.push(id)
+    { ..self, expanded_ids: new_ids }
+  }
+}
+
+///|
+/// Check if a node is expanded
+pub fn TreeState::is_expanded(self : TreeState, id : String) -> Bool {
+  self.expanded_ids.contains(id)
+}
+
+///|
+/// Select a node
+pub fn TreeState::select(self : TreeState, id : String) -> TreeState {
+  { ..self, selected_id: id, focused_id: id }
+}
+
+///|
+/// Focus a node
+pub fn TreeState::focus(self : TreeState, id : String) -> TreeState {
+  { ..self, focused_id: id }
+}
+
+// =============================================================================
 // Focus Navigation
 // =============================================================================
 

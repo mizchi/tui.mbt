@@ -2,4 +2,5 @@ import {
   "mizchi/tui/core",
   "mizchi/tui/vnode",
   "mizchi/tui/headless",
+  "mizchi/tui/logics",
 }
