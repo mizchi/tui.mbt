@@ -111,7 +111,7 @@ async fn main {
     column(
       [
         text("Accordion Component", fg="yellow", bold=true),
-        text("Press 1/2/3 to expand sections", fg="rgb(128,128,128)"),
+        text("Press 1/2/3 or click to expand sections", fg="rgb(128,128,128)"),
         ..section_nodes,
       ],
     )
@@ -128,7 +128,7 @@ async fn main {
     }
     column(gap=0.5, [
       text("Radio Group", fg="yellow", bold=true),
-      text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
+      text("Use ↑/↓ or click to navigate", fg="rgb(128,128,128)"),
       vspace(1.0),
       text("Select mode:"),
       column(border="single", border_color="rgb(60,60,80)", option_nodes),
@@ -142,7 +142,10 @@ async fn main {
     let cb = checkbox_checked.get()
     column(gap=0.5, [
       text("Switch & Checkbox", fg="yellow", bold=true),
-      text("Space: toggle switch, 1: toggle checkbox", fg="rgb(128,128,128)"),
+      text(
+        "Space or click: toggle switch, 1 or click: toggle checkbox",
+        fg="rgb(128,128,128)",
+      ),
       vspace(1.0),
       @ui.switch(sw, "Dark Mode", id="switch-dark"),
       @ui.switch(not(sw), "Notifications", id="switch-notif"),
@@ -163,7 +166,7 @@ async fn main {
     }
     column(gap=0.5, [
       text("Listbox", fg="yellow", bold=true),
-      text("Use ↑/↓ to navigate", fg="rgb(128,128,128)"),
+      text("Use ↑/↓ or click to navigate", fg="rgb(128,128,128)"),
       vspace(1.0),
       text("Choose a fruit:"),
       column(border="single", border_color="rgb(60,60,80)", list_nodes),
@@ -205,7 +208,10 @@ async fn main {
     column(
       [
         text("Combobox (Dropdown)", fg="yellow", bold=true),
-        text("Space: open/close, ↑/↓: select", fg="rgb(128,128,128)"),
+        text(
+          "Space/click: open/close, ↑/↓ or click: select",
+          fg="rgb(128,128,128)",
+        ),
         text("Select language:"),
         @ui.combobox_trigger(options[selected], open, id="combo-trigger"),
         ..dropdown_items,
@@ -338,7 +344,7 @@ async fn main {
     column([
       text("Menubar", fg="yellow", bold=true),
       text(
-        "1/2/3: open menu, ↑/↓: select, Space: close",
+        "1/2/3 or click: open menu, ↑/↓ or click: select",
         fg="rgb(128,128,128)",
       ),
       vspace(1.0),
@@ -412,22 +418,44 @@ async fn main {
   // Event Handling
   // ==========================================================================
 
-  // Helper function for hit testing
-  fn is_inside(
-    px : Int,
-    py : Int,
-    bx : Int,
-    by : Int,
-    bw : Int,
-    bh : Int,
-  ) -> Bool {
-    px >= bx && px < bx + bw && py >= by && py < by + bh
+  // Parse ID string like "radio-2" into (prefix, index)
+  fn parse_id_index(id : String) -> (String, Int)? {
+    let chars : Array[Char] = id.to_array()
+    let len = chars.length()
+    let mut last_dash = -1
+    for i in 0..<len {
+      if chars[i] == '-' {
+        last_dash = i
+      }
+    }
+    if last_dash < 0 {
+      return None
+    }
+    let mut idx = 0
+    let mut valid = false
+    for i in (last_dash + 1)..<len {
+      let c = chars[i]
+      if c >= '0' && c <= '9' {
+        idx = idx * 10 + (c.to_int() - '0'.to_int())
+        valid = true
+      } else {
+        return None
+      }
+    }
+    if not(valid) {
+      return None
+    }
+    let buf = StringBuilder::new()
+    for i in 0..<last_dash {
+      buf.write_char(chars[i])
+    }
+    Some((buf.to_string(), idx))
   }
 
   // Initialize terminal
   @tui.print_raw(VNodeApp::init_terminal())
   @tui.enable_raw_mode()
-  @tui.print_raw(@tui.enable_mouse())
+  @tui.print_raw(@tui.enable_mouse_all())
 
   // Initial render
   @tui.print_raw(app.render_frame(render_ui()))
@@ -602,68 +630,59 @@ async fn main {
           (@tui.MouseEventType::Press, @tui.MouseButton::Left) => {
             let mx = mouse_event.x
             let my = mouse_event.y
-            let mut clicked = false
-
-            // Check navigation
-            for i in 0..<demos.length() {
-              match app.find_by_id("nav-" + i.to_string()) {
-                Some(hit) =>
-                  if is_inside(mx, my, hit.x, hit.y, hit.width, hit.height) {
-                    current_demo.set(i)
-                    message.set("Demo: " + demos[i])
-                    clicked = true
-                    break
-                  }
-                None => ()
-              }
-            }
-
-            // Demo-specific clicks
-            if not(clicked) {
-              match current {
-                _ if current == demo_tabs =>
-                  for i in 0..<3 {
-                    match app.find_by_id("tab-" + i.to_string()) {
-                      Some(hit) =>
-                        if is_inside(
-                            mx,
-                            my,
-                            hit.x,
-                            hit.y,
-                            hit.width,
-                            hit.height,
-                          ) {
-                          tab_selected.set(i)
-                          clicked = true
-                          break
-                        }
-                      None => ()
+            match app.hit_test(mx, my) {
+              Some(hit) => {
+                let id = hit.id
+                match parse_id_index(id) {
+                  Some(("nav", i)) =>
+                    if i >= 0 && i < demos.length() {
+                      current_demo.set(i)
+                      message.set("Demo: " + demos[i])
                     }
+                  Some(("tab", i)) => tab_selected.set(i)
+                  Some(("acc", i)) => accordion_expanded.set(i)
+                  Some(("radio", i)) => radio_selected.set(i)
+                  Some(("list", i)) => listbox_selected.set(i)
+                  Some(("combo", i)) => {
+                    combobox_selected.set(i)
+                    combobox_open.set(false)
                   }
-                _ if current == demo_accordion =>
-                  for i in 0..<3 {
-                    match app.find_by_id("acc-" + i.to_string()) {
-                      Some(hit) =>
-                        if is_inside(
-                            mx,
-                            my,
-                            hit.x,
-                            hit.y,
-                            hit.width,
-                            hit.height,
-                          ) {
-                          accordion_expanded.set(i)
-                          clicked = true
-                          break
-                        }
-                      None => ()
+                  Some(("menu", i)) => {
+                    menubar_open.set(i)
+                    menubar_item.set(0)
+                  }
+                  Some(("menuitem", i)) => {
+                    let menu_idx = menubar_open.get()
+                    let items = match menu_idx {
+                      0 => ["New", "Open", "Save", "Exit"]
+                      1 => ["Cut", "Copy", "Paste"]
+                      2 => ["Toolbar", "Status Bar", "Zoom In", "Zoom Out"]
+                      _ => []
                     }
+                    if i < items.length() {
+                      message.set("Selected: " + items[i])
+                    }
+                    menubar_open.set(-1)
+                    menubar_item.set(0)
                   }
-                _ => ()
+                  _ =>
+                    match id {
+                      "switch-dark" | "switch-notif" => {
+                        switch_on.set(not(switch_on.get()))
+                        message.set(
+                          "Switch: " +
+                          (if switch_on.get() { "ON" } else { "OFF" }),
+                        )
+                      }
+                      "cb-terms" | "cb-news" =>
+                        checkbox_checked.set(not(checkbox_checked.get()))
+                      "combo-trigger" =>
+                        combobox_open.set(not(combobox_open.get()))
+                      _ => need_render = false
+                    }
+                }
               }
-            }
-            if not(clicked) {
-              need_render = false
+              None => need_render = false
             }
           }
           _ => need_render = false
@@ -678,7 +697,7 @@ async fn main {
   }
 
   // Restore terminal
-  @tui.print_raw(@tui.disable_mouse())
+  @tui.print_raw(@tui.disable_mouse_all())
   @tui.cleanup_stdin()
   @tui.print_raw(VNodeApp::restore_terminal())
   println("Goodbye!")
