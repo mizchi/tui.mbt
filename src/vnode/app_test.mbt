@@ -333,6 +333,123 @@ test "render_overlay_at: positions content correctly" {
 }
 
 // =============================================================================
+// dispatch_hover tests
+// =============================================================================
+
+///|
+test "VNodeApp: dispatch_hover returns id on Move event" {
+  let app = VNodeApp::new(20, 5)
+  let node = column(width=20.0, height=5.0, [
+    row(id="btn-a", border="single", padding=1.0, [text("A")]),
+  ])
+  let _ = app.render(node)
+  match app.find_by_id("btn-a") {
+    Some(hit) => {
+      let cx = hit.x + hit.width / 2
+      let cy = hit.y + hit.height / 2
+      let event : @events.MouseEvent = {
+        event_type: @events.MouseEventType::Move,
+        button: @events.MouseButton::None,
+        x: cx,
+        y: cy,
+        modifier: @events.KeyModifier::None,
+      }
+      let result = app.dispatch_hover(event)
+      assert_eq(result, Some("btn-a"))
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "VNodeApp: dispatch_hover returns empty on miss" {
+  let app = VNodeApp::new(20, 5)
+  let node = row(id="btn", width=5.0, height=3.0, [text("X")])
+  let _ = app.render(node)
+  // Move to far corner, outside the button
+  let event : @events.MouseEvent = {
+    event_type: @events.MouseEventType::Move,
+    button: @events.MouseButton::None,
+    x: 19,
+    y: 4,
+    modifier: @events.KeyModifier::None,
+  }
+  let result = app.dispatch_hover(event)
+  assert_eq(result, Some(""))
+}
+
+///|
+test "VNodeApp: dispatch_hover ignores Press events" {
+  let app = VNodeApp::new(20, 5)
+  let node = row(id="btn", [text("X")])
+  let _ = app.render(node)
+  let event : @events.MouseEvent = {
+    event_type: @events.MouseEventType::Press,
+    button: @events.MouseButton::Left,
+    x: 0,
+    y: 0,
+    modifier: @events.KeyModifier::None,
+  }
+  let result = app.dispatch_hover(event)
+  assert_eq(result, None)
+}
+
+///|
+test "VNodeApp: dispatch_hover fires Hover handler" {
+  let app = VNodeApp::new(20, 5)
+  let hover_received : Ref[String] = Ref::new("")
+  let node = column(width=20.0, height=5.0, [
+    row(
+      id="hover-btn",
+      on_click=Some(fn(event) {
+        match event {
+          TuiEvent::Hover(id~, ..) => hover_received.val = id
+          _ => ()
+        }
+      }),
+      border="single",
+      padding=1.0,
+      [text("Hover me")],
+    ),
+  ])
+  let _ = app.render(node)
+  match app.find_by_id("hover-btn") {
+    Some(hit) => {
+      let cx = hit.x + hit.width / 2
+      let cy = hit.y + hit.height / 2
+      let event : @events.MouseEvent = {
+        event_type: @events.MouseEventType::Move,
+        button: @events.MouseButton::None,
+        x: cx,
+        y: cy,
+        modifier: @events.KeyModifier::None,
+      }
+      let _ = app.dispatch_hover(event)
+      assert_eq(hover_received.val, "hover-btn")
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "VNodeApp: dispatch_hover with Drag None event" {
+  let app = VNodeApp::new(20, 5)
+  let node = row(id="drag-target", width=20.0, height=5.0, [text("Drag")])
+  let _ = app.render(node)
+  let event : @events.MouseEvent = {
+    event_type: @events.MouseEventType::Drag,
+    button: @events.MouseButton::None,
+    x: 1,
+    y: 1,
+    modifier: @events.KeyModifier::None,
+  }
+  let result = app.dispatch_hover(event)
+  // hit_test returns the deepest node; verify it's not None (hover detected)
+  assert_true(result is Some(_))
+  assert_true(result != Some(""))
+}
+
+// =============================================================================
 // Completion popup visibility logic tests
 // =============================================================================
 

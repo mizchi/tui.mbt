@@ -14,7 +14,7 @@ pub(all) enum ButtonState {
   Focused
   Pressed
   Disabled
-}
+} derive(Show, Eq)
 
 ///|
 /// Check if button is interactive

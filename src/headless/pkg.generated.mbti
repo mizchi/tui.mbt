@@ -23,6 +23,8 @@ pub(all) enum ButtonState {
   Disabled
 }
 pub fn ButtonState::is_interactive(Self) -> Bool
+pub impl Eq for ButtonState
+pub impl Show for ButtonState
 
 pub(all) struct FocusNav {
   ids : Array[String]
