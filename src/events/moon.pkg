@@ -1,4 +1,4 @@
 import {
-  "mizchi/tui/core" as @core,
+  "mizchi/tui/core" @core,
   "mizchi/crater/types",
 }

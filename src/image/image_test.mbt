@@ -5,7 +5,7 @@ test "base64_encode bytes" {
     Int::to_byte(2),
     Int::to_byte(3),
   ])
-  let view = bytes.sub()
+  let view = bytes[:]
   assert_eq(base64_encode(view), "AQID")
 }
 

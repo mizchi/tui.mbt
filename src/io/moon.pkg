@@ -8,6 +8,8 @@ import {
   "moonbitlang/async/stdio",
 }
 
+warnings = "-29"
+
 options(
   link: { "native": { "cc-link-flags": "src/io/tui_native.c" } },
   targets: {

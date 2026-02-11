@@ -1,10 +1,10 @@
 import {
-  "mizchi/tui/vnode" as @vnode,
-  "mizchi/tui/core" as @core,
-  "mizchi/tui/testing" as @testing,
-  "mizchi/tui/io" as @io,
-  "mizchi/tui/events" as @events,
-  "moonbitlang/core/strconv" as @strconv,
+  "mizchi/tui/vnode" @vnode,
+  "mizchi/tui/core" @core,
+  "mizchi/tui/testing" @testing,
+  "mizchi/tui/io" @io,
+  "mizchi/tui/events" @events,
+  "moonbitlang/core/strconv" @strconv,
 }
 
 options(

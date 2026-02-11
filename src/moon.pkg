@@ -5,7 +5,6 @@ import {
   "mizchi/tui/render",
   "mizchi/tui/vnode",
   "mizchi/tui/headless",
-  "mizchi/tui/components",
 }
 
 options(

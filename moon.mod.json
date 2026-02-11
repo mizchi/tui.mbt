@@ -1,11 +1,11 @@
 {
   "name": "mizchi/tui",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "deps": {
-    "mizchi/crater": "0.4.1",
-    "mizchi/signals": "0.6.1",
-    "moonbitlang/async": "0.16.0",
-    "mizchi/syntree": "0.2.0",
+    "mizchi/crater": "0.4.4",
+    "mizchi/signals": "0.6.3",
+    "moonbitlang/async": "0.16.6",
+    "mizchi/syntree": "0.2.3",
     "moonbitlang/x": "0.4.40"
   },
   "readme": "README.md",
