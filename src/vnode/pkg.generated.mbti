@@ -3,7 +3,6 @@ package "mizchi/tui/vnode"
 
 import {
   "mizchi/crater/layout/node",
-  "mizchi/crater/types",
   "mizchi/signals",
   "mizchi/signals/ui",
   "mizchi/tui/core",
@@ -22,7 +21,7 @@ pub fn box_node(BoxProps, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[T
 
 pub fn box_to_crater(TypedRenderContext, BoxProps, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @node.Node
 
-pub fn build_a11y_tree(@types.Layout, RenderContext) -> Array[A11yNode]
+pub fn build_a11y_tree(@mizchi/crater/types.Layout, RenderContext) -> Array[A11yNode]
 
 pub fn column(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
@@ -123,7 +122,8 @@ pub(all) enum AlignmentValue {
   FlexStart
   FlexEnd
 }
-pub fn AlignmentValue::to_alignment(Self) -> @types.Alignment
+pub fn AlignmentValue::to_alignment(Self) -> @mizchi/crater/types.Alignment
+pub fn AlignmentValue::to_layout_alignment(Self) -> @mizchi/layout/types.Alignment
 
 pub(all) enum BorderValue {
   None
@@ -173,19 +173,21 @@ pub(all) enum DimensionValue {
   Length(Double)
   Percent(Double)
 }
-pub fn DimensionValue::to_dimension(Self) -> @types.Dimension
+pub fn DimensionValue::to_dimension(Self) -> @mizchi/crater/types.Dimension
+pub fn DimensionValue::to_layout_dimension(Self) -> @mizchi/layout/types.Dimension
 
 pub(all) enum DirectionValue {
   Row
   Column
 }
-pub fn DirectionValue::to_flex_direction(Self) -> @types.FlexDirection
+pub fn DirectionValue::to_flex_direction(Self) -> @mizchi/crater/types.FlexDirection
+pub fn DirectionValue::to_layout_flex_direction(Self) -> @mizchi/layout/types.FlexDirection
 
 pub(all) enum DisplayValue {
   Flex
   Grid
 }
-pub fn DisplayValue::to_display(Self) -> @types.Display
+pub fn DisplayValue::to_display(Self) -> @mizchi/crater/types.Display
 
 pub(all) struct EditConfig {
   field_name : String
@@ -228,7 +230,7 @@ pub(all) enum GridAutoFlowValue {
   RowDense
   ColumnDense
 }
-pub fn GridAutoFlowValue::to_grid_auto_flow(Self) -> @types.GridAutoFlow
+pub fn GridAutoFlowValue::to_grid_auto_flow(Self) -> @mizchi/crater/types.GridAutoFlow
 
 pub(all) enum InputState {
   Idle
@@ -286,8 +288,8 @@ pub(all) enum TuiAttrValue {
   FlexShrink(Double)
   Gap(Double)
   Display(DisplayValue)
-  GridTemplateColumns(Array[@types.TrackSizingFunction])
-  GridTemplateRows(Array[@types.TrackSizingFunction])
+  GridTemplateColumns(Array[@mizchi/crater/types.TrackSizingFunction])
+  GridTemplateRows(Array[@mizchi/crater/types.TrackSizingFunction])
   GridAutoFlow(GridAutoFlowValue)
   GridColumn(Int)
   GridRow(Int)
@@ -334,8 +336,8 @@ pub struct VNodeApp {
   mut width : Int
   mut height : Int
   mut prev_buffer : @render.CharBuffer?
-  mut last_layout : @types.Layout?
-  mut overlay_layouts : Array[@types.Layout]
+  mut last_layout : @mizchi/crater/types.Layout?
+  mut overlay_layouts : Array[@mizchi/crater/types.Layout]
   mut render_ctx : RenderContext
 }
 pub fn VNodeApp::a11y_tree(Self) -> Array[A11yNode]

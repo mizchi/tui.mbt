@@ -3,6 +3,7 @@
   "version": "0.6.0",
   "deps": {
     "mizchi/crater": "0.4.4",
+    "mizchi/layout": { "path": "../layout" },
     "mizchi/signals": "0.6.3",
     "moonbitlang/async": "0.16.6",
     "mizchi/syntree": "0.2.3",

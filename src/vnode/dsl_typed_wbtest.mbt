@@ -34,11 +34,37 @@ test "DimensionValue: to_dimension" {
 }
 
 ///|
+test "DimensionValue: to_layout_dimension" {
+  assert_true(
+    DimensionValue::Auto.to_layout_dimension() == @ltypes.Dimension::Auto,
+  )
+  assert_true(
+    DimensionValue::Length(10.0).to_layout_dimension() ==
+    @ltypes.Dimension::Length(10.0),
+  )
+  assert_true(
+    DimensionValue::Percent(50.0).to_layout_dimension() ==
+    @ltypes.Dimension::Percent(50.0),
+  )
+}
+
+///|
 test "AlignmentValue: to_alignment" {
   assert_true(AlignmentValue::Center.to_alignment() == @types.Alignment::Center)
   assert_true(
     AlignmentValue::SpaceBetween.to_alignment() ==
     @types.Alignment::SpaceBetween,
+  )
+}
+
+///|
+test "AlignmentValue: to_layout_alignment" {
+  assert_true(
+    AlignmentValue::Center.to_layout_alignment() == @ltypes.Alignment::Center,
+  )
+  assert_true(
+    AlignmentValue::SpaceBetween.to_layout_alignment() ==
+    @ltypes.Alignment::SpaceBetween,
   )
 }
 
@@ -49,6 +75,17 @@ test "DirectionValue: to_flex_direction" {
   )
   assert_true(
     DirectionValue::Column.to_flex_direction() == @types.FlexDirection::Column,
+  )
+}
+
+///|
+test "DirectionValue: to_layout_flex_direction" {
+  assert_true(
+    DirectionValue::Row.to_layout_flex_direction() == @ltypes.FlexDirection::Row,
+  )
+  assert_true(
+    DirectionValue::Column.to_layout_flex_direction() ==
+    @ltypes.FlexDirection::Column,
   )
 }
 

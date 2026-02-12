@@ -11,13 +11,61 @@ pub(all) enum DimensionValue {
 }
 
 ///|
+fn layout_dimension_to_crater(d : @ltypes.Dimension) -> @types.Dimension {
+  match d {
+    @ltypes.Dimension::Auto => @types.Dimension::Auto
+    @ltypes.Dimension::Length(v) => @types.Dimension::Length(v)
+    @ltypes.Dimension::Percent(v) => @types.Dimension::Percent(v)
+    @ltypes.Dimension::MinContent => @types.Dimension::MinContent
+    @ltypes.Dimension::MaxContent => @types.Dimension::MaxContent
+    @ltypes.Dimension::FitContent(v) => @types.Dimension::FitContent(v)
+  }
+}
+
+///|
+fn layout_alignment_to_crater(a : @ltypes.Alignment) -> @types.Alignment {
+  match a {
+    @ltypes.Alignment::Start => @types.Alignment::Start
+    @ltypes.Alignment::Center => @types.Alignment::Center
+    @ltypes.Alignment::End => @types.Alignment::End
+    @ltypes.Alignment::Stretch => @types.Alignment::Stretch
+    @ltypes.Alignment::SpaceBetween => @types.Alignment::SpaceBetween
+    @ltypes.Alignment::SpaceAround => @types.Alignment::SpaceAround
+    @ltypes.Alignment::SpaceEvenly => @types.Alignment::SpaceEvenly
+    @ltypes.Alignment::FlexStart => @types.Alignment::FlexStart
+    @ltypes.Alignment::FlexEnd => @types.Alignment::FlexEnd
+    @ltypes.Alignment::Baseline => @types.Alignment::Baseline
+  }
+}
+
+///|
+fn layout_flex_direction_to_crater(
+  d : @ltypes.FlexDirection,
+) -> @types.FlexDirection {
+  match d {
+    @ltypes.FlexDirection::Row => @types.FlexDirection::Row
+    @ltypes.FlexDirection::Column => @types.FlexDirection::Column
+    @ltypes.FlexDirection::RowReverse => @types.FlexDirection::RowReverse
+    @ltypes.FlexDirection::ColumnReverse => @types.FlexDirection::ColumnReverse
+  }
+}
+
+///|
+/// Convert to layout Dimension
+pub fn DimensionValue::to_layout_dimension(
+  self : DimensionValue,
+) -> @ltypes.Dimension {
+  match self {
+    Auto => @ltypes.Dimension::Auto
+    Length(v) => @ltypes.Dimension::Length(v)
+    Percent(v) => @ltypes.Dimension::Percent(v)
+  }
+}
+
+///|
 /// Convert to crater Dimension
 pub fn DimensionValue::to_dimension(self : DimensionValue) -> @types.Dimension {
-  match self {
-    Auto => @types.Dimension::Auto
-    Length(v) => @types.Dimension::Length(v)
-    Percent(v) => @types.Dimension::Percent(v)
-  }
+  layout_dimension_to_crater(self.to_layout_dimension())
 }
 
 ///|
@@ -35,19 +83,27 @@ pub(all) enum AlignmentValue {
 }
 
 ///|
+/// Convert to layout Alignment
+pub fn AlignmentValue::to_layout_alignment(
+  self : AlignmentValue,
+) -> @ltypes.Alignment {
+  match self {
+    Start => @ltypes.Alignment::Start
+    Center => @ltypes.Alignment::Center
+    End => @ltypes.Alignment::End
+    Stretch => @ltypes.Alignment::Stretch
+    SpaceBetween => @ltypes.Alignment::SpaceBetween
+    SpaceAround => @ltypes.Alignment::SpaceAround
+    SpaceEvenly => @ltypes.Alignment::SpaceEvenly
+    FlexStart => @ltypes.Alignment::FlexStart
+    FlexEnd => @ltypes.Alignment::FlexEnd
+  }
+}
+
+///|
 /// Convert to crater Alignment
 pub fn AlignmentValue::to_alignment(self : AlignmentValue) -> @types.Alignment {
-  match self {
-    Start => @types.Alignment::Start
-    Center => @types.Alignment::Center
-    End => @types.Alignment::End
-    Stretch => @types.Alignment::Stretch
-    SpaceBetween => @types.Alignment::SpaceBetween
-    SpaceAround => @types.Alignment::SpaceAround
-    SpaceEvenly => @types.Alignment::SpaceEvenly
-    FlexStart => @types.Alignment::FlexStart
-    FlexEnd => @types.Alignment::FlexEnd
-  }
+  layout_alignment_to_crater(self.to_layout_alignment())
 }
 
 ///|
@@ -58,14 +114,22 @@ pub(all) enum DirectionValue {
 }
 
 ///|
+/// Convert to layout FlexDirection
+pub fn DirectionValue::to_layout_flex_direction(
+  self : DirectionValue,
+) -> @ltypes.FlexDirection {
+  match self {
+    Row => @ltypes.FlexDirection::Row
+    Column => @ltypes.FlexDirection::Column
+  }
+}
+
+///|
 /// Convert to crater FlexDirection
 pub fn DirectionValue::to_flex_direction(
   self : DirectionValue,
 ) -> @types.FlexDirection {
-  match self {
-    Row => @types.FlexDirection::Row
-    Column => @types.FlexDirection::Column
-  }
+  layout_flex_direction_to_crater(self.to_layout_flex_direction())
 }
 
 ///|
