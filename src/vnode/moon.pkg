@@ -1,9 +1,9 @@
 import {
   "mizchi/signals/ui" @luna,
-  "mizchi/crater/types" @types,
+  "mizchi/layout/engine_types" @types,
   "mizchi/layout/types" @ltypes,
-  "mizchi/crater/style" @style,
-  "mizchi/crater/layout/node" @node,
+  "mizchi/layout/style" @style,
+  "mizchi/layout/node" @node,
   "mizchi/tui/core" @core,
   "mizchi/tui/render" @render,
   "mizchi/tui/events" @events,

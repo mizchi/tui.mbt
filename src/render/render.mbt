@@ -11,10 +11,25 @@ pub fn render_layout(
   offset_x : Int,
   offset_y : Int,
 ) -> Unit {
-  let x = offset_x + layout.x.to_int()
-  let y = offset_y + layout.y.to_int()
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  render_layout_f(buf, layout, styles, texts, offset_x.to_double(), offset_y.to_double())
+}
+
+///|
+fn render_layout_f(
+  buf : CharBuffer,
+  layout : @types.Layout,
+  styles : @core.RenderStyleMap,
+  texts : @core.TextContentMap,
+  offset_x : Double,
+  offset_y : Double,
+) -> Unit {
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
   let style = styles.get(layout.id)
   // Fill background if not transparent
   if not(style.bg.is_transparent()) {
@@ -29,20 +44,21 @@ pub fn render_layout(
   match texts.get(layout.id) {
     Some(text) => {
       let has_border = style.border is Some(_)
-      let content_x = x +
-        (if has_border { 1 } else { 0 }) +
-        layout.padding.left.to_int()
-      let content_y = y +
-        (if has_border { 1 } else { 0 }) +
-        layout.padding.top.to_int()
-      let content_w = w -
-        (if has_border { 2 } else { 0 }) -
-        layout.padding.left.to_int() -
-        layout.padding.right.to_int()
-      let content_h = h -
-        (if has_border { 2 } else { 0 }) -
-        layout.padding.top.to_int() -
-        layout.padding.bottom.to_int()
+      let border_inset = if has_border { 1.0 } else { 0.0 }
+      let content_rect = @core.normalize_grid_rect_with_inset(
+        abs_x,
+        abs_y,
+        layout.width,
+        layout.height,
+        border_inset + layout.padding.left,
+        border_inset + layout.padding.top,
+        border_inset + layout.padding.right,
+        border_inset + layout.padding.bottom,
+      )
+      let content_x = content_rect.x
+      let content_y = content_rect.y
+      let content_w = content_rect.width
+      let content_h = content_rect.height
       if content_w > 0 && content_h > 0 {
         let text_style : TextStyle = {
           fg: style.fg,
@@ -60,7 +76,7 @@ pub fn render_layout(
   }
   // Render children
   for child in layout.children {
-    render_layout(buf, child, styles, texts, x, y)
+    render_layout_f(buf, child, styles, texts, abs_x, abs_y)
   }
 }
 

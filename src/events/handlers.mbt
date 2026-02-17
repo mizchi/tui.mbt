@@ -51,21 +51,38 @@ pub fn hit_test(
   offset_x : Int,
   offset_y : Int,
 ) -> HitTestResult? {
-  let x = offset_x + layout.x.to_int()
-  let y = offset_y + layout.y.to_int()
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  hit_test_f(
+    layout,
+    mouse_x,
+    mouse_y,
+    offset_x.to_double(),
+    offset_y.to_double(),
+  )
+}
 
-  // Check if point is within this node's bounds
+///|
+fn hit_test_f(
+  layout : @types.Layout,
+  mouse_x : Int,
+  mouse_y : Int,
+  offset_x : Double,
+  offset_y : Double,
+) -> HitTestResult? {
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
+
   if mouse_x >= x && mouse_x < x + w && mouse_y >= y && mouse_y < y + h {
-    // Check children first (deepest match wins)
     for child in layout.children {
-      match hit_test(child, mouse_x, mouse_y, x, y) {
+      match hit_test_f(child, mouse_x, mouse_y, abs_x, abs_y) {
         Some(result) => return Some(result)
         None => continue
       }
     }
-    // No child matched, return this node
     Some({ id: layout.id, x, y, width: w, height: h, role: None })
   } else {
     None
@@ -113,19 +130,35 @@ pub fn find_layout_by_id(
   offset_x : Int,
   offset_y : Int,
 ) -> HitTestResult? {
-  let x = offset_x + layout.x.to_int()
-  let y = offset_y + layout.y.to_int()
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  find_layout_by_id_f(
+    layout,
+    target_id,
+    offset_x.to_double(),
+    offset_y.to_double(),
+  )
+}
 
-  // Check if this is the target
+///|
+fn find_layout_by_id_f(
+  layout : @types.Layout,
+  target_id : String,
+  offset_x : Double,
+  offset_y : Double,
+) -> HitTestResult? {
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
+
   if layout.id == target_id {
     return Some({ id: layout.id, x, y, width: w, height: h, role: None })
   }
 
-  // Search children
   for child in layout.children {
-    match find_layout_by_id(child, target_id, x, y) {
+    match find_layout_by_id_f(child, target_id, abs_x, abs_y) {
       Some(result) => return Some(result)
       None => continue
     }
@@ -146,17 +179,20 @@ pub fn find_layout_by_id_root(
 /// Collect all layout rectangles (absolute coordinates) into a flat list.
 fn collect_layout_rects(
   layout : @types.Layout,
-  offset_x : Int,
-  offset_y : Int,
+  offset_x : Double,
+  offset_y : Double,
   out : Array[HitTestResult],
 ) -> Unit {
-  let x = offset_x + layout.x.to_int()
-  let y = offset_y + layout.y.to_int()
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
   out.push({ id: layout.id, x, y, width: w, height: h, role: None })
   for child in layout.children {
-    collect_layout_rects(child, x, y, out)
+    collect_layout_rects(child, abs_x, abs_y, out)
   }
 }
 
@@ -164,7 +200,7 @@ fn collect_layout_rects(
 /// Flatten layout tree into rects (root is included).
 pub fn layout_rects_root(layout : @types.Layout) -> Array[HitTestResult] {
   let out : Array[HitTestResult] = []
-  collect_layout_rects(layout, 0, 0, out)
+  collect_layout_rects(layout, 0.0, 0.0, out)
   out
 }
 
@@ -176,12 +212,25 @@ pub fn dump_layout(
   offset_y : Int,
   depth : Int,
 ) -> String {
-  let raw_x = layout.x.to_int()
-  let raw_y = layout.y.to_int()
-  let x = offset_x + raw_x
-  let y = offset_y + raw_y
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  dump_layout_f(layout, offset_x.to_double(), offset_y.to_double(), depth)
+}
+
+///|
+fn dump_layout_f(
+  layout : @types.Layout,
+  offset_x : Double,
+  offset_y : Double,
+  depth : Int,
+) -> String {
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let raw_x = @core.snap_to_grid(layout.x)
+  let raw_y = @core.snap_to_grid(layout.y)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
   let indent = "  ".repeat(depth)
   let mut result = indent +
     layout.id +
@@ -201,7 +250,7 @@ pub fn dump_layout(
     layout.children.length().to_string() +
     "\n"
   for child in layout.children {
-    result = result + dump_layout(child, x, y, depth + 1)
+    result = result + dump_layout_f(child, abs_x, abs_y, depth + 1)
   }
   result
 }

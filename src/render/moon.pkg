@@ -1,7 +1,8 @@
 import {
-  "mizchi/crater/types",
-  "mizchi/crater/layout/node",
-  "mizchi/crater",
+  "mizchi/layout/engine_types" @types,
+  "mizchi/layout/node" @node,
+  "mizchi/layout/engine" @lengine,
+  "mizchi/layout/tree" @ltree,
   "mizchi/signals",
   "mizchi/tui/core",
   "mizchi/tui/events",

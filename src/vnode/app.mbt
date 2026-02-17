@@ -121,15 +121,21 @@ pub fn VNodeApp::render_with_overlays(
     // Create a new render context for the overlay
     let overlay_ctx = RenderContext::new()
     let overlay_crater = to_crater_node(overlay_ctx, overlay.node)
-    let overlay_layout = @render.compute_layout(
-      overlay_crater,
-      self.width,
-      self.height,
-    )
+    let overlay_layout = if overlay.shrink {
+      @render.compute_layout_max_content(overlay_crater, self.width, self.height)
+    } else {
+      @render.compute_layout(overlay_crater, self.width, self.height)
+    }
 
     // Calculate offset based on position
-    let overlay_w = overlay_layout.width.to_int()
-    let overlay_h = overlay_layout.height.to_int()
+    let overlay_rect = @core.normalize_grid_rect(
+      0.0,
+      0.0,
+      overlay_layout.width,
+      overlay_layout.height,
+    )
+    let overlay_w = overlay_rect.width
+    let overlay_h = overlay_rect.height
     let (offset_x, offset_y) = match overlay.position {
       PopupPosition::Center =>
         ((self.width - overlay_w) / 2, (self.height - overlay_h) / 2)

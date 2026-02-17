@@ -14,4 +14,5 @@ pub(all) struct OverlayEntry {
   node : TuiNode
   position : PopupPosition
   backdrop : Bool
+  shrink : Bool
 }

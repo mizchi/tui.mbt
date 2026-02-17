@@ -56,15 +56,16 @@ fn infer_role(ctx : RenderContext, id : String) -> @core.Role? {
 fn build_a11y(
   layout : @types.Layout,
   ctx : RenderContext,
-  offset_x : Int,
-  offset_y : Int,
+  offset_x : Double,
+  offset_y : Double,
 ) -> A11yBuildResult {
-  let raw_x = layout.x.to_int()
-  let raw_y = layout.y.to_int()
-  let x = offset_x + raw_x
-  let y = offset_y + raw_y
-  let w = layout.width.to_int()
-  let h = layout.height.to_int()
+  let abs_x = offset_x + layout.x
+  let abs_y = offset_y + layout.y
+  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let x = rect.x
+  let y = rect.y
+  let w = rect.width
+  let h = rect.height
   let own_text = match ctx.texts.get(layout.id) {
     Some(text) => normalize_text(text)
     None => ""
@@ -73,7 +74,7 @@ fn build_a11y(
   let mut text_for_parent = own_text
   let child_nodes : Array[A11yNode] = []
   for child in layout.children {
-    let result = build_a11y(child, ctx, x, y)
+    let result = build_a11y(child, ctx, abs_x, abs_y)
     for n in result.nodes {
       child_nodes.push(n)
     }
@@ -100,7 +101,7 @@ pub fn build_a11y_tree(
   layout : @types.Layout,
   ctx : RenderContext,
 ) -> Array[A11yNode] {
-  let result = build_a11y(layout, ctx, 0, 0)
+  let result = build_a11y(layout, ctx, 0.0, 0.0)
   result.nodes
 }
 

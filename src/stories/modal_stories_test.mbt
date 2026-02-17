@@ -60,7 +60,7 @@ test "centered text renders at center" {
   let plain = story.to_plain()
   // CENTER should be at row 2 (0-indexed), centered horizontally
   // (17 - 6) / 2 = 5.5 → starts at column 5 or 6
-  inspect(plain, content="     CENTER")
+  inspect(plain, content="      CENTER")
 }
 
 ///|
@@ -72,7 +72,7 @@ test "modal/centered_content story snapshot" {
       println("=== centered_content (17x5) ===")
       println(plain)
       println("=== end ===")
-      inspect(plain, content="     CENTER")
+      inspect(plain, content="      CENTER")
       return
     }
   }
@@ -119,11 +119,11 @@ test "modal/stacked_modal story snapshot" {
           #|Content Here
           #|
           #|...........
-          #|       ╭────────╮
-          #|       │        │
-          #|       │ Dialog │
-          #|       │        │
-          #|       ╰────────╯
+          #|        ╭────────╮
+          #|        │        │
+          #|        │ Dialog │
+          #|        │        │
+          #|        ╰────────╯
         ),
       )
       return
@@ -146,11 +146,11 @@ test "modal/nested_modals story snapshot" {
         content=(
           #|App Content
           #|
-          #|      ╭──────────╮
-          #|      │          │
-          #|      │ Confirm? │
-          #|      │          │
-          #|      ╰──────────╯
+          #|       ╭──────────╮
+          #|       │          │
+          #|       │ Confirm? │
+          #|       │          │
+          #|       ╰──────────╯
         ),
       )
       return
@@ -171,17 +171,18 @@ test "modal/full_overlay story snapshot" {
       inspect(
         plain,
         content=(
-          #|╭──────────────────────────────
-          #|│
-          #|│ Confirm
-          #|│ -----------------------------
-          #|│ Save changes?
-          #|│
-          #|│ ╭ Yes ─╮
-          #|│ │      │
-          #|│ ╰──────╯
-          #|│
-          #|╰──────────────────────────────
+          #|╭─────────────────╮
+          #|│                 │
+          #|│                 │
+          #|│  Confirm        │
+          #|│ --------------- │
+          #|│ Save changes?   │
+          #|│                 │
+          #|│ ╭ Yes ╮  ╭ No ╮ │
+          #|│ │     │  │    │ │
+          #|│ ╰─────╯  ╰────╯ │
+          #|│                 │
+          #|╰─────────────────╯
         ),
       )
       return
@@ -202,17 +203,17 @@ test "modal/alert_modal story snapshot" {
       inspect(
         plain,
         content=(
-          #|╭────────────────────────
-          #|│
-          #|│ ! Error !
-          #|│
-          #|│ -----------------------
-          #|│
-          #|│  Connection lost
-          #|│
-          #|│               ╭ OK ─╮
-          #|│               │     │
-          #|│               ╰─────╯
+          #|╭───────────────────╮
+          #|│                   │
+          #|│                   │
+          #|│  ! Error !        │
+          #|│                   │
+          #|│ ----------------- │
+          #|│                   │
+          #|│  Connection lost  │
+          #|│                   │
+          #|│      ╭ OK ─╮      │
+          #|│      │     │      │
         ),
       )
       return
@@ -233,14 +234,14 @@ test "modal/command_launcher story snapshot" {
       inspect(
         plain,
         content=(
-          #|╭────────╮
-          #|│        │
-          #|│ > open │
-          #|│        │
-          #|│ * Open │
-          #|│        │
-          #|│        │
-          #|╰────────╯
+          #|╭──────────────────────╮
+          #|│                      │
+          #|│ > open               │
+          #|│                      │
+          #|│ * Open               │
+          #|│                      │
+          #|│                      │
+          #|╰──────────────────────╯
         ),
       )
       return
