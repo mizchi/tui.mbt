@@ -198,6 +198,7 @@ test "overlay center: boundary widths follow deterministic snap rule" {
         Some(top_line) => {
           let left = leading_spaces(top_line)
           let popup_w = content_width(top_line)
+          // Overlay centering in VNodeApp uses integer division ((W - w) / 2).
           let expected_left = (viewport_w - popup_w) / 2
           assert_eq(left, expected_left)
         }
