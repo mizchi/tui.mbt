@@ -65,3 +65,7 @@ moon doc 'String::*rev*'  # Glob pattern search
 ```bash
 just release-check  # fmt + info + check + test
 ```
+
+## Troubleshooting
+
+- If `moonc link-core` fails with an internal compiler error (ICE), run `moon clean` and retry.
