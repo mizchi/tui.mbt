@@ -12,13 +12,19 @@ fn abs_int(a : Int, b : Int) -> Int {
 
 ///|
 fn assert_center_balance(
-  container : @events.HitTestResult,
-  child : @events.HitTestResult,
+  container_x : Int,
+  container_y : Int,
+  container_width : Int,
+  container_height : Int,
+  child_x : Int,
+  child_y : Int,
+  child_width : Int,
+  child_height : Int,
 ) -> Unit raise {
-  let left = child.x - container.x
-  let right = container.width - left - child.width
-  let top = child.y - container.y
-  let bottom = container.height - top - child.height
+  let left = child_x - container_x
+  let right = container_width - left - child_width
+  let top = child_y - container_y
+  let bottom = container_height - top - child_height
   assert_true(abs_int(left, right) <= 1)
   assert_true(abs_int(top, bottom) <= 1)
 }
@@ -36,6 +42,23 @@ fn leading_spaces(s : String) -> Int {
     i = i + 1
   }
   i
+}
+
+///|
+fn content_width(s : String) -> Int {
+  let chars = s.to_array()
+  let mut start = 0
+  while start < chars.length() && chars[start] == ' ' {
+    start = start + 1
+  }
+  if start >= chars.length() {
+    return 0
+  }
+  let mut end = chars.length() - 1
+  while end > start && chars[end] == ' ' {
+    end = end - 1
+  }
+  end - start + 1
 }
 
 ///|
@@ -67,7 +90,17 @@ test "center alignment: odd/even integer boundaries stay balanced" {
         match app.find_by_id("root") {
           Some(root) =>
             match app.find_by_id("child") {
-              Some(child) => assert_center_balance(root, child)
+              Some(child) =>
+                assert_center_balance(
+                  root.x,
+                  root.y,
+                  root.width,
+                  root.height,
+                  child.x,
+                  child.y,
+                  child.width,
+                  child.height,
+                )
               None => assert_true(false)
             }
           None => assert_true(false)
@@ -92,12 +125,22 @@ test "center alignment: fractional width containers stay balanced" {
         [@vnode.row(id="child", [@vnode.text("Y".repeat(label_len))])],
       )
       let _ = app.render(node)
-      match app.find_by_id("root") {
-        Some(root) =>
-          match app.find_by_id("child") {
-            Some(child) => assert_center_balance(root, child)
-            None => assert_true(false)
-          }
+        match app.find_by_id("root") {
+          Some(root) =>
+            match app.find_by_id("child") {
+              Some(child) =>
+                assert_center_balance(
+                  root.x,
+                  root.y,
+                  root.width,
+                  root.height,
+                  child.x,
+                  child.y,
+                  child.width,
+                  child.height,
+                )
+              None => assert_true(false)
+            }
         None => assert_true(false)
       }
     }
@@ -154,11 +197,8 @@ test "overlay center: boundary widths follow deterministic snap rule" {
       match find_top_border_line(lines) {
         Some(top_line) => {
           let left = leading_spaces(top_line)
-          let line_w = @core.string_display_width(top_line)
-          let popup_w = line_w - left
-          let expected_left = @core.snap_to_grid(
-            (viewport_w.to_double() - popup_w.to_double()) / 2.0,
-          )
+          let popup_w = content_width(top_line)
+          let expected_left = (viewport_w - popup_w) / 2
           assert_eq(left, expected_left)
         }
         None => assert_true(false)

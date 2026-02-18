@@ -1,6 +1,5 @@
 import {
   "mizchi/tui/core",
-  "mizchi/tui/events",
   "mizchi/tui/render",
   "mizchi/tui/vnode",
   "mizchi/tui/headless",
