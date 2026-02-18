@@ -2,7 +2,7 @@
   "name": "mizchi/tui",
   "version": "0.6.0",
   "deps": {
-    "mizchi/layout": { "path": "../layout" },
+    "mizchi/layout": "0.1.2",
     "mizchi/signals": "0.6.3",
     "moonbitlang/async": "0.16.6",
     "mizchi/syntree": "0.2.3",
