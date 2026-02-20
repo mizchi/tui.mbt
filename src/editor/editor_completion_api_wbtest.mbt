@@ -105,5 +105,4 @@ test "completion and tooltip api types construct" {
   let _ = tooltip
   let tip_anchor = TooltipAnchor::{ line: 0, col: 0, prefer_below: true }
   let _ = tooltip_position(state, 10, 5, tip_anchor, 8, 2)
-
 }

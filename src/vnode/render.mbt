@@ -292,7 +292,6 @@ fn convert_element(
       match grid_areas {
         Some(_) => {
           let _ = ctx.area_stack.pop()
-
         }
         None => ()
       }

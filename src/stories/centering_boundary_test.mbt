@@ -125,22 +125,22 @@ test "center alignment: fractional width containers stay balanced" {
         [@vnode.row(id="child", [@vnode.text("Y".repeat(label_len))])],
       )
       let _ = app.render(node)
-        match app.find_by_id("root") {
-          Some(root) =>
-            match app.find_by_id("child") {
-              Some(child) =>
-                assert_center_balance(
-                  root.x,
-                  root.y,
-                  root.width,
-                  root.height,
-                  child.x,
-                  child.y,
-                  child.width,
-                  child.height,
-                )
-              None => assert_true(false)
-            }
+      match app.find_by_id("root") {
+        Some(root) =>
+          match app.find_by_id("child") {
+            Some(child) =>
+              assert_center_balance(
+                root.x,
+                root.y,
+                root.width,
+                root.height,
+                child.x,
+                child.y,
+                child.width,
+                child.height,
+              )
+            None => assert_true(false)
+          }
         None => assert_true(false)
       }
     }

@@ -217,7 +217,6 @@ pub fn run(
         match last_component.val {
           Some(component) => {
             let _ = app.dispatch_click_from_component(mouse_event, component)
-
           }
           None => ()
         }

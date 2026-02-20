@@ -77,7 +77,6 @@ pub fn CompletionSession::set_request(
   self.anchor = req.anchor
   self.replace = req.replace
   let _ = self.engine.set_input(req.prefix)
-
 }
 
 ///|

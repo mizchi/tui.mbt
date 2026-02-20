@@ -210,7 +210,6 @@ pub fn EditorState::replace_selection(
   let edit_line = start.line
   if !self.selection.is_empty() {
     let _ = self.doc.delete_range(start, end)
-
   }
   let new_pos = self.doc.insert_text(start, text)
   self.selection.set_caret(new_pos)

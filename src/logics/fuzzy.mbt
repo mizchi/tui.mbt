@@ -77,7 +77,6 @@ pub fn fuzzy_match(pattern : String, target : String) -> FuzzyMatch? {
         positions.push(j)
         backtrack(pi + 1, j + 1, positions, score + match_score)
         let _ = positions.pop()
-
       }
     }
   }

@@ -70,7 +70,12 @@ fn hit_test_f(
 ) -> HitTestResult? {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let x = rect.x
   let y = rect.y
   let w = rect.width
@@ -147,7 +152,12 @@ fn find_layout_by_id_f(
 ) -> HitTestResult? {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let x = rect.x
   let y = rect.y
   let w = rect.width
@@ -185,7 +195,12 @@ fn collect_layout_rects(
 ) -> Unit {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let x = rect.x
   let y = rect.y
   let w = rect.width
@@ -224,7 +239,12 @@ fn dump_layout_f(
 ) -> String {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let raw_x = @core.snap_to_grid(layout.x)
   let raw_y = @core.snap_to_grid(layout.y)
   let x = rect.x

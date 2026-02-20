@@ -11,6 +11,12 @@ pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : 
 
 pub fn char_display_width(Char) -> Int
 
+pub fn normalize_grid_rect(Double, Double, Double, Double) -> GridRect
+
+pub fn normalize_grid_rect_with_inset(Double, Double, Double, Double, Double, Double, Double, Double) -> GridRect
+
+pub fn snap_to_grid(Double) -> Int
+
 pub fn spacer(flex_grow? : Double) -> Component
 
 pub fn string_display_width(String) -> Int
@@ -89,6 +95,15 @@ pub fn Component::get_styles(Self) -> RenderStyleMap
 pub fn Component::get_text(Self, String) -> String?
 pub fn Component::get_texts(Self) -> TextContentMap
 pub fn Component::id(Self) -> String
+
+pub struct GridRect {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+}
+pub impl Eq for GridRect
+pub impl Show for GridRect
 
 pub(all) struct RenderStyle {
   fg : Color

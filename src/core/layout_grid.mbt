@@ -36,8 +36,16 @@ pub fn normalize_grid_rect(
   {
     x: left,
     y: top,
-    width: if right > left { right - left } else { 0 },
-    height: if bottom > top { bottom - top } else { 0 },
+    width: if right > left {
+      right - left
+    } else {
+      0
+    },
+    height: if bottom > top {
+      bottom - top
+    } else {
+      0
+    },
   }
 }
 
@@ -60,7 +68,15 @@ pub fn normalize_grid_rect_with_inset(
   {
     x: left,
     y: top,
-    width: if right > left { right - left } else { 0 },
-    height: if bottom > top { bottom - top } else { 0 },
+    width: if right > left {
+      right - left
+    } else {
+      0
+    },
+    height: if bottom > top {
+      bottom - top
+    } else {
+      0
+    },
   }
 }

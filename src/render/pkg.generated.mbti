@@ -77,6 +77,8 @@ pub fn color_to_256(@core.Color) -> Int
 
 pub fn compute_layout(@node.Node, Int, Int) -> @types.Layout
 
+pub fn compute_layout_max_content(@node.Node, Int, Int) -> @types.Layout
+
 pub fn disable_mouse() -> String
 
 pub fn disable_mouse_all() -> String

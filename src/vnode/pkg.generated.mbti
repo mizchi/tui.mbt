@@ -249,6 +249,7 @@ pub(all) struct OverlayEntry {
   node : @ui.Node[TuiEvent, TuiAttrValue]
   position : PopupPosition
   backdrop : Bool
+  shrink : Bool
 }
 
 pub(all) enum PopupPosition {

@@ -96,14 +96,12 @@ fn bytes_to_string(buf : FixedArray[Byte], len : Int) -> String {
 /// Enable raw mode for character-by-character input
 pub fn enable_raw_mode() -> Unit {
   let _ = tui_enable_raw_mode()
-
 }
 
 ///|
 /// Disable raw mode and restore terminal settings
 pub fn cleanup_stdin() -> Unit {
   let _ = tui_disable_raw_mode()
-
 }
 
 ///|
@@ -1021,7 +1019,6 @@ pub fn start_inline_input_cooked(
         let handled = controller.apply_action(action)
         if handled {
           let _ = render_all()
-
         }
       }
     }
@@ -1091,7 +1088,6 @@ pub fn start_inline_input_cooked(
     }
     if need_render {
       let _ = render_all()
-
     }
     if done {
       if not(was_raw) {

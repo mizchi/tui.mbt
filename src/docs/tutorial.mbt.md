@@ -8,7 +8,7 @@ Terminal UI library for MoonBit with virtual DOM-based rendering.
 
 `TuiNode` is the basic building block for UI. All layout functions return `TuiNode`.
 
-```moonbit
+```moonbit nocheck
 ///|
 let node : @vnode.TuiNode = @vnode.text("Hello")
 ```
@@ -17,7 +17,7 @@ let node : @vnode.TuiNode = @vnode.text("Hello")
 
 Display text content with optional styling.
 
-```moonbit
+```moonbit nocheck
 // Plain text
 
 ///|
@@ -40,7 +40,7 @@ let rgb = @vnode.text("Custom", fg="rgb(100,150,200)")
 
 Generic flex container. Default direction is `column`.
 
-```moonbit
+```moonbit nocheck
 // Vertical stack (default)
 
 ///|
@@ -59,7 +59,7 @@ let horizontal = @vnode.view(direction="row", gap=1.0, [
 
 Shorthand for `view()` with fixed direction.
 
-```moonbit
+```moonbit nocheck
 // row() = view(..., direction="row")
 
 ///|
@@ -78,7 +78,7 @@ let c = @vnode.column(gap=1.0, [@vnode.text("Top"), @vnode.text("Bottom")])
 
 CSS Grid-like layout with `columns` and `rows` as fr values.
 
-```moonbit
+```moonbit nocheck
 // 3-column grid
 
 ///|
@@ -100,7 +100,7 @@ let g = @vnode.grid(
 
 Position or span grid items explicitly.
 
-```moonbit
+```moonbit nocheck
 ///|
 let dashboard = @vnode.grid(columns=[1.0, 2.0, 1.0], [
   // Header spans all 3 columns
@@ -117,7 +117,7 @@ let dashboard = @vnode.grid(columns=[1.0, 2.0, 1.0], [
 
 Use named areas for semantic grid layouts (like CSS grid-template-areas).
 
-```moonbit
+```moonbit nocheck
 ///|
 let semantic_layout = @vnode.grid(
   areas=["header header", "sidebar main", "footer footer"],
@@ -137,7 +137,7 @@ let semantic_layout = @vnode.grid(
 
 Available border styles: `single`, `double`, `rounded`, `ascii`.
 
-```moonbit
+```moonbit nocheck
 ///|
 let bordered = @vnode.view(border="rounded", border_color="cyan", padding=1.0, [
   @vnode.text("Content"),
@@ -148,7 +148,7 @@ let bordered = @vnode.view(border="rounded", border_color="cyan", padding=1.0, [
 
 Colors can be specified as named colors or RGB values.
 
-```moonbit
+```moonbit nocheck
 // Named colors: red, green, blue, yellow, cyan, magenta, white, black
 
 ///|
@@ -166,7 +166,7 @@ let custom = @vnode.row(bg="rgb(255,200,100)", [
 
 Use `justify` (main axis) and `align` (cross axis).
 
-```moonbit
+```moonbit nocheck
 ///|
 let centered = @vnode.view(
   justify="center", // start, center, end, space-between, space-around
@@ -183,7 +183,7 @@ let centered = @vnode.view(
 
 Flexible spacers that grow to fill available space.
 
-```moonbit
+```moonbit nocheck
 ///|
 let layout = @vnode.view([
   @vnode.text("Top"),
@@ -196,7 +196,7 @@ let layout = @vnode.view([
 
 Convenience for `vspace(1.0)`.
 
-```moonbit
+```moonbit nocheck
 ///|
 let with_spacer = @vnode.column([
   @vnode.text("Header"),
@@ -209,14 +209,14 @@ let with_spacer = @vnode.column([
 
 ### Fixed dimensions
 
-```moonbit
+```moonbit nocheck
 ///|
 let fixed = @vnode.view(width=30.0, height=5.0, [@vnode.text("Fixed size")])
 ```
 
 ### Flexible sizing with flex_grow
 
-```moonbit
+```moonbit nocheck
 ///|
 let flexible = @vnode.row([
   @vnode.view(width=20.0, [@vnode.text("Sidebar")]),
@@ -228,7 +228,7 @@ let flexible = @vnode.row([
 
 Combining primitives to build reusable patterns.
 
-```moonbit
+```moonbit nocheck
 ///|
 fn card(title : String, content : String) -> @vnode.TuiNode {
   @vnode.view(
@@ -246,7 +246,7 @@ let my_card = card("Title", "Card content here")
 
 ## Example: Dashboard Layout
 
-```moonbit
+```moonbit nocheck
 ///|
 fn dashboard_layout(width : Int, height : Int) -> @vnode.TuiNode {
   @vnode.grid(

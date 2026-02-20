@@ -61,7 +61,6 @@ pub fn Story::to_plain(self : Story) -> String {
   // Remove trailing empty lines
   while lines.length() > 0 && lines[lines.length() - 1] == "" {
     let _ = lines.pop()
-
   }
   lines
   .iter()
@@ -181,7 +180,6 @@ pub fn VNodeStory::to_plain(self : VNodeStory) -> String {
   // Remove trailing empty lines
   while lines.length() > 0 && lines[lines.length() - 1] == "" {
     let _ = lines.pop()
-
   }
   lines
   .iter()

@@ -214,7 +214,6 @@ fn TextInputController::delete_to_line_start(
     let delete_count = self.cursor_pos - line_start
     for _ in 0..<delete_count {
       let _ = self.buffer.remove(line_start)
-
     }
     self.cursor_pos = line_start
     self.update_scroll()
@@ -232,7 +231,6 @@ fn TextInputController::delete_to_line_end(self : TextInputController) -> Unit {
     let delete_count = line_end - self.cursor_pos
     for _ in 0..<delete_count {
       let _ = self.buffer.remove(self.cursor_pos)
-
     }
     self.update_scroll()
   }

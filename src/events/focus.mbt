@@ -30,7 +30,6 @@ pub fn FocusManager::unregister(self : FocusManager, id : String) -> Unit {
   match idx {
     Some(i) => {
       let _ = self.focusable_ids.remove(i)
-
     }
     None => ()
   }

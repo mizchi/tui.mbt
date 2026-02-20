@@ -10,14 +10,7 @@ test "normalize_grid_rect: snaps edges and derives size from edges" {
 ///|
 test "normalize_grid_rect_with_inset: keeps inner rect on integer grid" {
   let rect = normalize_grid_rect_with_inset(
-    0.0,
-    0.0,
-    10.0,
-    4.0,
-    1.0,
-    1.0,
-    1.0,
-    1.0,
+    0.0, 0.0, 10.0, 4.0, 1.0, 1.0, 1.0, 1.0,
   )
   assert_eq(rect.x, 1)
   assert_eq(rect.y, 1)

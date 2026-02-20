@@ -61,7 +61,12 @@ fn build_a11y(
 ) -> A11yBuildResult {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let x = rect.x
   let y = rect.y
   let w = rect.width

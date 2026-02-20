@@ -87,22 +87,14 @@ pub fn modal(
 ) -> @vnode.TuiNode {
   let resolved_width = resolve_modal_width(title, content, width)
   let separator_len = resolved_width.to_int() - 4
-  let separator = if separator_len > 0 {
-    "-".repeat(separator_len)
-  } else {
-    ""
-  }
+  let separator = if separator_len > 0 { "-".repeat(separator_len) } else { "" }
   let children : Array[@vnode.TuiNode] = [
     @vnode.row(padding_x=1.0, padding_y=0.5, [
       @vnode.text(title, fg="cyan", bold=true),
     ]),
   ]
   if separator.length() > 0 {
-    children.push(
-      @vnode.row([
-        @vnode.text(separator, fg="rgb(60,60,60)"),
-      ]),
-    )
+    children.push(@vnode.row([@vnode.text(separator, fg="rgb(60,60,60)")]))
   }
   for node in content {
     children.push(node)

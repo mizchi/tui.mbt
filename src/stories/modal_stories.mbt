@@ -32,7 +32,6 @@ pub fn render_overlay_plain(
   // Remove trailing empty lines
   while lines.length() > 0 && lines[lines.length() - 1] == "" {
     let _ = lines.pop()
-
   }
   lines
   .iter()

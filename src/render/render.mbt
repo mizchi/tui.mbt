@@ -11,7 +11,14 @@ pub fn render_layout(
   offset_x : Int,
   offset_y : Int,
 ) -> Unit {
-  render_layout_f(buf, layout, styles, texts, offset_x.to_double(), offset_y.to_double())
+  render_layout_f(
+    buf,
+    layout,
+    styles,
+    texts,
+    offset_x.to_double(),
+    offset_y.to_double(),
+  )
 }
 
 ///|
@@ -25,7 +32,12 @@ fn render_layout_f(
 ) -> Unit {
   let abs_x = offset_x + layout.x
   let abs_y = offset_y + layout.y
-  let rect = @core.normalize_grid_rect(abs_x, abs_y, layout.width, layout.height)
+  let rect = @core.normalize_grid_rect(
+    abs_x,
+    abs_y,
+    layout.width,
+    layout.height,
+  )
   let x = rect.x
   let y = rect.y
   let w = rect.width
@@ -69,7 +81,6 @@ fn render_layout_f(
         let _ = buf.write_text_wrapped(
           content_x, content_y, text, text_style, content_w, content_h,
         )
-
       }
     }
     None => ()

@@ -122,7 +122,11 @@ pub fn VNodeApp::render_with_overlays(
     let overlay_ctx = RenderContext::new()
     let overlay_crater = to_crater_node(overlay_ctx, overlay.node)
     let overlay_layout = if overlay.shrink {
-      @render.compute_layout_max_content(overlay_crater, self.width, self.height)
+      @render.compute_layout_max_content(
+        overlay_crater,
+        self.width,
+        self.height,
+      )
     } else {
       @render.compute_layout(overlay_crater, self.width, self.height)
     }

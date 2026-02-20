@@ -166,7 +166,6 @@ fn Document::delete_range(
     let remove_count = end.line - start.line
     for _ in 0..<remove_count {
       let _ = self.lines.remove(start.line + 1)
-
     }
     start
   }
