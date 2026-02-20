@@ -2,13 +2,18 @@
 /// Completion popup UI component
 
 ///|
-pub using @components {type PopupRect, type CompletionPopupStyle}
+pub using @components {
+  type PopupRect,
+  type CompletionPopupStyle,
+  type PopupDirection,
+}
 
 ///|
 pub struct CompletionPopup {
   session : CompletionSession
   max_items : Int
   style : CompletionPopupStyle
+  direction : @components.PopupDirection
 }
 
 ///|
@@ -16,8 +21,9 @@ pub fn CompletionPopup::new(
   session : CompletionSession,
   max_items? : Int = 6,
   style? : CompletionPopupStyle = CompletionPopupStyle::default(),
+  direction? : @components.PopupDirection = Auto,
 ) -> CompletionPopup {
-  { session, max_items, style }
+  { session, max_items, style, direction }
 }
 
 ///|
@@ -46,8 +52,15 @@ pub fn CompletionPopup::calculate_rect(
   } else {
     raw_width
   }
-  let rect = @components.completion_popup_rect(
-    anchor_row, anchor_col, 1, viewport_width, viewport_height, popup_w, popup_h,
+  let (rect, _) = @components.completion_popup_rect_directed(
+    anchor_row,
+    anchor_col,
+    1,
+    viewport_width,
+    viewport_height,
+    popup_w,
+    popup_h,
+    direction=self.direction,
   )
   Some(rect)
 }

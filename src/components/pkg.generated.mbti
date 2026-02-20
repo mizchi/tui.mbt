@@ -13,7 +13,7 @@ pub fn accordion_section(String, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue],
 
 pub fn alert_dialog(String, title? : String, button_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn alert_popup(String, title? : String, button_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+pub fn alert_popup(String, title? : String, button_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, shrink? : Bool, id? : String) -> @vnode.OverlayEntry
 
 pub fn breadcrumb(Array[String], separator? : String, id? : String, active_fg? : String, inactive_fg? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -41,11 +41,13 @@ pub fn[T] completion_popup_node(Array[T], (T) -> String, Int, String, Int, max_i
 
 pub fn completion_popup_rect(Int, Int, Int, Int, Int, Int, Int, prefer_below? : Bool) -> PopupRect
 
+pub fn completion_popup_rect_directed(Int, Int, Int, Int, Int, Int, Int, direction? : PopupDirection) -> (PopupRect, PopupDirection)
+
 pub fn condensed_breadcrumb(String, max_segments? : Int, separator? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
 pub fn confirm_dialog(String, title? : String, confirm_label? : String, cancel_label? : String, id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn confirm_popup(String, title? : String, confirm_label? : String, cancel_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+pub fn confirm_popup(String, title? : String, confirm_label? : String, cancel_label? : String, backdrop? : Bool, position? : @vnode.PopupPosition, shrink? : Bool, id? : String) -> @vnode.OverlayEntry
 
 pub fn diff_view(Array[String], Array[String], id? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -91,9 +93,9 @@ pub fn modal(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], widt
 
 pub fn modal_backdrop() -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn modal_popup(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, backdrop? : Bool, position? : @vnode.PopupPosition, id? : String) -> @vnode.OverlayEntry
+pub fn modal_popup(String, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]], width? : Double, backdrop? : Bool, position? : @vnode.PopupPosition, shrink? : Bool, id? : String) -> @vnode.OverlayEntry
 
-pub fn popup(@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], backdrop? : Bool, position? : @vnode.PopupPosition) -> @vnode.OverlayEntry
+pub fn popup(@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], backdrop? : Bool, position? : @vnode.PopupPosition, shrink? : Bool) -> @vnode.OverlayEntry
 
 pub fn progress_bar(Double, width? : Int, show_percent? : Bool) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -151,6 +153,12 @@ pub(all) enum GaugeStyle {
   Bar
   Thin
   Blocks
+}
+
+pub(all) enum PopupDirection {
+  Below
+  Above
+  Auto
 }
 
 pub struct PopupRect {

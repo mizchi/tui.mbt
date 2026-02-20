@@ -79,3 +79,113 @@ test "completion_popup_node sets a11y label and selected state" {
   assert_true(lines_contain(lines, "alpha"))
   assert_true(lines_contain(lines, "beta"))
 }
+
+///|
+test "completion_popup_rect_directed Below places below anchor" {
+  // viewport 20 rows, anchor at row 5, height 1, popup height 3
+  // space below = 20 - 6 = 14, plenty of room
+  let (rect, dir) = completion_popup_rect_directed(
+    5,
+    0,
+    1,
+    40,
+    20,
+    10,
+    3,
+    direction=PopupDirection::Below,
+  )
+  assert_true(rect.row == 6)
+  guard dir is PopupDirection::Below
+}
+
+///|
+test "completion_popup_rect_directed Above places above anchor" {
+  // anchor at row 10, popup height 3 → above = 10 - 3 = 7
+  let (rect, dir) = completion_popup_rect_directed(
+    10,
+    0,
+    1,
+    40,
+    20,
+    10,
+    3,
+    direction=PopupDirection::Above,
+  )
+  assert_true(rect.row == 7)
+  guard dir is PopupDirection::Above
+}
+
+///|
+test "completion_popup_rect_directed Auto prefers Below when both fit" {
+  // anchor at row 5, popup height 3
+  // space below = 20 - 6 = 14 (fits), space above = 5 (fits)
+  let (rect, dir) = completion_popup_rect_directed(
+    5,
+    0,
+    1,
+    40,
+    20,
+    10,
+    3,
+    direction=PopupDirection::Auto,
+  )
+  assert_true(rect.row == 6)
+  guard dir is PopupDirection::Below
+}
+
+///|
+test "completion_popup_rect_directed Auto chooses Above when below doesn't fit" {
+  // anchor at row 18, popup height 5
+  // space below = 20 - 19 = 1 (doesn't fit), space above = 18 (fits)
+  let (rect, dir) = completion_popup_rect_directed(
+    18,
+    0,
+    1,
+    40,
+    20,
+    10,
+    5,
+    direction=PopupDirection::Auto,
+  )
+  assert_true(rect.row == 13) // 18 - 5
+  guard dir is PopupDirection::Above
+}
+
+///|
+test "completion_popup_rect_directed Auto fallback picks larger space" {
+  // anchor at row 3, viewport 10, popup height 8
+  // space below = 10 - 4 = 6 (doesn't fit), space above = 3 (doesn't fit)
+  // 6 > 3, so Below wins
+  let (rect, dir) = completion_popup_rect_directed(
+    3,
+    0,
+    1,
+    40,
+    10,
+    10,
+    8,
+    direction=PopupDirection::Auto,
+  )
+  assert_true(rect.row == 4)
+  guard dir is PopupDirection::Below
+}
+
+///|
+test "completion_popup_rect_directed Auto fallback picks Above when above is larger" {
+  // anchor at row 7, viewport 10, popup height 8
+  // space below = 10 - 8 = 2 (doesn't fit), space above = 7 (doesn't fit)
+  // 7 > 2, so Above wins
+  let (rect, dir) = completion_popup_rect_directed(
+    7,
+    0,
+    1,
+    40,
+    10,
+    10,
+    8,
+    direction=PopupDirection::Auto,
+  )
+  // above = 7 - 8 = -1, clamped to 0
+  assert_true(rect.row == 0)
+  guard dir is PopupDirection::Above
+}

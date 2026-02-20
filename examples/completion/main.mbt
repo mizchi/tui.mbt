@@ -162,7 +162,7 @@ fn main {
           let (raw_width, popup_h) = popup_metrics(matches)
           if popup_h > 0 {
             let popup_w = if raw_width > width { width } else { raw_width }
-            let rect = @components.completion_popup_rect(
+            let (rect, _) = @components.completion_popup_rect_directed(
               input_bounds.y,
               input_bounds.x + confirmed_width,
               input_bounds.height,
@@ -170,6 +170,7 @@ fn main {
               height,
               popup_w,
               popup_h,
+              direction=@components.PopupDirection::Auto,
             )
             let popup_output = @vnode.render_overlay_at(
               rect.col,

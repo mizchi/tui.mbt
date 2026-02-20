@@ -40,9 +40,10 @@ pub struct CompletionPopup {
   session : CompletionSession
   max_items : Int
   style : @components.CompletionPopupStyle
+  direction : @components.PopupDirection
 }
 pub fn CompletionPopup::calculate_rect(Self, Int, Int, Int, Int) -> @components.PopupRect?
-pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : @components.CompletionPopupStyle) -> Self
+pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : @components.CompletionPopupStyle, direction? : @components.PopupDirection) -> Self
 pub fn CompletionPopup::render(Self, EditorState, Int, Int) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], @components.PopupRect)?
 pub fn CompletionPopup::render_overlay(Self, EditorState, Int, Int) -> (String, @components.PopupRect)?
 
@@ -180,6 +181,8 @@ pub using @components {type CompletionPopupStyle}
 pub type CompletionProvider = (CompletionRequest) -> CompletionResponse
 
 pub type CompletionProviderAsync = (CompletionRequest, (CompletionResponse) -> Unit) -> Unit
+
+pub using @components {type PopupDirection}
 
 pub using @components {type PopupRect}
 

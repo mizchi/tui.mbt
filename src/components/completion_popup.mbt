@@ -288,6 +288,62 @@ pub fn[T] completion_popup_node(
 }
 
 ///|
+pub(all) enum PopupDirection {
+  Below
+  Above
+  Auto
+}
+
+///|
+pub fn completion_popup_rect_directed(
+  anchor_row : Int,
+  anchor_col : Int,
+  anchor_height : Int,
+  viewport_width : Int,
+  viewport_height : Int,
+  popup_width : Int,
+  popup_height : Int,
+  direction? : PopupDirection = Auto,
+) -> (PopupRect, PopupDirection) {
+  let safe_width = if popup_width < 0 { 0 } else { popup_width }
+  let safe_height = if popup_height < 0 { 0 } else { popup_height }
+  let below = anchor_row + anchor_height
+  let above = anchor_row - safe_height
+  let space_below = viewport_height - below
+  let space_above = anchor_row
+  let resolved : PopupDirection = match direction {
+    Below => Below
+    Above => Above
+    Auto =>
+      if safe_height <= space_below {
+        Below
+      } else if safe_height <= space_above {
+        Above
+      } else if space_below >= space_above {
+        Below
+      } else {
+        Above
+      }
+  }
+  let row = match resolved {
+    Below => below
+    Above => above
+    Auto => below // unreachable, but needed for exhaustiveness
+  }
+  let col = if anchor_col + safe_width <= viewport_width {
+    anchor_col
+  } else {
+    viewport_width - safe_width
+  }
+  let safe_row = if row < 0 { 0 } else { row }
+  let safe_col = if col < 0 { 0 } else { col }
+  (
+    { row: safe_row, col: safe_col, width: safe_width, height: safe_height },
+    resolved,
+  )
+}
+
+///|
 pub fn completion_popup_rect(
   anchor_row : Int,
   anchor_col : Int,
