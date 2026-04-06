@@ -372,7 +372,7 @@ fn clip_lines(
 
 ///|
 fn parse_arg_int(s : String, default : Int) -> Int {
-  try @strconv.parse_int(s) catch {
+  try @string.parse_int(s) catch {
     _ => default
   } noraise {
     v => v
