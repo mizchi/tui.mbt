@@ -18,12 +18,16 @@ fmt:
 check:
     moon check --deny-warn --target {{target}}
 
+# Check that the native C stub stays Windows-compatible
+check-windows-native:
+    ./scripts/check-windows-native-compat.sh
+
 # Check all examples
 check-examples:
     for dir in {{examples}}; do (cd examples/$dir && moon check --deny-warn --target {{target}}); done
 
 # Check everything
-check-all: check check-examples
+check-all: check-windows-native check check-examples
 
 # Run tests for main library
 test:

@@ -44,7 +44,7 @@ fn render_layout_f(
   let h = rect.height
   let style = styles.get(layout.id)
   // Fill background if not transparent
-  if not(style.bg.is_transparent()) {
+  if !style.bg.is_transparent() {
     buf.fill_bg(x, y, w, h, style.bg)
   }
   // Draw border if specified

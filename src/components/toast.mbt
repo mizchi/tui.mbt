@@ -8,7 +8,7 @@ pub using @headless {type ToastLevel, type ToastState}
 ///|
 /// Toast notification component
 pub fn toast(state : @headless.ToastState, id? : String = "") -> @vnode.TuiNode {
-  if not(state.visible) {
+  if !state.visible {
     return @vnode.fragment([])
   }
   let (fg, bg, border_color, icon) = match state.level {

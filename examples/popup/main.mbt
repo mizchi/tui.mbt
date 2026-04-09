@@ -205,7 +205,7 @@ fn main {
     match event {
       @tui.InputEvent::Mouse(mouse) => {
         let is_confirm = mode.get() is PopupMode::ConfirmDialog
-        if not(is_confirm) {
+        if !is_confirm {
           return
         }
         match (mouse.event_type, mouse.button) {
@@ -247,7 +247,7 @@ fn main {
       @tui.InputEvent::Key(key_event) =>
         match key_event {
           @tui.KeyEvent::Char('q', @tui.KeyModifier::None) => {
-            if not(mode.get() is PopupMode::ConfirmDialog) {
+            if !(mode.get() is PopupMode::ConfirmDialog) {
               do_quit()
             }
             return

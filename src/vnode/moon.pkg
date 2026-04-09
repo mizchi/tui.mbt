@@ -9,5 +9,7 @@ import {
   "mizchi/tui/events" @events,
   "mizchi/tui/io" @io,
   "mizchi/signals" @signals,
-  "moonbitlang/core/strconv" @strconv,
+  "moonbitlang/core/string" @string,
 }
+
+supported_targets = "js+wasm-gc+native"

@@ -18,7 +18,7 @@ pub fn FocusManager::new() -> FocusManager {
 ///|
 /// Register a focusable component ID
 pub fn FocusManager::register(self : FocusManager, id : String) -> Unit {
-  if not(self.focusable_ids.contains(id)) {
+  if !self.focusable_ids.contains(id) {
     self.focusable_ids.push(id)
   }
 }

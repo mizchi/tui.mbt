@@ -216,7 +216,7 @@ fn extract_row_positions(s : String) -> Array[Int] {
         for c in num_str.iter() {
           row = row * 10 + (c.to_int() - '0'.to_int())
         }
-        if not(rows.contains(row)) {
+        if !rows.contains(row) {
           rows.push(row)
         }
       }

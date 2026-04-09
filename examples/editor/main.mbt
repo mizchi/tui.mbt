@@ -152,7 +152,7 @@ fn main {
     let mut need_clear = false
     match (last_popup_rect.val, next_rect) {
       (Some(prev), Some(next)) =>
-        if not(prev.eq(next)) {
+        if !prev.eq(next) {
           clear_rect(prev)
           need_clear = true
         }
@@ -167,7 +167,7 @@ fn main {
     }
     let frame = app.render_frame(render_ui())
     @term.print_raw(frame)
-    if not(suppress_popup.val) {
+    if !suppress_popup.val {
       match completion_popup.render_overlay(state, width, height) {
         Some((overlay, rect)) => {
           @term.print_raw(overlay)
@@ -227,26 +227,26 @@ fn main {
         let mut should_update_completion = false
         match key_event {
           @term.KeyEvent::Special(@term.SpecialKey::Up, _) =>
-            if completion_session.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && !suppress_popup.val {
               completion_session.select_prev()
               do_render()
               return
             }
           @term.KeyEvent::Special(@term.SpecialKey::Down, _) =>
-            if completion_session.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && !suppress_popup.val {
               completion_session.select_next()
               do_render()
               return
             }
           @term.KeyEvent::Special(@term.SpecialKey::Tab, _) =>
-            if completion_session.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && !suppress_popup.val {
               if apply_completion() {
                 do_render()
                 return
               }
             }
           @term.KeyEvent::Special(@term.SpecialKey::Enter, _) =>
-            if completion_session.is_visible() && not(suppress_popup.val) {
+            if completion_session.is_visible() && !suppress_popup.val {
               if apply_completion() {
                 do_render()
                 return

@@ -153,12 +153,19 @@ fn assert_position_in_doc(doc : Document, pos : Position) -> Unit raise {
 }
 
 ///|
+fn position_label(pos : Position) -> String {
+  "(\{pos.line}, \{pos.col})"
+}
+
+///|
 fn assert_selection_invariants(state : EditorState) -> Unit raise {
   assert_position_in_doc(state.doc, state.selection.anchor)
   assert_position_in_doc(state.doc, state.selection.active)
   let (start, end) = state.selection.ordered()
   if !position_before_or_equal(start, end) {
-    fail("selection order invalid: \{start} > \{end}")
+    fail(
+      "selection order invalid: \{position_label(start)} > \{position_label(end)}",
+    )
   }
 }
 

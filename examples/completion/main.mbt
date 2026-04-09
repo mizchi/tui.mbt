@@ -43,7 +43,7 @@ fn main {
   }
 
   fn should_show_popup() -> Bool {
-    not(suppress_popup.val) && input.get().length() > 0
+    !suppress_popup.val && input.get().length() > 0
   }
 
   fn get_confirmed_text() -> String {

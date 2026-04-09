@@ -232,8 +232,8 @@ pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
       } else {
         color_to_256(cell.bg)
       }
-      let need_reset = (last_bold && not(cell.bold)) ||
-        (last_underline && not(cell.underline))
+      let need_reset = (last_bold && !cell.bold) ||
+        (last_underline && !cell.underline)
       if need_reset {
         sb.write_string(ansi_reset())
         last_fg = -1
@@ -241,11 +241,11 @@ pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
         last_bold = false
         last_underline = false
       }
-      if cell.bold && not(last_bold) {
+      if cell.bold && !last_bold {
         sb.write_string(ansi_bold())
         last_bold = true
       }
-      if cell.underline && not(last_underline) {
+      if cell.underline && !last_underline {
         sb.write_string(ansi_underline())
         last_underline = true
       }
@@ -303,8 +303,8 @@ pub fn CharBuffer::to_ansi_offset(
       } else {
         color_to_256(cell.bg)
       }
-      let need_reset = (last_bold && not(cell.bold)) ||
-        (last_underline && not(cell.underline))
+      let need_reset = (last_bold && !cell.bold) ||
+        (last_underline && !cell.underline)
       if need_reset {
         sb.write_string(ansi_reset())
         last_fg = -1
@@ -312,11 +312,11 @@ pub fn CharBuffer::to_ansi_offset(
         last_bold = false
         last_underline = false
       }
-      if cell.bold && not(last_bold) {
+      if cell.bold && !last_bold {
         sb.write_string(ansi_bold())
         last_bold = true
       }
-      if cell.underline && not(last_underline) {
+      if cell.underline && !last_underline {
         sb.write_string(ansi_underline())
         last_underline = true
       }
@@ -374,8 +374,8 @@ pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String 
       } else {
         color_to_256(cell.bg)
       }
-      let need_reset = (last_bold && not(cell.bold)) ||
-        (last_underline && not(cell.underline))
+      let need_reset = (last_bold && !cell.bold) ||
+        (last_underline && !cell.underline)
       if need_reset {
         sb.write_string(ansi_reset())
         last_fg = -1
@@ -383,11 +383,11 @@ pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String 
         last_bold = false
         last_underline = false
       }
-      if cell.bold && not(last_bold) {
+      if cell.bold && !last_bold {
         sb.write_string(ansi_bold())
         last_bold = true
       }
-      if cell.underline && not(last_underline) {
+      if cell.underline && !last_underline {
         sb.write_string(ansi_underline())
         last_underline = true
       }
@@ -455,8 +455,8 @@ pub fn CharBuffer::diff_to_ansi_offset(
       } else {
         color_to_256(cell.bg)
       }
-      let need_reset = (last_bold && not(cell.bold)) ||
-        (last_underline && not(cell.underline))
+      let need_reset = (last_bold && !cell.bold) ||
+        (last_underline && !cell.underline)
       if need_reset {
         sb.write_string(ansi_reset())
         last_fg = -1
@@ -464,11 +464,11 @@ pub fn CharBuffer::diff_to_ansi_offset(
         last_bold = false
         last_underline = false
       }
-      if cell.bold && not(last_bold) {
+      if cell.bold && !last_bold {
         sb.write_string(ansi_bold())
         last_bold = true
       }
-      if cell.underline && not(last_underline) {
+      if cell.underline && !last_underline {
         sb.write_string(ansi_underline())
         last_underline = true
       }

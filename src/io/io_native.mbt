@@ -532,7 +532,7 @@ pub fn stop_keypress_listener() -> Unit {
 ///|
 /// Poll for keypress (call this in a loop) - for manual polling if needed
 pub fn poll_keypress() -> Bool {
-  if not(keypress_running.val) {
+  if !keypress_running.val {
     return false
   }
   let key = read_key()
@@ -638,7 +638,7 @@ pub fn start_inplace_input(
 ) -> Unit {
   // Ensure raw mode is enabled
   let was_raw = is_raw_mode()
-  if not(was_raw) {
+  if !was_raw {
     enable_raw_mode()
   }
 
@@ -739,7 +739,7 @@ pub fn start_inplace_input(
       let mut all_printable = true
       for c in chars {
         let code = c.to_int()
-        if not((code >= 32 && code < 127) || code >= 128) {
+        if !((code >= 32 && code < 127) || code >= 128) {
           all_printable = false
           break
         }
@@ -781,7 +781,7 @@ pub fn start_inplace_input(
           }
           None => ()
         }
-        if not(handled_by_completion) {
+        if !handled_by_completion {
           done = true
           result = InputResult::TabNext(controller.get_text())
         }
@@ -824,7 +824,7 @@ pub fn start_inplace_input(
       // Hide cursor before exiting
       print_raw(@render.ansi_hide_cursor())
       // Restore raw mode state if we changed it
-      if not(was_raw) {
+      if !was_raw {
         cleanup_stdin()
       }
       on_result(result)
@@ -844,7 +844,7 @@ pub fn start_inline_input_cooked(
 ) -> Unit {
   // Ensure raw mode is enabled for predictable key handling
   let was_raw = is_raw_mode()
-  if not(was_raw) {
+  if !was_raw {
     enable_raw_mode()
   }
   let _ = field_name
@@ -857,7 +857,7 @@ pub fn start_inline_input_cooked(
   let mut max_cols = 1
   let reserve_rows = 1
   fn parse_cursor_pos(resp : String) -> (Int, Int)? {
-    if not(resp.has_prefix("\u001b[")) || not(resp.has_suffix("R")) {
+    if !resp.has_prefix("\u001b[") || !resp.has_suffix("R") {
       return None
     }
     if resp.length() < 4 {
@@ -875,17 +875,17 @@ pub fn start_inline_input_cooked(
         seen_sep = true
         continue
       }
-      if not(c.is_ascii_digit()) {
+      if !c.is_ascii_digit() {
         return None
       }
       let digit = c.to_int() - '0'.to_int()
-      if not(seen_sep) {
+      if !seen_sep {
         row = row * 10 + digit
       } else {
         col = col * 10 + digit
       }
     }
-    if not(seen_sep) {
+    if !seen_sep {
       return None
     }
     Some((row, col))
@@ -940,7 +940,7 @@ pub fn start_inline_input_cooked(
   )
   let controller = @input.TextInputController::new(config, initial)
   fn render_all() -> Bool {
-    if not(can_render) {
+    if !can_render {
       return false
     }
     let state = controller.get_display_state()
@@ -984,7 +984,7 @@ pub fn start_inline_input_cooked(
     true
   }
 
-  if not(render_all()) && controller.get_text().length() > 0 {
+  if !render_all() && controller.get_text().length() > 0 {
     print_raw(controller.get_text())
   }
 
@@ -996,7 +996,7 @@ pub fn start_inline_input_cooked(
       let mut all_printable = true
       for c in chars {
         let code = c.to_int()
-        if not((code >= 32 && code < 127) || code >= 128) {
+        if !((code >= 32 && code < 127) || code >= 128) {
           all_printable = false
           break
         }
@@ -1040,7 +1040,7 @@ pub fn start_inline_input_cooked(
       let mut all_printable = true
       for c in chars {
         let code = c.to_int()
-        if not((code >= 32 && code < 127) || code >= 128) {
+        if !((code >= 32 && code < 127) || code >= 128) {
           all_printable = false
           break
         }
@@ -1090,7 +1090,7 @@ pub fn start_inline_input_cooked(
       let _ = render_all()
     }
     if done {
-      if not(was_raw) {
+      if !was_raw {
         cleanup_stdin()
       }
       on_result(result)

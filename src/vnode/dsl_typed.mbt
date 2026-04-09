@@ -870,9 +870,9 @@ fn parse_color_value(s : String) -> ColorValue {
     let inner = s.view(start_offset=4, end_offset=s.length() - 1)
     let parts = inner.split(",").collect()
     if parts.length() == 3 {
-      let r = try? @strconv.parse_int(parts[0].to_string().trim(chars=" "))
-      let g = try? @strconv.parse_int(parts[1].to_string().trim(chars=" "))
-      let b = try? @strconv.parse_int(parts[2].to_string().trim(chars=" "))
+      let r = try? @string.parse_int(parts[0].to_string().trim(chars=" "))
+      let g = try? @string.parse_int(parts[1].to_string().trim(chars=" "))
+      let b = try? @string.parse_int(parts[2].to_string().trim(chars=" "))
       match (r, g, b) {
         (Ok(r), Ok(g), Ok(b)) => return ColorValue::Rgb(r, g, b)
         _ => ()

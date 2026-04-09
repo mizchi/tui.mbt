@@ -55,7 +55,7 @@ pub fn error_message(
   visible? : Bool = true,
   id? : String = "",
 ) -> @vnode.TuiNode {
-  if not(visible) || text == "" {
+  if !visible || text == "" {
     @vnode.text("") // empty node when not visible
   } else {
     @vnode.row(id~, gap=0.5, [

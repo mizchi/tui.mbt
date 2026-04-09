@@ -8,7 +8,7 @@ pub struct RectSprite {
   h : Int
   vx : Int
   vy : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn rect_sprite(
@@ -35,7 +35,7 @@ pub struct ImageSprite {
   crop : @image.ImageRect?
   vx : Int
   vy : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn image_sprite(

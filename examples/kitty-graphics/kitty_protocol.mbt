@@ -11,7 +11,7 @@ pub(all) struct CropRect {
   y : Int
   w : Int
   h : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub fn kitty_command(params : Array[String], payload? : String = "") -> String {

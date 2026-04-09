@@ -36,7 +36,7 @@ pub fn CompletionPopup::calculate_rect(
   viewport_height : Int,
 ) -> PopupRect? {
   let items = self.session.get_items()
-  if items.length() == 0 || not(self.session.is_visible()) {
+  if items.length() == 0 || !self.session.is_visible() {
     return None
   }
   let (raw_width, popup_h) = @components.completion_popup_metrics(
@@ -74,7 +74,7 @@ pub fn CompletionPopup::render(
   viewport_width : Int,
   viewport_height : Int,
 ) -> (@vnode.TuiNode, PopupRect)? {
-  if not(self.session.is_visible()) {
+  if !self.session.is_visible() {
     return None
   }
   let items = self.session.get_items()
