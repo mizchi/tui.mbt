@@ -721,7 +721,7 @@ pub fn start_inplace_input(
   do_render()
 
   // Edit loop
-  for {
+  for ;; {
     let key = read_key()
     if key.length() == 0 {
       sleep(10)
@@ -1023,7 +1023,7 @@ pub fn start_inline_input_cooked(
       }
     }
   }
-  for {
+  for ;; {
     let key = read_key()
     if key.length() == 0 {
       sleep(10)

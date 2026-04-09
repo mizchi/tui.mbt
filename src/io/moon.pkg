@@ -11,7 +11,7 @@ import {
 warnings = "-29"
 
 options(
-  "native-stub": ["tui_native.c"],
+  "native-stub": [ "tui_native.c" ],
   targets: {
     "io_js.mbt": [ "js" ],
     "io_native.mbt": [ "not", "js" ],
