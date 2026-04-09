@@ -1132,7 +1132,7 @@ pub fn start_inplace_input(
       let mut all_printable = true
       for c in chars {
         let code = c.to_int()
-        if not((code >= 32 && code < 127) || code >= 128) {
+        if !((code >= 32 && code < 127) || code >= 128) {
           all_printable = false
           break
         }
@@ -1182,7 +1182,7 @@ pub fn start_inplace_input(
           }
           None => ()
         }
-        if not(handled_by_completion) {
+        if !handled_by_completion {
           done.val = true
           js_cleanup_raw_input_listener()
           on_result(InputResult::TabNext(controller.get_text()))

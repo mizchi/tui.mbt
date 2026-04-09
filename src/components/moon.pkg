@@ -4,3 +4,5 @@ import {
   "mizchi/tui/headless",
   "mizchi/tui/logics",
 }
+
+supported_targets = "js+wasm-gc+native"

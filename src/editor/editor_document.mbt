@@ -2,7 +2,7 @@
 struct Position {
   line : Int
   col : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 struct Document {

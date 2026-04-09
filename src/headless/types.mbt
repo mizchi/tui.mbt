@@ -14,7 +14,12 @@ pub(all) enum ButtonState {
   Focused
   Pressed
   Disabled
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for ButtonState with output(self : ButtonState, logger : &Logger) -> Unit {
+  self.to_repr().output(logger)
+}
 
 ///|
 /// Check if button is interactive
@@ -80,7 +85,7 @@ pub fn ToggleState::toggle(self : ToggleState) -> ToggleState {
   if self.disabled {
     self
   } else {
-    { ..self, checked: not(self.checked) }
+    { ..self, checked: !self.checked }
   }
 }
 
@@ -132,7 +137,7 @@ pub fn SelectionState::focus(
 ///|
 /// Toggle open state (for dropdown-style components)
 pub fn SelectionState::toggle_open(self : SelectionState) -> SelectionState {
-  { ..self, open: not(self.open) }
+  { ..self, open: !self.open }
 }
 
 // =============================================================================

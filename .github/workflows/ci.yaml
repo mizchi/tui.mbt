@@ -21,6 +21,8 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
       - name: Moon update
         run: moon update
+      - name: Check Windows native compatibility
+        run: ./scripts/check-windows-native-compat.sh
       - name: Moon check (library)
         run: moon check --deny-warn
       - name: Moon check (examples)

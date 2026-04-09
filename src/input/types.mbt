@@ -22,14 +22,29 @@ pub(all) enum EditAction {
   ForceQuit // Ctrl+C
   NewLine // Enter (multiline mode)
   None
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
+  value.to_repr().output(logger)
+}
+
+///|
+pub impl Show for EditAction with output(self : EditAction, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Line info for text wrapping and rendering
 pub(all) struct LineInfo {
   start_idx : Int
   chars : Array[Char]
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for LineInfo with output(self : LineInfo, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Display state for rendering
@@ -41,7 +56,15 @@ pub(all) struct DisplayState {
   has_more_above : Bool
   has_more_below : Bool
   total_lines : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for DisplayState with output(
+  self : DisplayState,
+  logger : &Logger,
+) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Configuration for text input
@@ -51,7 +74,15 @@ pub(all) struct TextInputConfig {
   multiline : Bool
   confirm_on_shift_enter : Bool
   esc_cancels : Bool
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for TextInputConfig with output(
+  self : TextInputConfig,
+  logger : &Logger,
+) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Create default config

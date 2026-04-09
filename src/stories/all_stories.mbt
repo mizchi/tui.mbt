@@ -221,7 +221,7 @@ pub fn all_categories() -> Array[String] {
   let categories : Array[String] = []
   let seen : Map[String, Bool] = {}
   for s in all_stories() {
-    if not(seen.contains(s.category)) {
+    if !seen.contains(s.category) {
       categories.push(s.category)
       seen[s.category] = true
     }

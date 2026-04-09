@@ -16,7 +16,7 @@ pub fn is_printable_char(c : Char) -> Bool {
 /// Check if a string is all printable characters (for IME input detection)
 pub fn is_printable_string(s : String) -> Bool {
   for c in s {
-    if not(is_printable_char(c)) {
+    if !is_printable_char(c) {
       return false
     }
   }
@@ -132,7 +132,7 @@ pub fn input_plain(
   } else {
     value
   }
-  let actual_fg = if value.length() == 0 && not(state is InputState::Editing) {
+  let actual_fg = if value.length() == 0 && !(state is InputState::Editing) {
     placeholder_fg
   } else {
     fg

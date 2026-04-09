@@ -6,3 +6,5 @@ import {
   "mizchi/tui/components",
   "mizchi/tui/testing",
 }
+
+supported_targets = "js+wasm-gc+native"

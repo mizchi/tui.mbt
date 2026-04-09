@@ -467,7 +467,7 @@ fn CompletionState::new() -> CompletionState {
 
 ///|
 fn CompletionState::should_show_popup(self : CompletionState) -> Bool {
-  not(self.suppress_popup) && self.input.length() > 0
+  !self.suppress_popup && self.input.length() > 0
 }
 
 ///|

@@ -148,10 +148,10 @@ async fn main {
       ),
       vspace(1.0),
       @ui.switch(sw, "Dark Mode", id="switch-dark"),
-      @ui.switch(not(sw), "Notifications", id="switch-notif"),
+      @ui.switch(!sw, "Notifications", id="switch-notif"),
       vspace(0.5),
       @ui.checkbox("Accept Terms", cb, id="cb-terms"),
-      @ui.checkbox("Subscribe to Newsletter", not(cb), id="cb-news"),
+      @ui.checkbox("Subscribe to Newsletter", !cb, id="cb-news"),
     ])
   }
 
@@ -442,7 +442,7 @@ async fn main {
         return None
       }
     }
-    if not(valid) {
+    if !valid {
       return None
     }
     let buf = StringBuilder::new()
@@ -577,13 +577,13 @@ async fn main {
           @tui.KeyEvent::Char(' ', _) =>
             match current {
               _ if current == demo_switch => {
-                switch_on.set(not(switch_on.get()))
+                switch_on.set(!switch_on.get())
                 message.set(
                   "Switch: " + (if switch_on.get() { "ON" } else { "OFF" }),
                 )
               }
               _ if current == demo_combobox =>
-                combobox_open.set(not(combobox_open.get()))
+                combobox_open.set(!combobox_open.get())
               _ if current == demo_menubar => {
                 menubar_open.set(-1)
                 menubar_item.set(0)
@@ -596,7 +596,7 @@ async fn main {
               _ if current == demo_tabs => tab_selected.set(0)
               _ if current == demo_accordion => accordion_expanded.set(0)
               _ if current == demo_switch =>
-                checkbox_checked.set(not(checkbox_checked.get()))
+                checkbox_checked.set(!checkbox_checked.get())
               _ if current == demo_menubar => {
                 menubar_open.set(0)
                 menubar_item.set(0)
@@ -668,16 +668,15 @@ async fn main {
                   _ =>
                     match id {
                       "switch-dark" | "switch-notif" => {
-                        switch_on.set(not(switch_on.get()))
+                        switch_on.set(!switch_on.get())
                         message.set(
                           "Switch: " +
                           (if switch_on.get() { "ON" } else { "OFF" }),
                         )
                       }
                       "cb-terms" | "cb-news" =>
-                        checkbox_checked.set(not(checkbox_checked.get()))
-                      "combo-trigger" =>
-                        combobox_open.set(not(combobox_open.get()))
+                        checkbox_checked.set(!checkbox_checked.get())
+                      "combo-trigger" => combobox_open.set(!combobox_open.get())
                       _ => need_render = false
                     }
                 }

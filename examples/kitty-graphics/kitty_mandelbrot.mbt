@@ -4,7 +4,7 @@ pub struct MandelState {
   center_y : Double
   mut scale : Double
   mut phase : Double
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub fn mandelbrot_escape(cx : Double, cy : Double, max_iter : Int) -> Int {

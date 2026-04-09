@@ -22,7 +22,7 @@ pub fn menu_item(
   id? : String = "",
   disabled? : Bool = false,
 ) -> @vnode.TuiNode {
-  let bg = if selected && not(disabled) {
+  let bg = if selected && !disabled {
     "rgb(40,80,120)"
   } else {
     "rgb(50,50,60)"

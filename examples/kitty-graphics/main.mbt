@@ -115,7 +115,7 @@ fn scroll_line(state : DemoState, height : Int) -> String {
 fn parse_env_int(name : String) -> Int? {
   match @sys.get_env_var(name) {
     Some(text) =>
-      try @strconv.parse_int(text) catch {
+      try @string.parse_int(text) catch {
         _ => None
       } noraise {
         value => Some(value)

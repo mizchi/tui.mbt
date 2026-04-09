@@ -12,7 +12,17 @@ pub(all) enum KeyModifier {
   CtrlAlt
   ShiftAlt
   CtrlShiftAlt
-} derive(Show)
+} derive(Debug)
+
+///|
+fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
+  value.to_repr().output(logger)
+}
+
+///|
+pub impl Show for KeyModifier with output(self : KeyModifier, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Special keys
@@ -33,14 +43,24 @@ pub(all) enum SpecialKey {
   Enter
   Escape
   F(Int)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for SpecialKey with output(self : SpecialKey, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Keyboard event
 pub(all) enum KeyEvent {
   Char(Char, KeyModifier)
   Special(SpecialKey, KeyModifier)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for KeyEvent with output(self : KeyEvent, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Mouse button
@@ -51,7 +71,12 @@ pub(all) enum MouseButton {
   ScrollUp
   ScrollDown
   None
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MouseButton with output(self : MouseButton, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Mouse event type
@@ -60,7 +85,15 @@ pub(all) enum MouseEventType {
   Release
   Move
   Drag
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MouseEventType with output(
+  self : MouseEventType,
+  logger : &Logger,
+) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Mouse event
@@ -70,7 +103,12 @@ pub(all) struct MouseEvent {
   x : Int
   y : Int
   modifier : KeyModifier
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for MouseEvent with output(self : MouseEvent, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Input event
@@ -79,7 +117,12 @@ pub(all) enum InputEvent {
   Mouse(MouseEvent)
   Resize(Int, Int)
   Unknown(String)
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for InputEvent with output(self : InputEvent, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Hit test result

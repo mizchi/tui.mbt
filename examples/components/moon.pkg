@@ -6,6 +6,8 @@ import {
   "moonbitlang/async",
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
 )

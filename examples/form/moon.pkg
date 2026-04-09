@@ -6,6 +6,8 @@ import {
   "mizchi/signals",
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
 )

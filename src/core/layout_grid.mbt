@@ -8,7 +8,12 @@ pub struct GridRect {
   y : Int
   width : Int
   height : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for GridRect with output(self : GridRect, logger : &Logger) -> Unit {
+  self.to_repr().output(logger)
+}
 
 ///|
 /// Snap a floating-point coordinate to the nearest terminal cell.

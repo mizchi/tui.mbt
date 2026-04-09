@@ -7,7 +7,17 @@ pub struct A11yRect {
   y : Int
   width : Int
   height : Int
-} derive(Show)
+} derive(Debug)
+
+///|
+fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
+  value.to_repr().output(logger)
+}
+
+///|
+pub impl Show for A11yRect with output(self : A11yRect, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 pub struct A11yNode {
@@ -16,7 +26,12 @@ pub struct A11yNode {
   name : String
   rect : A11yRect
   children : Array[A11yNode]
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for A11yNode with output(self : A11yNode, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 priv struct A11yBuildResult {

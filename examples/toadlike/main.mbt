@@ -535,7 +535,7 @@ async fn main {
           // Space
           @tui.KeyEvent::Char(' ', _) =>
             if current == demo_toast {
-              toast_visible.set(not(toast_visible.get()))
+              toast_visible.set(!toast_visible.get())
             } else if current == demo_tree {
               let ts = tree_state.get()
               if ts.focused_id.length() > 0 {

@@ -3,7 +3,17 @@
 pub enum ImageFormat {
   Png
   Rgb
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
+  value.to_repr().output(logger)
+}
+
+///|
+pub impl Show for ImageFormat with output(self : ImageFormat, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Base64 payload image with explicit dimensions.
@@ -12,7 +22,12 @@ pub struct ImageAsset {
   height : Int
   format : ImageFormat
   payload_base64 : String
-} derive(Show)
+} derive(Debug)
+
+///|
+pub impl Show for ImageAsset with output(self : ImageAsset, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Rectangle in pixels.
@@ -21,7 +36,12 @@ pub struct ImageRect {
   y : Int
   w : Int
   h : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+pub impl Show for ImageRect with output(self : ImageRect, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Construct a rectangle.

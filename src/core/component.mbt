@@ -63,7 +63,17 @@ pub(all) enum Role {
   Dialog
   // Custom role
   Custom(String)
-} derive(Show, Eq)
+} derive(Debug, Eq)
+
+///|
+fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
+  value.to_repr().output(logger)
+}
+
+///|
+pub impl Show for Role with output(self : Role, logger : &Logger) -> Unit {
+  show_debug(self, logger)
+}
 
 ///|
 /// Role map (component ID -> role)

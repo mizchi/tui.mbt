@@ -22,7 +22,7 @@ pub fn checkbox(
   } else {
     "white"
   }
-  let bg = if focused && not(disabled) { "rgb(40,60,90)" } else { "" }
+  let bg = if focused && !disabled { "rgb(40,60,90)" } else { "" }
   @vnode.row(id~, bg~, padding_x=1.0, [
     @vnode.text(icon, fg~),
     @vnode.hspace(1.0),
@@ -46,7 +46,7 @@ pub fn radio(
   } else {
     "white"
   }
-  let bg = if selected && not(disabled) { "rgb(40,60,90)" } else { "" }
+  let bg = if selected && !disabled { "rgb(40,60,90)" } else { "" }
   @vnode.row(id~, bg~, padding_x=1.0, [
     @vnode.text(icon + " " + label, fg~, bold=selected),
   ])

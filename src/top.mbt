@@ -224,7 +224,7 @@ pub fn run(
       _ => ()
     }
     let continue_running = on_event(event)
-    if not(continue_running) {
+    if !continue_running {
       // Cleanup and exit
       @io.stop_keypress_listener()
       if mouse {
