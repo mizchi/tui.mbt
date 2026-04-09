@@ -10,11 +10,13 @@ import {
 
 warnings = "-29"
 
+supported_targets = "js+native"
+
 options(
   "native-stub": [ "tui_native.c" ],
   targets: {
     "io_js.mbt": [ "js" ],
-    "io_native.mbt": [ "not", "js" ],
+    "io_native.mbt": [ "native" ],
     "tty_test.mbt": [ "js" ],
   },
 )

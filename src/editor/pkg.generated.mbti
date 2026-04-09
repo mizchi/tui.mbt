@@ -8,6 +8,7 @@ import {
   "mizchi/tui/components",
   "mizchi/tui/events",
   "mizchi/tui/vnode",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -146,9 +147,7 @@ pub struct HighlightState {
   mut spans : Array[Array[HighlightSpan]]
 }
 
-type Position
-pub impl Eq for Position
-pub impl Show for Position
+type Position derive(Eq, @debug.Debug)
 
 type Selection
 

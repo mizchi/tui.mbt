@@ -863,7 +863,7 @@ pub fn start_inline_input_cooked(
     if resp.length() < 4 {
       return None
     }
-    let body = try! resp[2:resp.length() - 1]
+    let body = resp[2:resp.length() - 1]
     let mut row = 0
     let mut col = 0
     let mut seen_sep = false

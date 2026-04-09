@@ -2,6 +2,8 @@
 
 Terminal UI library for MoonBit with virtual DOM-based rendering.
 
+Supported targets: `js`, `native`
+
 ## Features
 
 - Virtual DOM with diff-based ANSI rendering
@@ -16,8 +18,8 @@ Terminal UI library for MoonBit with virtual DOM-based rendering.
 
 ```json
 {
-  "import": {
-    "mizchi/tui": "0.3.0"
+  "deps": {
+    "mizchi/tui": "0.9.0"
   }
 }
 ```
@@ -146,17 +148,18 @@ Snapshots:
 ## Examples
 
 ```bash
-moon run examples/simple            # Minimal counter app
-moon run examples/command-launcher   # Raycast-style command palette
-moon run examples/completion         # Inline completion UI
-moon run examples/components         # Component showcase gallery
-moon run examples/editor             # Text editor with syntax highlighting
-moon run examples/form               # Form with inline editing
-moon run examples/grid-area          # Named grid area layout
-moon run examples/grid-layout        # Grid layout demo (dashboard/calendar)
-moon run examples/kitty-graphics     # Kitty terminal graphics protocol demo
-moon run examples/roguelike          # Roguelike game UI
-moon run examples/wizard             # Multi-step setup wizard (inquirer.js-style)
+just run example=simple                    # Minimal counter app
+moon run examples/simple --target js       # Run an example directly
+moon run examples/command-launcher --target js
+moon run examples/completion --target js
+moon run examples/components --target js
+moon run examples/editor --target js
+moon run examples/form --target js
+moon run examples/grid-area --target js
+moon run examples/grid-layout --target js
+moon run examples/kitty-graphics --target js
+moon run examples/roguelike --target js
+moon run examples/wizard --target js
 ```
 
 Note: The chat example moved to `mizchi/vivebox`.

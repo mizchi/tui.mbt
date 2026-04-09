@@ -4,6 +4,7 @@ package "mizchi/tui/events"
 import {
   "mizchi/crater/types",
   "mizchi/tui/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -77,7 +78,7 @@ pub(all) enum InputEvent {
   Mouse(MouseEvent)
   Resize(Int, Int)
   Unknown(String)
-}
+} derive(@debug.Debug)
 pub fn InputEvent::is_arrow(Self) -> SpecialKey?
 pub fn InputEvent::is_backtab(Self) -> Bool
 pub fn InputEvent::is_char(Self, Char) -> Bool
@@ -101,7 +102,7 @@ pub(all) enum InputMode {
 pub(all) enum KeyEvent {
   Char(Char, KeyModifier)
   Special(SpecialKey, KeyModifier)
-}
+} derive(@debug.Debug)
 pub fn KeyEvent::is_char(Self, Char) -> Bool
 pub fn KeyEvent::is_ctrl_c(Self) -> Bool
 pub fn KeyEvent::is_ctrl_q(Self) -> Bool
@@ -117,7 +118,7 @@ pub(all) enum KeyModifier {
   CtrlAlt
   ShiftAlt
   CtrlShiftAlt
-}
+} derive(@debug.Debug)
 pub impl Show for KeyModifier
 
 pub(all) enum MouseButton {
@@ -127,7 +128,7 @@ pub(all) enum MouseButton {
   ScrollUp
   ScrollDown
   None
-}
+} derive(@debug.Debug)
 pub impl Show for MouseButton
 
 pub(all) struct MouseEvent {
@@ -136,7 +137,7 @@ pub(all) struct MouseEvent {
   x : Int
   y : Int
   modifier : KeyModifier
-}
+} derive(@debug.Debug)
 pub impl Show for MouseEvent
 
 pub(all) enum MouseEventType {
@@ -144,7 +145,7 @@ pub(all) enum MouseEventType {
   Release
   Move
   Drag
-}
+} derive(@debug.Debug)
 pub impl Show for MouseEventType
 
 pub(all) enum SpecialKey {
@@ -164,7 +165,7 @@ pub(all) enum SpecialKey {
   Enter
   Escape
   F(Int)
-}
+} derive(@debug.Debug)
 pub impl Show for SpecialKey
 
 // Type aliases

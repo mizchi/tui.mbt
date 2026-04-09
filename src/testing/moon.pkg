@@ -5,4 +5,4 @@ import {
   "mizchi/tui/vnode",
 }
 
-supported_targets = "js+wasm-gc+native"
+supported_targets = "js+native"

@@ -22,4 +22,4 @@ import {
   "mizchi/syntree/css" @syn_css,
 }
 
-supported_targets = "js+wasm-gc+native"
+supported_targets = "js+native"

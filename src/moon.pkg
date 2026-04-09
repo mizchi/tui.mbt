@@ -7,7 +7,7 @@ import {
   "mizchi/tui/headless",
 }
 
-supported_targets = "js+wasm-gc+native"
+supported_targets = "js+native"
 
 options(
   description: "Terminal UI library for MoonBit with reactive signals",

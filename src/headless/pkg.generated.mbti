@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui/headless"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn resolve_button_state(String, String, focus? : FocusNav?, disabled? : Bool) -> ButtonState
 
@@ -21,9 +25,8 @@ pub(all) enum ButtonState {
   Focused
   Pressed
   Disabled
-}
+} derive(Eq, @debug.Debug)
 pub fn ButtonState::is_interactive(Self) -> Bool
-pub impl Eq for ButtonState
 pub impl Show for ButtonState
 
 pub(all) struct FocusNav {

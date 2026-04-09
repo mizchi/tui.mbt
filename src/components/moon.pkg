@@ -5,4 +5,4 @@ import {
   "mizchi/tui/logics",
 }
 
-supported_targets = "js+wasm-gc+native"
+supported_targets = "js+native"

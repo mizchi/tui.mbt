@@ -8,6 +8,7 @@ import {
   "mizchi/tui/core",
   "mizchi/tui/events",
   "mizchi/tui/render",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -100,7 +101,7 @@ pub struct A11yNode {
   name : String
   rect : A11yRect
   children : Array[A11yNode]
-}
+} derive(@debug.Debug)
 pub impl Show for A11yNode
 
 pub struct A11yRect {
@@ -108,7 +109,7 @@ pub struct A11yRect {
   y : Int
   width : Int
   height : Int
-}
+} derive(@debug.Debug)
 pub impl Show for A11yRect
 
 pub(all) enum AlignmentValue {

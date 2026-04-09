@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui/image"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn base64_encode(BytesView) -> String
 
@@ -24,14 +28,13 @@ pub struct ImageAsset {
   height : Int
   format : ImageFormat
   payload_base64 : String
-}
+} derive(@debug.Debug)
 pub impl Show for ImageAsset
 
 pub enum ImageFormat {
   Png
   Rgb
-}
-pub impl Eq for ImageFormat
+} derive(Eq, @debug.Debug)
 pub impl Show for ImageFormat
 
 pub struct ImageRect {
@@ -39,8 +42,7 @@ pub struct ImageRect {
   y : Int
   w : Int
   h : Int
-}
-pub impl Eq for ImageRect
+} derive(Eq, @debug.Debug)
 pub impl Show for ImageRect
 
 // Type aliases

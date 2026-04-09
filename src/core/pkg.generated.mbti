@@ -4,6 +4,7 @@ package "mizchi/tui/core"
 import {
   "mizchi/crater/layout/node",
   "mizchi/crater/types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -101,8 +102,7 @@ pub struct GridRect {
   y : Int
   width : Int
   height : Int
-}
-pub impl Eq for GridRect
+} derive(Eq, @debug.Debug)
 pub impl Show for GridRect
 
 pub(all) struct RenderStyle {
@@ -173,8 +173,7 @@ pub(all) enum Role {
   Alertdialog
   Dialog
   Custom(String)
-}
-pub impl Eq for Role
+} derive(Eq, @debug.Debug)
 pub impl Show for Role
 
 pub(all) struct RoleMap(Map[String, Role])

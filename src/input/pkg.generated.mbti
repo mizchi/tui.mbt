@@ -3,6 +3,7 @@ package "mizchi/tui/input"
 
 import {
   "mizchi/tui/events",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -19,7 +20,7 @@ pub(all) struct DisplayState {
   has_more_above : Bool
   has_more_below : Bool
   total_lines : Int
-}
+} derive(@debug.Debug)
 pub impl Show for DisplayState
 
 pub(all) enum EditAction {
@@ -41,15 +42,13 @@ pub(all) enum EditAction {
   ForceQuit
   NewLine
   None
-}
-pub impl Eq for EditAction
+} derive(Eq, @debug.Debug)
 pub impl Show for EditAction
 
 pub(all) struct LineInfo {
   start_idx : Int
   chars : Array[Char]
-}
-pub impl Eq for LineInfo
+} derive(Eq, @debug.Debug)
 pub impl Show for LineInfo
 
 pub(all) struct TextInputConfig {
@@ -58,7 +57,7 @@ pub(all) struct TextInputConfig {
   multiline : Bool
   confirm_on_shift_enter : Bool
   esc_cancels : Bool
-}
+} derive(@debug.Debug)
 pub fn TextInputConfig::new(Int, Int, multiline? : Bool, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Self
 pub impl Show for TextInputConfig
 
