@@ -4,7 +4,7 @@
   "deps": {
     "mizchi/layout": "0.1.2",
     "mizchi/signals": "0.6.3",
-    "moonbitlang/async": "0.16.6",
+    "moonbitlang/async": "0.17.1",
     "mizchi/syntree": "0.2.3",
     "moonbitlang/x": "0.4.40"
   },
