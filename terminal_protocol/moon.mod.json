@@ -1,0 +1,11 @@
+{
+  "name": "mizchi/tui-terminal-protocol",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/async": "0.17.1"
+  },
+  "repository": "https://github.com/mizchi/tui.mbt",
+  "license": "MIT",
+  "description": "Terminal graphics protocol encoders for tui.mbt",
+  "preferred-target": "js"
+}
