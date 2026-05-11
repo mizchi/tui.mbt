@@ -1,8 +1,20 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/tui-terminal-buffer/buffer"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn char_display_width(Char) -> Int
+
+pub fn clip_rect(Int, Int, Int, Int, Int, Int) -> Rect?
+
+pub fn plan_write_text(Int, Int, String, Int) -> TextWritePlan
+
+pub fn plan_write_text_pre(Int, Int, String, Int, Int) -> TextWritePlan
+
+pub fn plan_write_text_wrapped(Int, Int, String, Int, Int) -> TextWritePlan
 
 pub fn string_display_width(String) -> Int
 
@@ -54,6 +66,13 @@ pub fn Color::transparent() -> Self
 pub fn Color::white() -> Self
 pub impl Eq for Color
 
+pub(all) struct Rect {
+  x : Int
+  y : Int
+  w : Int
+  h : Int
+} derive(Eq, @debug.Debug)
+
 pub(all) struct TextStyle {
   fg : Color
   bg : Color
@@ -61,6 +80,18 @@ pub(all) struct TextStyle {
   underline : Bool
 }
 pub fn TextStyle::default() -> Self
+
+pub(all) struct TextWriteCell {
+  x : Int
+  y : Int
+  char : Char
+} derive(Eq, @debug.Debug)
+
+pub(all) struct TextWritePlan {
+  columns : Int
+  lines : Int
+  cells : Array[TextWriteCell]
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 
