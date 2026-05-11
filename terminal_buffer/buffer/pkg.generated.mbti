@@ -12,6 +12,10 @@ pub fn clip_rect(Int, Int, Int, Int, Int, Int) -> Rect?
 
 pub fn plan_box(Int, Int, Int, Int, BoxChars) -> Array[TextWriteCell]
 
+pub fn plan_buffer_cells(Int, Int, Int) -> Array[CellCoord]
+
+pub fn plan_dirty_cells(Int, Int, Array[Rect], Int) -> Array[CellCoord]
+
 pub fn plan_hline(Int, Int, Int, Char) -> Array[TextWriteCell]
 
 pub fn plan_scrollbar(Int, Int, Int, Int, Int, Int, Char, Char) -> Array[ScrollbarCell]
@@ -41,6 +45,11 @@ pub fn BoxChars::ascii() -> Self
 pub fn BoxChars::double() -> Self
 pub fn BoxChars::rounded() -> Self
 pub fn BoxChars::single() -> Self
+
+pub(all) struct CellCoord {
+  col : Int
+  row : Int
+} derive(Eq, @debug.Debug)
 
 pub struct CharBuffer {
   width : Int

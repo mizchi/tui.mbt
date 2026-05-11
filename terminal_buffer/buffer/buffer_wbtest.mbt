@@ -84,6 +84,41 @@ test "clip_rect clips negative origins and rejects empty intersections" {
 }
 
 ///|
+test "plan_buffer_cells scans a clipped buffer in row-major order" {
+  let cells = plan_buffer_cells(4, 2, 3)
+  inspect(cells.length(), content="6")
+  inspect(cells[0].col, content="0")
+  inspect(cells[0].row, content="0")
+  inspect(cells[2].col, content="2")
+  inspect(cells[2].row, content="0")
+  inspect(cells[3].col, content="0")
+  inspect(cells[3].row, content="1")
+  inspect(plan_buffer_cells(4, 2, 0).length(), content="8")
+  inspect(plan_buffer_cells(0, 2, 0).length(), content="0")
+}
+
+///|
+test "plan_dirty_cells clips and de-duplicates dirty rectangles" {
+  let rects = [
+    { x: -1, y: 1, w: 3, h: 2 },
+    { x: 1, y: 1, w: 3, h: 1 },
+    { x: 10, y: 10, w: 1, h: 1 },
+  ]
+  let cells = plan_dirty_cells(5, 4, rects, 4)
+  inspect(cells.length(), content="6")
+  inspect(cells[0].col, content="0")
+  inspect(cells[0].row, content="1")
+  inspect(cells[1].col, content="1")
+  inspect(cells[1].row, content="1")
+  inspect(cells[2].col, content="0")
+  inspect(cells[2].row, content="2")
+  inspect(cells[4].col, content="2")
+  inspect(cells[4].row, content="1")
+  inspect(cells[5].col, content="3")
+  inspect(cells[5].row, content="1")
+}
+
+///|
 test "plan_write_text returns cells and wide placeholders without colors" {
   let plan = plan_write_text(2, 1, "A中B", 8)
   inspect(plan.columns, content="4")

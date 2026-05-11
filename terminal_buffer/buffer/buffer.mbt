@@ -138,6 +138,73 @@ pub fn clip_rect(
 }
 
 ///|
+pub(all) struct CellCoord {
+  col : Int
+  row : Int
+} derive(Debug, Eq)
+
+///|
+fn scan_width(buffer_width : Int, max_cols : Int) -> Int {
+  if buffer_width <= 0 {
+    0
+  } else if max_cols > 0 && max_cols < buffer_width {
+    max_cols
+  } else {
+    buffer_width
+  }
+}
+
+///|
+pub fn plan_buffer_cells(
+  buffer_width : Int,
+  buffer_height : Int,
+  max_cols : Int,
+) -> Array[CellCoord] {
+  let cells : Array[CellCoord] = []
+  let cols = scan_width(buffer_width, max_cols)
+  if cols <= 0 || buffer_height <= 0 {
+    return cells
+  }
+  for row = 0; row < buffer_height; row = row + 1 {
+    for col = 0; col < cols; col = col + 1 {
+      cells.push({ col, row })
+    }
+  }
+  cells
+}
+
+///|
+pub fn plan_dirty_cells(
+  buffer_width : Int,
+  buffer_height : Int,
+  rects : Array[Rect],
+  max_cols : Int,
+) -> Array[CellCoord] {
+  let cells : Array[CellCoord] = []
+  let cols = scan_width(buffer_width, max_cols)
+  if cols <= 0 || buffer_height <= 0 {
+    return cells
+  }
+  let visited : Array[Bool] = Array::make(buffer_width * buffer_height, false)
+  for rect in rects {
+    match clip_rect(cols, buffer_height, rect.x, rect.y, rect.w, rect.h) {
+      Some(clipped) =>
+        for row = clipped.y; row < clipped.y + clipped.h; row = row + 1 {
+          for col = clipped.x; col < clipped.x + clipped.w; col = col + 1 {
+            let idx = row * buffer_width + col
+            if !visited[idx] {
+              visited[idx] = true
+              cells.push({ col, row })
+            }
+          }
+        }
+      None => ()
+    }
+  }
+  cells
+}
+
+///|
 pub(all) struct TextWriteCell {
   x : Int
   y : Int
