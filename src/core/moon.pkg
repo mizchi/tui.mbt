@@ -2,4 +2,5 @@ import {
   "mizchi/layout/node",
   "mizchi/layout/style",
   "mizchi/layout/engine_types" @types,
+  "mizchi/tui-terminal-buffer/buffer" @terminal_buffer,
 }

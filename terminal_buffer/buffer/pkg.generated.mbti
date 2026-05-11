@@ -1,0 +1,68 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mizchi/tui-terminal-buffer/buffer"
+
+// Values
+pub fn char_display_width(Char) -> Int
+
+pub fn string_display_width(String) -> Int
+
+// Errors
+
+// Types and methods
+pub struct CharBuffer {
+  width : Int
+  height : Int
+  cells : Array[CharCell]
+}
+pub fn CharBuffer::clear(Self) -> Unit
+pub fn CharBuffer::clone(Self) -> Self
+pub fn CharBuffer::fill_bg_cover(Self, Int, Int, Int, Int, Color) -> Unit
+pub fn CharBuffer::fill_bg_preserve(Self, Int, Int, Int, Int, Color) -> Unit
+pub fn CharBuffer::fill_rect(Self, Int, Int, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::get_cell(Self, Int, Int) -> CharCell
+pub fn CharBuffer::get_row_text(Self, Int) -> String
+pub fn CharBuffer::new(Int, Int) -> Self
+pub fn CharBuffer::set_cell(Self, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::write_text(Self, Int, Int, String, TextStyle, Int) -> Int
+pub fn CharBuffer::write_text_pre(Self, Int, Int, String, TextStyle, Int, Int) -> Int
+pub fn CharBuffer::write_text_wrapped(Self, Int, Int, String, TextStyle, Int, Int) -> Int
+
+pub(all) struct CharCell {
+  char : Char
+  fg : Color
+  bg : Color
+  bold : Bool
+  underline : Bool
+  reverse : Bool
+}
+pub fn CharCell::default() -> Self
+pub fn CharCell::from_char(Char) -> Self
+pub fn CharCell::styled(Char, Color, Color) -> Self
+pub impl Eq for CharCell
+
+pub(all) struct Color {
+  r : Int
+  g : Int
+  b : Int
+  a : Double
+}
+pub fn Color::black() -> Self
+pub fn Color::is_transparent(Self) -> Bool
+pub fn Color::rgb(Int, Int, Int) -> Self
+pub fn Color::rgba(Int, Int, Int, Double) -> Self
+pub fn Color::transparent() -> Self
+pub fn Color::white() -> Self
+pub impl Eq for Color
+
+pub(all) struct TextStyle {
+  fg : Color
+  bg : Color
+  bold : Bool
+  underline : Bool
+}
+pub fn TextStyle::default() -> Self
+
+// Type aliases
+
+// Traits
+
