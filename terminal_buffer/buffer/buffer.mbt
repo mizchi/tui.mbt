@@ -152,6 +152,167 @@ pub(all) struct TextWritePlan {
 } derive(Debug, Eq)
 
 ///|
+pub(all) struct BoxChars {
+  top_left : Char
+  top_right : Char
+  bottom_left : Char
+  bottom_right : Char
+  horizontal : Char
+  vertical : Char
+} derive(Debug, Eq)
+
+///|
+pub fn BoxChars::single() -> BoxChars {
+  {
+    top_left: '┌',
+    top_right: '┐',
+    bottom_left: '└',
+    bottom_right: '┘',
+    horizontal: '─',
+    vertical: '│',
+  }
+}
+
+///|
+pub fn BoxChars::double() -> BoxChars {
+  {
+    top_left: '╔',
+    top_right: '╗',
+    bottom_left: '╚',
+    bottom_right: '╝',
+    horizontal: '═',
+    vertical: '║',
+  }
+}
+
+///|
+pub fn BoxChars::rounded() -> BoxChars {
+  {
+    top_left: '╭',
+    top_right: '╮',
+    bottom_left: '╰',
+    bottom_right: '╯',
+    horizontal: '─',
+    vertical: '│',
+  }
+}
+
+///|
+pub fn BoxChars::ascii() -> BoxChars {
+  {
+    top_left: '+',
+    top_right: '+',
+    bottom_left: '+',
+    bottom_right: '+',
+    horizontal: '-',
+    vertical: '|',
+  }
+}
+
+///|
+pub fn plan_hline(
+  x : Int,
+  y : Int,
+  w : Int,
+  line_char : Char,
+) -> Array[TextWriteCell] {
+  let cells : Array[TextWriteCell] = []
+  if w <= 0 {
+    return cells
+  }
+  for col = x; col < x + w; col = col + 1 {
+    cells.push({ x: col, y, char: line_char })
+  }
+  cells
+}
+
+///|
+pub fn plan_vline(
+  x : Int,
+  y : Int,
+  h : Int,
+  line_char : Char,
+) -> Array[TextWriteCell] {
+  let cells : Array[TextWriteCell] = []
+  if h <= 0 {
+    return cells
+  }
+  for row = y; row < y + h; row = row + 1 {
+    cells.push({ x, y: row, char: line_char })
+  }
+  cells
+}
+
+///|
+pub fn plan_box(
+  x : Int,
+  y : Int,
+  w : Int,
+  h : Int,
+  chars : BoxChars,
+) -> Array[TextWriteCell] {
+  let cells : Array[TextWriteCell] = []
+  if w < 2 || h < 2 {
+    return cells
+  }
+  cells.push({ x, y, char: chars.top_left })
+  cells.push({ x: x + w - 1, y, char: chars.top_right })
+  cells.push({ x, y: y + h - 1, char: chars.bottom_left })
+  cells.push({ x: x + w - 1, y: y + h - 1, char: chars.bottom_right })
+  for col = x + 1; col < x + w - 1; col = col + 1 {
+    cells.push({ x: col, y, char: chars.horizontal })
+  }
+  for col = x + 1; col < x + w - 1; col = col + 1 {
+    cells.push({ x: col, y: y + h - 1, char: chars.horizontal })
+  }
+  for row = y + 1; row < y + h - 1; row = row + 1 {
+    cells.push({ x, y: row, char: chars.vertical })
+  }
+  for row = y + 1; row < y + h - 1; row = row + 1 {
+    cells.push({ x: x + w - 1, y: row, char: chars.vertical })
+  }
+  cells
+}
+
+///|
+pub(all) struct ScrollbarCell {
+  x : Int
+  y : Int
+  char : Char
+  thumb : Bool
+} derive(Debug, Eq)
+
+///|
+pub fn plan_scrollbar(
+  x : Int,
+  y : Int,
+  height : Int,
+  scroll_pos : Int,
+  content_height : Int,
+  visible_height : Int,
+  track_char : Char,
+  thumb_char : Char,
+) -> Array[ScrollbarCell] {
+  let cells : Array[ScrollbarCell] = []
+  if content_height <= visible_height || height < 3 {
+    return cells
+  }
+  for row = y; row < y + height; row = row + 1 {
+    cells.push({ x, y: row, char: track_char, thumb: false })
+  }
+  let thumb_height = (visible_height * height / content_height).max(1)
+  let thumb_pos = scroll_pos *
+    (height - thumb_height) /
+    (content_height - visible_height)
+  for row = y + thumb_pos; row < y + thumb_pos + thumb_height; row = row + 1 {
+    if row < y + height {
+      cells.push({ x, y: row, char: thumb_char, thumb: true })
+    }
+  }
+  cells
+}
+
+///|
 fn push_planned_char(
   cells : Array[TextWriteCell],
   x : Int,

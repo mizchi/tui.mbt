@@ -135,3 +135,73 @@ test "plan_write_text_wrapped wraps by display width" {
   inspect(plan.cells[4].y, content="1")
   inspect(plan.cells[4].char, content="C")
 }
+
+///|
+test "BoxChars constructors provide reusable border sets" {
+  let single = BoxChars::single()
+  inspect(single.top_left, content="┌")
+  inspect(single.horizontal, content="─")
+  inspect(single.vertical, content="│")
+  let ascii = BoxChars::ascii()
+  inspect(ascii.top_left, content="+")
+  inspect(ascii.horizontal, content="-")
+  inspect(ascii.vertical, content="|")
+}
+
+///|
+test "plan_box returns corners and edges" {
+  let cells = plan_box(1, 2, 4, 3, BoxChars::single())
+  inspect(cells.length(), content="10")
+  inspect(cells[0].x, content="1")
+  inspect(cells[0].y, content="2")
+  inspect(cells[0].char, content="┌")
+  inspect(cells[1].x, content="4")
+  inspect(cells[1].y, content="2")
+  inspect(cells[1].char, content="┐")
+  inspect(cells[4].x, content="2")
+  inspect(cells[4].y, content="2")
+  inspect(cells[4].char, content="─")
+  inspect(cells[8].x, content="1")
+  inspect(cells[8].y, content="3")
+  inspect(cells[8].char, content="│")
+}
+
+///|
+test "plan_box rejects boxes too small for an outline" {
+  inspect(plan_box(0, 0, 1, 3, BoxChars::single()).length(), content="0")
+  inspect(plan_box(0, 0, 3, 1, BoxChars::single()).length(), content="0")
+}
+
+///|
+test "plan_hline and plan_vline return simple cell plans" {
+  let h = plan_hline(2, 3, 3, '-')
+  inspect(h.length(), content="3")
+  inspect(h[0].x, content="2")
+  inspect(h[2].x, content="4")
+  inspect(h[1].char, content="-")
+  let v = plan_vline(4, 1, 3, '|')
+  inspect(v.length(), content="3")
+  inspect(v[0].y, content="1")
+  inspect(v[2].y, content="3")
+  inspect(v[1].char, content="|")
+}
+
+///|
+test "plan_scrollbar emits track cells followed by thumb cells" {
+  let cells = plan_scrollbar(9, 1, 6, 4, 20, 6, '│', '█')
+  inspect(cells.length(), content="7")
+  inspect(cells[0].x, content="9")
+  inspect(cells[0].y, content="1")
+  inspect(cells[0].char, content="│")
+  inspect(cells[0].thumb, content="false")
+  inspect(cells[6].x, content="9")
+  inspect(cells[6].y, content="2")
+  inspect(cells[6].char, content="█")
+  inspect(cells[6].thumb, content="true")
+}
+
+///|
+test "plan_scrollbar skips non-scrollable content" {
+  inspect(plan_scrollbar(0, 0, 6, 0, 6, 6, '│', '█').length(), content="0")
+  inspect(plan_scrollbar(0, 0, 2, 0, 20, 6, '│', '█').length(), content="0")
+}

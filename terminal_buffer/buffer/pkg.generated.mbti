@@ -10,6 +10,14 @@ pub fn char_display_width(Char) -> Int
 
 pub fn clip_rect(Int, Int, Int, Int, Int, Int) -> Rect?
 
+pub fn plan_box(Int, Int, Int, Int, BoxChars) -> Array[TextWriteCell]
+
+pub fn plan_hline(Int, Int, Int, Char) -> Array[TextWriteCell]
+
+pub fn plan_scrollbar(Int, Int, Int, Int, Int, Int, Char, Char) -> Array[ScrollbarCell]
+
+pub fn plan_vline(Int, Int, Int, Char) -> Array[TextWriteCell]
+
 pub fn plan_write_text(Int, Int, String, Int) -> TextWritePlan
 
 pub fn plan_write_text_pre(Int, Int, String, Int, Int) -> TextWritePlan
@@ -21,6 +29,19 @@ pub fn string_display_width(String) -> Int
 // Errors
 
 // Types and methods
+pub(all) struct BoxChars {
+  top_left : Char
+  top_right : Char
+  bottom_left : Char
+  bottom_right : Char
+  horizontal : Char
+  vertical : Char
+} derive(Eq, @debug.Debug)
+pub fn BoxChars::ascii() -> Self
+pub fn BoxChars::double() -> Self
+pub fn BoxChars::rounded() -> Self
+pub fn BoxChars::single() -> Self
+
 pub struct CharBuffer {
   width : Int
   height : Int
@@ -71,6 +92,13 @@ pub(all) struct Rect {
   y : Int
   w : Int
   h : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ScrollbarCell {
+  x : Int
+  y : Int
+  char : Char
+  thumb : Bool
 } derive(Eq, @debug.Debug)
 
 pub(all) struct TextStyle {
