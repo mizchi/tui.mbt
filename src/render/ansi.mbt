@@ -3,186 +3,168 @@
 
 ///|
 pub fn ansi_reset() -> String {
-  "\u001b[0m"
+  @ansi.ansi_reset()
 }
 
 ///|
 pub fn ansi_bold() -> String {
-  "\u001b[1m"
+  @ansi.ansi_bold()
 }
 
 ///|
 pub fn ansi_dim() -> String {
-  "\u001b[2m"
+  @ansi.ansi_dim()
 }
 
 ///|
 pub fn ansi_underline() -> String {
-  "\u001b[4m"
+  @ansi.ansi_underline()
 }
 
 ///|
 pub fn ansi_reverse() -> String {
-  "\u001b[7m"
+  @ansi.ansi_reverse()
 }
 
 // --- Basic foreground colors ---
 
 ///|
 pub fn ansi_fg_black() -> String {
-  "\u001b[30m"
+  @ansi.ansi_fg_black()
 }
 
 ///|
 pub fn ansi_fg_red() -> String {
-  "\u001b[31m"
+  @ansi.ansi_fg_red()
 }
 
 ///|
 pub fn ansi_fg_green() -> String {
-  "\u001b[32m"
+  @ansi.ansi_fg_green()
 }
 
 ///|
 pub fn ansi_fg_yellow() -> String {
-  "\u001b[33m"
+  @ansi.ansi_fg_yellow()
 }
 
 ///|
 pub fn ansi_fg_blue() -> String {
-  "\u001b[34m"
+  @ansi.ansi_fg_blue()
 }
 
 ///|
 pub fn ansi_fg_magenta() -> String {
-  "\u001b[35m"
+  @ansi.ansi_fg_magenta()
 }
 
 ///|
 pub fn ansi_fg_cyan() -> String {
-  "\u001b[36m"
+  @ansi.ansi_fg_cyan()
 }
 
 ///|
 pub fn ansi_fg_white() -> String {
-  "\u001b[37m"
+  @ansi.ansi_fg_white()
 }
 
 ///|
 /// Dim gray (bright black)
 pub fn ansi_fg_gray() -> String {
-  "\u001b[90m"
+  @ansi.ansi_fg_gray()
 }
 
 ///|
 pub fn ansi_fg_256(color_idx : Int) -> String {
-  "\u001b[38;5;" + color_idx.to_string() + "m"
+  @ansi.ansi_fg_256(color_idx)
 }
 
 ///|
 pub fn ansi_bg_256(color_idx : Int) -> String {
-  "\u001b[48;5;" + color_idx.to_string() + "m"
+  @ansi.ansi_bg_256(color_idx)
 }
 
 ///|
 /// Reset background color to default
 pub fn ansi_bg_reset() -> String {
-  "\u001b[49m"
+  @ansi.ansi_bg_reset()
 }
 
 ///|
 /// Move cursor up by n lines
 pub fn ansi_move_up(n? : Int = 1) -> String {
-  "\u001b[" + n.to_string() + "A"
+  @ansi.ansi_move_up(n~)
 }
 
 ///|
 /// Move cursor down by n lines
 pub fn ansi_move_down(n? : Int = 1) -> String {
-  "\u001b[" + n.to_string() + "B"
+  @ansi.ansi_move_down(n~)
 }
 
 ///|
 /// Move cursor right by n columns
 pub fn ansi_move_right(n? : Int = 1) -> String {
-  "\u001b[" + n.to_string() + "C"
+  @ansi.ansi_move_right(n~)
 }
 
 ///|
 /// Move cursor left by n columns
 pub fn ansi_move_left(n? : Int = 1) -> String {
-  "\u001b[" + n.to_string() + "D"
+  @ansi.ansi_move_left(n~)
 }
 
 ///|
 pub fn ansi_move_to(row : Int, col : Int) -> String {
-  // ANSI escape sequences use 1-indexed coordinates
-  // We convert from 0-indexed to 1-indexed internally
-  let ansi_row = row + 1
-  let ansi_col = col + 1
-  "\u001b[" + ansi_row.to_string() + ";" + ansi_col.to_string() + "H"
+  @ansi.ansi_move_to(row, col)
 }
 
 ///|
 pub fn ansi_clear_screen() -> String {
-  "\u001b[2J"
+  @ansi.ansi_clear_screen()
 }
 
 ///|
 pub fn ansi_clear_line() -> String {
-  "\u001b[2K"
+  @ansi.ansi_clear_line()
 }
 
 ///|
 pub fn ansi_hide_cursor() -> String {
-  "\u001b[?25l"
+  @ansi.ansi_hide_cursor()
 }
 
 ///|
 pub fn ansi_show_cursor() -> String {
-  "\u001b[?25h"
+  @ansi.ansi_show_cursor()
 }
 
 ///|
 pub fn ansi_enter_alt_screen() -> String {
-  "\u001b[?1049h"
+  @ansi.ansi_enter_alt_screen()
 }
 
 ///|
 pub fn ansi_leave_alt_screen() -> String {
-  "\u001b[?1049l"
+  @ansi.ansi_leave_alt_screen()
 }
 
 ///|
 /// Reset all terminal attributes (colors, styles)
 pub fn ansi_reset_attrs() -> String {
-  "\u001b[0m"
+  @ansi.ansi_reset_attrs()
 }
 
 ///|
 /// Full terminal reset sequence for recovering from corrupted state
 pub fn ansi_full_reset() -> String {
-  // Reset attributes + enter alt screen + hide cursor + clear + move to origin
-  "\u001b[0m\u001b[?1049h\u001b[?25l\u001b[2J\u001b[H"
+  @ansi.ansi_full_reset()
 }
 
 ///|
 /// Convert RGB color to 256-color palette index
 pub fn rgb_to_256(r : Int, g : Int, b : Int) -> Int {
-  if r == g && g == b {
-    if r < 8 {
-      16
-    } else if r > 248 {
-      231
-    } else {
-      232 + (r - 8) * 24 / 240
-    }
-  } else {
-    let r6 = r * 6 / 256
-    let g6 = g * 6 / 256
-    let b6 = b * 6 / 256
-    16 + r6 * 36 + g6 * 6 + b6
-  }
+  @ansi.rgb_to_256(r, g, b)
 }
 
 ///|
@@ -496,22 +478,22 @@ pub fn CharBuffer::diff_to_ansi_offset(
 
 ///|
 pub fn enable_mouse() -> String {
-  "\u001b[?1000h\u001b[?1006h"
+  @ansi.enable_mouse()
 }
 
 ///|
 pub fn disable_mouse() -> String {
-  "\u001b[?1006l\u001b[?1000l"
+  @ansi.disable_mouse()
 }
 
 ///|
 /// Enable mouse with motion tracking (reports move events even without button press)
 pub fn enable_mouse_all() -> String {
-  "\u001b[?1003h\u001b[?1006h"
+  @ansi.enable_mouse_all()
 }
 
 ///|
 /// Disable mouse motion tracking
 pub fn disable_mouse_all() -> String {
-  "\u001b[?1006l\u001b[?1003l"
+  @ansi.disable_mouse_all()
 }

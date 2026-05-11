@@ -1,4 +1,5 @@
 import {
+  "mizchi/tui/ansi" @ansi,
   "mizchi/layout/engine_types" @types,
   "mizchi/layout/node" @node,
   "mizchi/layout/engine" @lengine,
@@ -8,3 +9,5 @@ import {
   "mizchi/tui/events",
   "moonbitlang/core/bench",
 }
+
+supported_targets = "js+native"
