@@ -4,11 +4,11 @@ version = "0.9.4"
 
 import {
   "mizchi/layout@0.1.2",
-  "mizchi/signals@0.6.3",
-  "mizchi/tui-terminal-buffer@0.1.0",
-  "moonbitlang/async@0.17.1",
+  "mizchi/signals@0.6.4",
+  "mizchi/tui-terminal-buffer@0.1.3",
+  "moonbitlang/async@0.19.2",
   "mizchi/syntree@0.2.3",
-  "moonbitlang/x@0.4.40",
+  "moonbitlang/x@0.4.45",
 }
 
 readme = "README.md"
