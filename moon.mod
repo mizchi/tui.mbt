@@ -1,6 +1,6 @@
 name = "mizchi/tui"
 
-version = "0.9.4"
+version = "0.10.0"
 
 import {
   "mizchi/layout@0.2.0",
