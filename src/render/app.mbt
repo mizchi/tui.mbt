@@ -8,7 +8,7 @@ pub struct App {
   width : Int
   height : Int
   mut prev_buffer : CharBuffer?
-  mut last_layout : @types.Layout?
+  mut last_layout : @ccore.Layout?
   handlers : @events.EventHandlers
 }
 

@@ -2,13 +2,14 @@
 package "mizchi/tui/core"
 
 import {
-  "mizchi/crater/layout/node",
-  "mizchi/crater/types",
+  "mizchi/crater-core",
+  "mizchi/crater-core/node",
+  "mizchi/css/values",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn box(Array[Component], id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, flex_direction? : @types.FlexDirection, flex_wrap? : @types.FlexWrap, justify_content? : @types.Alignment, align_items? : @types.Alignment, align_content? : @types.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @types.Position, inset_top? : @types.Dimension, inset_right? : @types.Dimension, inset_bottom? : @types.Dimension, inset_left? : @types.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?, role? : Role?) -> Component
+pub fn box(Array[Component], id? : String, width? : @values.Dimension, height? : @values.Dimension, min_width? : @values.Dimension, min_height? : @values.Dimension, max_width? : @values.Dimension, max_height? : @values.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @values.Dimension, flex_direction? : @values.FlexDirection, flex_wrap? : @values.FlexWrap, justify_content? : @values.Alignment, align_items? : @values.Alignment, align_content? : @values.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @values.Position, inset_top? : @values.Dimension, inset_right? : @values.Dimension, inset_bottom? : @values.Dimension, inset_left? : @values.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?, role? : Role?) -> Component
 
 pub fn char_display_width(Char) -> Int
 
@@ -26,9 +27,9 @@ pub fn styled_text(String, fg? : Color, bg? : Color, bold? : Bool, underline? : 
 
 pub fn text(String, fg? : Color, bg? : Color, bold? : Bool, underline? : Bool) -> Component
 
-pub fn text_box(String, id? : String, width? : @types.Dimension, height? : @types.Dimension, min_width? : @types.Dimension, min_height? : @types.Dimension, max_width? : @types.Dimension, max_height? : @types.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @types.Dimension, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, bold? : Bool, underline? : Bool) -> Component
+pub fn text_box(String, id? : String, width? : @values.Dimension, height? : @values.Dimension, min_width? : @values.Dimension, min_height? : @values.Dimension, max_width? : @values.Dimension, max_height? : @values.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @values.Dimension, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, bold? : Bool, underline? : Bool) -> Component
 
-pub fn text_measure_func(String) -> @types.MeasureFunc
+pub fn text_measure_func(String) -> @crater-core.MeasureFunc
 
 // Errors
 
@@ -65,7 +66,7 @@ pub(all) struct Color {
 pub fn Color::black() -> Self
 pub fn Color::blue() -> Self
 pub fn Color::cyan() -> Self
-pub fn Color::from_crater(@types.Color) -> Self
+pub fn Color::from_crater(@values.Color) -> Self
 pub fn Color::green() -> Self
 pub fn Color::is_transparent(Self) -> Bool
 pub fn Color::magenta() -> Self

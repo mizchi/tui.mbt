@@ -69,7 +69,7 @@ fn infer_role(ctx : RenderContext, id : String) -> @core.Role? {
 
 ///|
 fn build_a11y(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   ctx : RenderContext,
   offset_x : Double,
   offset_y : Double,
@@ -118,7 +118,7 @@ fn build_a11y(
 
 ///|
 pub fn build_a11y_tree(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   ctx : RenderContext,
 ) -> Array[A11yNode] {
   let result = build_a11y(layout, ctx, 0.0, 0.0)

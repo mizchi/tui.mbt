@@ -77,6 +77,6 @@ pub impl Eq for Color with fn equal(self, other) {
 
 ///|
 /// Convert from crater Color
-pub fn Color::from_crater(c : @types.Color) -> Color {
+pub fn Color::from_crater(c : @values.Color) -> Color {
   { r: c.r, g: c.g, b: c.b, a: c.a }
 }

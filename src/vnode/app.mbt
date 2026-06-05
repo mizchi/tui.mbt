@@ -8,8 +8,8 @@ pub struct VNodeApp {
   mut width : Int
   mut height : Int
   mut prev_buffer : @render.CharBuffer?
-  mut last_layout : @types.Layout?
-  mut overlay_layouts : Array[@types.Layout]
+  mut last_layout : @ccore.Layout?
+  mut overlay_layouts : Array[@ccore.Layout]
   mut render_ctx : RenderContext
 }
 

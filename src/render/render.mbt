@@ -5,7 +5,7 @@
 /// Render Layout to CharBuffer
 pub fn render_layout(
   buf : CharBuffer,
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   styles : @core.RenderStyleMap,
   texts : @core.TextContentMap,
   offset_x : Int,
@@ -24,7 +24,7 @@ pub fn render_layout(
 ///|
 fn render_layout_f(
   buf : CharBuffer,
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   styles : @core.RenderStyleMap,
   texts : @core.TextContentMap,
   offset_x : Double,
@@ -147,7 +147,7 @@ fn draw_border(
 ///|
 /// Quick render function: Layout -> ANSI string
 pub fn render_to_ansi(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   styles : @core.RenderStyleMap,
   texts : @core.TextContentMap,
   width : Int,

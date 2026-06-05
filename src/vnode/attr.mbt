@@ -11,42 +11,42 @@ pub(all) enum DimensionValue {
 }
 
 ///|
-fn layout_dimension_to_crater(d : @ltypes.Dimension) -> @types.Dimension {
+fn layout_dimension_to_crater(d : @ltypes.Dimension) -> @values.Dimension {
   match d {
-    @ltypes.Dimension::Auto => @types.Dimension::Auto
-    @ltypes.Dimension::Length(v) => @types.Dimension::Length(v)
-    @ltypes.Dimension::Percent(v) => @types.Dimension::Percent(v)
-    @ltypes.Dimension::MinContent => @types.Dimension::MinContent
-    @ltypes.Dimension::MaxContent => @types.Dimension::MaxContent
-    @ltypes.Dimension::FitContent(v) => @types.Dimension::FitContent(v)
+    @ltypes.Dimension::Auto => @values.Dimension::Auto
+    @ltypes.Dimension::Length(v) => @values.Dimension::Length(v)
+    @ltypes.Dimension::Percent(v) => @values.Dimension::Percent(v)
+    @ltypes.Dimension::MinContent => @values.Dimension::MinContent
+    @ltypes.Dimension::MaxContent => @values.Dimension::MaxContent
+    @ltypes.Dimension::FitContent(v) => @values.Dimension::FitContent(v)
   }
 }
 
 ///|
-fn layout_alignment_to_crater(a : @ltypes.Alignment) -> @types.Alignment {
+fn layout_alignment_to_crater(a : @ltypes.Alignment) -> @values.Alignment {
   match a {
-    @ltypes.Alignment::Start => @types.Alignment::Start
-    @ltypes.Alignment::Center => @types.Alignment::Center
-    @ltypes.Alignment::End => @types.Alignment::End
-    @ltypes.Alignment::Stretch => @types.Alignment::Stretch
-    @ltypes.Alignment::SpaceBetween => @types.Alignment::SpaceBetween
-    @ltypes.Alignment::SpaceAround => @types.Alignment::SpaceAround
-    @ltypes.Alignment::SpaceEvenly => @types.Alignment::SpaceEvenly
-    @ltypes.Alignment::FlexStart => @types.Alignment::FlexStart
-    @ltypes.Alignment::FlexEnd => @types.Alignment::FlexEnd
-    @ltypes.Alignment::Baseline => @types.Alignment::Baseline
+    @ltypes.Alignment::Start => @values.Alignment::Start
+    @ltypes.Alignment::Center => @values.Alignment::Center
+    @ltypes.Alignment::End => @values.Alignment::End
+    @ltypes.Alignment::Stretch => @values.Alignment::Stretch
+    @ltypes.Alignment::SpaceBetween => @values.Alignment::SpaceBetween
+    @ltypes.Alignment::SpaceAround => @values.Alignment::SpaceAround
+    @ltypes.Alignment::SpaceEvenly => @values.Alignment::SpaceEvenly
+    @ltypes.Alignment::FlexStart => @values.Alignment::FlexStart
+    @ltypes.Alignment::FlexEnd => @values.Alignment::FlexEnd
+    @ltypes.Alignment::Baseline => @values.Alignment::Baseline
   }
 }
 
 ///|
 fn layout_flex_direction_to_crater(
   d : @ltypes.FlexDirection,
-) -> @types.FlexDirection {
+) -> @values.FlexDirection {
   match d {
-    @ltypes.FlexDirection::Row => @types.FlexDirection::Row
-    @ltypes.FlexDirection::Column => @types.FlexDirection::Column
-    @ltypes.FlexDirection::RowReverse => @types.FlexDirection::RowReverse
-    @ltypes.FlexDirection::ColumnReverse => @types.FlexDirection::ColumnReverse
+    @ltypes.FlexDirection::Row => @values.FlexDirection::Row
+    @ltypes.FlexDirection::Column => @values.FlexDirection::Column
+    @ltypes.FlexDirection::RowReverse => @values.FlexDirection::RowReverse
+    @ltypes.FlexDirection::ColumnReverse => @values.FlexDirection::ColumnReverse
   }
 }
 
@@ -64,7 +64,7 @@ pub fn DimensionValue::to_layout_dimension(
 
 ///|
 /// Convert to crater Dimension
-pub fn DimensionValue::to_dimension(self : DimensionValue) -> @types.Dimension {
+pub fn DimensionValue::to_dimension(self : DimensionValue) -> @values.Dimension {
   layout_dimension_to_crater(self.to_layout_dimension())
 }
 
@@ -102,7 +102,7 @@ pub fn AlignmentValue::to_layout_alignment(
 
 ///|
 /// Convert to crater Alignment
-pub fn AlignmentValue::to_alignment(self : AlignmentValue) -> @types.Alignment {
+pub fn AlignmentValue::to_alignment(self : AlignmentValue) -> @values.Alignment {
   layout_alignment_to_crater(self.to_layout_alignment())
 }
 
@@ -128,7 +128,7 @@ pub fn DirectionValue::to_layout_flex_direction(
 /// Convert to crater FlexDirection
 pub fn DirectionValue::to_flex_direction(
   self : DirectionValue,
-) -> @types.FlexDirection {
+) -> @values.FlexDirection {
   layout_flex_direction_to_crater(self.to_layout_flex_direction())
 }
 
@@ -141,10 +141,10 @@ pub(all) enum DisplayValue {
 
 ///|
 /// Convert to crater Display
-pub fn DisplayValue::to_display(self : DisplayValue) -> @types.Display {
+pub fn DisplayValue::to_display(self : DisplayValue) -> @values.Display {
   match self {
-    Flex => @types.Display::Flex
-    Grid => @types.Display::Grid
+    Flex => @values.Display::Flex
+    Grid => @values.Display::Grid
   }
 }
 
@@ -161,12 +161,12 @@ pub(all) enum GridAutoFlowValue {
 /// Convert to crater GridAutoFlow
 pub fn GridAutoFlowValue::to_grid_auto_flow(
   self : GridAutoFlowValue,
-) -> @types.GridAutoFlow {
+) -> @values.GridAutoFlow {
   match self {
-    Row => @types.GridAutoFlow::Row
-    Column => @types.GridAutoFlow::Column
-    RowDense => @types.GridAutoFlow::RowDense
-    ColumnDense => @types.GridAutoFlow::ColumnDense
+    Row => @values.GridAutoFlow::Row
+    Column => @values.GridAutoFlow::Column
+    RowDense => @values.GridAutoFlow::RowDense
+    ColumnDense => @values.GridAutoFlow::ColumnDense
   }
 }
 
@@ -237,8 +237,8 @@ pub(all) enum TuiAttrValue {
   // Display
   Display(DisplayValue)
   // Grid container
-  GridTemplateColumns(Array[@types.TrackSizingFunction])
-  GridTemplateRows(Array[@types.TrackSizingFunction])
+  GridTemplateColumns(Array[@values.TrackSizingFunction])
+  GridTemplateRows(Array[@values.TrackSizingFunction])
   GridAutoFlow(GridAutoFlowValue)
   // Grid item
   GridColumn(Int) // Column position (1-indexed)

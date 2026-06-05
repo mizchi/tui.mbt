@@ -2,8 +2,8 @@
 package "mizchi/tui/render"
 
 import {
-  "mizchi/crater/layout/node",
-  "mizchi/crater/types",
+  "mizchi/crater-core",
+  "mizchi/crater-core/node",
   "mizchi/tui/core",
   "mizchi/tui/events",
 }
@@ -75,9 +75,9 @@ pub fn ansi_underline() -> String
 
 pub fn color_to_256(@core.Color) -> Int
 
-pub fn compute_layout(@node.Node, Int, Int) -> @types.Layout
+pub fn compute_layout(@node.Node, Int, Int) -> @crater-core.Layout
 
-pub fn compute_layout_max_content(@node.Node, Int, Int) -> @types.Layout
+pub fn compute_layout_max_content(@node.Node, Int, Int) -> @crater-core.Layout
 
 pub fn disable_mouse() -> String
 
@@ -87,11 +87,11 @@ pub fn enable_mouse() -> String
 
 pub fn enable_mouse_all() -> String
 
-pub fn render_layout(CharBuffer, @types.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> Unit
+pub fn render_layout(CharBuffer, @crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> Unit
 
 pub fn render_once(Int, Int, @core.Component) -> String
 
-pub fn render_to_ansi(@types.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> String
+pub fn render_to_ansi(@crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> String
 
 pub fn rgb_to_256(Int, Int, Int) -> Int
 
@@ -104,7 +104,7 @@ pub struct App {
   width : Int
   height : Int
   mut prev_buffer : CharBuffer?
-  mut last_layout : @types.Layout?
+  mut last_layout : @crater-core.Layout?
   handlers : @events.EventHandlers
 }
 pub fn App::clear_prev_buffer(Self) -> Unit

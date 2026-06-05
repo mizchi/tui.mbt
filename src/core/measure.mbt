@@ -3,12 +3,12 @@
 
 ///|
 /// Create a MeasureFunc for text that uses character width
-pub fn text_measure_func(text : String) -> @types.MeasureFunc {
+pub fn text_measure_func(text : String) -> @ccore.MeasureFunc {
   {
     func: fn(
       available_width : Double,
       _available_height : Double,
-    ) -> @types.IntrinsicSize {
+    ) -> @ccore.IntrinsicSize {
       let max_width = available_width.to_int()
       // Calculate min-content (longest word)
       let mut min_width = 0
@@ -28,25 +28,19 @@ pub fn text_measure_func(text : String) -> @types.MeasureFunc {
       }
       // Calculate max-content (total width without wrapping)
       let max_content = string_display_width(text)
-      // Calculate actual width and height based on wrapping
-      let actual_width = if max_width > 0 && max_content > max_width {
-        max_width
-      } else if max_content > 0 {
-        max_content
-      } else {
-        min_width
-      }
-      // Calculate height with wrapping
-      let height = if actual_width > 0 {
-        calculate_wrapped_height(text, actual_width)
-      } else {
-        1
-      }
+      // Report the natural height (only explicit newlines force extra lines).
+      // crater-layout's intrinsic sizing queries this measure at the
+      // min-content width; deriving height from that narrow width would wrap
+      // text that actually has room, so the reported height must reflect the
+      // text laid out at its max-content width. Width-constrained wrapping is
+      // handled by the renderer against the resolved box width.
+      let _ = max_width
+      let natural_height = calculate_wrapped_height(text, max_content)
       {
         min_width: min_width.to_double(),
         max_width: max_content.to_double(),
-        min_height: 1.0,
-        max_height: height.to_double(),
+        min_height: natural_height.to_double(),
+        max_height: natural_height.to_double(),
       }
     },
   }

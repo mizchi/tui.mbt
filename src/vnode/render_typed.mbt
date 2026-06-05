@@ -16,8 +16,8 @@ fn apply_typed_attr(style : @style.Style, attr : TuiAttrValue) -> Unit {
     TuiAttrValue::FlexGrow(v) => style.flex_grow = v
     TuiAttrValue::FlexShrink(v) => style.flex_shrink = v
     TuiAttrValue::Gap(v) => {
-      style.row_gap = @types.Dimension::Length(v)
-      style.column_gap = @types.Dimension::Length(v)
+      style.row_gap = @values.Dimension::Length(v)
+      style.column_gap = @values.Dimension::Length(v)
     }
     // Display
     TuiAttrValue::Display(v) => style.display = v.to_display()
@@ -29,59 +29,59 @@ fn apply_typed_attr(style : @style.Style, attr : TuiAttrValue) -> Unit {
     // Grid item
     TuiAttrValue::GridColumn(v) =>
       style.grid_column = {
-        start: @types.GridPlacement::Line(v),
-        end: @types.GridPlacement::Auto,
+        start: @values.GridPlacement::Line(v),
+        end: @values.GridPlacement::Auto,
       }
     TuiAttrValue::GridRow(v) =>
       style.grid_row = {
-        start: @types.GridPlacement::Line(v),
-        end: @types.GridPlacement::Auto,
+        start: @values.GridPlacement::Line(v),
+        end: @values.GridPlacement::Auto,
       }
     TuiAttrValue::GridColumnSpan(v) =>
       style.grid_column = {
         start: style.grid_column.start,
-        end: @types.GridPlacement::Span(v),
+        end: @values.GridPlacement::Span(v),
       }
     TuiAttrValue::GridRowSpan(v) =>
       style.grid_row = {
         start: style.grid_row.start,
-        end: @types.GridPlacement::Span(v),
+        end: @values.GridPlacement::Span(v),
       }
     TuiAttrValue::Padding(v) => {
-      let len = @types.Dimension::Length(v)
-      style.padding = @types.Rect::new(len, len, len, len)
+      let len = @values.Dimension::Length(v)
+      style.padding = @values.Rect::new(len, len, len, len)
     }
     TuiAttrValue::PaddingX(v) => {
-      let len = @types.Dimension::Length(v)
+      let len = @values.Dimension::Length(v)
       let current = style.padding
-      style.padding = @types.Rect::new(current.top, len, current.bottom, len)
+      style.padding = @values.Rect::new(current.top, len, current.bottom, len)
     }
     TuiAttrValue::PaddingY(v) => {
-      let len = @types.Dimension::Length(v)
+      let len = @values.Dimension::Length(v)
       let current = style.padding
-      style.padding = @types.Rect::new(len, current.right, len, current.left)
+      style.padding = @values.Rect::new(len, current.right, len, current.left)
     }
     TuiAttrValue::Margin(v) => {
-      let len = @types.Dimension::Length(v)
-      style.margin = @types.Rect::new(len, len, len, len)
+      let len = @values.Dimension::Length(v)
+      style.margin = @values.Rect::new(len, len, len, len)
     }
     TuiAttrValue::MarginX(v) => {
-      let len = @types.Dimension::Length(v)
+      let len = @values.Dimension::Length(v)
       let current = style.margin
-      style.margin = @types.Rect::new(current.top, len, current.bottom, len)
+      style.margin = @values.Rect::new(current.top, len, current.bottom, len)
     }
     TuiAttrValue::MarginY(v) => {
-      let len = @types.Dimension::Length(v)
+      let len = @values.Dimension::Length(v)
       let current = style.margin
-      style.margin = @types.Rect::new(len, current.right, len, current.left)
+      style.margin = @values.Rect::new(len, current.right, len, current.left)
     }
     TuiAttrValue::Justify(v) => style.justify_content = v.to_alignment()
     TuiAttrValue::Align(v) => style.align_items = v.to_alignment()
     TuiAttrValue::Border(v) =>
       match v.to_border_chars() {
         Some(_) => {
-          let one = @types.Dimension::Length(1.0)
-          style.border = @types.Rect::new(one, one, one, one)
+          let one = @values.Dimension::Length(1.0)
+          style.border = @values.Rect::new(one, one, one, one)
         }
         None => ()
       }
@@ -192,7 +192,7 @@ pub fn box_to_crater(
   }
   // Apply layout attributes to style
   let style = @style.Style::default()
-  style.display = @types.Display::Flex
+  style.display = @values.Display::Flex
   for attr in attrs {
     apply_typed_attr(style, attr)
   }

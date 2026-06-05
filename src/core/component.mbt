@@ -256,20 +256,20 @@ pub fn box(
   // ID
   id? : String = "",
   // Layout
-  width? : @types.Dimension = @types.Dimension::Auto,
-  height? : @types.Dimension = @types.Dimension::Auto,
-  min_width? : @types.Dimension = @types.Dimension::Auto,
-  min_height? : @types.Dimension = @types.Dimension::Auto,
-  max_width? : @types.Dimension = @types.Dimension::Auto,
-  max_height? : @types.Dimension = @types.Dimension::Auto,
+  width? : @values.Dimension = @values.Dimension::Auto,
+  height? : @values.Dimension = @values.Dimension::Auto,
+  min_width? : @values.Dimension = @values.Dimension::Auto,
+  min_height? : @values.Dimension = @values.Dimension::Auto,
+  max_width? : @values.Dimension = @values.Dimension::Auto,
+  max_height? : @values.Dimension = @values.Dimension::Auto,
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
-  flex_basis? : @types.Dimension = @types.Dimension::Auto,
-  flex_direction? : @types.FlexDirection = @types.FlexDirection::Row,
-  flex_wrap? : @types.FlexWrap = @types.FlexWrap::NoWrap,
-  justify_content? : @types.Alignment = @types.Alignment::FlexStart,
-  align_items? : @types.Alignment = @types.Alignment::Stretch,
-  align_content? : @types.Alignment = @types.Alignment::Stretch,
+  flex_basis? : @values.Dimension = @values.Dimension::Auto,
+  flex_direction? : @values.FlexDirection = @values.FlexDirection::Row,
+  flex_wrap? : @values.FlexWrap = @values.FlexWrap::NoWrap,
+  justify_content? : @values.Alignment = @values.Alignment::FlexStart,
+  align_items? : @values.Alignment = @values.Alignment::Stretch,
+  align_content? : @values.Alignment = @values.Alignment::Stretch,
   gap? : Double = 0.0,
   padding? : Double = 0.0,
   padding_x? : Double = 0.0,
@@ -278,11 +278,11 @@ pub fn box(
   margin_x? : Double = 0.0,
   margin_y? : Double = 0.0,
   // Position (for overlay support)
-  position? : @types.Position = @types.Position::Static,
-  inset_top? : @types.Dimension = @types.Dimension::Auto,
-  inset_right? : @types.Dimension = @types.Dimension::Auto,
-  inset_bottom? : @types.Dimension = @types.Dimension::Auto,
-  inset_left? : @types.Dimension = @types.Dimension::Auto,
+  position? : @values.Position = @values.Position::Static,
+  inset_top? : @values.Dimension = @values.Dimension::Auto,
+  inset_right? : @values.Dimension = @values.Dimension::Auto,
+  inset_bottom? : @values.Dimension = @values.Dimension::Auto,
+  inset_left? : @values.Dimension = @values.Dimension::Auto,
   // Style
   border? : BorderChars? = None,
   border_color? : Color = Color::white(),
@@ -324,7 +324,7 @@ pub fn box(
 
   // Build style based on default with overrides
   let style = @style.Style::default()
-  style.display = @types.Display::Flex
+  style.display = @values.Display::Flex
   style.flex_direction = flex_direction
   style.flex_wrap = flex_wrap
   style.justify_content = justify_content
@@ -339,32 +339,32 @@ pub fn box(
   style.min_height = min_height
   style.max_width = max_width
   style.max_height = max_height
-  style.row_gap = @types.Dimension::Length(gap)
-  style.column_gap = @types.Dimension::Length(gap)
-  style.padding = @types.Rect::new(
-    @types.Dimension::Length(pad_top),
-    @types.Dimension::Length(pad_right),
-    @types.Dimension::Length(pad_bottom),
-    @types.Dimension::Length(pad_left),
+  style.row_gap = @values.Dimension::Length(gap)
+  style.column_gap = @values.Dimension::Length(gap)
+  style.padding = @values.Rect::new(
+    @values.Dimension::Length(pad_top),
+    @values.Dimension::Length(pad_right),
+    @values.Dimension::Length(pad_bottom),
+    @values.Dimension::Length(pad_left),
   )
-  style.margin = @types.Rect::new(
-    @types.Dimension::Length(margin_top),
-    @types.Dimension::Length(margin_right),
-    @types.Dimension::Length(margin_bottom),
-    @types.Dimension::Length(margin_left),
+  style.margin = @values.Rect::new(
+    @values.Dimension::Length(margin_top),
+    @values.Dimension::Length(margin_right),
+    @values.Dimension::Length(margin_bottom),
+    @values.Dimension::Length(margin_left),
   )
   // Add border padding if border is present
   if border is Some(_) {
-    style.border = @types.Rect::new(
-      @types.Dimension::Length(1.0),
-      @types.Dimension::Length(1.0),
-      @types.Dimension::Length(1.0),
-      @types.Dimension::Length(1.0),
+    style.border = @values.Rect::new(
+      @values.Dimension::Length(1.0),
+      @values.Dimension::Length(1.0),
+      @values.Dimension::Length(1.0),
+      @values.Dimension::Length(1.0),
     )
   }
   // Position and inset for overlay support
   style.position = position
-  style.inset = @types.Rect::new(
+  style.inset = @values.Rect::new(
     inset_top, inset_right, inset_bottom, inset_left,
   )
 
@@ -442,16 +442,16 @@ pub fn text_box(
   // ID
   id? : String = "",
   // Size
-  width? : @types.Dimension = @types.Dimension::Auto,
-  height? : @types.Dimension = @types.Dimension::Auto,
-  min_width? : @types.Dimension = @types.Dimension::Auto,
-  min_height? : @types.Dimension = @types.Dimension::Auto,
-  max_width? : @types.Dimension = @types.Dimension::Auto,
-  max_height? : @types.Dimension = @types.Dimension::Auto,
+  width? : @values.Dimension = @values.Dimension::Auto,
+  height? : @values.Dimension = @values.Dimension::Auto,
+  min_width? : @values.Dimension = @values.Dimension::Auto,
+  min_height? : @values.Dimension = @values.Dimension::Auto,
+  max_width? : @values.Dimension = @values.Dimension::Auto,
+  max_height? : @values.Dimension = @values.Dimension::Auto,
   // Flex properties
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
-  flex_basis? : @types.Dimension = @types.Dimension::Auto,
+  flex_basis? : @values.Dimension = @values.Dimension::Auto,
   // Padding & Margin
   padding? : Double = 0.0,
   padding_x? : Double = 0.0,
@@ -485,21 +485,21 @@ pub fn text_box(
   let pad = padding
   let pad_x = if padding_x > 0.0 { padding_x } else { pad }
   let pad_y = if padding_y > 0.0 { padding_y } else { pad }
-  style.padding = @types.Rect::new(
-    @types.Dimension::Length(pad_y),
-    @types.Dimension::Length(pad_x),
-    @types.Dimension::Length(pad_y),
-    @types.Dimension::Length(pad_x),
+  style.padding = @values.Rect::new(
+    @values.Dimension::Length(pad_y),
+    @values.Dimension::Length(pad_x),
+    @values.Dimension::Length(pad_y),
+    @values.Dimension::Length(pad_x),
   )
   // Margin
   let mar = margin
   let mar_x = if margin_x > 0.0 { margin_x } else { mar }
   let mar_y = if margin_y > 0.0 { margin_y } else { mar }
-  style.margin = @types.Rect::new(
-    @types.Dimension::Length(mar_y),
-    @types.Dimension::Length(mar_x),
-    @types.Dimension::Length(mar_y),
-    @types.Dimension::Length(mar_x),
+  style.margin = @values.Rect::new(
+    @values.Dimension::Length(mar_y),
+    @values.Dimension::Length(mar_x),
+    @values.Dimension::Length(mar_y),
+    @values.Dimension::Length(mar_x),
   )
 
   // Build node (no children, text rendered directly in this box)

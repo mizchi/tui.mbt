@@ -117,7 +117,6 @@ test "modal/stacked_modal story snapshot" {
         content=(
           #|Background
           #|Content Here
-          #|
           #|...........
           #|        ╭────────╮
           #|        │        │
@@ -145,7 +144,6 @@ test "modal/nested_modals story snapshot" {
         plain,
         content=(
           #|App Content
-          #|
           #|       ╭──────────╮
           #|       │          │
           #|       │ Confirm? │
@@ -177,7 +175,6 @@ test "modal/full_overlay story snapshot" {
           #|│  Confirm        │
           #|│ --------------- │
           #|│ Save changes?   │
-          #|│                 │
           #|│ ╭ Yes ╮  ╭ No ╮ │
           #|│ │     │  │    │ │
           #|│ ╰─────╯  ╰────╯ │
@@ -207,13 +204,13 @@ test "modal/alert_modal story snapshot" {
           #|│                   │
           #|│                   │
           #|│  ! Error !        │
-          #|│                   │
           #|│ ----------------- │
           #|│                   │
           #|│  Connection lost  │
-          #|│                   │
           #|│      ╭ OK ─╮      │
           #|│      │     │      │
+          #|│      ╰─────╯      │
+          #|│                   │
         ),
       )
       return
@@ -237,9 +234,7 @@ test "modal/command_launcher story snapshot" {
           #|╭──────────────────────╮
           #|│                      │
           #|│ > open               │
-          #|│                      │
           #|│ * Open               │
-          #|│                      │
           #|│                      │
           #|╰──────────────────────╯
         ),

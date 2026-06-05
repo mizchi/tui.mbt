@@ -1,6 +1,7 @@
 import {
-  "mizchi/layout/node",
-  "mizchi/layout/style",
-  "mizchi/layout/engine_types" @types,
+  "mizchi/crater-core/node",
+  "mizchi/crater-core" @ccore,
+  "mizchi/css/style",
+  "mizchi/css/values",
   "mizchi/tui-terminal-buffer/buffer" @terminal_buffer,
 }

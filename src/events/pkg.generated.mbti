@@ -2,25 +2,25 @@
 package "mizchi/tui/events"
 
 import {
-  "mizchi/crater/types",
+  "mizchi/crater-core",
   "mizchi/tui/core",
   "moonbitlang/core/debug",
 }
 
 // Values
-pub fn dump_layout(@types.Layout, Int, Int, Int) -> String
+pub fn dump_layout(@crater-core.Layout, Int, Int, Int) -> String
 
-pub fn find_layout_by_id(@types.Layout, String, Int, Int) -> HitTestResult?
+pub fn find_layout_by_id(@crater-core.Layout, String, Int, Int) -> HitTestResult?
 
-pub fn find_layout_by_id_root(@types.Layout, String) -> HitTestResult?
+pub fn find_layout_by_id_root(@crater-core.Layout, String) -> HitTestResult?
 
-pub fn handle_click(@types.Layout, EventHandlers, Int, Int) -> Bool
+pub fn handle_click(@crater-core.Layout, EventHandlers, Int, Int) -> Bool
 
-pub fn hit_test(@types.Layout, Int, Int, Int, Int) -> HitTestResult?
+pub fn hit_test(@crater-core.Layout, Int, Int, Int, Int) -> HitTestResult?
 
-pub fn hit_test_root(@types.Layout, Int, Int) -> HitTestResult?
+pub fn hit_test_root(@crater-core.Layout, Int, Int) -> HitTestResult?
 
-pub fn layout_rects_root(@types.Layout) -> Array[HitTestResult]
+pub fn layout_rects_root(@crater-core.Layout) -> Array[HitTestResult]
 
 pub fn parse_input(String) -> InputEvent
 

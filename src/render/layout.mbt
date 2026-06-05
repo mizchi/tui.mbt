@@ -8,7 +8,7 @@ pub fn compute_layout(
   node : @node.Node,
   width : Int,
   height : Int,
-) -> @types.Layout {
+) -> @ccore.Layout {
   let tree = @ltree.LayoutTree::from_node(
     node,
     width.to_double(),
@@ -24,7 +24,7 @@ pub fn compute_layout_max_content(
   node : @node.Node,
   width : Int,
   height : Int,
-) -> @types.Layout {
-  let viewport = @types.Size::new(width.to_double(), height.to_double())
+) -> @ccore.Layout {
+  let viewport = @values.Size::new(width.to_double(), height.to_double())
   @lengine.compute_layout(node, viewport)
 }

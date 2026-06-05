@@ -45,7 +45,7 @@ pub fn EventHandlers::get_click(
 /// Perform hit test on layout tree
 /// Returns the deepest (most specific) node containing the point
 pub fn hit_test(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   mouse_x : Int,
   mouse_y : Int,
   offset_x : Int,
@@ -62,7 +62,7 @@ pub fn hit_test(
 
 ///|
 fn hit_test_f(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   mouse_x : Int,
   mouse_y : Int,
   offset_x : Double,
@@ -97,7 +97,7 @@ fn hit_test_f(
 ///|
 /// Hit test from root (convenience function)
 pub fn hit_test_root(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   mouse_x : Int,
   mouse_y : Int,
 ) -> HitTestResult? {
@@ -108,7 +108,7 @@ pub fn hit_test_root(
 /// Handle mouse click event
 /// Returns true if a handler was invoked
 pub fn handle_click(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   handlers : EventHandlers,
   mouse_x : Int,
   mouse_y : Int,
@@ -130,7 +130,7 @@ pub fn handle_click(
 /// Find layout by ID
 /// Returns the position and size of the component with the given ID
 pub fn find_layout_by_id(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   target_id : String,
   offset_x : Int,
   offset_y : Int,
@@ -145,7 +145,7 @@ pub fn find_layout_by_id(
 
 ///|
 fn find_layout_by_id_f(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   target_id : String,
   offset_x : Double,
   offset_y : Double,
@@ -179,7 +179,7 @@ fn find_layout_by_id_f(
 ///|
 /// Find layout by ID from root
 pub fn find_layout_by_id_root(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   target_id : String,
 ) -> HitTestResult? {
   find_layout_by_id(layout, target_id, 0, 0)
@@ -188,7 +188,7 @@ pub fn find_layout_by_id_root(
 ///|
 /// Collect all layout rectangles (absolute coordinates) into a flat list.
 fn collect_layout_rects(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   offset_x : Double,
   offset_y : Double,
   out : Array[HitTestResult],
@@ -213,7 +213,7 @@ fn collect_layout_rects(
 
 ///|
 /// Flatten layout tree into rects (root is included).
-pub fn layout_rects_root(layout : @types.Layout) -> Array[HitTestResult] {
+pub fn layout_rects_root(layout : @ccore.Layout) -> Array[HitTestResult] {
   let out : Array[HitTestResult] = []
   collect_layout_rects(layout, 0.0, 0.0, out)
   out
@@ -222,7 +222,7 @@ pub fn layout_rects_root(layout : @types.Layout) -> Array[HitTestResult] {
 ///|
 /// Debug: dump layout tree structure
 pub fn dump_layout(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   offset_x : Int,
   offset_y : Int,
   depth : Int,
@@ -232,7 +232,7 @@ pub fn dump_layout(
 
 ///|
 fn dump_layout_f(
-  layout : @types.Layout,
+  layout : @ccore.Layout,
   offset_x : Double,
   offset_y : Double,
   depth : Int,

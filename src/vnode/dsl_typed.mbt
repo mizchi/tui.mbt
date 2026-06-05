@@ -573,7 +573,7 @@ pub fn grid(
     // Auto-generate rows based on areas count
     if rows.length() == 0 {
       let row_tracks = Array::makei(areas.length(), fn(_i) {
-        @types.TrackSizingFunction::Fr(1.0)
+        @values.TrackSizingFunction::Fr(1.0)
       })
       attrs.push(
         ("grid_template_rows", attr(TuiAttrValue::GridTemplateRows(row_tracks))),
@@ -587,7 +587,7 @@ pub fn grid(
         .collect()
       let col_count = first_row.length()
       let col_tracks = Array::makei(col_count, fn(_i) {
-        @types.TrackSizingFunction::Fr(1.0)
+        @values.TrackSizingFunction::Fr(1.0)
       })
       attrs.push(
         (
@@ -599,14 +599,14 @@ pub fn grid(
   }
   // Grid template columns (convert Double array to fr values)
   if columns.length() > 0 {
-    let tracks = columns.map(fn(v) { @types.TrackSizingFunction::Fr(v) })
+    let tracks = columns.map(fn(v) { @values.TrackSizingFunction::Fr(v) })
     attrs.push(
       ("grid_template_columns", attr(TuiAttrValue::GridTemplateColumns(tracks))),
     )
   }
   // Grid template rows
   if rows.length() > 0 {
-    let tracks = rows.map(fn(v) { @types.TrackSizingFunction::Fr(v) })
+    let tracks = rows.map(fn(v) { @values.TrackSizingFunction::Fr(v) })
     attrs.push(
       ("grid_template_rows", attr(TuiAttrValue::GridTemplateRows(tracks))),
     )
@@ -1115,20 +1115,20 @@ fn grid_auto_flow_to_string(v : GridAutoFlowValue) -> String {
 }
 
 ///|
-fn track_list_to_string(tracks : Array[@types.TrackSizingFunction]) -> String {
+fn track_list_to_string(tracks : Array[@values.TrackSizingFunction]) -> String {
   tracks.map(fn(t) { track_sizing_to_string(t) }).join(" ")
 }
 
 ///|
-fn track_sizing_to_string(t : @types.TrackSizingFunction) -> String {
+fn track_sizing_to_string(t : @values.TrackSizingFunction) -> String {
   match t {
-    @types.TrackSizingFunction::Length(v) => v.to_int().to_string() + "px"
-    @types.TrackSizingFunction::Percent(v) =>
+    @values.TrackSizingFunction::Length(v) => v.to_int().to_string() + "px"
+    @values.TrackSizingFunction::Percent(v) =>
       (v * 100.0).to_int().to_string() + "%"
-    @types.TrackSizingFunction::Fr(v) => v.to_string() + "fr"
-    @types.TrackSizingFunction::Auto => "auto"
-    @types.TrackSizingFunction::MinContent => "min-content"
-    @types.TrackSizingFunction::MaxContent => "max-content"
+    @values.TrackSizingFunction::Fr(v) => v.to_string() + "fr"
+    @values.TrackSizingFunction::Auto => "auto"
+    @values.TrackSizingFunction::MinContent => "min-content"
+    @values.TrackSizingFunction::MaxContent => "max-content"
     _ => "auto"
   }
 }

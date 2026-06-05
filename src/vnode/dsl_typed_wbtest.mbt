@@ -22,14 +22,14 @@ test "BoxProps: to_attrs includes set values" {
 
 ///|
 test "DimensionValue: to_dimension" {
-  assert_true(DimensionValue::Auto.to_dimension() == @types.Dimension::Auto)
+  assert_true(DimensionValue::Auto.to_dimension() == @values.Dimension::Auto)
   assert_true(
     DimensionValue::Length(10.0).to_dimension() ==
-    @types.Dimension::Length(10.0),
+    @values.Dimension::Length(10.0),
   )
   assert_true(
     DimensionValue::Percent(50.0).to_dimension() ==
-    @types.Dimension::Percent(50.0),
+    @values.Dimension::Percent(50.0),
   )
 }
 
@@ -50,10 +50,12 @@ test "DimensionValue: to_layout_dimension" {
 
 ///|
 test "AlignmentValue: to_alignment" {
-  assert_true(AlignmentValue::Center.to_alignment() == @types.Alignment::Center)
+  assert_true(
+    AlignmentValue::Center.to_alignment() == @values.Alignment::Center,
+  )
   assert_true(
     AlignmentValue::SpaceBetween.to_alignment() ==
-    @types.Alignment::SpaceBetween,
+    @values.Alignment::SpaceBetween,
   )
 }
 
@@ -71,10 +73,10 @@ test "AlignmentValue: to_layout_alignment" {
 ///|
 test "DirectionValue: to_flex_direction" {
   assert_true(
-    DirectionValue::Row.to_flex_direction() == @types.FlexDirection::Row,
+    DirectionValue::Row.to_flex_direction() == @values.FlexDirection::Row,
   )
   assert_true(
-    DirectionValue::Column.to_flex_direction() == @types.FlexDirection::Column,
+    DirectionValue::Column.to_flex_direction() == @values.FlexDirection::Column,
   )
 }
 
@@ -171,25 +173,26 @@ test "text_node: plain text without style" {
 
 ///|
 test "DisplayValue: to_display" {
-  assert_true(DisplayValue::Flex.to_display() == @types.Display::Flex)
-  assert_true(DisplayValue::Grid.to_display() == @types.Display::Grid)
+  assert_true(DisplayValue::Flex.to_display() == @values.Display::Flex)
+  assert_true(DisplayValue::Grid.to_display() == @values.Display::Grid)
 }
 
 ///|
 test "GridAutoFlowValue: to_grid_auto_flow" {
   assert_true(
-    GridAutoFlowValue::Row.to_grid_auto_flow() == @types.GridAutoFlow::Row,
+    GridAutoFlowValue::Row.to_grid_auto_flow() == @values.GridAutoFlow::Row,
   )
   assert_true(
-    GridAutoFlowValue::Column.to_grid_auto_flow() == @types.GridAutoFlow::Column,
+    GridAutoFlowValue::Column.to_grid_auto_flow() ==
+    @values.GridAutoFlow::Column,
   )
   assert_true(
     GridAutoFlowValue::RowDense.to_grid_auto_flow() ==
-    @types.GridAutoFlow::RowDense,
+    @values.GridAutoFlow::RowDense,
   )
   assert_true(
     GridAutoFlowValue::ColumnDense.to_grid_auto_flow() ==
-    @types.GridAutoFlow::ColumnDense,
+    @values.GridAutoFlow::ColumnDense,
   )
 }
 
@@ -219,8 +222,8 @@ test "attr_to_string: grid_column" {
 ///|
 test "attr_to_string: grid_template_columns" {
   let tracks = [
-    @types.TrackSizingFunction::Fr(1.0),
-    @types.TrackSizingFunction::Fr(2.0),
+    @values.TrackSizingFunction::Fr(1.0),
+    @values.TrackSizingFunction::Fr(2.0),
   ]
   let (k, v) = attr_to_string(TuiAttrValue::GridTemplateColumns(tracks))
   assert_eq(k, "grid_template_columns")
