@@ -2,14 +2,18 @@ import {
   "mizchi/signals/ui" @luna,
   "mizchi/layout/engine_types" @types,
   "mizchi/layout/types" @ltypes,
-  "mizchi/layout/style" @style,
-  "mizchi/layout/node" @node,
-  "mizchi/tui/core" @core,
-  "mizchi/tui/render" @render,
-  "mizchi/tui/events" @events,
-  "mizchi/tui/io" @io,
-  "mizchi/signals" @signals,
-  "moonbitlang/core/string" @string,
+  "mizchi/layout/style",
+  "mizchi/layout/node",
+  "mizchi/tui/core",
+  "mizchi/tui/render",
+  "mizchi/tui/events",
+  "mizchi/tui/io",
+  "mizchi/signals",
+  "moonbitlang/core/string",
 }
+
+import {
+  "moonbitlang/core/debug",
+} for "test"
 
 supported_targets = "js+native"

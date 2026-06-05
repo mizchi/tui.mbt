@@ -30,7 +30,7 @@ pub struct RenderStyleMap(Map[String, RenderStyle])
 
 ///|
 pub fn RenderStyleMap::new() -> RenderStyleMap {
-  RenderStyleMap(Map::new())
+  RenderStyleMap(Map([]))
 }
 
 ///|
@@ -56,7 +56,7 @@ pub struct TextContentMap(Map[String, String])
 
 ///|
 pub fn TextContentMap::new() -> TextContentMap {
-  TextContentMap(Map::new())
+  TextContentMap(Map([]))
 }
 
 ///|

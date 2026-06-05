@@ -71,7 +71,7 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 }
 
 ///|
-pub impl Show for Role with output(self : Role, logger : &Logger) -> Unit {
+pub impl Show for Role with fn output(self : Role, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -81,7 +81,7 @@ pub(all) struct RoleMap(Map[String, Role])
 
 ///|
 pub fn RoleMap::new() -> RoleMap {
-  RoleMap(Map::new())
+  RoleMap(Map([]))
 }
 
 ///|
@@ -122,7 +122,7 @@ pub(all) struct ClickHandlers(Map[String, ClickHandler])
 
 ///|
 pub fn ClickHandlers::new() -> ClickHandlers {
-  ClickHandlers(Map::new())
+  ClickHandlers(Map([]))
 }
 
 ///|

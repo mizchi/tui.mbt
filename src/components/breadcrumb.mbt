@@ -31,7 +31,7 @@ pub fn condensed_breadcrumb(
   id? : String = "",
 ) -> @vnode.TuiNode {
   let parts_raw = path.split(separator).collect()
-  let parts : Array[String] = parts_raw.map(fn(sv) { sv.to_string() })
+  let parts : Array[String] = parts_raw.map(fn(sv) { sv.to_owned() })
   let items : Array[String] = if parts.length() <= max_segments {
     parts
   } else {

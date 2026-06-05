@@ -113,7 +113,7 @@ pub fn TestHarness::line_contains(
   let plain = self.last_frame_plain()
   let lines : Array[String] = plain
     .split("\n")
-    .map(fn(sv) { sv.to_string() })
+    .map(fn(sv) { sv.to_owned() })
     .collect()
   if line >= 0 && line < lines.length() {
     lines[line].contains(text)
@@ -128,7 +128,7 @@ pub fn TestHarness::get_line(self : TestHarness, line : Int) -> String {
   let plain = self.last_frame_plain()
   let lines : Array[String] = plain
     .split("\n")
-    .map(fn(sv) { sv.to_string() })
+    .map(fn(sv) { sv.to_owned() })
     .collect()
   if line >= 0 && line < lines.length() {
     lines[line]
@@ -141,7 +141,7 @@ pub fn TestHarness::get_line(self : TestHarness, line : Int) -> String {
 /// Get all lines from plain output
 pub fn TestHarness::get_lines(self : TestHarness) -> Array[String] {
   let plain = self.last_frame_plain()
-  plain.split("\n").map(fn(sv) { sv.to_string() }).collect()
+  plain.split("\n").map(fn(sv) { sv.to_owned() }).collect()
 }
 
 // =============================================================================

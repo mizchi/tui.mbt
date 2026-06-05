@@ -455,7 +455,7 @@ pub async fn read_line() -> String {
   let bytes = Bytes::from_array(buf)
   let s = bytes.to_unchecked_string()
   let view = s[:n]
-  view.to_string().trim_end(chars="\n\r").to_string()
+  view.to_owned().trim_end(chars="\n\r").to_owned()
 }
 
 ///|
@@ -474,17 +474,17 @@ pub async fn sleep_async(ms : Int) -> Unit {
 
 ///|
 /// Keypress handler storage
-let keypress_handler : Ref[(String) -> Unit] = Ref::new(fn(_s) {  })
+let keypress_handler : Ref[(String) -> Unit] = Ref(fn(_s) {  })
 
 ///|
 /// Idle handler storage (called when no key input)
-let idle_handler : Ref[() -> Unit] = Ref::new(fn() {  })
+let idle_handler : Ref[() -> Unit] = Ref(fn() {  })
 
 ///|
-let keypress_running : Ref[Bool] = Ref::new(false)
+let keypress_running : Ref[Bool] = Ref(false)
 
 ///|
-let inside_listener_loop : Ref[Bool] = Ref::new(false)
+let inside_listener_loop : Ref[Bool] = Ref(false)
 
 ///|
 /// Start keypress listener (raw mode) - blocks until stop_keypress_listener is called

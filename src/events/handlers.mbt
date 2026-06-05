@@ -19,7 +19,7 @@ pub struct EventHandlers {
 
 ///|
 pub fn EventHandlers::new() -> EventHandlers {
-  { click_handlers: Map::new() }
+  { click_handlers: Map([]) }
 }
 
 ///|

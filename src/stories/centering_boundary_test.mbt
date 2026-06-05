@@ -31,7 +31,7 @@ fn assert_center_balance(
 
 ///|
 fn split_lines(s : String) -> Array[String] {
-  s.split("\n").map(part => part.to_string()).collect()
+  s.split("\n").map(part => part.to_owned()).collect()
 }
 
 ///|

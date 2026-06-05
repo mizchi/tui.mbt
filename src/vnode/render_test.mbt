@@ -4,7 +4,7 @@ test "to_crater_node: simple text" {
   let node = text("Hello")
   let crater = to_crater_node(ctx, node)
   assert_eq(crater.id, "v1")
-  assert_eq(ctx.texts.get("v1"), Some("Hello"))
+  @debug.assert_eq(ctx.texts.get("v1"), Some("Hello"))
 }
 
 ///|
@@ -13,8 +13,8 @@ test "to_crater_node: row with children" {
   let node = row([text("A"), text("B")])
   let crater = to_crater_node(ctx, node)
   assert_eq(crater.children.length(), 2)
-  assert_eq(ctx.texts.get("v2"), Some("A"))
-  assert_eq(ctx.texts.get("v3"), Some("B"))
+  @debug.assert_eq(ctx.texts.get("v2"), Some("A"))
+  @debug.assert_eq(ctx.texts.get("v3"), Some("B"))
 }
 
 ///|
@@ -41,7 +41,7 @@ test "to_crater_node: show conditional" {
   let visible = show(fn() { true }, fn() { text("Visible") })
   let _crater = to_crater_node(ctx, visible)
   // Should have text content
-  assert_eq(ctx.texts.get("v1"), Some("Visible"))
+  @debug.assert_eq(ctx.texts.get("v1"), Some("Visible"))
 }
 
 ///|
@@ -52,7 +52,7 @@ test "to_crater_node: show conditional hidden" {
   // Should be empty node
   assert_eq(crater.children.length(), 0)
   // No text content for hidden node
-  assert_eq(ctx.texts.get("v1"), None)
+  @debug.assert_eq(ctx.texts.get("v1"), None)
 }
 
 ///|

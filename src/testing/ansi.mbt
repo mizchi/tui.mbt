@@ -74,5 +74,5 @@ pub fn visible_length(input : String) -> Int {
 /// Split string into lines, stripping ANSI from each
 pub fn split_lines_plain(input : String) -> Array[String] {
   let plain = strip_ansi(input)
-  plain.split("\n").map(fn(sv) { sv.to_string() }).collect()
+  plain.split("\n").map(fn(sv) { sv.to_owned() }).collect()
 }

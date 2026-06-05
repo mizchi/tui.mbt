@@ -24,7 +24,7 @@ pub fn fuzzy_match(pattern : String, target : String) -> FuzzyMatch? {
   let pattern_chars = pattern_lower.to_array()
   let target_chars = target_lower.to_array()
   let best_positions : Array[Int] = []
-  let best_score : Ref[Int] = Ref::new(-1)
+  let best_score : Ref[Int] = Ref(-1)
   fn backtrack(pi : Int, ti : Int, positions : Array[Int], score : Int) {
     if pi == pattern_chars.length() {
       if best_score.val < 0 || score > best_score.val {

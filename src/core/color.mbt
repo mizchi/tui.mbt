@@ -68,7 +68,7 @@ pub fn Color::is_transparent(self : Color) -> Bool {
 }
 
 ///|
-pub impl Eq for Color with equal(self, other) {
+pub impl Eq for Color with fn equal(self, other) {
   self.r == other.r &&
   self.g == other.g &&
   self.b == other.b &&

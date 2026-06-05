@@ -1,0 +1,17 @@
+members = [
+  ".",
+  "./examples/command-launcher",
+  "./examples/completion",
+  "./examples/components",
+  "./examples/editor",
+  "./examples/form",
+  "./examples/grid-area",
+  "./examples/grid-layout",
+  "./examples/lint",
+  "./examples/popup",
+  "./examples/simple",
+  "./examples/snapshot",
+  "./examples/snapshot-ansi",
+  "./examples/toadlike",
+  "./examples/wizard",
+]

@@ -1,4 +1,4 @@
 import {
-  "mizchi/tui/core" @core,
+  "mizchi/tui/core",
   "mizchi/layout/engine_types" @types,
 }

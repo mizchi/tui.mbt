@@ -13,7 +13,7 @@ pub(all) struct LintViolation {
 }
 
 ///|
-impl Show for LintViolation with output(self, logger) {
+impl Show for LintViolation with fn output(self, logger) {
   logger.write_string("[")
   logger.write_string(self.rule)
   logger.write_string("] ")

@@ -11,7 +11,7 @@ pub struct GridRect {
 } derive(Eq, Debug)
 
 ///|
-pub impl Show for GridRect with output(self : GridRect, logger : &Logger) -> Unit {
+pub impl Show for GridRect with fn output(self : GridRect, logger : &Logger) -> Unit {
   self.to_repr().output(logger)
 }
 

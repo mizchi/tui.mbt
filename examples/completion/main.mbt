@@ -37,7 +37,7 @@ fn main {
   // - Set to true after Tab confirmation (hide until next typing)
   // - Set to true after Backspace (hide while deleting)
   // - Reset to false when typing new characters
-  let suppress_popup : Ref[Bool] = Ref::new(false)
+  let suppress_popup : Ref[Bool] = Ref(false)
   fn get_matches() -> Array[String] {
     filter_candidates(input.get())
   }
@@ -132,7 +132,7 @@ fn main {
   }
 
   // Track previous match count to detect popup visibility changes
-  let prev_match_count : Ref[Int] = Ref::new(0)
+  let prev_match_count : Ref[Int] = Ref(0)
   fn do_render() -> Unit {
     let matches = get_matches()
     let show_popup = should_show_popup() && matches.length() > 0

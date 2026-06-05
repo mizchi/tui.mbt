@@ -20,7 +20,10 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 }
 
 ///|
-pub impl Show for KeyModifier with output(self : KeyModifier, logger : &Logger) -> Unit {
+pub impl Show for KeyModifier with fn output(
+  self : KeyModifier,
+  logger : &Logger,
+) -> Unit {
   show_debug(self, logger)
 }
 
@@ -46,7 +49,7 @@ pub(all) enum SpecialKey {
 } derive(Debug)
 
 ///|
-pub impl Show for SpecialKey with output(self : SpecialKey, logger : &Logger) -> Unit {
+pub impl Show for SpecialKey with fn output(self : SpecialKey, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -58,7 +61,7 @@ pub(all) enum KeyEvent {
 } derive(Debug)
 
 ///|
-pub impl Show for KeyEvent with output(self : KeyEvent, logger : &Logger) -> Unit {
+pub impl Show for KeyEvent with fn output(self : KeyEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -74,7 +77,10 @@ pub(all) enum MouseButton {
 } derive(Debug)
 
 ///|
-pub impl Show for MouseButton with output(self : MouseButton, logger : &Logger) -> Unit {
+pub impl Show for MouseButton with fn output(
+  self : MouseButton,
+  logger : &Logger,
+) -> Unit {
   show_debug(self, logger)
 }
 
@@ -88,7 +94,7 @@ pub(all) enum MouseEventType {
 } derive(Debug)
 
 ///|
-pub impl Show for MouseEventType with output(
+pub impl Show for MouseEventType with fn output(
   self : MouseEventType,
   logger : &Logger,
 ) -> Unit {
@@ -106,7 +112,7 @@ pub(all) struct MouseEvent {
 } derive(Debug)
 
 ///|
-pub impl Show for MouseEvent with output(self : MouseEvent, logger : &Logger) -> Unit {
+pub impl Show for MouseEvent with fn output(self : MouseEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -120,7 +126,7 @@ pub(all) enum InputEvent {
 } derive(Debug)
 
 ///|
-pub impl Show for InputEvent with output(self : InputEvent, logger : &Logger) -> Unit {
+pub impl Show for InputEvent with fn output(self : InputEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 

@@ -86,11 +86,11 @@ test "CompletionEngine selection navigation" {
   let _ = engine.apply_result(result)
   // Initial selection is 0
   inspect(engine.get_selected_idx(), content="0")
-  inspect(engine.get_selected_item(), content="Some(\"a\")")
+  debug_inspect(engine.get_selected_item(), content="Some(\"a\")")
   // Select next
   engine.select_next()
   inspect(engine.get_selected_idx(), content="1")
-  inspect(engine.get_selected_item(), content="Some(\"b\")")
+  debug_inspect(engine.get_selected_item(), content="Some(\"b\")")
   // Select next again
   engine.select_next()
   inspect(engine.get_selected_idx(), content="2")
@@ -100,7 +100,7 @@ test "CompletionEngine selection navigation" {
   // Select prev wraps to last
   engine.select_prev()
   inspect(engine.get_selected_idx(), content="2")
-  inspect(engine.get_selected_item(), content="Some(\"c\")")
+  debug_inspect(engine.get_selected_item(), content="Some(\"c\")")
 }
 
 ///|
@@ -137,7 +137,7 @@ test "CompletionEngine::set_selected_idx validates bounds" {
 test "CompletionEngine::get_selected_item with invalid index returns None" {
   let engine = CompletionEngine::new()
   // Empty items
-  inspect(engine.get_selected_item(), content="None")
+  debug_inspect(engine.get_selected_item(), content="None")
 }
 
 ///|
@@ -159,7 +159,7 @@ test "CompletionEngine::hide and clear" {
 
 ///|
 test "AsyncCompletionManager basic workflow" {
-  let current_time = Ref::new(0)
+  let current_time = Ref(0)
   let filter_fn = fn(query : String) -> Array[String] {
     if query == "test" {
       ["test1", "test2"]

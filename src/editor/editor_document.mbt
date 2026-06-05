@@ -11,7 +11,7 @@ struct Document {
 
 ///|
 fn split_text_lines(text : String) -> Array[String] {
-  let parts = text.split("\n").map(part => part.to_string()).collect()
+  let parts = text.split("\n").map(part => part.to_owned()).collect()
   if parts.length() == 0 {
     [""]
   } else {

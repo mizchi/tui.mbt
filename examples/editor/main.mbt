@@ -83,9 +83,9 @@ fn main {
   let title = filename
   let completion_session = @editor.CompletionSession::new()
   let completion_popup = @editor.CompletionPopup::new(completion_session)
-  let suppress_popup : Ref[Bool] = Ref::new(false)
-  let last_popup_rect : Ref[@editor.PopupRect?] = Ref::new(None)
-  let completion_request_id : Ref[Int] = Ref::new(0)
+  let suppress_popup : Ref[Bool] = Ref(false)
+  let last_popup_rect : Ref[@editor.PopupRect?] = Ref(None)
+  let completion_request_id : Ref[Int] = Ref(0)
   fn render_ui() -> @vnode.TuiNode {
     @editor.render_editor(state, width, height, title~)
   }

@@ -271,10 +271,10 @@ test "VirtualTerminal: input queue" {
   vt.inject_input("b")
   vt.inject_input("\u001b[A") // Up arrow
   assert_true(vt.has_input())
-  assert_eq(vt.read_input(), Some("a"))
-  assert_eq(vt.read_input(), Some("b"))
-  assert_eq(vt.read_input(), Some("\u001b[A"))
-  assert_eq(vt.read_input(), None)
+  @debug.assert_eq(vt.read_input(), Some("a"))
+  @debug.assert_eq(vt.read_input(), Some("b"))
+  @debug.assert_eq(vt.read_input(), Some("\u001b[A"))
+  @debug.assert_eq(vt.read_input(), None)
 }
 
 // =============================================================================

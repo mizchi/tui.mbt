@@ -1,7 +1,7 @@
 import {
-  "mizchi/tui/ansi" @ansi,
+  "mizchi/tui/ansi",
   "mizchi/layout/engine_types" @types,
-  "mizchi/layout/node" @node,
+  "mizchi/layout/node",
   "mizchi/layout/engine" @lengine,
   "mizchi/layout/tree" @ltree,
   "mizchi/signals",

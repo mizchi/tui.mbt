@@ -1,20 +1,18 @@
 # MoonBit Project Commands
+# Library and examples form a single workspace (see moon.work),
+# so a root `moon <cmd>` covers every member.
 
 # Default target (js for browser compatibility)
 target := "js"
 
-# Example directories
-examples := "command-launcher completion components editor form grid-area grid-layout lint popup simple snapshot snapshot-ansi toadlike wizard"
-
 # Default task: check and test
 default: check test
 
-# Format code
+# Format code (whole workspace)
 fmt:
     moon fmt
-    for dir in {{examples}}; do (cd examples/$dir && moon fmt); done
 
-# Type check main library
+# Type check whole workspace (library + examples)
 check:
     moon check --deny-warn --target {{target}}
 
@@ -22,23 +20,15 @@ check:
 check-windows-native:
     ./scripts/check-windows-native-compat.sh
 
-# Check all examples
-check-examples:
-    for dir in {{examples}}; do (cd examples/$dir && moon check --deny-warn --target {{target}}); done
-
 # Check everything
-check-all: check-windows-native check check-examples
+check-all: check-windows-native check
 
-# Run tests for main library
+# Run tests (whole workspace)
 test:
     moon test --target {{target}}
 
-# Run tests for all examples
-test-examples:
-    for dir in {{examples}}; do (cd examples/$dir && moon test --target {{target}}); done
-
 # Test everything
-test-all: test test-examples
+test-all: test
 
 # Update snapshot tests
 test-update:
@@ -48,15 +38,13 @@ test-update:
 run example="simple":
     cd examples/{{example}} && moon run . --target {{target}}
 
-# Generate type definition files
+# Generate type definition files (whole workspace)
 info:
     moon info
-    for dir in {{examples}}; do (cd examples/$dir && moon info); done
 
-# Clean build artifacts
+# Clean build artifacts (whole workspace)
 clean:
     moon clean
-    for dir in {{examples}}; do (cd examples/$dir && moon clean); done
 
 # Generate component snapshots
 snapshot:

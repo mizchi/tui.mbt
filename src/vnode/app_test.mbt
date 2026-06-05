@@ -145,7 +145,7 @@ test "VNodeApp: for_each" {
 ///|
 test "VNodeApp: text_dyn" {
   let app = VNodeApp::new(20, 5)
-  let counter : Ref[Int] = Ref::new(0)
+  let counter : Ref[Int] = Ref(0)
   let node = text_dyn(fn() { "Count: " + counter.val.to_string() })
 
   // First render
@@ -200,7 +200,7 @@ test "VNodeApp: border styles" {
 ///|
 test "VNodeApp: event handler registration" {
   let app = VNodeApp::new(20, 5)
-  let clicked : Ref[Bool] = Ref::new(false)
+  let clicked : Ref[Bool] = Ref(false)
 
   // Create a node with on_click handler
   let node = row(id="btn", on_click=Some(fn(_event) { clicked.val = true }), [
@@ -217,7 +217,7 @@ test "VNodeApp: event handler registration" {
 ///|
 test "VNodeApp: handle_click dispatches event" {
   let app = VNodeApp::new(20, 5)
-  let click_count : Ref[Int] = Ref::new(0)
+  let click_count : Ref[Int] = Ref(0)
 
   // Create a clickable button at a known position
   let node = column(width=20.0, height=5.0, [
@@ -355,7 +355,7 @@ test "VNodeApp: dispatch_hover returns id on Move event" {
         modifier: @events.KeyModifier::None,
       }
       let result = app.dispatch_hover(event)
-      assert_eq(result, Some("btn-a"))
+      @debug.assert_eq(result, Some("btn-a"))
     }
     None => assert_true(false)
   }
@@ -375,7 +375,7 @@ test "VNodeApp: dispatch_hover returns empty on miss" {
     modifier: @events.KeyModifier::None,
   }
   let result = app.dispatch_hover(event)
-  assert_eq(result, Some(""))
+  @debug.assert_eq(result, Some(""))
 }
 
 ///|
@@ -391,13 +391,13 @@ test "VNodeApp: dispatch_hover ignores Press events" {
     modifier: @events.KeyModifier::None,
   }
   let result = app.dispatch_hover(event)
-  assert_eq(result, None)
+  @debug.assert_eq(result, None)
 }
 
 ///|
 test "VNodeApp: dispatch_hover fires Hover handler" {
   let app = VNodeApp::new(20, 5)
-  let hover_received : Ref[String] = Ref::new("")
+  let hover_received : Ref[String] = Ref("")
   let node = column(width=20.0, height=5.0, [
     row(
       id="hover-btn",

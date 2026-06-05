@@ -246,8 +246,8 @@ test "menubar full layout height consistency" {
   // Extract row positions from both outputs
   let edit_rows = extract_row_positions(edit_output)
   let view_rows = extract_row_positions(view_output)
-  println("Edit rows: " + edit_rows.to_string())
-  println("View rows: " + view_rows.to_string())
+  println("Edit rows: " + repr(edit_rows))
+  println("View rows: " + repr(view_rows))
 
   // Both should have the same row positions (same visual layout)
   inspect(edit_rows.length(), content="25")
@@ -268,8 +268,8 @@ test "menubar closed vs open height consistency" {
   let open_output = @vnode.render_vnode_once(60, 25, open_layout)
   let closed_rows = extract_row_positions(closed_output)
   let open_rows = extract_row_positions(open_output)
-  println("Closed rows: " + closed_rows.to_string())
-  println("Open rows: " + open_rows.to_string())
+  println("Closed rows: " + repr(closed_rows))
+  println("Open rows: " + repr(open_rows))
 
   // Both should have same row positions
   inspect(closed_rows.length(), content="25")

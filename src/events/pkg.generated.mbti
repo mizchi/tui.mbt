@@ -28,8 +28,6 @@ pub fn parse_input(String) -> InputEvent
 
 // Types and methods
 pub struct ClickHandler(() -> Unit)
-#deprecated
-pub fn ClickHandler::inner(Self) -> () -> Unit
 pub fn ClickHandler::new(() -> Unit) -> Self
 
 pub struct EventHandlers {

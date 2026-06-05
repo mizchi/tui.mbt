@@ -47,15 +47,11 @@ pub fn BorderChars::rounded() -> Self
 pub fn BorderChars::single() -> Self
 
 pub(all) struct ClickHandler(() -> Unit)
-#deprecated
-pub fn ClickHandler::inner(Self) -> () -> Unit
 pub fn ClickHandler::invoke(Self) -> Unit
 pub fn ClickHandler::new(() -> Unit) -> Self
 
 pub(all) struct ClickHandlers(Map[String, ClickHandler])
 pub fn ClickHandlers::get(Self, String) -> ClickHandler?
-#deprecated
-pub fn ClickHandlers::inner(Self) -> Map[String, ClickHandler]
 pub fn ClickHandlers::iter(Self) -> Iter[(String, ClickHandler)]
 pub fn ClickHandlers::new() -> Self
 pub fn ClickHandlers::set(Self, String, ClickHandler) -> Unit
@@ -117,8 +113,6 @@ pub fn RenderStyle::default() -> Self
 
 pub struct RenderStyleMap(Map[String, RenderStyle])
 pub fn RenderStyleMap::get(Self, String) -> RenderStyle
-#deprecated
-pub fn RenderStyleMap::inner(Self) -> Map[String, RenderStyle]
 pub fn RenderStyleMap::new() -> Self
 pub fn RenderStyleMap::set(Self, String, RenderStyle) -> Unit
 
@@ -178,16 +172,12 @@ pub impl Show for Role
 
 pub(all) struct RoleMap(Map[String, Role])
 pub fn RoleMap::get(Self, String) -> Role?
-#deprecated
-pub fn RoleMap::inner(Self) -> Map[String, Role]
 pub fn RoleMap::iter(Self) -> Iter[(String, Role)]
 pub fn RoleMap::new() -> Self
 pub fn RoleMap::set(Self, String, Role) -> Unit
 
 pub struct TextContentMap(Map[String, String])
 pub fn TextContentMap::get(Self, String) -> String?
-#deprecated
-pub fn TextContentMap::inner(Self) -> Map[String, String]
 pub fn TextContentMap::new() -> Self
 pub fn TextContentMap::set(Self, String, String) -> Unit
 

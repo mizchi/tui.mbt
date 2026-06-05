@@ -284,7 +284,7 @@ extern "js" fn js_stop_idle_interval(id : Int) =
 
 ///|
 /// Idle interval ID storage
-let idle_interval_id : Ref[Int] = Ref::new(-1)
+let idle_interval_id : Ref[Int] = Ref(-1)
 
 ///|
 /// Set idle handler (uses setInterval for JS)
@@ -1047,7 +1047,7 @@ pub fn start_inplace_input(
   let controller = @input.TextInputController::new(config, initial)
 
   // Current height (can change dynamically)
-  let current_height = Ref::new(height)
+  let current_height = Ref(height)
   // Base row is the bottom of input area (fixed)
   let base_row = row + height - 1
 
@@ -1115,7 +1115,7 @@ pub fn start_inplace_input(
   do_render()
 
   // Track if done
-  let done = Ref::new(false)
+  let done = Ref(false)
 
   // Key handler
   let handle_key : (String) -> Unit = fn(key) {
@@ -1439,7 +1439,7 @@ pub async fn start_input_session(
   // This version doesn't work properly after raw mode - returns cancelled immediately
   let result = @js_async.Promise::wait(js_start_input_session(x, y, initial))
   if result.has_prefix("confirmed:") {
-    InputResult::Confirmed(result[10:].to_string())
+    InputResult::Confirmed(result[10:].to_owned())
   } else {
     InputResult::Cancelled
   }

@@ -16,8 +16,9 @@ just info      # generate type definition files
 
 ## Project Structure
 
-- `moon.mod.json` - Module definition
-- `moon.pkg` - Package dependencies (per directory)
+- `moon.work` - Workspace manifest (`members = [...]`); the library and every example under `examples/*` are members of one workspace, so a root `moon <cmd>` covers them all
+- `moon.mod` - Module definition (the deprecated `moon.mod.json` was migrated by `moon fmt`)
+- `moon.pkg` - Package dependencies (per directory); test-only deps go in an `import { ... } for "test"` block
 - `*.mbt` - Source files
 - `*_test.mbt` - Blackbox test files
 - `*_wbtest.mbt` - Whitebox test files

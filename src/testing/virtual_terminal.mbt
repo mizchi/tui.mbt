@@ -739,7 +739,7 @@ pub fn VirtualTerminal::matches(
   let actual_lines = self.get_visible_lines()
   let expected_lines : Array[String] = expected
     .split("\n")
-    .map(fn(sv) { trim_trailing_spaces(sv.to_string()) })
+    .map(fn(sv) { trim_trailing_spaces(sv.to_owned()) })
     .filter(fn(s) { s.length() > 0 })
     .collect()
   if actual_lines.length() != expected_lines.length() {

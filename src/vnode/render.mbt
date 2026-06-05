@@ -44,7 +44,7 @@ fn parse_grid_template_areas(
   for row_idx, row_str in areas {
     let cells = row_str.split(" ").filter(fn(s) { s.length() > 0 }).collect()
     for col_idx, name_view in cells {
-      let name = name_view.to_string()
+      let name = name_view.to_owned()
       if name == "." {
         continue // Skip empty cells
       }

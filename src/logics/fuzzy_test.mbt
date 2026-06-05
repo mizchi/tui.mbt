@@ -16,14 +16,14 @@ test "fuzzy_match empty target returns None" {
 test "fuzzy_match exact match" {
   let result = @logics.fuzzy_match("abc", "abc")
   guard result is Some(m) else { fail("expected Some") }
-  assert_eq(m.positions, [0, 1, 2])
+  @debug.assert_eq(m.positions, [0, 1, 2])
 }
 
 ///|
 test "fuzzy_match case insensitive" {
   let result = @logics.fuzzy_match("abc", "ABC")
   guard result is Some(m) else { fail("expected Some") }
-  assert_eq(m.positions, [0, 1, 2])
+  @debug.assert_eq(m.positions, [0, 1, 2])
 }
 
 ///|

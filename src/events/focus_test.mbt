@@ -4,7 +4,7 @@
 ///|
 test "FocusManager::new creates unfocused state" {
   let fm = @events.FocusManager::new()
-  inspect(fm.get_focused(), content="None")
+  debug_inspect(fm.get_focused(), content="None")
   inspect(fm.is_editing(), content="false")
 }
 
@@ -21,7 +21,7 @@ test "FocusManager::focus sets focus" {
   let fm = @events.FocusManager::new()
   fm.register("input-1")
   fm.focus("input-1")
-  inspect(fm.get_focused(), content="Some(\"input-1\")")
+  debug_inspect(fm.get_focused(), content="Some(\"input-1\")")
   inspect(fm.is_focused("input-1"), content="true")
 }
 
@@ -31,7 +31,7 @@ test "FocusManager::blur removes focus" {
   fm.register("btn-1")
   fm.focus("btn-1")
   fm.blur()
-  inspect(fm.get_focused(), content="None")
+  debug_inspect(fm.get_focused(), content="None")
 }
 
 // ============================================
@@ -47,16 +47,16 @@ test "a11y: focus_next cycles forward (Tab)" {
   fm.register("btn-3")
   // Start with no focus, Tab focuses first element
   fm.focus_next()
-  inspect(fm.get_focused(), content="Some(\"btn-1\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-1\")")
   // Tab to next
   fm.focus_next()
-  inspect(fm.get_focused(), content="Some(\"btn-2\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-2\")")
   // Tab to next
   fm.focus_next()
-  inspect(fm.get_focused(), content="Some(\"btn-3\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-3\")")
   // Tab wraps to first
   fm.focus_next()
-  inspect(fm.get_focused(), content="Some(\"btn-1\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-1\")")
 }
 
 ///|
@@ -68,16 +68,16 @@ test "a11y: focus_prev cycles backward (Shift+Tab)" {
   fm.register("btn-3")
   // Start with no focus, Shift+Tab focuses last element
   fm.focus_prev()
-  inspect(fm.get_focused(), content="Some(\"btn-3\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-3\")")
   // Shift+Tab to previous
   fm.focus_prev()
-  inspect(fm.get_focused(), content="Some(\"btn-2\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-2\")")
   // Shift+Tab to previous
   fm.focus_prev()
-  inspect(fm.get_focused(), content="Some(\"btn-1\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-1\")")
   // Shift+Tab wraps to last
   fm.focus_prev()
-  inspect(fm.get_focused(), content="Some(\"btn-3\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-3\")")
 }
 
 ///|
@@ -112,9 +112,9 @@ test "a11y: empty focusable list handled gracefully" {
   let fm = @events.FocusManager::new()
   // Navigation with no focusable elements should not crash
   fm.focus_next()
-  inspect(fm.get_focused(), content="None")
+  debug_inspect(fm.get_focused(), content="None")
   fm.focus_prev()
-  inspect(fm.get_focused(), content="None")
+  debug_inspect(fm.get_focused(), content="None")
 }
 
 ///|
@@ -130,7 +130,7 @@ test "a11y: unregister removes from focus cycle" {
   // Tab should skip removed element
   fm.focus_next() // btn-1
   fm.focus_next() // btn-3 (not btn-2)
-  inspect(fm.get_focused(), content="Some(\"btn-3\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-3\")")
 }
 
 ///|
@@ -152,7 +152,7 @@ test "a11y: direct focus to specific element" {
   fm.register("btn-2")
   // Can focus directly without cycling
   fm.focus("input-1")
-  inspect(fm.get_focused(), content="Some(\"input-1\")")
+  debug_inspect(fm.get_focused(), content="Some(\"input-1\")")
 }
 
 ///|
@@ -166,5 +166,5 @@ test "a11y: navigation continues from direct focus" {
   fm.focus("input-1")
   // Tab should go to next
   fm.focus_next()
-  inspect(fm.get_focused(), content="Some(\"btn-2\")")
+  debug_inspect(fm.get_focused(), content="Some(\"btn-2\")")
 }

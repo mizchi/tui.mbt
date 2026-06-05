@@ -11,7 +11,10 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 }
 
 ///|
-pub impl Show for ImageFormat with output(self : ImageFormat, logger : &Logger) -> Unit {
+pub impl Show for ImageFormat with fn output(
+  self : ImageFormat,
+  logger : &Logger,
+) -> Unit {
   show_debug(self, logger)
 }
 
@@ -25,7 +28,7 @@ pub struct ImageAsset {
 } derive(Debug)
 
 ///|
-pub impl Show for ImageAsset with output(self : ImageAsset, logger : &Logger) -> Unit {
+pub impl Show for ImageAsset with fn output(self : ImageAsset, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -39,7 +42,7 @@ pub struct ImageRect {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for ImageRect with output(self : ImageRect, logger : &Logger) -> Unit {
+pub impl Show for ImageRect with fn output(self : ImageRect, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 

@@ -870,9 +870,9 @@ fn parse_color_value(s : String) -> ColorValue {
     let inner = s.view(start_offset=4, end_offset=s.length() - 1)
     let parts = inner.split(",").collect()
     if parts.length() == 3 {
-      let r = try? @string.parse_int(parts[0].to_string().trim(chars=" "))
-      let g = try? @string.parse_int(parts[1].to_string().trim(chars=" "))
-      let b = try? @string.parse_int(parts[2].to_string().trim(chars=" "))
+      let r = try? @string.parse_int(parts[0].to_owned().trim(chars=" "))
+      let g = try? @string.parse_int(parts[1].to_owned().trim(chars=" "))
+      let b = try? @string.parse_int(parts[2].to_owned().trim(chars=" "))
       match (r, g, b) {
         (Ok(r), Ok(g), Ok(b)) => return ColorValue::Rgb(r, g, b)
         _ => ()
@@ -886,7 +886,7 @@ fn parse_color_value(s : String) -> ColorValue {
 fn parse_role_value(s : String) -> @core.Role {
   let v = s.to_lower()
   if v.has_prefix("custom:") && v.length() > 7 {
-    return @core.Role::Custom(v.view(start_offset=7).to_string())
+    return @core.Role::Custom(v.view(start_offset=7).to_owned())
   }
   match v {
     "button" => @core.Role::Button

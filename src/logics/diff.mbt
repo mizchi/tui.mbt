@@ -18,7 +18,7 @@ pub fn DiffOp::is_equal(self : DiffOp) -> Bool {
 }
 
 ///|
-pub impl Show for DiffOp with output(self, logger) {
+pub impl Show for DiffOp with fn output(self, logger) {
   match self {
     Equal(s) => logger.write_string("  " + s)
     Insert(s) => logger.write_string("+ " + s)

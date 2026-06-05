@@ -30,7 +30,7 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 }
 
 ///|
-pub impl Show for EditAction with output(self : EditAction, logger : &Logger) -> Unit {
+pub impl Show for EditAction with fn output(self : EditAction, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -42,7 +42,7 @@ pub(all) struct LineInfo {
 } derive(Debug, Eq)
 
 ///|
-pub impl Show for LineInfo with output(self : LineInfo, logger : &Logger) -> Unit {
+pub impl Show for LineInfo with fn output(self : LineInfo, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -59,7 +59,7 @@ pub(all) struct DisplayState {
 } derive(Debug)
 
 ///|
-pub impl Show for DisplayState with output(
+pub impl Show for DisplayState with fn output(
   self : DisplayState,
   logger : &Logger,
 ) -> Unit {
@@ -77,7 +77,7 @@ pub(all) struct TextInputConfig {
 } derive(Debug)
 
 ///|
-pub impl Show for TextInputConfig with output(
+pub impl Show for TextInputConfig with fn output(
   self : TextInputConfig,
   logger : &Logger,
 ) -> Unit {

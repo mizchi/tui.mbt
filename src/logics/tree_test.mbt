@@ -8,7 +8,7 @@ test "TreeNode leaf creation" {
   assert_eq(node.id, "1")
   assert_eq(node.label, "hello")
   assert_true(node.is_leaf())
-  assert_eq(node.data, Some("world"))
+  @debug.assert_eq(node.data, Some("world"))
 }
 
 ///|
@@ -88,9 +88,9 @@ test "TreeNode ancestors" {
     ]),
   ])
   let path = tree.ancestors("leaf")
-  assert_eq(path, Some(["root", "sub"]))
+  @debug.assert_eq(path, Some(["root", "sub"]))
   let root_path = tree.ancestors("root")
-  assert_eq(root_path, Some([]))
+  @debug.assert_eq(root_path, Some([]))
 }
 
 ///|

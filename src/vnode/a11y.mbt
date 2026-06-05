@@ -15,7 +15,7 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 }
 
 ///|
-pub impl Show for A11yRect with output(self : A11yRect, logger : &Logger) -> Unit {
+pub impl Show for A11yRect with fn output(self : A11yRect, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -29,7 +29,7 @@ pub struct A11yNode {
 } derive(Debug)
 
 ///|
-pub impl Show for A11yNode with output(self : A11yNode, logger : &Logger) -> Unit {
+pub impl Show for A11yNode with fn output(self : A11yNode, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
 
@@ -41,7 +41,7 @@ priv struct A11yBuildResult {
 
 ///|
 fn normalize_text(s : String) -> String {
-  s.trim(chars=" \n\t").to_string()
+  s.trim(chars=" \n\t").to_owned()
 }
 
 ///|
