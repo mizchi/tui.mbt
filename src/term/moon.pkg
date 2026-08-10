@@ -3,4 +3,4 @@ import {
   "mizchi/tui/events",
 }
 
-supported_targets = "js+native"
+supported_targets = "js+native+wasm"

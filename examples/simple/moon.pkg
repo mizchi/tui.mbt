@@ -5,7 +5,7 @@ import {
   "moonbitlang/async",
 }
 
-supported_targets = "js"
+supported_targets = "js+wasm"
 
 options(
   "is-main": true,

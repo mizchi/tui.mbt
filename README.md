@@ -2,7 +2,7 @@
 
 Terminal UI library for MoonBit with virtual DOM-based rendering.
 
-Supported targets: `js`, `native`
+Supported targets: `js`, `native`, experimental `wasm` (wasm1/WASI)
 
 ## Features
 
@@ -150,6 +150,8 @@ Snapshots:
 ```bash
 just run example=simple                    # Minimal counter app
 moon run examples/simple --target js       # Run an example directly
+moon build examples/simple --target wasm
+sh scripts/run-wasm.sh _build/wasm/debug/build/example-simple/example-simple.wasm
 moon run examples/command-launcher --target js
 moon run examples/completion --target js
 moon run examples/components --target js
@@ -161,6 +163,8 @@ moon run examples/kitty-graphics --target js
 moon run examples/roguelike --target js
 moon run examples/wizard --target js
 ```
+
+The wasm target uses `moonbitlang/async@0.20.3` for stdin and timers. WASI does not expose termios or terminal-size ioctls, so `scripts/run-wasm.sh` puts the host TTY in raw mode and restores it on exit. Set `COLUMNS` and `LINES` when the default `80x24` size is not suitable. The inline/in-place editor APIs currently return `Cancelled` on wasm, and `mizchi/signals/ui` must also declare the `wasm` target until that metadata change is released upstream.
 
 Note: The chat example moved to `mizchi/vivebox`.
 

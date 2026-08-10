@@ -6,17 +6,21 @@ import {
   "moonbitlang/async",
   "moonbitlang/async/js_async",
   "moonbitlang/async/stdio",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
 }
 
 warnings = "-29"
 
-supported_targets = "js+native"
+supported_targets = "js+native+wasm"
 
 options(
   "native-stub": [ "tui_native.c" ],
   targets: {
     "io_js.mbt": [ "js" ],
     "io_native.mbt": [ "native" ],
+    "io_wasm.mbt": [ "wasm" ],
     "tty_test.mbt": [ "js" ],
   },
 )
