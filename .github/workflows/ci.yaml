@@ -19,6 +19,8 @@ jobs:
       - name: Install just
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      - name: Install mingw-w64
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
       - name: Moon update
         run: moon update
       - name: Check Windows native compatibility
@@ -31,3 +33,28 @@ jobs:
         run: just check-standalone
       - name: Story lints
         run: just lint
+
+  windows-native:
+    name: native build on windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install MoonBit CLI
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://cli.moonbitlang.com/install/powershell.ps1 -OutFile install.ps1
+          ./install.ps1
+          "$env:USERPROFILE\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Moon version
+        shell: pwsh
+        run: moon version --all
+      - name: Moon update
+        shell: pwsh
+        run: moon update
+      - name: Moon check (native)
+        shell: pwsh
+        run: moon check --deny-warn --target native
+      - name: Moon test (native)
+        shell: pwsh
+        run: moon test --target native
