@@ -45,7 +45,8 @@ check_externs() {
   local label="$1" nm_tool="$2" obj="$3" defined missing=()
   defined="$("$nm_tool" --defined-only "$obj")"
   for sym in "${EXTERNS[@]}"; do
-    grep -qw "$sym" <<<"$defined" || missing+=("$sym")
+    # Mach-O prefixes C symbols with an underscore; ELF and PE do not.
+    grep -Eq "[[:space:]]_?${sym}$" <<<"$defined" || missing+=("$sym")
   done
   if [ ${#missing[@]} -gt 0 ]; then
     echo "  $label: missing definitions: ${missing[*]}" >&2

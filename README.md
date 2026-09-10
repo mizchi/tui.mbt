@@ -24,7 +24,7 @@ Or add it to your `moon.mod` directly:
 
 ```
 import {
-  "mizchi/tui@0.10.1",
+  "mizchi/tui@0.10.2",
 }
 ```
 
