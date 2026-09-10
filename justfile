@@ -5,6 +5,9 @@
 # Default target (js for browser compatibility)
 target := "js"
 
+# Modules outside the moon.work workspace (own moon.mod, checked separately)
+standalone := "terminal_buffer terminal_protocol examples/kitty-graphics examples/roguelike experiments/eval_ui"
+
 # Default task: check and test
 default: check test
 
@@ -20,8 +23,17 @@ check:
 check-windows-native:
     ./scripts/check-windows-native-compat.sh
 
+# Check and test the standalone modules
+check-standalone:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for dir in {{standalone}}; do
+      echo "==> $dir"
+      (cd "$dir" && moon check --deny-warn --target {{target}} && moon test --target {{target}})
+    done
+
 # Check everything
-check-all: check-windows-native check
+check-all: check-windows-native check check-standalone
 
 # Run tests (whole workspace)
 test:
