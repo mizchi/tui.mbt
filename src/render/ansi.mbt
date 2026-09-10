@@ -185,7 +185,7 @@ pub fn ansi_bg_color(color : @core.Color) -> String {
 ///|
 /// Convert CharBuffer to ANSI-encoded string
 pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut last_fg = -1
   let mut last_bg = -1
   let mut last_bold = false
@@ -257,7 +257,7 @@ pub fn CharBuffer::to_ansi_offset(
   row_offset : Int,
   col_offset : Int,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut last_fg = -1
   let mut last_bg = -1
   let mut last_bold = false
@@ -324,7 +324,7 @@ pub fn CharBuffer::to_ansi_offset(
 ///|
 /// Optimized ANSI output with diff (only output changed cells)
 pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut last_row = -1
   let mut expected_col = -1 // Track expected cursor position (considering char width)
   let mut last_fg = -1
@@ -403,7 +403,7 @@ pub fn CharBuffer::diff_to_ansi_offset(
   row_offset : Int,
   col_offset : Int,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut last_row = -1
   let mut expected_col = -1 // Track expected cursor position (considering char width)
   let mut last_fg = -1

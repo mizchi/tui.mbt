@@ -3,25 +3,25 @@
 
 // Available commands
 let commands : Array[Command] = [
-  { name: "New File", icon: "+" },
-  { name: "Open File", icon: "O" },
-  { name: "Save File", icon: "S" },
-  { name: "Close File", icon: "X" },
-  { name: "Undo", icon: "U" },
-  { name: "Redo", icon: "R" },
-  { name: "Cut", icon: "✂" },
-  { name: "Copy", icon: "C" },
-  { name: "Paste", icon: "V" },
-  { name: "Find", icon: "F" },
-  { name: "Find and Replace", icon: "H" },
-  { name: "Zoom In", icon: "+" },
-  { name: "Zoom Out", icon: "-" },
-  { name: "Toggle Sidebar", icon: "|" },
-  { name: "Git Commit", icon: "G" },
-  { name: "Git Push", icon: "↑" },
-  { name: "Git Pull", icon: "↓" },
-  { name: "New Terminal", icon: "T" },
-  { name: "About", icon: "i" },
+  { name: "New File", icon: "+", },
+  { name: "Open File", icon: "O", },
+  { name: "Save File", icon: "S", },
+  { name: "Close File", icon: "X", },
+  { name: "Undo", icon: "U", },
+  { name: "Redo", icon: "R", },
+  { name: "Cut", icon: "✂", },
+  { name: "Copy", icon: "C", },
+  { name: "Paste", icon: "V", },
+  { name: "Find", icon: "F", },
+  { name: "Find and Replace", icon: "H", },
+  { name: "Zoom In", icon: "+", },
+  { name: "Zoom Out", icon: "-", },
+  { name: "Toggle Sidebar", icon: "|", },
+  { name: "Git Commit", icon: "G", },
+  { name: "Git Push", icon: "↑", },
+  { name: "Git Pull", icon: "↓", },
+  { name: "New Terminal", icon: "T", },
+  { name: "About", icon: "i", },
 ]
 
 ///|
@@ -356,7 +356,7 @@ fn main {
               if q.length() > 0 {
                 let chars : Array[Char] = q.iter().collect()
                 let new_len = chars.length() - 1
-                let buf = StringBuilder::new()
+                let buf = StringBuilder()
                 for i = 0; i < new_len; i = i + 1 {
                   buf.write_char(chars[i])
                 }

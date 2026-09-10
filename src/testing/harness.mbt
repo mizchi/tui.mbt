@@ -26,7 +26,7 @@ pub(all) struct TestHarness {
 ///|
 /// Create a new test harness with default small viewport
 pub fn TestHarness::new(width? : Int = 40, height? : Int = 10) -> TestHarness {
-  { app: @render.App::new(width, height), width, height, frames: [] }
+  { app: @render.App::new(width, height), width, height, frames: [], }
 }
 
 ///|
@@ -164,7 +164,7 @@ pub fn VNodeTestHarness::new(
   width? : Int = 40,
   height? : Int = 10,
 ) -> VNodeTestHarness {
-  { app: @vnode.VNodeApp::new(width, height), width, height, frames: [] }
+  { app: @vnode.VNodeApp::new(width, height), width, height, frames: [], }
 }
 
 ///|

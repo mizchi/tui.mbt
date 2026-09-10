@@ -17,7 +17,7 @@ pub fn TextInputController::new(
   initial : String,
 ) -> TextInputController {
   let buffer = initial.to_array()
-  { buffer, cursor_pos: buffer.length(), scroll_offset: 0, config }
+  { buffer, cursor_pos: buffer.length(), scroll_offset: 0, config, }
 }
 
 ///|

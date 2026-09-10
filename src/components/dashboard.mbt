@@ -47,7 +47,7 @@ pub fn build_sparkline(values : Array[Double], width? : Int = 0) -> String {
       display_values.push(v)
     }
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for v in display_values {
     let normalized = if range == 0.0 { 0.5 } else { (v - min_val) / range }
     let idx = (normalized * 7.0).to_int()
@@ -212,7 +212,7 @@ fn truncate_string(s : String, max_len : Int) -> String {
   if s.length() <= max_len {
     return s
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut count = 0
   for c in s {
     if count >= max_len {
@@ -248,7 +248,7 @@ pub fn TableColumn::new(
   align? : ColumnAlign = Left,
 ) -> TableColumn {
   let actual_width = if width > 0 { width } else { header.length() }
-  { header, width: actual_width, align }
+  { header, width: actual_width, align, }
 }
 
 ///|

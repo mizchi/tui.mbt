@@ -62,5 +62,5 @@ pub fn tooltip_position(
   }
   let safe_row = if row < 0 { 0 } else { row }
   let safe_col = if col < 0 { 0 } else { col }
-  { row: safe_row, col: safe_col }
+  { row: safe_row, col: safe_col, }
 }

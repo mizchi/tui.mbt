@@ -6,7 +6,7 @@ struct Selection {
 
 ///|
 fn Selection::caret(pos : Position) -> Selection {
-  { anchor: pos, active: pos }
+  { anchor: pos, active: pos, }
 }
 
 ///|

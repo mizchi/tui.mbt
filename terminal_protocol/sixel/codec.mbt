@@ -69,7 +69,7 @@ fn color_percent_string(value : Int) -> String {
 
 ///|
 fn build_sixel_palette_definition(colors : Array[Color]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, color in colors {
     buf.write_string("#")
     buf.write_string(i.to_string())
@@ -101,7 +101,7 @@ pub fn encode_indexed_pixels_to_sixel(
   include_all_colors? : Bool = false,
   compress? : Bool = true,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let palette_len = colors.length()
   let color_headers = build_sixel_color_headers(palette_len)
 

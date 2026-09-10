@@ -144,7 +144,7 @@ fn HighlightState::new(kind : HighlightKind, doc : Document) -> HighlightState {
     Some(highlighter) => Some(@syntree.LineCache::new(text, highlighter))
     None => None
   }
-  let state : HighlightState = { kind, line_cache: cache, spans: [] }
+  let state : HighlightState = { kind, line_cache: cache, spans: [], }
   state.rebuild(doc)
   state
 }
@@ -199,7 +199,7 @@ fn HighlightState::rebuild(self : HighlightState, doc : Document) -> Unit {
 fn build_plain_spans(doc : Document) -> Array[Array[HighlightSpan]] {
   let result : Array[Array[HighlightSpan]] = []
   for line in doc.lines {
-    let span : HighlightSpan = { text: line, tag: @syntree.HighlightTag::None }
+    let span : HighlightSpan = { text: line, tag: @syntree.HighlightTag::None, }
     result.push([span])
   }
   result
@@ -296,11 +296,11 @@ fn build_highlight_line_spans(
       let safe_start = if start_col < cursor { cursor } else { start_col }
       if safe_start > cursor {
         let text = line_text.unsafe_substring(start=cursor, end=safe_start)
-        spans.push({ text, tag: @syntree.HighlightTag::None })
+        spans.push({ text, tag: @syntree.HighlightTag::None, })
       }
       if end_col > safe_start {
         let text = line_text.unsafe_substring(start=safe_start, end=end_col)
-        spans.push({ text, tag: token.tag })
+        spans.push({ text, tag: token.tag, })
         cursor = end_col
       }
       if token_to > line_end {
@@ -313,7 +313,7 @@ fn build_highlight_line_spans(
         start=cursor,
         end=line_text.length(),
       )
-      spans.push({ text, tag: @syntree.HighlightTag::None })
+      spans.push({ text, tag: @syntree.HighlightTag::None, })
     }
     result.push(spans)
     token_idx = idx

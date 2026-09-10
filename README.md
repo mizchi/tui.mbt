@@ -16,11 +16,15 @@ Supported targets: `js`, `native`
 
 ## Installation
 
-```json
-{
-  "deps": {
-    "mizchi/tui": "0.9.0"
-  }
+```
+moon add mizchi/tui
+```
+
+Or add it to your `moon.mod` directly:
+
+```
+import {
+  "mizchi/tui@0.10.1",
 }
 ```
 

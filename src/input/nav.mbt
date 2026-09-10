@@ -17,7 +17,7 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
   for i, c in buf {
     let code = c.to_int()
     if code == 10 {
-      lines.push({ start_idx: line_start_idx, chars: current_chars })
+      lines.push({ start_idx: line_start_idx, chars: current_chars, })
       current_chars = []
       current_width = 0
       line_start_idx = i + 1
@@ -25,7 +25,7 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
     }
     let cw = char_width_code(code)
     if current_width + cw > max_width {
-      lines.push({ start_idx: line_start_idx, chars: current_chars })
+      lines.push({ start_idx: line_start_idx, chars: current_chars, })
       current_chars = [c]
       current_width = cw
       line_start_idx = i
@@ -34,7 +34,7 @@ fn wrap_text_to_lines(buf : Array[Char], max_width : Int) -> Array[LineInfo] {
       current_width = current_width + cw
     }
   }
-  lines.push({ start_idx: line_start_idx, chars: current_chars })
+  lines.push({ start_idx: line_start_idx, chars: current_chars, })
   lines
 }
 

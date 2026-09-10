@@ -233,7 +233,7 @@ pub struct TextProps {
 
 ///|
 pub fn TextProps::default(content : String) -> TextProps {
-  { content, fg: None, bold: false, underline: false, role: None }
+  { content, fg: None, bold: false, underline: false, role: None, }
 }
 
 ///|
@@ -870,12 +870,13 @@ fn parse_color_value(s : String) -> ColorValue {
     let inner = s.view(start_offset=4, end_offset=s.length() - 1)
     let parts = inner.split(",").collect()
     if parts.length() == 3 {
-      let r = try? @string.parse_int(parts[0].to_owned().trim(chars=" "))
-      let g = try? @string.parse_int(parts[1].to_owned().trim(chars=" "))
-      let b = try? @string.parse_int(parts[2].to_owned().trim(chars=" "))
-      match (r, g, b) {
-        (Ok(r), Ok(g), Ok(b)) => return ColorValue::Rgb(r, g, b)
-        _ => ()
+      return try {
+        let r = @string.parse_int(parts[0].to_owned().trim(chars=" "))
+        let g = @string.parse_int(parts[1].to_owned().trim(chars=" "))
+        let b = @string.parse_int(parts[2].to_owned().trim(chars=" "))
+        ColorValue::Rgb(r, g, b)
+      } catch {
+        _ => ColorValue::Named(s)
       }
     }
   }

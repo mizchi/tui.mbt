@@ -165,4 +165,3 @@ pub fn VirtualTerminal::write(Self, String) -> Unit
 // Type aliases
 
 // Traits
-

@@ -1467,7 +1467,7 @@ pub fn stop_render_ticker(ticker_id : Int) -> Unit {
 
 ///|
 /// Check if raw mode is enabled (always true after enable_raw_mode in JS)
-let raw_mode_flag : Ref[Bool] = { val: false }
+let raw_mode_flag : Ref[Bool] = { val: false, }
 
 ///|
 pub fn is_raw_mode() -> Bool {
@@ -1553,7 +1553,7 @@ pub fn stop_resize_listener() -> Unit {
 
 ///|
 /// Get command line arguments (excluding node and script path)
-extern "js" fn js_get_args() -> Array[String] =
+extern "js" fn js_get_args() -> FixedArray[String] =
   #| () => {
   #|   if (typeof process === 'undefined') return [];
   #|   return process.argv.slice(2);
@@ -1570,7 +1570,7 @@ extern "js" fn js_get_env(name : String) -> String =
 ///|
 /// Get command line arguments
 pub fn get_args() -> Array[String] {
-  js_get_args()
+  Array::from_fixed_array(js_get_args())
 }
 
 ///|

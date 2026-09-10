@@ -13,7 +13,7 @@ pub struct CharBuffer {
 pub fn CharBuffer::new(width : Int, height : Int) -> CharBuffer {
   let size = width * height
   let cells : Array[CharCell] = Array::make(size, CharCell::default())
-  { width, height, cells }
+  { width, height, cells, }
 }
 
 ///|
@@ -74,7 +74,7 @@ pub fn CharBuffer::fill_bg(
           self.set_cell(col, row, { ..existing, bg, })
         } else {
           // Overwrite cell completely with space to cover underlying content
-          self.set_cell(col, row, { ..CharCell::default(), char: ' ', bg })
+          self.set_cell(col, row, { ..CharCell::default(), char: ' ', bg, })
         }
       }
     }
@@ -222,5 +222,5 @@ pub fn CharBuffer::clone(self : CharBuffer) -> CharBuffer {
   for i = 0; i < self.cells.length(); i = i + 1 {
     new_cells[i] = self.cells[i]
   }
-  { width: self.width, height: self.height, cells: new_cells }
+  { width: self.width, height: self.height, cells: new_cells, }
 }

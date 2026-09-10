@@ -118,4 +118,3 @@ pub fn TreeState::toggle_expand(Self, String) -> Self
 // Type aliases
 
 // Traits
-

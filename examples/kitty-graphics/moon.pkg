@@ -3,12 +3,16 @@ import {
   "mizchi/tui/io",
   "mizchi/tui/image",
   "moonbitlang/async",
-  "moonbitlang/core/buffer",
+  "moonbitlang/core/env",
   "moonbitlang/core/math",
-  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/string",
-  "moonbitlang/x/sys",
 }
+
+import {
+  "moonbitlang/core/encoding/utf8",
+} for "test"
+
+supported_targets = "js"
 
 options(
   "is-main": true,

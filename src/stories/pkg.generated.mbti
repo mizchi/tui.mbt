@@ -174,4 +174,3 @@ pub fn VNodeStory::to_snapshot(Self) -> String
 // Type aliases
 
 // Traits
-

@@ -8,7 +8,7 @@ fn clamp_byte(value : Int) -> Byte {
 pub fn solid_rgb(width : Int, height : Int, r : Int, g : Int, b : Int) -> Bytes {
   let w = if width <= 0 { 1 } else { width }
   let h = if height <= 0 { 1 } else { height }
-  let buf = @buffer.new(size_hint=w * h * 3)
+  let buf = Buffer(size_hint=w * h * 3)
   let rb = clamp_byte(r)
   let gb = clamp_byte(g)
   let bb = clamp_byte(b)
@@ -26,7 +26,7 @@ pub fn solid_rgb(width : Int, height : Int, r : Int, g : Int, b : Int) -> Bytes 
 pub fn pattern_rgb(width : Int, height : Int, seed : Int) -> Bytes {
   let w = if width <= 0 { 1 } else { width }
   let h = if height <= 0 { 1 } else { height }
-  let buf = @buffer.new(size_hint=w * h * 3)
+  let buf = Buffer(size_hint=w * h * 3)
   let seed_base = if seed < 0 { -seed } else { seed }
   for y in 0..<h {
     let yv = y * 23 + seed_base * 13

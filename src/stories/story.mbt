@@ -28,7 +28,7 @@ pub fn Story::new(
   width? : Int = 30,
   height? : Int = 5,
 ) -> Story {
-  { category, name, width, height, render }
+  { category, name, width, height, render, }
 }
 
 ///|
@@ -150,7 +150,7 @@ pub fn VNodeStory::new(
   width? : Int = 30,
   height? : Int = 5,
 ) -> VNodeStory {
-  { category, name, width, height, render }
+  { category, name, width, height, render, }
 }
 
 ///|

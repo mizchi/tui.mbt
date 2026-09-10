@@ -462,7 +462,7 @@ struct CompletionState {
 
 ///|
 fn CompletionState::new() -> CompletionState {
-  { input: "", suppress_popup: false }
+  { input: "", suppress_popup: false, }
 }
 
 ///|
@@ -489,7 +489,7 @@ fn CompletionState::on_tab_confirm(
 fn CompletionState::on_backspace(self : CompletionState) -> Unit {
   if self.input.length() > 0 {
     let chars : Array[Char] = self.input.iter().collect()
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 0; i < chars.length() - 1; i = i + 1 {
       buf.write_char(chars[i])
     }

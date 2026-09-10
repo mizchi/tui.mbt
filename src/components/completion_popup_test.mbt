@@ -95,7 +95,7 @@ test "completion_popup_rect_directed Below places below anchor" {
     direction=PopupDirection::Below,
   )
   assert_true(rect.row == 6)
-  guard dir is PopupDirection::Below
+  guard! dir is PopupDirection::Below
 }
 
 ///|
@@ -112,7 +112,7 @@ test "completion_popup_rect_directed Above places above anchor" {
     direction=PopupDirection::Above,
   )
   assert_true(rect.row == 7)
-  guard dir is PopupDirection::Above
+  guard! dir is PopupDirection::Above
 }
 
 ///|
@@ -130,7 +130,7 @@ test "completion_popup_rect_directed Auto prefers Below when both fit" {
     direction=PopupDirection::Auto,
   )
   assert_true(rect.row == 6)
-  guard dir is PopupDirection::Below
+  guard! dir is PopupDirection::Below
 }
 
 ///|
@@ -148,7 +148,7 @@ test "completion_popup_rect_directed Auto chooses Above when below doesn't fit" 
     direction=PopupDirection::Auto,
   )
   assert_true(rect.row == 13) // 18 - 5
-  guard dir is PopupDirection::Above
+  guard! dir is PopupDirection::Above
 }
 
 ///|
@@ -167,7 +167,7 @@ test "completion_popup_rect_directed Auto fallback picks larger space" {
     direction=PopupDirection::Auto,
   )
   assert_true(rect.row == 4)
-  guard dir is PopupDirection::Below
+  guard! dir is PopupDirection::Below
 }
 
 ///|
@@ -187,5 +187,5 @@ test "completion_popup_rect_directed Auto fallback picks Above when above is lar
   )
   // above = 7 - 8 = -1, clamped to 0
   assert_true(rect.row == 0)
-  guard dir is PopupDirection::Above
+  guard! dir is PopupDirection::Above
 }

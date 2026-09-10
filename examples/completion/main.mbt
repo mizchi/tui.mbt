@@ -47,7 +47,7 @@ fn main {
   }
 
   fn get_confirmed_text() -> String {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for word in confirmed_words {
       buf.write_string(word)
       buf.write_string(" ")
@@ -295,7 +295,7 @@ fn main {
             if current.length() > 0 {
               let chars : Array[Char] = current.iter().collect()
               let new_len = chars.length() - 1
-              let buf = StringBuilder::new()
+              let buf = StringBuilder()
               for i = 0; i < new_len; i = i + 1 {
                 buf.write_char(chars[i])
               }

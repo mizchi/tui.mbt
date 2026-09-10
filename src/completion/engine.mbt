@@ -273,7 +273,7 @@ pub fn AsyncCompletionManager::check_pending(
       let now = (self.time_fn)()
       if now >= req.target_time {
         let items = (self.filter_fn)(req.query)
-        let result = CompletionResult::{ items, request_version: req.version }
+        let result = CompletionResult::{ items, request_version: req.version, }
         let applied = self.engine.apply_result(result)
         self.pending.set(None)
         applied
@@ -334,7 +334,7 @@ pub(all) struct WordInputState {
 ///|
 /// Create new word input state
 pub fn WordInputState::new() -> WordInputState {
-  { confirmed: @signals.signal(""), current: @signals.signal("") }
+  { confirmed: @signals.signal(""), current: @signals.signal(""), }
 }
 
 ///|

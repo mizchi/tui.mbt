@@ -18,7 +18,7 @@ pub struct FocusContext {
 ///|
 /// Create a new focus context
 pub fn FocusContext::new() -> FocusContext {
-  { elements: [], current_index: -1 }
+  { elements: [], current_index: -1, }
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn FocusContext::register(
 ) -> Unit {
   // Only register if tab_index >= 0 (-1 means not focusable)
   if tab_index >= 0 {
-    self.elements.push({ id, tab_index })
+    self.elements.push({ id, tab_index, })
   }
 }
 

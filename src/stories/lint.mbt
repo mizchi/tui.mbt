@@ -111,7 +111,7 @@ pub fn format_lint_report(violations : Array[LintViolation]) -> String {
   }
   let lines : Array[String] = ["Lint violations found:"]
   for v in violations {
-    lines.push("  - " + v.to_string())
+    lines.push("  - " + Show::to_string(v))
   }
   lines
   .iter()

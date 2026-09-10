@@ -597,7 +597,7 @@ fn color_from_256(idx : Int) -> @core.Color {
 ///|
 /// Get the plain text content of the screen
 pub fn VirtualTerminal::get_screen(self : VirtualTerminal) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for y = 0; y < self.height; y = y + 1 {
     for x = 0; x < self.width; x = x + 1 {
       let cell = self.buffer.get_cell(x, y)
@@ -620,7 +620,7 @@ pub fn VirtualTerminal::get_line(self : VirtualTerminal, y : Int) -> String {
   if y < 0 || y >= self.height {
     return ""
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for x = 0; x < self.width; x = x + 1 {
     let cell = self.buffer.get_cell(x, y)
     if cell.char == '\u0000' {

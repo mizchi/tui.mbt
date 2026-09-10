@@ -7,6 +7,17 @@ pub struct MandelState {
 } derive(Debug)
 
 ///|
+/// Create an animation state centred on the classic Mandelbrot view.
+pub fn MandelState::new(
+  center_x~ : Double = -0.743643887037151,
+  center_y~ : Double = 0.13182590420533,
+  scale~ : Double = 2.8,
+  phase~ : Double = 0.0,
+) -> MandelState {
+  MandelState::{ center_x, center_y, scale, phase }
+}
+
+///|
 pub fn mandelbrot_escape(cx : Double, cy : Double, max_iter : Int) -> Int {
   let mut zr = 0.0
   let mut zi = 0.0
@@ -73,7 +84,7 @@ pub fn mandelbrot_frame(
   let w = if width <= 1 { 1 } else { width }
   let h = if height <= 1 { 1 } else { height }
   let aspect = Double::from_int(w) / Double::from_int(h)
-  let buf = @buffer.new(size_hint=w * h * 3)
+  let buf = Buffer(size_hint=w * h * 3)
   let scale = state.scale
   let center_x = state.center_x + 0.2 * scale * @math.cos(state.phase)
   let center_y = state.center_y + 0.1 * scale * @math.sin(state.phase * 0.7)

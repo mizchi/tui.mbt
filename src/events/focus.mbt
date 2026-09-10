@@ -12,7 +12,7 @@ pub struct FocusManager {
 ///|
 /// Create a new focus manager
 pub fn FocusManager::new() -> FocusManager {
-  { focus: FocusState::None, mode: InputMode::Normal, focusable_ids: [] }
+  { focus: FocusState::None, mode: InputMode::Normal, focusable_ids: [], }
 }
 
 ///|

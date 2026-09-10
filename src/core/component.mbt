@@ -67,7 +67,7 @@ pub(all) enum Role {
 
 ///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
-  value.to_repr().output(logger)
+  Show::output(value.to_repr(), logger)
 }
 
 ///|
@@ -210,7 +210,7 @@ pub fn Component::get_role(self : Component, id : String) -> Role? {
 // Global ID counter for unique component IDs
 
 ///|
-let component_id_counter : Ref[Int] = { val: 0 }
+let component_id_counter : Ref[Int] = { val: 0, }
 
 ///|
 fn next_id() -> String {
@@ -381,7 +381,7 @@ pub fn box(
     border,
     border_fg: border_color,
   })
-  { node, styles, texts, click_handlers, roles }
+  { node, styles, texts, click_handlers, roles, }
 }
 
 ///|

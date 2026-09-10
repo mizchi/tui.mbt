@@ -23,7 +23,7 @@ pub fn CompletionPopup::new(
   style? : CompletionPopupStyle = CompletionPopupStyle::default(),
   direction? : @components.PopupDirection = Auto,
 ) -> CompletionPopup {
-  { session, max_items, style, direction }
+  { session, max_items, style, direction, }
 }
 
 ///|

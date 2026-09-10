@@ -4,7 +4,7 @@
 ///|
 /// Helper to extract a rectangular region as a string (for debugging)
 fn extract_rect(buf : CharBuffer, x : Int, y : Int, w : Int, h : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for row = y; row < y + h; row = row + 1 {
     for col = x; col < x + w; col = col + 1 {
       let cell = buf.get_cell(col, row)
@@ -287,7 +287,7 @@ test "write_text: with styles" {
   let buf = CharBuffer::new(20, 3)
   let red = @core.Color::rgb(255, 0, 0)
   let blue = @core.Color::rgb(0, 0, 255)
-  let style : TextStyle = { fg: red, bg: blue, bold: true, underline: true }
+  let style : TextStyle = { fg: red, bg: blue, bold: true, underline: true, }
   let _ = buf.write_text(0, 0, "Styled", style, 20)
   let cell = buf.get_cell(0, 0)
   assert_true(cell.fg == red)

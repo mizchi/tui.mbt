@@ -7,7 +7,7 @@ pub enum ImageFormat {
 
 ///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
-  value.to_repr().output(logger)
+  Show::output(value.to_repr(), logger)
 }
 
 ///|
@@ -49,7 +49,7 @@ pub impl Show for ImageRect with fn output(self : ImageRect, logger : &Logger) -
 ///|
 /// Construct a rectangle.
 pub fn image_rect(x : Int, y : Int, w : Int, h : Int) -> ImageRect {
-  ImageRect::{ x, y, w, h }
+  ImageRect::{ x, y, w, h, }
 }
 
 ///|
@@ -82,7 +82,7 @@ pub fn base64_encode(bytes : BytesView) -> String {
   if len == 0 {
     return ""
   }
-  let sb = StringBuilder::new(size_hint=(len + 2) / 3 * 4)
+  let sb = StringBuilder(size_hint=(len + 2) / 3 * 4)
   let mut i = 0
   while i < len {
     let b0 = bytes[i].to_int()
@@ -163,7 +163,7 @@ pub fn clamp_rect(width : Int, height : Int, rect : ImageRect) -> ImageRect {
   let max_y = if height <= h { 0 } else { height - h }
   let x = clamp_int(rect.x, 0, max_x)
   let y = clamp_int(rect.y, 0, max_y)
-  ImageRect::{ x, y, w, h }
+  ImageRect::{ x, y, w, h, }
 }
 
 ///|
@@ -178,5 +178,5 @@ pub fn center_rect(
   let h = clamp_int(rect_h, 1, normalize_dim(height))
   let x = if width <= w { 0 } else { (width - w) / 2 }
   let y = if height <= h { 0 } else { (height - h) / 2 }
-  ImageRect::{ x, y, w, h }
+  ImageRect::{ x, y, w, h, }
 }

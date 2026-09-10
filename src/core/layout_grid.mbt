@@ -12,7 +12,7 @@ pub struct GridRect {
 
 ///|
 pub impl Show for GridRect with fn output(self : GridRect, logger : &Logger) -> Unit {
-  self.to_repr().output(logger)
+  Show::output(self.to_repr(), logger)
 }
 
 ///|

@@ -169,4 +169,3 @@ pub type TuiNode = @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 pub using @vnode {type VNodeApp}
 
 // Traits
-

@@ -167,10 +167,10 @@ pub fn run(
   let app = @render.App::new(cols, rows)
 
   // Store last rendered component for click handling
-  let last_component : Ref[@core.Component?] = { val: None }
+  let last_component : Ref[@core.Component?] = { val: None, }
 
   // Track hover state
-  let last_hover_id : Ref[String] = { val: "" }
+  let last_hover_id : Ref[String] = { val: "", }
 
   // Initialize terminal
   @io.print_raw(@render.App::init_terminal())

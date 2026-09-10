@@ -46,7 +46,7 @@ fn write_base64_triplet(
 
 ///|
 fn encode_base64_triplet(b0 : Int, b1 : Int, b2 : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   write_base64_triplet(buf, b0, b1, b2)
   buf.to_string()
 }
@@ -177,7 +177,7 @@ fn to_kitty_uniform(
   pixel_count : Int,
   triplet : String,
 ) -> String {
-  let buf = StringBuilder::new(size_hint=pixel_count * 4)
+  let buf = StringBuilder(size_hint=pixel_count * 4)
   let full_chunk_payload = triplet.repeat(kitty_pixels_per_chunk)
   let mut first_chunk = true
   let mut pixel_index = 0
@@ -258,7 +258,7 @@ pub fn encode_indexed_pixels_to_kitty(
       )
     None => ()
   }
-  let buf = StringBuilder::new(size_hint=pixel_count * 4)
+  let buf = StringBuilder(size_hint=pixel_count * 4)
   let mut first_chunk = true
   let mut pixel_index = 0
   while pixel_index < pixel_count {
@@ -350,8 +350,8 @@ pub fn encode_indexed_pixels_to_kitty_cells(
     return ""
   }
   let triplets = build_kitty_palette_triplets(colors)
-  let buf = StringBuilder::new(size_hint=pixel_count * 4)
-  let mut chunk = StringBuilder::new()
+  let buf = StringBuilder(size_hint=pixel_count * 4)
+  let mut chunk = StringBuilder()
   let mut chunk_len = 0
   let mut first_chunk = true
   for pixel_index in 0..<pixel_count {
@@ -362,7 +362,7 @@ pub fn encode_indexed_pixels_to_kitty_cells(
       )
       buf.write_string(chunk.to_string())
       buf.write_string("\u001b\\")
-      chunk = StringBuilder::new()
+      chunk = StringBuilder()
       chunk_len = 0
       first_chunk = false
     }
@@ -402,7 +402,7 @@ fn encode_base64_payload_as_kitty_image(
   if image_format == 32 && (pixel_width <= 0 || pixel_height <= 0) {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total_len = b64_data.length()
   let b64_chars = b64_data.to_array()
   for offset = 0; offset < total_len; offset = offset + kitty_chunk_size {
@@ -512,7 +512,7 @@ pub async fn[T : @io.Writer] write_indexed_pixels_to_kitty(
     }
     None => ()
   }
-  let mut chunk = StringBuilder::new()
+  let mut chunk = StringBuilder()
   let mut chunk_len = 0
   let mut first_chunk = true
   for pixel_index in 0..<pixel_count {
@@ -524,7 +524,7 @@ pub async fn[T : @io.Writer] write_indexed_pixels_to_kitty(
       writer.write("\u001b\\") catch {
         _ => return
       }
-      chunk = StringBuilder::new()
+      chunk = StringBuilder()
       chunk_len = 0
       first_chunk = false
     }

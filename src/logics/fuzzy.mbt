@@ -14,7 +14,7 @@ pub(all) struct FuzzyMatch {
 /// Higher score = better match. Consecutive matches and word boundary matches score higher.
 pub fn fuzzy_match(pattern : String, target : String) -> FuzzyMatch? {
   if pattern.length() == 0 {
-    return Some(FuzzyMatch::{ score: 0, positions: [] })
+    return Some(FuzzyMatch::{ score: 0, positions: [], })
   }
   if target.length() == 0 {
     return None
@@ -85,7 +85,7 @@ pub fn fuzzy_match(pattern : String, target : String) -> FuzzyMatch? {
   if best_score.val < 0 {
     None
   } else {
-    Some(FuzzyMatch::{ score: best_score.val, positions: best_positions })
+    Some(FuzzyMatch::{ score: best_score.val, positions: best_positions, })
   }
 }
 
@@ -110,9 +110,9 @@ pub fn FuzzyVisibleRows::rows(self : FuzzyVisibleRows) -> Int {
 pub fn fuzzy_visible_rows(total : Int, max_show : Int) -> FuzzyVisibleRows {
   if total > max_show {
     // Reserve 1 row for "... and N more"
-    { show: max_show - 1, has_more: true, pad: 0 }
+    { show: max_show - 1, has_more: true, pad: 0, }
   } else {
-    { show: total, has_more: false, pad: max_show - total }
+    { show: total, has_more: false, pad: max_show - total, }
   }
 }
 

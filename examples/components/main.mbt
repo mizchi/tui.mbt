@@ -445,7 +445,7 @@ async fn main {
     if !valid {
       return None
     }
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i in 0..<last_dash {
       buf.write_char(chars[i])
     }

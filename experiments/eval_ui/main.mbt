@@ -226,7 +226,7 @@ fn summary_block(
   reports : Array[PatternReport],
   pick : (PatternReport) -> DiffStats,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("[summary " + title + "]\n")
   let mut total_patterns = 0
   let mut ok_patterns = 0
@@ -372,7 +372,7 @@ fn clip_lines(
 
 ///|
 fn parse_arg_int(s : String, default : Int) -> Int {
-  try @strconv.parse_int(s) catch {
+  try @string.parse_int(s) catch {
     _ => default
   } noraise {
     v => v
@@ -389,7 +389,7 @@ fn plain_lines_from_output(
   let chars = plain.to_array()
   let lines : Array[String] = []
   let mut pos = 0
-  for row in 0..<height {
+  for _row in 0..<height {
     let line_chars : Array[Char] = []
     let mut col = 0
     while col < width && pos < chars.length() {
@@ -408,7 +408,7 @@ fn rects_from_ids(
   layout_rects : Array[Rect],
   expected : Array[Rect],
 ) -> Array[Rect] {
-  let map : Map[String, Rect] = {}
+  let map : Map[String, Rect] = Map([])
   for rect in layout_rects {
     if rect.id != "" {
       map[rect.id] = rect
@@ -639,7 +639,7 @@ fn infer_boxes_stats(
 ) -> InferStats {
   let grid = to_grid(lines, width, height)
   let styles = border_styles()
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   let boxes : Array[Rect] = []
   let mut rejected = 0
   for y in 0..<height {
@@ -649,26 +649,26 @@ fn infer_boxes_stats(
           let mut x2 = x + 1
           let mut top_ok = true
           while x2 < width && grid[y][x2] != style.tr {
-            if not(is_border_horizontal(grid[y][x2])) {
+            if !(is_border_horizontal(grid[y][x2])) {
               top_ok = false
               break
             }
             x2 = x2 + 1
           }
-          if not(top_ok) || x2 >= width {
+          if !(top_ok) || x2 >= width {
             rejected = rejected + 1
             continue
           }
           let mut y2 = y + 1
           let mut left_ok = true
           while y2 < height && grid[y2][x] != style.bl {
-            if not(is_border_vertical(grid[y2][x])) {
+            if !(is_border_vertical(grid[y2][x])) {
               left_ok = false
               break
             }
             y2 = y2 + 1
           }
-          if not(left_ok) || y2 >= height {
+          if !(left_ok) || y2 >= height {
             rejected = rejected + 1
             continue
           }
@@ -683,7 +683,7 @@ fn infer_boxes_stats(
           let allowed_bad = if bottom_len < 8 { 0 } else { bottom_len / 4 }
           let mut bottom_bad = 0
           for bx in (x + 1)..<x2 {
-            if not(is_border_horizontal(grid[y2][bx])) {
+            if !(is_border_horizontal(grid[y2][bx])) {
               bottom_bad = bottom_bad + 1
             }
           }
@@ -693,11 +693,11 @@ fn infer_boxes_stats(
           }
           let mut right_ok = true
           for by in (y + 1)..<y2 {
-            if not(is_border_vertical(grid[by][x2])) {
+            if !(is_border_vertical(grid[by][x2])) {
               right_ok = false
             }
           }
-          if not(right_ok) {
+          if !(right_ok) {
             rejected = rejected + 1
             continue
           }
@@ -886,7 +886,7 @@ fn eval_inferred_filtered(
         ignore = true
       }
     }
-    if not(ignore) {
+    if !(ignore) {
       filtered.push(rect)
     }
   }
@@ -2095,7 +2095,7 @@ fn run_pattern(pattern : Pattern, out_opts : OutputOptions) -> PatternReport {
 fn eval1_block(pattern : Pattern) -> String {
   let rendered = render_pattern(pattern)
   let diffs = eval_predicted(pattern, rendered.actual_rects)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(
     "==== " +
     pattern.name +
@@ -2118,7 +2118,7 @@ fn eval1_block(pattern : Pattern) -> String {
 fn layout_block(pattern : Pattern) -> String {
   let rendered = render_pattern(pattern)
   let rects = named_layout_rects(rendered.layout_rects)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(
     "==== " +
     pattern.name +
@@ -2137,7 +2137,7 @@ fn layout_block(pattern : Pattern) -> String {
 
 ///|
 fn snapshot_eval1(path : String) -> Unit {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("# eval-1 snapshot\n\n")
   for pattern in patterns() {
     sb.write_string(eval1_block(pattern))
@@ -2148,7 +2148,7 @@ fn snapshot_eval1(path : String) -> Unit {
 
 ///|
 fn snapshot_eval1_p5(path : String) -> Unit {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("# eval-1 snapshot (p5)\n\n")
   for pattern in patterns_p5() {
     sb.write_string(eval1_block(pattern))
@@ -2159,7 +2159,7 @@ fn snapshot_eval1_p5(path : String) -> Unit {
 
 ///|
 fn snapshot_layout(path : String, list : Array[Pattern], label : String) -> Unit {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("# layout snapshot" + label + "\n\n")
   for pattern in list {
     sb.write_string(layout_block(pattern))
@@ -2171,13 +2171,13 @@ fn snapshot_layout(path : String, list : Array[Pattern], label : String) -> Unit
 ///|
 fn run_scroll_ui() -> Unit {
   let (initial_width, initial_height) = @io.get_terminal_size()
-  let width = Ref::new(initial_width)
-  let height = Ref::new(initial_height)
+  let width = Ref(initial_width)
+  let height = Ref(initial_height)
   let lines : Array[String] = []
   for i in 0..<200 {
     lines.push("Line " + i.to_string() + " - lorem ipsum dolor sit amet")
   }
-  let offset = Ref::new(0)
+  let offset = Ref(0)
 
   let (app, cleanup) = @vnode.init_vnode_terminal(
     initial_width,
@@ -2388,7 +2388,7 @@ fn format_snapshot_block(
   } else {
     max_row.to_string().length()
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let header = "==== offset " +
     offset.to_string() +
     " (" +
@@ -2420,7 +2420,7 @@ fn snapshot_scroll(path : String) -> Unit {
   }
   let max_off = scroll_max_offset(lines, height)
   let candidates : Array[Int] = [0, 1, 3, 10, max_off / 2, max_off]
-  let seen : Map[Int, Bool] = {}
+  let seen : Map[Int, Bool] = Map([])
   let offsets : Array[Int] = []
   for c in candidates {
     let v = clamp_scroll_offset(c, max_off)
@@ -2433,7 +2433,7 @@ fn snapshot_scroll(path : String) -> Unit {
     }
   }
 
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(
     "# scroll snapshot " +
     width.to_string() +

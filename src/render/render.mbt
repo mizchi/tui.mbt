@@ -105,7 +105,7 @@ fn draw_border(
     return
   }
   // Top-left corner
-  buf.set_cell(x, y, { ..CharCell::default(), char: border.top_left, fg })
+  buf.set_cell(x, y, { ..CharCell::default(), char: border.top_left, fg, })
   // Top-right corner
   buf.set_cell(x + w - 1, y, {
     ..CharCell::default(),
@@ -126,7 +126,7 @@ fn draw_border(
   })
   // Top and bottom edges
   for col = x + 1; col < x + w - 1; col = col + 1 {
-    buf.set_cell(col, y, { ..CharCell::default(), char: border.horizontal, fg })
+    buf.set_cell(col, y, { ..CharCell::default(), char: border.horizontal, fg, })
     buf.set_cell(col, y + h - 1, {
       ..CharCell::default(),
       char: border.horizontal,
@@ -135,7 +135,7 @@ fn draw_border(
   }
   // Left and right edges
   for row = y + 1; row < y + h - 1; row = row + 1 {
-    buf.set_cell(x, row, { ..CharCell::default(), char: border.vertical, fg })
+    buf.set_cell(x, row, { ..CharCell::default(), char: border.vertical, fg, })
     buf.set_cell(x + w - 1, row, {
       ..CharCell::default(),
       char: border.vertical,

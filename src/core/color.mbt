@@ -9,57 +9,57 @@ pub(all) struct Color {
 
 ///|
 pub fn Color::rgb(r : Int, g : Int, b : Int) -> Color {
-  { r, g, b, a: 1.0 }
+  { r, g, b, a: 1.0, }
 }
 
 ///|
 pub fn Color::rgba(r : Int, g : Int, b : Int, a : Double) -> Color {
-  { r, g, b, a }
+  { r, g, b, a, }
 }
 
 ///|
 pub fn Color::white() -> Color {
-  { r: 255, g: 255, b: 255, a: 1.0 }
+  { r: 255, g: 255, b: 255, a: 1.0, }
 }
 
 ///|
 pub fn Color::black() -> Color {
-  { r: 0, g: 0, b: 0, a: 1.0 }
+  { r: 0, g: 0, b: 0, a: 1.0, }
 }
 
 ///|
 pub fn Color::transparent() -> Color {
-  { r: 0, g: 0, b: 0, a: 0.0 }
+  { r: 0, g: 0, b: 0, a: 0.0, }
 }
 
 ///|
 pub fn Color::red() -> Color {
-  { r: 255, g: 0, b: 0, a: 1.0 }
+  { r: 255, g: 0, b: 0, a: 1.0, }
 }
 
 ///|
 pub fn Color::green() -> Color {
-  { r: 0, g: 255, b: 0, a: 1.0 }
+  { r: 0, g: 255, b: 0, a: 1.0, }
 }
 
 ///|
 pub fn Color::blue() -> Color {
-  { r: 0, g: 0, b: 255, a: 1.0 }
+  { r: 0, g: 0, b: 255, a: 1.0, }
 }
 
 ///|
 pub fn Color::yellow() -> Color {
-  { r: 255, g: 255, b: 0, a: 1.0 }
+  { r: 255, g: 255, b: 0, a: 1.0, }
 }
 
 ///|
 pub fn Color::cyan() -> Color {
-  { r: 0, g: 255, b: 255, a: 1.0 }
+  { r: 0, g: 255, b: 255, a: 1.0, }
 }
 
 ///|
 pub fn Color::magenta() -> Color {
-  { r: 255, g: 0, b: 255, a: 1.0 }
+  { r: 255, g: 0, b: 255, a: 1.0, }
 }
 
 ///|
@@ -78,5 +78,5 @@ pub impl Eq for Color with fn equal(self, other) {
 ///|
 /// Convert from crater Color
 pub fn Color::from_crater(c : @values.Color) -> Color {
-  { r: c.r, g: c.g, b: c.b, a: c.a }
+  { r: c.r, g: c.g, b: c.b, a: c.a, }
 }

@@ -51,4 +51,3 @@ pub fn[T] TreeNode::leaf(String, String, data? : T) -> Self[T]
 // Type aliases
 
 // Traits
-

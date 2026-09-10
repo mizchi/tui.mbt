@@ -8,7 +8,10 @@ import {
   "mizchi/signals",
   "mizchi/tui/core",
   "mizchi/tui/events",
-  "moonbitlang/core/bench",
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "wbtest"
 
 supported_targets = "js+native"

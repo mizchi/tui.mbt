@@ -371,4 +371,3 @@ pub type TuiHandler = @ui.EventHandler[TuiEvent]
 pub type TuiNode = @ui.Node[TuiEvent, TuiAttrValue]
 
 // Traits
-

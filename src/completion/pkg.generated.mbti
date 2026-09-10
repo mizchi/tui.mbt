@@ -80,4 +80,3 @@ pub fn WordInputState::set_current(Self, String) -> Unit
 // Type aliases
 
 // Traits
-

@@ -22,12 +22,12 @@ jobs:
       - name: Moon update
         run: moon update
       - name: Check Windows native compatibility
-        run: ./scripts/check-windows-native-compat.sh
-      - name: Moon check (library)
-        run: moon check --deny-warn
-      - name: Moon check (examples)
-        run: just check-examples
-      - name: Moon test (library)
-        run: moon test
-      - name: Moon test (examples)
-        run: just test-examples
+        run: just check-windows-native
+      - name: Moon check (workspace)
+        run: just check
+      - name: Moon test (workspace)
+        run: just test
+      - name: Moon check and test (standalone modules)
+        run: just check-standalone
+      - name: Story lints
+        run: just lint

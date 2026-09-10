@@ -245,7 +245,7 @@ fn parse_mouse_x10(chars : Array[Char]) -> InputEvent {
     MouseEventType::Press
   }
   let modifier = parse_mouse_modifier(cb)
-  InputEvent::Mouse({ button, event_type, x: cx, y: cy, modifier })
+  InputEvent::Mouse({ button, event_type, x: cx, y: cy, modifier, })
 }
 
 ///|

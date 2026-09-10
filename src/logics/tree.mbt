@@ -13,7 +13,7 @@ pub(all) struct TreeNode[T] {
 ///|
 /// Create a leaf node (no children)
 pub fn[T] TreeNode::leaf(id : String, label : String, data? : T) -> TreeNode[T] {
-  { id, label, children: [], data }
+  { id, label, children: [], data, }
 }
 
 ///|
@@ -23,7 +23,7 @@ pub fn[T] TreeNode::branch(
   label : String,
   children : Array[TreeNode[T]],
 ) -> TreeNode[T] {
-  { id, label, children, data: None }
+  { id, label, children, data: None, }
 }
 
 ///|

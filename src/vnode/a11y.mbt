@@ -11,7 +11,7 @@ pub struct A11yRect {
 
 ///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
-  value.to_repr().output(logger)
+  Show::output(value.to_repr(), logger)
 }
 
 ///|
@@ -107,12 +107,12 @@ fn build_a11y(
         id: layout.id,
         role,
         name: normalize_text(name_text),
-        rect: { x, y, width: w, height: h },
+        rect: { x, y, width: w, height: h, },
         children: child_nodes,
       }
-      { nodes: [node], text_for_parent: "" }
+      { nodes: [node], text_for_parent: "", }
     }
-    None => { nodes: child_nodes, text_for_parent }
+    None => { nodes: child_nodes, text_for_parent, }
   }
 }
 
