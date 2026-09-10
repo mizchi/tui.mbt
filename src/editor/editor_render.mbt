@@ -42,7 +42,7 @@ fn take_display_width(text : String, max_width : Int) -> String {
   if max_width <= 0 {
     return ""
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut width = 0
   for c in text {
     let w = @core.char_display_width(c)

@@ -4,8 +4,10 @@ import {
   "mizchi/tui/testing" @testing,
   "mizchi/tui/io" @io,
   "mizchi/tui/events" @events,
-  "moonbitlang/core/strconv" @strconv,
+  "moonbitlang/core/string" @string,
 }
+
+supported_targets = "js"
 
 options(
   "is-main": true,

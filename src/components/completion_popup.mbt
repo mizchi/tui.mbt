@@ -56,8 +56,8 @@ fn split_by_chars(text : String, count : Int) -> (String, String) {
   } else {
     count
   }
-  let head = StringBuilder::new()
-  let tail = StringBuilder::new()
+  let head = StringBuilder()
+  let tail = StringBuilder()
   for i = 0; i < chars.length(); i = i + 1 {
     if i < limit {
       head.write_char(chars[i])
@@ -88,7 +88,7 @@ fn take_display_width(text : String, max_width : Int) -> String {
     return ""
   }
   let chars = text.to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut used = 0
   for i = 0; i < chars.length(); i = i + 1 {
     let c = chars[i]

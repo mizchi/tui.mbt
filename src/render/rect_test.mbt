@@ -4,7 +4,7 @@
 ///|
 /// Helper to extract a rectangular region as a string (for debugging)
 fn extract_rect(buf : CharBuffer, x : Int, y : Int, w : Int, h : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for row = y; row < y + h; row = row + 1 {
     for col = x; col < x + w; col = col + 1 {
       let cell = buf.get_cell(col, row)

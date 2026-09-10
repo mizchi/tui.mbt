@@ -21,7 +21,7 @@ pub impl Show for ButtonState with fn output(
   self : ButtonState,
   logger : &Logger,
 ) -> Unit {
-  self.to_repr().output(logger)
+  Show::output(self.to_repr(), logger)
 }
 
 ///|

@@ -45,7 +45,7 @@ fn Document::line_length(self : Document, line : Int) -> Int {
 
 ///|
 fn Document::to_text(self : Document) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i, line in self.lines {
     if i > 0 {
       sb.write_char('\n')

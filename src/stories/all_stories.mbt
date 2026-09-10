@@ -219,7 +219,7 @@ pub fn stories_by_category(category : String) -> Array[VNodeStory] {
 /// Get all category names
 pub fn all_categories() -> Array[String] {
   let categories : Array[String] = []
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   for s in all_stories() {
     if !seen.contains(s.category) {
       categories.push(s.category)

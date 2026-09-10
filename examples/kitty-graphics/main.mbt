@@ -95,7 +95,7 @@ fn render_status(state : DemoState) -> String {
   let line2 = "a: auto(\{auto_label}) n: step t: text-only s: scroll"
   let line3 = "fps=\{fps_label} rects=\{rect_label} images=\{image_label} dirty=\{dirty_total} r=\{dirty_rects} i=\{dirty_images} tick=\{state.tick}"
   let lines = [line1, line2, line3]
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i, line in lines {
     sb.write_string(cursor_to(i + 1, 1))
     sb.write_string(clear_line())
@@ -113,7 +113,7 @@ fn scroll_line(state : DemoState, height : Int) -> String {
 
 ///|
 fn parse_env_int(name : String) -> Int? {
-  match @sys.get_env_var(name) {
+  match @env.get_env_var(name) {
     Some(text) =>
       try @string.parse_int(text) catch {
         _ => None
@@ -126,7 +126,7 @@ fn parse_env_int(name : String) -> Int? {
 
 ///|
 fn load_custom_asset(base_id : Int) -> ImageAssetEntry? {
-  match @sys.get_env_var("KITTY_IMAGE_PATH") {
+  match @env.get_env_var("KITTY_IMAGE_PATH") {
     Some(path) =>
       if path.length() == 0 {
         None
@@ -217,7 +217,7 @@ fn asset_ids(entries : Array[ImageAssetEntry]) -> Array[Int] {
 
 ///|
 fn transmit_assets(entries : Array[ImageAssetEntry]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for entry in entries {
     let asset = entry.asset
     let cmds = match asset.format {
@@ -364,7 +364,7 @@ fn to_crop_rect(rect : @image.ImageRect) -> CropRect {
 
 ///|
 fn place_rect(rect : RectSprite, row : Int, col : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(cursor_to(row + rect.y, col + rect.x))
   sb.write_string(
     kitty_place(
@@ -382,7 +382,7 @@ fn place_image(image : ImageSprite, row : Int, col : Int) -> String {
   let head = cursor_to(row + image.y, col + image.x)
   match image.crop {
     Some(rect) => {
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(head)
       sb.write_string(
         kitty_place(
@@ -396,7 +396,7 @@ fn place_image(image : ImageSprite, row : Int, col : Int) -> String {
       sb.to_string()
     }
     None => {
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string(head)
       sb.write_string(
         kitty_place(
@@ -413,7 +413,7 @@ fn place_image(image : ImageSprite, row : Int, col : Int) -> String {
 
 ///|
 fn render_rects(rects : Array[RectSprite], row : Int, col : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for rect in rects {
     sb.write_string(place_rect(rect, row, col))
   }
@@ -422,7 +422,7 @@ fn render_rects(rects : Array[RectSprite], row : Int, col : Int) -> String {
 
 ///|
 fn render_images(images : Array[ImageSprite], row : Int, col : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for image in images {
     sb.write_string(place_image(image, row, col))
   }
@@ -431,7 +431,7 @@ fn render_images(images : Array[ImageSprite], row : Int, col : Int) -> String {
 
 ///|
 fn render_scene(state : DemoState, row~ : Int, col~ : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(render_rects(state.rects, row, col))
   sb.write_string(render_images(state.images, row, col))
   sb.to_string()
@@ -445,7 +445,7 @@ fn step_scene(
   row : Int,
   col : Int,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut dirty_rects = 0
   let mut dirty_images = 0
   for i in 0..<state.rects.length() {

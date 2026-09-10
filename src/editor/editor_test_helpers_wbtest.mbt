@@ -1,6 +1,6 @@
 ///|
 fn spans_to_line(spans : Array[HighlightSpan]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for span in spans {
     sb.write_string(span.text)
   }
@@ -9,7 +9,7 @@ fn spans_to_line(spans : Array[HighlightSpan]) -> String {
 
 ///|
 fn spans_signature(spans : Array[HighlightSpan]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i, span in spans {
     if i > 0 {
       sb.write_char('|')
@@ -47,7 +47,7 @@ fn assert_spans_equal(
 ///|
 fn strip_ansi(s : String) -> String {
   let chars = s.to_array()
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   while i < chars.length() {
     if chars[i] == '\u001b' {
@@ -132,7 +132,7 @@ fn restore_caret_in_lines(
     ' '
   }
   row_chars[caret_render_col] = replacement
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for ch in row_chars {
     sb.write_char(ch)
   }

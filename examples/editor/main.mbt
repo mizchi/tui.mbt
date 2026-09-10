@@ -47,7 +47,7 @@ extern "js" fn js_read_file(path : String) -> String? =
   #|}
 
 ///|
-extern "js" fn js_get_args() -> Array[String] =
+extern "js" fn js_get_args() -> FixedArray[String] =
   #|() => {
   #|  return process.argv.slice(2);
   #|}

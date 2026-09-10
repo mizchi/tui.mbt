@@ -356,7 +356,7 @@ fn main {
               if q.length() > 0 {
                 let chars : Array[Char] = q.iter().collect()
                 let new_len = chars.length() - 1
-                let buf = StringBuilder::new()
+                let buf = StringBuilder()
                 for i = 0; i < new_len; i = i + 1 {
                   buf.write_char(chars[i])
                 }

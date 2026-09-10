@@ -26,7 +26,7 @@ pub(all) enum EditAction {
 
 ///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
-  value.to_repr().output(logger)
+  Show::output(value.to_repr(), logger)
 }
 
 ///|

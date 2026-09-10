@@ -9,7 +9,7 @@ test "build_sixel_palette_definition emits normalized rgb percentages" {
 
 ///|
 test "build_sixel_color_headers precomputes selectors" {
-  inspect(
+  debug_inspect(
     build_sixel_color_headers(4),
     content=(
       #|["#0", "#1", "#2", "#3"]

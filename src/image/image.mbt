@@ -7,7 +7,7 @@ pub enum ImageFormat {
 
 ///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
-  value.to_repr().output(logger)
+  Show::output(value.to_repr(), logger)
 }
 
 ///|
@@ -82,7 +82,7 @@ pub fn base64_encode(bytes : BytesView) -> String {
   if len == 0 {
     return ""
   }
-  let sb = StringBuilder::new(size_hint=(len + 2) / 3 * 4)
+  let sb = StringBuilder(size_hint=(len + 2) / 3 * 4)
   let mut i = 0
   while i < len {
     let b0 = bytes[i].to_int()

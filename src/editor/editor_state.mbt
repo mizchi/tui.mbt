@@ -37,7 +37,7 @@ fn word_bounds(line_text : String, col : Int) -> (Int, Int) {
 
 ///|
 fn slice_chars(chars : Array[Char], start : Int, end : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let s = if start < 0 { 0 } else { start }
   let e = if end < s {
     s
@@ -186,11 +186,11 @@ pub fn EditorState::replace_current_word(
 fn EditorState::set_caret(
   self : EditorState,
   pos : Position,
-  extend : Bool,
+  extend_selection : Bool,
   keep_preferred~ : Bool,
 ) -> Unit {
   let pos = self.doc.clamp_position(pos)
-  if extend {
+  if extend_selection {
     self.selection.set_active(pos)
   } else {
     self.selection.set_caret(pos)
@@ -252,7 +252,7 @@ fn EditorState::delete_forward(self : EditorState) -> Unit {
 }
 
 ///|
-fn EditorState::move_left(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_left(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
   let mut line = caret.line
   let mut col = caret.col
@@ -262,11 +262,11 @@ fn EditorState::move_left(self : EditorState, extend : Bool) -> Unit {
     line = line - 1
     col = self.doc.line_length(line)
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=false)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=false)
 }
 
 ///|
-fn EditorState::move_right(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_right(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
   let mut line = caret.line
   let mut col = caret.col
@@ -277,14 +277,14 @@ fn EditorState::move_right(self : EditorState, extend : Bool) -> Unit {
     line = line + 1
     col = 0
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=false)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=false)
 }
 
 ///|
-fn EditorState::move_up(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_up(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
   if caret.line == 0 {
-    self.set_caret(caret, extend, keep_preferred=true)
+    self.set_caret(caret, extend_selection, keep_preferred=true)
     return
   }
   let line = caret.line - 1
@@ -294,14 +294,14 @@ fn EditorState::move_up(self : EditorState, extend : Bool) -> Unit {
   } else {
     self.preferred_col
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=true)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=true)
 }
 
 ///|
-fn EditorState::move_down(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_down(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
   if caret.line + 1 >= self.doc.line_count() {
-    self.set_caret(caret, extend, keep_preferred=true)
+    self.set_caret(caret, extend_selection, keep_preferred=true)
     return
   }
   let line = caret.line + 1
@@ -311,24 +311,35 @@ fn EditorState::move_down(self : EditorState, extend : Bool) -> Unit {
   } else {
     self.preferred_col
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=true)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=true)
 }
 
 ///|
-fn EditorState::move_home(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_home(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
-  self.set_caret({ line: caret.line, col: 0, }, extend, keep_preferred=false)
+  self.set_caret(
+    { line: caret.line, col: 0, },
+    extend_selection,
+    keep_preferred=false,
+  )
 }
 
 ///|
-fn EditorState::move_end(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_end(self : EditorState, extend_selection : Bool) -> Unit {
   let caret = self.selection.active
   let col = self.doc.line_length(caret.line)
-  self.set_caret({ line: caret.line, col, }, extend, keep_preferred=false)
+  self.set_caret(
+    { line: caret.line, col, },
+    extend_selection,
+    keep_preferred=false,
+  )
 }
 
 ///|
-fn EditorState::move_page_up(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_page_up(
+  self : EditorState,
+  extend_selection : Bool,
+) -> Unit {
   let caret = self.selection.active
   let delta = if self.viewport.height > 0 { self.viewport.height } else { 1 }
   let line = if caret.line - delta < 0 { 0 } else { caret.line - delta }
@@ -338,11 +349,14 @@ fn EditorState::move_page_up(self : EditorState, extend : Bool) -> Unit {
   } else {
     self.preferred_col
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=true)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=true)
 }
 
 ///|
-fn EditorState::move_page_down(self : EditorState, extend : Bool) -> Unit {
+fn EditorState::move_page_down(
+  self : EditorState,
+  extend_selection : Bool,
+) -> Unit {
   let caret = self.selection.active
   let delta = if self.viewport.height > 0 { self.viewport.height } else { 1 }
   let mut line = caret.line + delta
@@ -355,7 +369,7 @@ fn EditorState::move_page_down(self : EditorState, extend : Bool) -> Unit {
   } else {
     self.preferred_col
   }
-  self.set_caret({ line, col, }, extend, keep_preferred=true)
+  self.set_caret({ line, col, }, extend_selection, keep_preferred=true)
 }
 
 ///|

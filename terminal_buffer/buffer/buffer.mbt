@@ -767,7 +767,7 @@ pub fn CharBuffer::get_row_text(self : CharBuffer, row : Int) -> String {
   if row < 0 || row >= self.height {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut started = false
   for col = 0; col < self.width; col = col + 1 {
     let cell = self.get_cell(col, row)
@@ -781,5 +781,5 @@ pub fn CharBuffer::get_row_text(self : CharBuffer, row : Int) -> String {
       buf.write_char(' ')
     }
   }
-  buf.to_string().trim().to_string()
+  buf.to_string().trim().to_owned()
 }

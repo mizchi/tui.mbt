@@ -131,10 +131,10 @@ fn is_floor(tile : Tile) -> Bool {
 
 ///|
 fn make_map(width : Int, height : Int, seed : Int) -> (Array[Array[Tile]], Int) {
-  let tiles = Array::new()
+  let tiles = Array()
   let mut s = seed
   for y in 0..<height {
-    let row = Array::new()
+    let row = Array()
     for x in 0..<width {
       let is_border = x == 0 || y == 0 || x == width - 1 || y == height - 1
       if is_border {
@@ -238,7 +238,7 @@ fn remove_item(
   inventory : Array[ItemKind],
   kind : ItemKind,
 ) -> (Array[ItemKind], Bool) {
-  let next = Array::new()
+  let next = Array()
   let mut removed = false
   for i in 0..<inventory.length() {
     let item = inventory[i]
@@ -370,9 +370,9 @@ fn make_bool_grid(
   height : Int,
   value : Bool,
 ) -> Array[Array[Bool]] {
-  let grid = Array::new()
+  let grid = Array()
   for _y in 0..<height {
-    let row = Array::new()
+    let row = Array()
     for _x in 0..<width {
       row.push(value)
     }
@@ -411,9 +411,9 @@ fn merge_explored(
   explored : Array[Array[Bool]],
   visible : Array[Array[Bool]],
 ) -> Array[Array[Bool]] {
-  let grid = Array::new()
+  let grid = Array()
   for y in 0..<explored.length() {
-    let row = Array::new()
+    let row = Array()
     let exp_row = explored[y]
     let vis_row = visible[y]
     for x in 0..<exp_row.length() {
@@ -511,7 +511,7 @@ fn spawn_enemies(
   count : Int,
   player : Pos,
 ) -> (Array[Pos], Int) {
-  let enemies = Array::new()
+  let enemies = Array()
   let mut s = seed
   let mut i = 0
   while i < count {
@@ -533,7 +533,7 @@ fn spawn_items(
   enemies : Array[Pos],
   stairs : Pos,
 ) -> (Array[Item], Int) {
-  let items = Array::new()
+  let items = Array()
   let mut s = seed
   let avoid0 = enemies.copy()
   avoid0.push(player)
@@ -583,7 +583,7 @@ fn init_game(width : Int, height : Int, seed : Int) -> GameState {
   let (items, s5) = spawn_items(tiles, s4, player, enemies, stairs)
   let log = ["Welcome to Crater Rogue.", "Move with arrows or WASD. '.' waits."]
   let explored = make_bool_grid(map_width, map_height, false)
-  let inventory = Array::new()
+  let inventory = Array()
   let base = GameState::{
     map_width,
     map_height,
@@ -705,7 +705,7 @@ fn try_player_move(state : GameState, dx : Int, dy : Int) -> (GameState, Bool) {
 
 ///|
 fn advance_enemies(state : GameState) -> GameState {
-  let enemies = Array::new()
+  let enemies = Array()
   let mut s = state.seed
   let mut log = state.log
   let mut hp = state.hp
@@ -860,10 +860,10 @@ fn apply_action(state : GameState, action : PlayerAction) -> (GameState, Bool) {
 
 ///|
 fn render_map_nodes(state : GameState) -> Array[TuiNode] {
-  let rows = Array::new()
+  let rows = Array()
   let visible = compute_visibility(state, view_radius)
   for y in 0..<state.map_height {
-    let row_nodes = Array::new()
+    let row_nodes = Array()
     let vis_row = visible[y]
     let exp_row = state.explored[y]
     for x in 0..<state.map_width {

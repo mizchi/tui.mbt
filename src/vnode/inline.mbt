@@ -186,7 +186,7 @@ pub fn render_to_lines(node : TuiNode) -> Array[String] {
 /// Each line of the node is rendered at (x + i, y) for i-th line
 pub fn render_overlay_at(x : Int, y : Int, node : TuiNode) -> String {
   let lines = render_to_lines(node)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, line in lines {
     // Move cursor to position (row, col) - ANSI uses 1-indexed coordinates
     buf.write_string(@render.ansi_move_to(y + i, x))
