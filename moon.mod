@@ -26,6 +26,4 @@ description = "Terminal UI library for MoonBit with reactive signals"
 
 preferred_target = "js"
 
-options(
-  source: "src",
-)
+source = "src"

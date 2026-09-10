@@ -167,4 +167,3 @@ pub fn TextStyle::default() -> Self
 // Type aliases
 
 // Traits
-

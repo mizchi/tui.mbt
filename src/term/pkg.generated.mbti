@@ -47,4 +47,3 @@ pub using @events {type MouseEventType}
 pub using @events {type SpecialKey}
 
 // Traits
-

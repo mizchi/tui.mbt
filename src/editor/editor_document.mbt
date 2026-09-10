@@ -21,7 +21,7 @@ fn split_text_lines(text : String) -> Array[String] {
 
 ///|
 fn Document::from_text(text : String) -> Document {
-  { lines: split_text_lines(text) }
+  { lines: split_text_lines(text), }
 }
 
 ///|
@@ -75,7 +75,7 @@ fn Document::clamp_position(self : Document, pos : Position) -> Position {
   } else {
     pos.col
   }
-  { line, col }
+  { line, col, }
 }
 
 ///|
@@ -114,7 +114,7 @@ fn Document::insert_text(
   let suffix = line_text.unsafe_substring(start=pos.col, end=line_text.length())
   if parts.length() == 1 {
     self.lines[pos.line] = prefix + parts[0] + suffix
-    { line: pos.line, col: pos.col + parts[0].length() }
+    { line: pos.line, col: pos.col + parts[0].length(), }
   } else {
     let first = prefix + parts[0]
     let last = parts[parts.length() - 1] + suffix
@@ -178,10 +178,10 @@ fn Document::delete_backward(self : Document, pos : Position) -> Position {
     return pos
   }
   if pos.col > 0 {
-    self.delete_range({ line: pos.line, col: pos.col - 1 }, pos)
+    self.delete_range({ line: pos.line, col: pos.col - 1, }, pos)
   } else {
     let prev_len = self.lines[pos.line - 1].length()
-    self.delete_range({ line: pos.line - 1, col: prev_len }, pos)
+    self.delete_range({ line: pos.line - 1, col: prev_len, }, pos)
   }
 }
 
@@ -193,8 +193,8 @@ fn Document::delete_forward(self : Document, pos : Position) -> Position {
     return pos
   }
   if pos.col < line_len {
-    self.delete_range(pos, { line: pos.line, col: pos.col + 1 })
+    self.delete_range(pos, { line: pos.line, col: pos.col + 1, })
   } else {
-    self.delete_range(pos, { line: pos.line + 1, col: 0 })
+    self.delete_range(pos, { line: pos.line + 1, col: 0, })
   }
 }

@@ -69,7 +69,7 @@ test "CompletionEngine::apply_result with stale version is ignored" {
 test "CompletionEngine::apply_result with empty items hides popup" {
   let engine = CompletionEngine::new()
   let version = engine.set_input("test")
-  let result : CompletionResult = { items: [], request_version: version }
+  let result : CompletionResult = { items: [], request_version: version, }
   let applied = engine.apply_result(result)
   inspect(applied, content="true")
   inspect(engine.is_visible(), content="false")
@@ -144,7 +144,7 @@ test "CompletionEngine::get_selected_item with invalid index returns None" {
 test "CompletionEngine::hide and clear" {
   let engine = CompletionEngine::new()
   let version = engine.set_input("test")
-  let result : CompletionResult = { items: ["a"], request_version: version }
+  let result : CompletionResult = { items: ["a"], request_version: version, }
   let _ = engine.apply_result(result)
   inspect(engine.is_visible(), content="true")
   // Hide

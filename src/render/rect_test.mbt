@@ -287,7 +287,7 @@ test "write_text: with styles" {
   let buf = CharBuffer::new(20, 3)
   let red = @core.Color::rgb(255, 0, 0)
   let blue = @core.Color::rgb(0, 0, 255)
-  let style : TextStyle = { fg: red, bg: blue, bold: true, underline: true }
+  let style : TextStyle = { fg: red, bg: blue, bold: true, underline: true, }
   let _ = buf.write_text(0, 0, "Styled", style, 20)
   let cell = buf.get_cell(0, 0)
   assert_true(cell.fg == red)

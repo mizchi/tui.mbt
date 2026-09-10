@@ -263,7 +263,7 @@ async fn main {
     } else {
       let all : Array[(Int, @logics.FuzzyMatch)] = []
       for i, _item in fuzzy_items {
-        all.push((i, @logics.FuzzyMatch::{ score: 0, positions: [] }))
+        all.push((i, @logics.FuzzyMatch::{ score: 0, positions: [], }))
       }
       all
     }

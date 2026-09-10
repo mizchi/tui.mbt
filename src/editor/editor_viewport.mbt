@@ -7,7 +7,7 @@ struct Viewport {
 ///|
 fn Viewport::new(height : Int) -> Viewport {
   let h = if height > 0 { height } else { 1 }
-  { top: 0, height: h }
+  { top: 0, height: h, }
 }
 
 ///|

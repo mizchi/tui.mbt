@@ -159,7 +159,7 @@ pub fn popup(
   position? : @vnode.PopupPosition = Center,
   shrink? : Bool = true,
 ) -> @vnode.OverlayEntry {
-  { node: content, position, backdrop, shrink }
+  { node: content, position, backdrop, shrink, }
 }
 
 ///|

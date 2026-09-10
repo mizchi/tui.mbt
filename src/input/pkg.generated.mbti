@@ -79,4 +79,3 @@ pub fn TextInputController::set_text(Self, String) -> Unit
 // Type aliases
 
 // Traits
-

@@ -14,7 +14,7 @@ priv struct InlineStyle {
 
 ///|
 fn InlineStyle::default() -> InlineStyle {
-  { fg: None, bg: None, bold: false, underline: false }
+  { fg: None, bg: None, bold: false, underline: false, }
 }
 
 ///|
@@ -82,7 +82,7 @@ fn extract_inline_style(
       _ => ()
     }
   }
-  { fg, bg, bold, underline }
+  { fg, bg, bold, underline, }
 }
 
 ///|

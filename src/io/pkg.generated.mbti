@@ -80,4 +80,3 @@ pub(all) enum InputResult {
 // Type aliases
 
 // Traits
-

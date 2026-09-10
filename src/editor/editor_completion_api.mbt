@@ -62,8 +62,8 @@ pub fn CompletionSession::new() -> CompletionSession {
   {
     engine: @completion.CompletionEngine::new(),
     items: [],
-    anchor: { line: 0, col: 0 },
-    replace: { start_col: 0, end_col: 0 },
+    anchor: { line: 0, col: 0, },
+    replace: { start_col: 0, end_col: 0, },
     request_id: 0,
   }
 }

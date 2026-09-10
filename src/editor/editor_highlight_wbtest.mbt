@@ -30,7 +30,7 @@ test "highlight spans keep line text after edit" {
   )
   let spans = build_highlight_line_spans(doc, cache.all_tokens())
   assert_spans_match_lines(doc.lines, spans)
-  let _ = doc.insert_text({ line: 4, col: 2 }, "aaaaaaa")
+  let _ = doc.insert_text({ line: 4, col: 2, }, "aaaaaaa")
   let _ = cache.update(doc.to_text(), 4, @syn_ts.highlight_typescript)
   let spans_after = build_highlight_line_spans(doc, cache.all_tokens())
   assert_spans_match_lines(doc.lines, spans_after)
@@ -53,9 +53,9 @@ test "highlight after edit matches full retokenize" {
     doc.to_text(),
     @syn_ts.highlight_typescript,
   )
-  let _ = doc.insert_text({ line: 1, col: 13 }, "`")
-  let _ = doc.insert_text({ line: 1, col: 14 }, "value")
-  let _ = doc.insert_text({ line: 1, col: 19 }, "`")
+  let _ = doc.insert_text({ line: 1, col: 13, }, "`")
+  let _ = doc.insert_text({ line: 1, col: 14, }, "value")
+  let _ = doc.insert_text({ line: 1, col: 19, }, "`")
   let _ = cache.update(doc.to_text(), 1, @syn_ts.highlight_typescript)
   let spans_updated = build_highlight_line_spans(doc, cache.all_tokens())
   let fresh_cache = @syntree.LineCache::new(
@@ -88,7 +88,7 @@ test "unchanged lines keep highlight after edit" {
     @syn_ts.highlight_typescript,
   )
   let spans_before = build_highlight_line_spans(doc, cache.all_tokens())
-  let _ = doc.insert_text({ line: 4, col: 2 }, "aaaaaaa")
+  let _ = doc.insert_text({ line: 4, col: 2, }, "aaaaaaa")
   let _ = cache.update(doc.to_text(), 4, @syn_ts.highlight_typescript)
   let spans_after = build_highlight_line_spans(doc, cache.all_tokens())
   assert_spans_match_lines(doc.lines, spans_after)
@@ -162,7 +162,7 @@ test "highlight update matches full after varied edits" {
     for col in cols {
       let doc = Document::from_text(text)
       let state = HighlightState::new(HighlightKind::TypeScript, doc)
-      let _ = doc.insert_text({ line: line_idx, col }, "x")
+      let _ = doc.insert_text({ line: line_idx, col, }, "x")
       state.update(doc, line_idx)
       let fresh = @syntree.LineCache::new(
         doc.to_text(),
@@ -180,7 +180,7 @@ test "highlight update matches full after varied edits" {
       }
       let doc2 = Document::from_text(text)
       let state2 = HighlightState::new(HighlightKind::TypeScript, doc2)
-      let _ = doc2.insert_text({ line: line_idx, col }, "\n")
+      let _ = doc2.insert_text({ line: line_idx, col, }, "\n")
       state2.update(doc2, line_idx)
       let fresh2 = @syntree.LineCache::new(
         doc2.to_text(),

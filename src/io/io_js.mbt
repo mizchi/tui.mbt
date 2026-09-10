@@ -1467,7 +1467,7 @@ pub fn stop_render_ticker(ticker_id : Int) -> Unit {
 
 ///|
 /// Check if raw mode is enabled (always true after enable_raw_mode in JS)
-let raw_mode_flag : Ref[Bool] = { val: false }
+let raw_mode_flag : Ref[Bool] = { val: false, }
 
 ///|
 pub fn is_raw_mode() -> Bool {

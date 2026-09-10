@@ -93,5 +93,5 @@ pub fn TextInputConfig::new(
   confirm_on_shift_enter? : Bool = false,
   esc_cancels? : Bool = true,
 ) -> TextInputConfig {
-  { width, height, multiline, confirm_on_shift_enter, esc_cancels }
+  { width, height, multiline, confirm_on_shift_enter, esc_cancels, }
 }

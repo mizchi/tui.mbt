@@ -233,7 +233,7 @@ pub struct TextProps {
 
 ///|
 pub fn TextProps::default(content : String) -> TextProps {
-  { content, fg: None, bold: false, underline: false, role: None }
+  { content, fg: None, bold: false, underline: false, role: None, }
 }
 
 ///|

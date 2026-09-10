@@ -29,7 +29,7 @@ fn truncate_spans(
     } else {
       let text = take_display_width(span.text, remaining)
       if text.length() > 0 {
-        result.push({ text, tag: span.tag })
+        result.push({ text, tag: span.tag, })
       }
       break
     }
@@ -86,28 +86,28 @@ fn apply_caret(
     let start = pos
     let end = pos + len
     if caret_col < start || caret_col >= end {
-      result.push({ text: span.text, tag: span.tag, is_caret: false })
+      result.push({ text: span.text, tag: span.tag, is_caret: false, })
     } else {
       let before_len = caret_col - start
       let after_len = end - caret_col - 1
       if before_len > 0 {
         let text = span.text.unsafe_substring(start=0, end=before_len)
-        result.push({ text, tag: span.tag, is_caret: false })
+        result.push({ text, tag: span.tag, is_caret: false, })
       }
       let caret_text = span.text.unsafe_substring(
         start=before_len,
         end=before_len + 1,
       )
-      result.push({ text: caret_text, tag: span.tag, is_caret: true })
+      result.push({ text: caret_text, tag: span.tag, is_caret: true, })
       if after_len > 0 {
         let text = span.text.unsafe_substring(start=before_len + 1, end=len)
-        result.push({ text, tag: span.tag, is_caret: false })
+        result.push({ text, tag: span.tag, is_caret: false, })
       }
     }
     pos = end
   }
   if caret_col >= line_length {
-    result.push({ text: " ", tag: @syntree.HighlightTag::None, is_caret: true })
+    result.push({ text: " ", tag: @syntree.HighlightTag::None, is_caret: true, })
   }
   result
 }
@@ -160,7 +160,7 @@ fn render_line(
     segments = apply_caret(truncated, caret.col, line_text.length())
   } else {
     for span in truncated {
-      segments.push({ text: span.text, tag: span.tag, is_caret: false })
+      segments.push({ text: span.text, tag: span.tag, is_caret: false, })
     }
   }
   let gutter_text = pad_left((line_idx + 1).to_string(), gutter_width)

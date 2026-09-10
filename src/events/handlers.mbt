@@ -19,7 +19,7 @@ pub struct EventHandlers {
 
 ///|
 pub fn EventHandlers::new() -> EventHandlers {
-  { click_handlers: Map([]) }
+  { click_handlers: Map([]), }
 }
 
 ///|
@@ -88,7 +88,7 @@ fn hit_test_f(
         None => continue
       }
     }
-    Some({ id: layout.id, x, y, width: w, height: h, role: None })
+    Some({ id: layout.id, x, y, width: w, height: h, role: None, })
   } else {
     None
   }
@@ -164,7 +164,7 @@ fn find_layout_by_id_f(
   let h = rect.height
 
   if layout.id == target_id {
-    return Some({ id: layout.id, x, y, width: w, height: h, role: None })
+    return Some({ id: layout.id, x, y, width: w, height: h, role: None, })
   }
 
   for child in layout.children {
@@ -205,7 +205,7 @@ fn collect_layout_rects(
   let y = rect.y
   let w = rect.width
   let h = rect.height
-  out.push({ id: layout.id, x, y, width: w, height: h, role: None })
+  out.push({ id: layout.id, x, y, width: w, height: h, role: None, })
   for child in layout.children {
     collect_layout_rects(child, abs_x, abs_y, out)
   }

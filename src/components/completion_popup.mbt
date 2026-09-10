@@ -338,7 +338,7 @@ pub fn completion_popup_rect_directed(
   let safe_row = if row < 0 { 0 } else { row }
   let safe_col = if col < 0 { 0 } else { col }
   (
-    { row: safe_row, col: safe_col, width: safe_width, height: safe_height },
+    { row: safe_row, col: safe_col, width: safe_width, height: safe_height, },
     resolved,
   )
 }
@@ -376,5 +376,5 @@ pub fn completion_popup_rect(
   }
   let safe_row = if row < 0 { 0 } else { row }
   let safe_col = if col < 0 { 0 } else { col }
-  { row: safe_row, col: safe_col, width: safe_width, height: safe_height }
+  { row: safe_row, col: safe_col, width: safe_width, height: safe_height, }
 }

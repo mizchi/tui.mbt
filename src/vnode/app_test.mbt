@@ -462,7 +462,7 @@ struct CompletionState {
 
 ///|
 fn CompletionState::new() -> CompletionState {
-  { input: "", suppress_popup: false }
+  { input: "", suppress_popup: false, }
 }
 
 ///|

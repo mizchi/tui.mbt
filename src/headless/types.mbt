@@ -79,7 +79,7 @@ pub(all) struct ToggleState {
 ///|
 /// Create default toggle state
 pub fn ToggleState::new(checked? : Bool = false) -> ToggleState {
-  { checked, focused: false, disabled: false }
+  { checked, focused: false, disabled: false, }
 }
 
 ///|
@@ -88,7 +88,7 @@ pub fn ToggleState::toggle(self : ToggleState) -> ToggleState {
   if self.disabled {
     self
   } else {
-    { ..self, checked: !self.checked }
+    { ..self, checked: !self.checked, }
   }
 }
 
@@ -116,7 +116,7 @@ pub(all) struct SelectionState {
 ///|
 /// Create default selection state
 pub fn SelectionState::new(selected_id? : String = "") -> SelectionState {
-  { selected_id, focused_id: selected_id, open: false }
+  { selected_id, focused_id: selected_id, open: false, }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn SelectionState::select(
   self : SelectionState,
   id : String,
 ) -> SelectionState {
-  { ..self, selected_id: id, focused_id: id }
+  { ..self, selected_id: id, focused_id: id, }
 }
 
 ///|
@@ -134,13 +134,13 @@ pub fn SelectionState::focus(
   self : SelectionState,
   id : String,
 ) -> SelectionState {
-  { ..self, focused_id: id }
+  { ..self, focused_id: id, }
 }
 
 ///|
 /// Toggle open state (for dropdown-style components)
 pub fn SelectionState::toggle_open(self : SelectionState) -> SelectionState {
-  { ..self, open: !self.open }
+  { ..self, open: !self.open, }
 }
 
 // =============================================================================
@@ -157,19 +157,19 @@ pub(all) struct ModalState {
 ///|
 /// Create closed modal state
 pub fn ModalState::new() -> ModalState {
-  { open: false, focused_element: "" }
+  { open: false, focused_element: "", }
 }
 
 ///|
 /// Open the modal
 pub fn ModalState::show(self : ModalState) -> ModalState {
-  { ..self, open: true }
+  { ..self, open: true, }
 }
 
 ///|
 /// Close the modal
 pub fn ModalState::hide(self : ModalState) -> ModalState {
-  { ..self, open: false }
+  { ..self, open: false, }
 }
 
 ///|
@@ -192,7 +192,7 @@ pub(all) struct AccordionState {
 ///|
 /// Create accordion state
 pub fn AccordionState::new(allow_multiple? : Bool = false) -> AccordionState {
-  { expanded_ids: [], allow_multiple }
+  { expanded_ids: [], allow_multiple, }
 }
 
 ///|
@@ -210,14 +210,14 @@ pub fn AccordionState::toggle(
   if self.is_expanded(id) {
     // Collapse
     let new_ids = self.expanded_ids.filter(fn(x) { x != id })
-    { ..self, expanded_ids: new_ids }
+    { ..self, expanded_ids: new_ids, }
     // Expand
   } else if self.allow_multiple {
     let new_ids = self.expanded_ids.copy()
     new_ids.push(id)
-    { ..self, expanded_ids: new_ids }
+    { ..self, expanded_ids: new_ids, }
   } else {
-    { ..self, expanded_ids: [id] }
+    { ..self, expanded_ids: [id], }
   }
 }
 
@@ -248,13 +248,13 @@ pub fn ToastState::new(
   message : String,
   level? : ToastLevel = Info,
 ) -> ToastState {
-  { message, level, visible: true }
+  { message, level, visible: true, }
 }
 
 ///|
 /// Dismiss the toast
 pub fn ToastState::dismiss(self : ToastState) -> ToastState {
-  { ..self, visible: false }
+  { ..self, visible: false, }
 }
 
 // =============================================================================
@@ -276,7 +276,7 @@ pub fn GridSelectState::new(
   total : Int,
   selected? : Int = 0,
 ) -> GridSelectState {
-  { columns, total, selected }
+  { columns, total, selected, }
 }
 
 ///|
@@ -284,7 +284,7 @@ pub fn GridSelectState::new(
 pub fn GridSelectState::move_right(self : GridSelectState) -> GridSelectState {
   let next = self.selected + 1
   if next < self.total {
-    { ..self, selected: next }
+    { ..self, selected: next, }
   } else {
     self
   }
@@ -294,7 +294,7 @@ pub fn GridSelectState::move_right(self : GridSelectState) -> GridSelectState {
 /// Move selection left
 pub fn GridSelectState::move_left(self : GridSelectState) -> GridSelectState {
   if self.selected > 0 {
-    { ..self, selected: self.selected - 1 }
+    { ..self, selected: self.selected - 1, }
   } else {
     self
   }
@@ -305,7 +305,7 @@ pub fn GridSelectState::move_left(self : GridSelectState) -> GridSelectState {
 pub fn GridSelectState::move_down(self : GridSelectState) -> GridSelectState {
   let next = self.selected + self.columns
   if next < self.total {
-    { ..self, selected: next }
+    { ..self, selected: next, }
   } else {
     self
   }
@@ -316,7 +316,7 @@ pub fn GridSelectState::move_down(self : GridSelectState) -> GridSelectState {
 pub fn GridSelectState::move_up(self : GridSelectState) -> GridSelectState {
   let next = self.selected - self.columns
   if next >= 0 {
-    { ..self, selected: next }
+    { ..self, selected: next, }
   } else {
     self
   }
@@ -343,7 +343,7 @@ pub(all) struct TreeState {
 ///|
 /// Create a new tree state
 pub fn TreeState::new() -> TreeState {
-  { expanded_ids: [], selected_id: "", focused_id: "" }
+  { expanded_ids: [], selected_id: "", focused_id: "", }
 }
 
 ///|
@@ -351,11 +351,11 @@ pub fn TreeState::new() -> TreeState {
 pub fn TreeState::toggle_expand(self : TreeState, id : String) -> TreeState {
   if self.expanded_ids.contains(id) {
     let new_ids = self.expanded_ids.filter(fn(x) { x != id })
-    { ..self, expanded_ids: new_ids }
+    { ..self, expanded_ids: new_ids, }
   } else {
     let new_ids = self.expanded_ids.copy()
     new_ids.push(id)
-    { ..self, expanded_ids: new_ids }
+    { ..self, expanded_ids: new_ids, }
   }
 }
 
@@ -368,13 +368,13 @@ pub fn TreeState::is_expanded(self : TreeState, id : String) -> Bool {
 ///|
 /// Select a node
 pub fn TreeState::select(self : TreeState, id : String) -> TreeState {
-  { ..self, selected_id: id, focused_id: id }
+  { ..self, selected_id: id, focused_id: id, }
 }
 
 ///|
 /// Focus a node
 pub fn TreeState::focus(self : TreeState, id : String) -> TreeState {
-  { ..self, focused_id: id }
+  { ..self, focused_id: id, }
 }
 
 // =============================================================================
@@ -391,7 +391,7 @@ pub(all) struct FocusNav {
 ///|
 /// Create focus navigation
 pub fn FocusNav::new(ids : Array[String]) -> FocusNav {
-  { ids, current_index: 0 }
+  { ids, current_index: 0, }
 }
 
 ///|
@@ -411,7 +411,7 @@ pub fn FocusNav::next(self : FocusNav) -> FocusNav {
     self
   } else {
     let next_index = (self.current_index + 1) % self.ids.length()
-    { ..self, current_index: next_index }
+    { ..self, current_index: next_index, }
   }
 }
 
@@ -426,7 +426,7 @@ pub fn FocusNav::prev(self : FocusNav) -> FocusNav {
     } else {
       self.current_index - 1
     }
-    { ..self, current_index: prev_index }
+    { ..self, current_index: prev_index, }
   }
 }
 
@@ -435,7 +435,7 @@ pub fn FocusNav::prev(self : FocusNav) -> FocusNav {
 pub fn FocusNav::focus_id(self : FocusNav, id : String) -> FocusNav {
   for i, item in self.ids {
     if item == id {
-      return { ..self, current_index: i }
+      return { ..self, current_index: i, }
     }
   }
   self

@@ -248,7 +248,7 @@ pub fn TableColumn::new(
   align? : ColumnAlign = Left,
 ) -> TableColumn {
   let actual_width = if width > 0 { width } else { header.length() }
-  { header, width: actual_width, align }
+  { header, width: actual_width, align, }
 }
 
 ///|
