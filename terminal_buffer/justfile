@@ -1,0 +1,17 @@
+target := "js"
+
+default: check test
+
+fmt:
+    moon fmt
+
+info:
+    moon info --target {{target}}
+
+check:
+    moon check --target {{target}} --deny-warn
+
+test:
+    moon test --target {{target}}
+
+release-check: fmt info check test

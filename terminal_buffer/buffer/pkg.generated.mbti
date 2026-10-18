@@ -43,13 +43,19 @@ pub(all) struct BoxChars {
 } derive(Eq, @debug.Debug)
 pub fn BoxChars::ascii() -> Self
 pub fn BoxChars::double() -> Self
+pub fn BoxChars::equal(Self, Self) -> Bool
+pub fn BoxChars::not_equal(Self, Self) -> Bool
 pub fn BoxChars::rounded() -> Self
 pub fn BoxChars::single() -> Self
+pub fn BoxChars::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CellCoord {
   col : Int
   row : Int
 } derive(Eq, @debug.Debug)
+pub fn CellCoord::equal(Self, Self) -> Bool
+pub fn CellCoord::not_equal(Self, Self) -> Bool
+pub fn CellCoord::to_repr(Self) -> @debug.Repr
 
 pub struct CharBuffer {
   width : Int
@@ -78,7 +84,9 @@ pub(all) struct CharCell {
   reverse : Bool
 }
 pub fn CharCell::default() -> Self
+pub fn CharCell::equal(Self, Self) -> Bool
 pub fn CharCell::from_char(Char) -> Self
+pub fn CharCell::not_equal(Self, Self) -> Bool
 pub fn CharCell::styled(Char, Color, Color) -> Self
 pub impl Eq for CharCell
 
@@ -89,7 +97,9 @@ pub(all) struct Color {
   a : Double
 }
 pub fn Color::black() -> Self
+pub fn Color::equal(Self, Self) -> Bool
 pub fn Color::is_transparent(Self) -> Bool
+pub fn Color::not_equal(Self, Self) -> Bool
 pub fn Color::rgb(Int, Int, Int) -> Self
 pub fn Color::rgba(Int, Int, Int, Double) -> Self
 pub fn Color::transparent() -> Self
@@ -102,6 +112,9 @@ pub(all) struct Rect {
   w : Int
   h : Int
 } derive(Eq, @debug.Debug)
+pub fn Rect::equal(Self, Self) -> Bool
+pub fn Rect::not_equal(Self, Self) -> Bool
+pub fn Rect::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ScrollbarCell {
   x : Int
@@ -109,6 +122,9 @@ pub(all) struct ScrollbarCell {
   char : Char
   thumb : Bool
 } derive(Eq, @debug.Debug)
+pub fn ScrollbarCell::equal(Self, Self) -> Bool
+pub fn ScrollbarCell::not_equal(Self, Self) -> Bool
+pub fn ScrollbarCell::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TextStyle {
   fg : Color
@@ -123,14 +139,19 @@ pub(all) struct TextWriteCell {
   y : Int
   char : Char
 } derive(Eq, @debug.Debug)
+pub fn TextWriteCell::equal(Self, Self) -> Bool
+pub fn TextWriteCell::not_equal(Self, Self) -> Bool
+pub fn TextWriteCell::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TextWritePlan {
   columns : Int
   lines : Int
   cells : Array[TextWriteCell]
 } derive(Eq, @debug.Debug)
+pub fn TextWritePlan::equal(Self, Self) -> Bool
+pub fn TextWritePlan::not_equal(Self, Self) -> Bool
+pub fn TextWritePlan::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

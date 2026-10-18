@@ -1,20 +1,20 @@
 ///|
 /// Color value used by terminal buffer cells.
 pub(all) struct Color {
-  r : Int
-  g : Int
-  b : Int
+  r : Int32
+  g : Int32
+  b : Int32
   a : Double
 }
 
 ///|
-pub fn Color::rgb(r : Int, g : Int, b : Int) -> Color {
-  { r, g, b, a: 1.0 }
+pub fn Color::rgb(r : Int32, g : Int32, b : Int32) -> Color {
+  { r, g, b, a: 1.0, }
 }
 
 ///|
-pub fn Color::rgba(r : Int, g : Int, b : Int, a : Double) -> Color {
-  { r, g, b, a }
+pub fn Color::rgba(r : Int32, g : Int32, b : Int32, a : Double) -> Color {
+  { r, g, b, a, }
 }
 
 ///|
@@ -29,7 +29,7 @@ pub fn Color::black() -> Color {
 
 ///|
 pub fn Color::transparent() -> Color {
-  { r: 0, g: 0, b: 0, a: 0.0 }
+  { r: 0, g: 0, b: 0, a: 0.0, }
 }
 
 ///|
@@ -38,7 +38,10 @@ pub fn Color::is_transparent(self : Color) -> Bool {
 }
 
 ///|
-pub impl Eq for Color with equal(self, other) {
+pub extend Color with Eq::{not_equal, equal}
+
+///|
+pub impl Eq for Color with fn equal(self, other) {
   self.r == other.r &&
   self.g == other.g &&
   self.b == other.b &&
@@ -70,16 +73,19 @@ pub fn CharCell::default() -> CharCell {
 
 ///|
 pub fn CharCell::from_char(c : Char) -> CharCell {
-  { ..CharCell::default(), char: c }
+  { ..CharCell::default(), char: c, }
 }
 
 ///|
 pub fn CharCell::styled(c : Char, fg : Color, bg : Color) -> CharCell {
-  { ..CharCell::default(), char: c, fg, bg }
+  { ..CharCell::default(), char: c, fg, bg, }
 }
 
 ///|
-pub impl Eq for CharCell with equal(self, other) {
+pub extend CharCell with Eq::{not_equal, equal}
+
+///|
+pub impl Eq for CharCell with fn equal(self, other) {
   self.char == other.char &&
   self.fg == other.fg &&
   self.bg == other.bg &&
@@ -90,14 +96,20 @@ pub impl Eq for CharCell with equal(self, other) {
 
 ///|
 pub(all) struct Rect {
-  x : Int
-  y : Int
-  w : Int
-  h : Int
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
 } derive(Debug, Eq)
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+pub extend Rect with Eq::{not_equal, equal}
+
+///|
+pub extend Rect with @debug.Debug::{to_repr}
+
+///|
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -106,7 +118,7 @@ fn min_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn max_int(a : Int, b : Int) -> Int {
+fn max_int(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {
@@ -116,12 +128,12 @@ fn max_int(a : Int, b : Int) -> Int {
 
 ///|
 pub fn clip_rect(
-  buffer_width : Int,
-  buffer_height : Int,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
+  buffer_width : Int32,
+  buffer_height : Int32,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
 ) -> Rect? {
   if buffer_width <= 0 || buffer_height <= 0 || w <= 0 || h <= 0 {
     return None
@@ -133,18 +145,24 @@ pub fn clip_rect(
   if x2 <= x1 || y2 <= y1 {
     None
   } else {
-    Some({ x: x1, y: y1, w: x2 - x1, h: y2 - y1 })
+    Some({ x: x1, y: y1, w: x2 - x1, h: y2 - y1, })
   }
 }
 
 ///|
 pub(all) struct CellCoord {
-  col : Int
-  row : Int
+  col : Int32
+  row : Int32
 } derive(Debug, Eq)
 
 ///|
-fn scan_width(buffer_width : Int, max_cols : Int) -> Int {
+pub extend CellCoord with Eq::{not_equal, equal}
+
+///|
+pub extend CellCoord with @debug.Debug::{to_repr}
+
+///|
+fn scan_width(buffer_width : Int32, max_cols : Int32) -> Int32 {
   if buffer_width <= 0 {
     0
   } else if max_cols > 0 && max_cols < buffer_width {
@@ -156,9 +174,9 @@ fn scan_width(buffer_width : Int, max_cols : Int) -> Int {
 
 ///|
 pub fn plan_buffer_cells(
-  buffer_width : Int,
-  buffer_height : Int,
-  max_cols : Int,
+  buffer_width : Int32,
+  buffer_height : Int32,
+  max_cols : Int32,
 ) -> Array[CellCoord] {
   let cells : Array[CellCoord] = []
   let cols = scan_width(buffer_width, max_cols)
@@ -167,7 +185,7 @@ pub fn plan_buffer_cells(
   }
   for row = 0; row < buffer_height; row = row + 1 {
     for col = 0; col < cols; col = col + 1 {
-      cells.push({ col, row })
+      cells.push({ col, row, })
     }
   }
   cells
@@ -175,10 +193,10 @@ pub fn plan_buffer_cells(
 
 ///|
 pub fn plan_dirty_cells(
-  buffer_width : Int,
-  buffer_height : Int,
+  buffer_width : Int32,
+  buffer_height : Int32,
   rects : Array[Rect],
-  max_cols : Int,
+  max_cols : Int32,
 ) -> Array[CellCoord] {
   let cells : Array[CellCoord] = []
   let cols = scan_width(buffer_width, max_cols)
@@ -194,7 +212,7 @@ pub fn plan_dirty_cells(
             let idx = row * buffer_width + col
             if !visited[idx] {
               visited[idx] = true
-              cells.push({ col, row })
+              cells.push({ col, row, })
             }
           }
         }
@@ -206,17 +224,29 @@ pub fn plan_dirty_cells(
 
 ///|
 pub(all) struct TextWriteCell {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   char : Char
 } derive(Debug, Eq)
 
 ///|
+pub extend TextWriteCell with Eq::{not_equal, equal}
+
+///|
+pub extend TextWriteCell with @debug.Debug::{to_repr}
+
+///|
 pub(all) struct TextWritePlan {
-  columns : Int
-  lines : Int
+  columns : Int32
+  lines : Int32
   cells : Array[TextWriteCell]
 } derive(Debug, Eq)
+
+///|
+pub extend TextWritePlan with Eq::{not_equal, equal}
+
+///|
+pub extend TextWritePlan with @debug.Debug::{to_repr}
 
 ///|
 pub(all) struct BoxChars {
@@ -227,6 +257,12 @@ pub(all) struct BoxChars {
   horizontal : Char
   vertical : Char
 } derive(Debug, Eq)
+
+///|
+pub extend BoxChars with Eq::{not_equal, equal}
+
+///|
+pub extend BoxChars with @debug.Debug::{to_repr}
 
 ///|
 pub fn BoxChars::single() -> BoxChars {
@@ -278,9 +314,9 @@ pub fn BoxChars::ascii() -> BoxChars {
 
 ///|
 pub fn plan_hline(
-  x : Int,
-  y : Int,
-  w : Int,
+  x : Int32,
+  y : Int32,
+  w : Int32,
   line_char : Char,
 ) -> Array[TextWriteCell] {
   let cells : Array[TextWriteCell] = []
@@ -288,16 +324,16 @@ pub fn plan_hline(
     return cells
   }
   for col = x; col < x + w; col = col + 1 {
-    cells.push({ x: col, y, char: line_char })
+    cells.push({ x: col, y, char: line_char, })
   }
   cells
 }
 
 ///|
 pub fn plan_vline(
-  x : Int,
-  y : Int,
-  h : Int,
+  x : Int32,
+  y : Int32,
+  h : Int32,
   line_char : Char,
 ) -> Array[TextWriteCell] {
   let cells : Array[TextWriteCell] = []
@@ -305,58 +341,64 @@ pub fn plan_vline(
     return cells
   }
   for row = y; row < y + h; row = row + 1 {
-    cells.push({ x, y: row, char: line_char })
+    cells.push({ x, y: row, char: line_char, })
   }
   cells
 }
 
 ///|
 pub fn plan_box(
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
   chars : BoxChars,
 ) -> Array[TextWriteCell] {
   let cells : Array[TextWriteCell] = []
   if w < 2 || h < 2 {
     return cells
   }
-  cells.push({ x, y, char: chars.top_left })
-  cells.push({ x: x + w - 1, y, char: chars.top_right })
-  cells.push({ x, y: y + h - 1, char: chars.bottom_left })
-  cells.push({ x: x + w - 1, y: y + h - 1, char: chars.bottom_right })
+  cells.push({ x, y, char: chars.top_left, })
+  cells.push({ x: x + w - 1, y, char: chars.top_right, })
+  cells.push({ x, y: y + h - 1, char: chars.bottom_left, })
+  cells.push({ x: x + w - 1, y: y + h - 1, char: chars.bottom_right, })
   for col = x + 1; col < x + w - 1; col = col + 1 {
-    cells.push({ x: col, y, char: chars.horizontal })
+    cells.push({ x: col, y, char: chars.horizontal, })
   }
   for col = x + 1; col < x + w - 1; col = col + 1 {
-    cells.push({ x: col, y: y + h - 1, char: chars.horizontal })
+    cells.push({ x: col, y: y + h - 1, char: chars.horizontal, })
   }
   for row = y + 1; row < y + h - 1; row = row + 1 {
-    cells.push({ x, y: row, char: chars.vertical })
+    cells.push({ x, y: row, char: chars.vertical, })
   }
   for row = y + 1; row < y + h - 1; row = row + 1 {
-    cells.push({ x: x + w - 1, y: row, char: chars.vertical })
+    cells.push({ x: x + w - 1, y: row, char: chars.vertical, })
   }
   cells
 }
 
 ///|
 pub(all) struct ScrollbarCell {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   char : Char
   thumb : Bool
 } derive(Debug, Eq)
 
 ///|
+pub extend ScrollbarCell with Eq::{not_equal, equal}
+
+///|
+pub extend ScrollbarCell with @debug.Debug::{to_repr}
+
+///|
 pub fn plan_scrollbar(
-  x : Int,
-  y : Int,
-  height : Int,
-  scroll_pos : Int,
-  content_height : Int,
-  visible_height : Int,
+  x : Int32,
+  y : Int32,
+  height : Int32,
+  scroll_pos : Int32,
+  content_height : Int32,
+  visible_height : Int32,
   track_char : Char,
   thumb_char : Char,
 ) -> Array[ScrollbarCell] {
@@ -365,7 +407,7 @@ pub fn plan_scrollbar(
     return cells
   }
   for row = y; row < y + height; row = row + 1 {
-    cells.push({ x, y: row, char: track_char, thumb: false })
+    cells.push({ x, y: row, char: track_char, thumb: false, })
   }
   let thumb_height = (visible_height * height / content_height).max(1)
   let thumb_pos = scroll_pos *
@@ -373,7 +415,7 @@ pub fn plan_scrollbar(
     (content_height - visible_height)
   for row = y + thumb_pos; row < y + thumb_pos + thumb_height; row = row + 1 {
     if row < y + height {
-      cells.push({ x, y: row, char: thumb_char, thumb: true })
+      cells.push({ x, y: row, char: thumb_char, thumb: true, })
     }
   }
   cells
@@ -382,25 +424,25 @@ pub fn plan_scrollbar(
 ///|
 fn push_planned_char(
   cells : Array[TextWriteCell],
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   c : Char,
-  end_x : Int,
-) -> Int {
+  end_x : Int32,
+) -> Int32 {
   let width = char_display_width(c)
-  cells.push({ x, y, char: c })
+  cells.push({ x, y, char: c, })
   if width == 2 && x + 1 < end_x {
-    cells.push({ x: x + 1, y, char: '\u0000' })
+    cells.push({ x: x + 1, y, char: '\u0000', })
   }
   width
 }
 
 ///|
 pub fn plan_write_text(
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
-  max_width : Int,
+  max_width : Int32,
 ) -> TextWritePlan {
   let cells : Array[TextWriteCell] = []
   let mut cur_x = x
@@ -418,16 +460,16 @@ pub fn plan_write_text(
     }
     cur_x += push_planned_char(cells, cur_x, y, c, end_x)
   }
-  { columns: cur_x - x, lines: 1, cells }
+  { columns: cur_x - x, lines: 1, cells, }
 }
 
 ///|
 pub fn plan_write_text_pre(
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
-  max_width : Int,
-  max_height : Int,
+  max_width : Int32,
+  max_height : Int32,
 ) -> TextWritePlan {
   let cells : Array[TextWriteCell] = []
   let mut cur_x = x
@@ -458,16 +500,16 @@ pub fn plan_write_text_pre(
     }
     cur_x += push_planned_char(cells, cur_x, cur_y, c, end_x)
   }
-  { columns: cur_x - x, lines: cur_y - y + 1, cells }
+  { columns: cur_x - x, lines: cur_y - y + 1, cells, }
 }
 
 ///|
 pub fn plan_write_text_wrapped(
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
-  max_width : Int,
-  max_height : Int,
+  max_width : Int32,
+  max_height : Int32,
 ) -> TextWritePlan {
   let cells : Array[TextWriteCell] = []
   let mut cur_x = x
@@ -496,7 +538,7 @@ pub fn plan_write_text_wrapped(
     }
     cur_x += push_planned_char(cells, cur_x, cur_y, c, end_x)
   }
-  { columns: cur_x - x, lines: cur_y - y + 1, cells }
+  { columns: cur_x - x, lines: cur_y - y + 1, cells, }
 }
 
 ///|
@@ -520,24 +562,28 @@ pub fn TextStyle::default() -> TextStyle {
 ///|
 /// Character-based framebuffer for terminal renderers.
 pub struct CharBuffer {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   cells : Array[CharCell]
 }
 
 ///|
-pub fn CharBuffer::new(width : Int, height : Int) -> CharBuffer {
+pub fn CharBuffer::new(width : Int32, height : Int32) -> CharBuffer {
   let size = width * height
-  { width, height, cells: Array::make(size, CharCell::default()) }
+  { width, height, cells: Array::make(size, CharCell::default()), }
 }
 
 ///|
 pub fn CharBuffer::clone(self : CharBuffer) -> CharBuffer {
-  { width: self.width, height: self.height, cells: self.cells.copy() }
+  { width: self.width, height: self.height, cells: self.cells.copy(), }
 }
 
 ///|
-pub fn CharBuffer::get_cell(self : CharBuffer, x : Int, y : Int) -> CharCell {
+pub fn CharBuffer::get_cell(
+  self : CharBuffer,
+  x : Int32,
+  y : Int32,
+) -> CharCell {
   if x >= 0 && x < self.width && y >= 0 && y < self.height {
     self.cells[y * self.width + x]
   } else {
@@ -548,8 +594,8 @@ pub fn CharBuffer::get_cell(self : CharBuffer, x : Int, y : Int) -> CharCell {
 ///|
 pub fn CharBuffer::set_cell(
   self : CharBuffer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   cell : CharCell,
 ) -> Unit {
   if x >= 0 && x < self.width && y >= 0 && y < self.height {
@@ -560,10 +606,10 @@ pub fn CharBuffer::set_cell(
 ///|
 pub fn CharBuffer::fill_rect(
   self : CharBuffer,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
   cell : CharCell,
 ) -> Unit {
   match clip_rect(self.width, self.height, x, y, w, h) {
@@ -595,8 +641,8 @@ fn CharBuffer::apply_text_write_plan(
 ///|
 fn CharBuffer::styled_cell_at(
   self : CharBuffer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   c : Char,
   style : TextStyle,
 ) -> CharCell {
@@ -618,12 +664,12 @@ fn CharBuffer::styled_cell_at(
 ///|
 pub fn CharBuffer::write_text(
   self : CharBuffer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
   style : TextStyle,
-  max_width : Int,
-) -> Int {
+  max_width : Int32,
+) -> Int32 {
   let plan = plan_write_text(x, y, text, max_width)
   self.apply_text_write_plan(plan, style)
   plan.columns
@@ -632,13 +678,13 @@ pub fn CharBuffer::write_text(
 ///|
 pub fn CharBuffer::write_text_pre(
   self : CharBuffer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
   style : TextStyle,
-  max_width : Int,
-  max_height : Int,
-) -> Int {
+  max_width : Int32,
+  max_height : Int32,
+) -> Int32 {
   let plan = plan_write_text_pre(x, y, text, max_width, max_height)
   self.apply_text_write_plan(plan, style)
   plan.lines
@@ -647,13 +693,13 @@ pub fn CharBuffer::write_text_pre(
 ///|
 pub fn CharBuffer::write_text_wrapped(
   self : CharBuffer,
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
   text : String,
   style : TextStyle,
-  max_width : Int,
-  max_height : Int,
-) -> Int {
+  max_width : Int32,
+  max_height : Int32,
+) -> Int32 {
   let plan = plan_write_text_wrapped(x, y, text, max_width, max_height)
   self.apply_text_write_plan(plan, style)
   plan.lines
@@ -671,10 +717,10 @@ pub fn CharBuffer::clear(self : CharBuffer) -> Unit {
 /// Fill cell backgrounds while preserving existing characters and foregrounds.
 pub fn CharBuffer::fill_bg_preserve(
   self : CharBuffer,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
   bg : Color,
 ) -> Unit {
   match clip_rect(self.width, self.height, x, y, w, h) {
@@ -693,10 +739,10 @@ pub fn CharBuffer::fill_bg_preserve(
 /// Fill backgrounds for an overlay, replacing visible cells with spaces.
 pub fn CharBuffer::fill_bg_cover(
   self : CharBuffer,
-  x : Int,
-  y : Int,
-  w : Int,
-  h : Int,
+  x : Int32,
+  y : Int32,
+  w : Int32,
+  h : Int32,
   bg : Color,
 ) -> Unit {
   match clip_rect(self.width, self.height, x, y, w, h) {
@@ -720,7 +766,7 @@ pub fn CharBuffer::fill_bg_cover(
 }
 
 ///|
-fn is_wide_char_code(code : Int) -> Bool {
+fn is_wide_char_code(code : Int32) -> Bool {
   code >= 0x1100 &&
   (
     code <= 0x115F ||
@@ -742,7 +788,7 @@ fn is_wide_char_code(code : Int) -> Bool {
 
 ///|
 /// Get display width of a character.
-pub fn char_display_width(c : Char) -> Int {
+pub fn char_display_width(c : Char) -> Int32 {
   let code = c.to_int()
   if code < 0x80 {
     1
@@ -754,7 +800,7 @@ pub fn char_display_width(c : Char) -> Int {
 }
 
 ///|
-pub fn string_display_width(s : String) -> Int {
+pub fn string_display_width(s : String) -> Int32 {
   let mut width = 0
   for c in s {
     width += char_display_width(c)
@@ -763,7 +809,7 @@ pub fn string_display_width(s : String) -> Int {
 }
 
 ///|
-pub fn CharBuffer::get_row_text(self : CharBuffer, row : Int) -> String {
+pub fn CharBuffer::get_row_text(self : CharBuffer, row : Int32) -> String {
   if row < 0 || row >= self.height {
     return ""
   }

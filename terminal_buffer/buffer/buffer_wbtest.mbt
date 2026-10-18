@@ -100,9 +100,9 @@ test "plan_buffer_cells scans a clipped buffer in row-major order" {
 ///|
 test "plan_dirty_cells clips and de-duplicates dirty rectangles" {
   let rects = [
-    { x: -1, y: 1, w: 3, h: 2 },
-    { x: 1, y: 1, w: 3, h: 1 },
-    { x: 10, y: 10, w: 1, h: 1 },
+    { x: -1, y: 1, w: 3, h: 2, },
+    { x: 1, y: 1, w: 3, h: 1, },
+    { x: 10, y: 10, w: 1, h: 1, },
   ]
   let cells = plan_dirty_cells(5, 4, rects, 4)
   inspect(cells.length(), content="6")
