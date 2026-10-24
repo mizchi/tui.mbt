@@ -85,6 +85,18 @@ pub fn ansi_bg_256(color_idx : Int) -> String {
 }
 
 ///|
+/// 24-bit true color foreground
+pub fn ansi_fg_rgb(r : Int, g : Int, b : Int) -> String {
+  @ansi.ansi_fg_rgb(r, g, b)
+}
+
+///|
+/// 24-bit true color background
+pub fn ansi_bg_rgb(r : Int, g : Int, b : Int) -> String {
+  @ansi.ansi_bg_rgb(r, g, b)
+}
+
+///|
 /// Reset background color to default
 pub fn ansi_bg_reset() -> String {
   @ansi.ansi_bg_reset()
@@ -168,28 +180,102 @@ pub fn rgb_to_256(r : Int, g : Int, b : Int) -> Int {
 }
 
 ///|
+/// Convert a Color to its 256-color palette index
 pub fn color_to_256(color : @core.Color) -> Int {
   rgb_to_256(color.r, color.g, color.b)
 }
 
 ///|
-pub fn ansi_fg_color(color : @core.Color) -> String {
-  ansi_fg_256(color_to_256(color))
+/// Build the foreground SGR sequence for a color in the given color mode.
+pub fn ansi_fg_color(
+  color : @core.Color,
+  color_mode? : ColorMode = ColorMode::Ansi256,
+) -> String {
+  match color_mode {
+    TrueColor => ansi_fg_rgb(color.r, color.g, color.b)
+    Ansi256 => ansi_fg_256(color_to_256(color))
+  }
 }
 
 ///|
-pub fn ansi_bg_color(color : @core.Color) -> String {
-  ansi_bg_256(color_to_256(color))
+/// Build the background SGR sequence for a color in the given color mode.
+pub fn ansi_bg_color(
+  color : @core.Color,
+  color_mode? : ColorMode = ColorMode::Ansi256,
+) -> String {
+  match color_mode {
+    TrueColor => ansi_bg_rgb(color.r, color.g, color.b)
+    Ansi256 => ansi_bg_256(color_to_256(color))
+  }
+}
+
+///|
+/// SGR state already written, so that only changes are emitted.
+/// An empty string means "nothing emitted yet" (every real sequence is
+/// non-empty), which keeps the dedup check a plain string comparison.
+priv struct AnsiStyleState {
+  mut fg : String
+  mut bg : String
+  mut bold : Bool
+  mut underline : Bool
+}
+
+///|
+fn AnsiStyleState::new() -> AnsiStyleState {
+  { fg: "", bg: "", bold: false, underline: false }
+}
+
+///|
+fn AnsiStyleState::emit(
+  self : AnsiStyleState,
+  sb : StringBuilder,
+  cell : CharCell,
+  color_mode : ColorMode,
+) -> Unit {
+  if (self.bold && !cell.bold) || (self.underline && !cell.underline) {
+    // SGR reset also clears colors, so forget them as well
+    sb.write_string(ansi_reset())
+    self.fg = ""
+    self.bg = ""
+    self.bold = false
+    self.underline = false
+  }
+  if cell.bold && !self.bold {
+    sb.write_string(ansi_bold())
+    self.bold = true
+  }
+  if cell.underline && !self.underline {
+    sb.write_string(ansi_underline())
+    self.underline = true
+  }
+  let fg = if cell.fg.is_transparent() {
+    ansi_fg_256(7)
+  } else {
+    ansi_fg_color(cell.fg, color_mode~)
+  }
+  if fg != self.fg {
+    sb.write_string(fg)
+    self.fg = fg
+  }
+  let bg = if cell.bg.is_transparent() {
+    ansi_bg_reset()
+  } else {
+    ansi_bg_color(cell.bg, color_mode~)
+  }
+  if bg != self.bg {
+    sb.write_string(bg)
+    self.bg = bg
+  }
 }
 
 ///|
 /// Convert CharBuffer to ANSI-encoded string
-pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
+pub fn CharBuffer::to_ansi(
+  self : CharBuffer,
+  color_mode? : ColorMode = ColorMode::Ansi256,
+) -> String {
   let sb = StringBuilder()
-  let mut last_fg = -1
-  let mut last_bg = -1
-  let mut last_bold = false
-  let mut last_underline = false
+  let style = AnsiStyleState::new()
   for row = 0; row < self.height; row = row + 1 {
     sb.write_string(ansi_move_to(row, 0))
     let mut expected_col = 0
@@ -204,45 +290,7 @@ pub fn CharBuffer::to_ansi(self : CharBuffer) -> String {
         sb.write_string(ansi_move_to(row, col))
       }
       expected_col = col + @core.char_display_width(cell.char)
-      let fg_idx = if cell.fg.is_transparent() {
-        7
-      } else {
-        color_to_256(cell.fg)
-      }
-      let bg_idx = if cell.bg.is_transparent() {
-        -1
-      } else {
-        color_to_256(cell.bg)
-      }
-      let need_reset = (last_bold && !cell.bold) ||
-        (last_underline && !cell.underline)
-      if need_reset {
-        sb.write_string(ansi_reset())
-        last_fg = -1
-        last_bg = -1
-        last_bold = false
-        last_underline = false
-      }
-      if cell.bold && !last_bold {
-        sb.write_string(ansi_bold())
-        last_bold = true
-      }
-      if cell.underline && !last_underline {
-        sb.write_string(ansi_underline())
-        last_underline = true
-      }
-      if fg_idx != last_fg {
-        sb.write_string(ansi_fg_256(fg_idx))
-        last_fg = fg_idx
-      }
-      if bg_idx != last_bg {
-        if bg_idx >= 0 {
-          sb.write_string(ansi_bg_256(bg_idx))
-        } else {
-          sb.write_string(ansi_bg_reset())
-        }
-        last_bg = bg_idx
-      }
+      style.emit(sb, cell, color_mode)
       sb.write_char(cell.char)
     }
   }
@@ -256,12 +304,10 @@ pub fn CharBuffer::to_ansi_offset(
   self : CharBuffer,
   row_offset : Int,
   col_offset : Int,
+  color_mode? : ColorMode = ColorMode::Ansi256,
 ) -> String {
   let sb = StringBuilder()
-  let mut last_fg = -1
-  let mut last_bg = -1
-  let mut last_bold = false
-  let mut last_underline = false
+  let style = AnsiStyleState::new()
   for row = 0; row < self.height; row = row + 1 {
     sb.write_string(ansi_move_to(row + row_offset, col_offset))
     let mut expected_col = 0
@@ -275,45 +321,7 @@ pub fn CharBuffer::to_ansi_offset(
         sb.write_string(ansi_move_to(row + row_offset, col + col_offset))
       }
       expected_col = col + @core.char_display_width(cell.char)
-      let fg_idx = if cell.fg.is_transparent() {
-        7
-      } else {
-        color_to_256(cell.fg)
-      }
-      let bg_idx = if cell.bg.is_transparent() {
-        -1
-      } else {
-        color_to_256(cell.bg)
-      }
-      let need_reset = (last_bold && !cell.bold) ||
-        (last_underline && !cell.underline)
-      if need_reset {
-        sb.write_string(ansi_reset())
-        last_fg = -1
-        last_bg = -1
-        last_bold = false
-        last_underline = false
-      }
-      if cell.bold && !last_bold {
-        sb.write_string(ansi_bold())
-        last_bold = true
-      }
-      if cell.underline && !last_underline {
-        sb.write_string(ansi_underline())
-        last_underline = true
-      }
-      if fg_idx != last_fg {
-        sb.write_string(ansi_fg_256(fg_idx))
-        last_fg = fg_idx
-      }
-      if bg_idx != last_bg {
-        if bg_idx >= 0 {
-          sb.write_string(ansi_bg_256(bg_idx))
-        } else {
-          sb.write_string(ansi_bg_reset())
-        }
-        last_bg = bg_idx
-      }
+      style.emit(sb, cell, color_mode)
       sb.write_char(cell.char)
     }
   }
@@ -323,14 +331,15 @@ pub fn CharBuffer::to_ansi_offset(
 
 ///|
 /// Optimized ANSI output with diff (only output changed cells)
-pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String {
+pub fn CharBuffer::diff_to_ansi(
+  self : CharBuffer,
+  prev : CharBuffer,
+  color_mode? : ColorMode = ColorMode::Ansi256,
+) -> String {
   let sb = StringBuilder()
   let mut last_row = -1
   let mut expected_col = -1 // Track expected cursor position (considering char width)
-  let mut last_fg = -1
-  let mut last_bg = -1
-  let mut last_bold = false
-  let mut last_underline = false
+  let style = AnsiStyleState::new()
   for row = 0; row < self.height; row = row + 1 {
     for col = 0; col < self.width; col = col + 1 {
       let cell = self.get_cell(col, row)
@@ -346,45 +355,7 @@ pub fn CharBuffer::diff_to_ansi(self : CharBuffer, prev : CharBuffer) -> String 
       if row != last_row || col != expected_col {
         sb.write_string(ansi_move_to(row, col))
       }
-      let fg_idx = if cell.fg.is_transparent() {
-        7
-      } else {
-        color_to_256(cell.fg)
-      }
-      let bg_idx = if cell.bg.is_transparent() {
-        -1
-      } else {
-        color_to_256(cell.bg)
-      }
-      let need_reset = (last_bold && !cell.bold) ||
-        (last_underline && !cell.underline)
-      if need_reset {
-        sb.write_string(ansi_reset())
-        last_fg = -1
-        last_bg = -1
-        last_bold = false
-        last_underline = false
-      }
-      if cell.bold && !last_bold {
-        sb.write_string(ansi_bold())
-        last_bold = true
-      }
-      if cell.underline && !last_underline {
-        sb.write_string(ansi_underline())
-        last_underline = true
-      }
-      if fg_idx != last_fg {
-        sb.write_string(ansi_fg_256(fg_idx))
-        last_fg = fg_idx
-      }
-      if bg_idx != last_bg {
-        if bg_idx >= 0 {
-          sb.write_string(ansi_bg_256(bg_idx))
-        } else {
-          sb.write_string(ansi_bg_reset())
-        }
-        last_bg = bg_idx
-      }
+      style.emit(sb, cell, color_mode)
       sb.write_char(ch)
       last_row = row
       // Wide characters advance cursor by 2, narrow by 1
@@ -402,14 +373,12 @@ pub fn CharBuffer::diff_to_ansi_offset(
   prev : CharBuffer,
   row_offset : Int,
   col_offset : Int,
+  color_mode? : ColorMode = ColorMode::Ansi256,
 ) -> String {
   let sb = StringBuilder()
   let mut last_row = -1
   let mut expected_col = -1 // Track expected cursor position (considering char width)
-  let mut last_fg = -1
-  let mut last_bg = -1
-  let mut last_bold = false
-  let mut last_underline = false
+  let style = AnsiStyleState::new()
   for row = 0; row < self.height; row = row + 1 {
     for col = 0; col < self.width; col = col + 1 {
       let cell = self.get_cell(col, row)
@@ -427,45 +396,7 @@ pub fn CharBuffer::diff_to_ansi_offset(
       if out_row != last_row || out_col != expected_col {
         sb.write_string(ansi_move_to(out_row, out_col))
       }
-      let fg_idx = if cell.fg.is_transparent() {
-        7
-      } else {
-        color_to_256(cell.fg)
-      }
-      let bg_idx = if cell.bg.is_transparent() {
-        -1
-      } else {
-        color_to_256(cell.bg)
-      }
-      let need_reset = (last_bold && !cell.bold) ||
-        (last_underline && !cell.underline)
-      if need_reset {
-        sb.write_string(ansi_reset())
-        last_fg = -1
-        last_bg = -1
-        last_bold = false
-        last_underline = false
-      }
-      if cell.bold && !last_bold {
-        sb.write_string(ansi_bold())
-        last_bold = true
-      }
-      if cell.underline && !last_underline {
-        sb.write_string(ansi_underline())
-        last_underline = true
-      }
-      if fg_idx != last_fg {
-        sb.write_string(ansi_fg_256(fg_idx))
-        last_fg = fg_idx
-      }
-      if bg_idx != last_bg {
-        if bg_idx >= 0 {
-          sb.write_string(ansi_bg_256(bg_idx))
-        } else {
-          sb.write_string(ansi_bg_reset())
-        }
-        last_bg = bg_idx
-      }
+      style.emit(sb, cell, color_mode)
       sb.write_char(ch)
       last_row = out_row
       // Wide characters advance cursor by 2, narrow by 1

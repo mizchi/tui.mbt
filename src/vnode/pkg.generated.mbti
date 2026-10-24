@@ -49,7 +49,7 @@ pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int,
 
 pub fn hspace(Double) -> @ui.Node[TuiEvent, TuiAttrValue]
 
-pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool) -> (VNodeApp, () -> Unit)
+pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool, color_mode? : @render.ColorMode) -> (VNodeApp, () -> Unit)
 
 pub fn input(String, id? : String, placeholder? : String, state? : InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[TuiEvent, TuiAttrValue]
 
@@ -61,15 +61,15 @@ pub fn is_printable_string(String) -> Bool
 
 pub fn on((TuiEvent) -> Unit) -> @ui.Attr[TuiEvent, TuiAttrValue]
 
-pub fn render_overlay_at(Int, Int, @ui.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn render_overlay_at(Int, Int, @ui.Node[TuiEvent, TuiAttrValue], color_mode? : @render.ColorMode) -> String
 
-pub fn render_to_lines(@ui.Node[TuiEvent, TuiAttrValue]) -> Array[String]
+pub fn render_to_lines(@ui.Node[TuiEvent, TuiAttrValue], color_mode? : @render.ColorMode) -> Array[String]
 
-pub fn render_vnode_once(Int, Int, @ui.Node[TuiEvent, TuiAttrValue]) -> String
+pub fn render_vnode_once(Int, Int, @ui.Node[TuiEvent, TuiAttrValue], color_mode? : @render.ColorMode) -> String
 
 pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((TuiEvent) -> Unit)?, Array[@ui.Node[TuiEvent, TuiAttrValue]]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
-pub fn run_vnode_app(Int, Int, () -> @ui.Node[TuiEvent, TuiAttrValue], (String) -> Unit) -> () -> Unit
+pub fn run_vnode_app(Int, Int, () -> @ui.Node[TuiEvent, TuiAttrValue], (String) -> Unit, color_mode? : @render.ColorMode) -> () -> Unit
 
 pub fn show(() -> Bool, () -> @ui.Node[TuiEvent, TuiAttrValue]) -> @ui.Node[TuiEvent, TuiAttrValue]
 
@@ -343,6 +343,7 @@ pub struct VNodeApp {
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @crater-core.Layout?
   mut overlay_layouts : Array[@crater-core.Layout]
+  mut color_mode : @render.ColorMode
   mut render_ctx : RenderContext
 }
 pub fn VNodeApp::a11y_tree(Self) -> Array[A11yNode]
@@ -355,13 +356,14 @@ pub fn VNodeApp::handle_click(Self, @events.MouseEvent) -> String?
 pub fn VNodeApp::hit_test(Self, Int, Int) -> @events.HitTestResult?
 pub fn VNodeApp::init_terminal() -> String
 pub fn VNodeApp::layout_rects(Self) -> Array[@events.HitTestResult]
-pub fn VNodeApp::new(Int, Int) -> Self
+pub fn VNodeApp::new(Int, Int, color_mode? : @render.ColorMode) -> Self
 pub fn VNodeApp::render(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 pub fn VNodeApp::render_frame(Self, @ui.Node[TuiEvent, TuiAttrValue]) -> String
 pub fn VNodeApp::render_frame_with_overlays(Self, @ui.Node[TuiEvent, TuiAttrValue], Array[OverlayEntry]) -> String
 pub fn VNodeApp::render_with_overlays(Self, @ui.Node[TuiEvent, TuiAttrValue], Array[OverlayEntry]) -> String
 pub fn VNodeApp::resize(Self, Int, Int) -> Unit
 pub fn VNodeApp::restore_terminal() -> String
+pub fn VNodeApp::set_color_mode(Self, @render.ColorMode) -> Unit
 
 // Type aliases
 pub type TuiAttr = @ui.Attr[TuiEvent, TuiAttrValue]

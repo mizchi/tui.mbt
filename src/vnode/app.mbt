@@ -10,19 +10,34 @@ pub struct VNodeApp {
   mut prev_buffer : @render.CharBuffer?
   mut last_layout : @ccore.Layout?
   mut overlay_layouts : Array[@ccore.Layout]
+  mut color_mode : @render.ColorMode
   mut render_ctx : RenderContext
 }
 
 ///|
-pub fn VNodeApp::new(width : Int, height : Int) -> VNodeApp {
+pub fn VNodeApp::new(
+  width : Int,
+  height : Int,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
+) -> VNodeApp {
   {
     width,
     height,
     prev_buffer: None,
     last_layout: None,
     overlay_layouts: [],
+    color_mode,
     render_ctx: RenderContext::new(),
   }
+}
+
+///|
+/// Switch the color mode used for the next frames.
+pub fn VNodeApp::set_color_mode(
+  self : VNodeApp,
+  color_mode : @render.ColorMode,
+) -> Unit {
+  self.color_mode = color_mode
 }
 
 ///|
@@ -64,10 +79,10 @@ pub fn VNodeApp::render(self : VNodeApp, root : TuiNode) -> String {
 
   // Generate output with diff if possible
   let output = match self.prev_buffer {
-    Some(prev) => buf.diff_to_ansi(prev)
+    Some(prev) => buf.diff_to_ansi(prev, color_mode=self.color_mode)
     None =>
       // First render: clear screen and render full
-      @render.ansi_clear_screen() + buf.to_ansi()
+      @render.ansi_clear_screen() + buf.to_ansi(color_mode=self.color_mode)
   }
 
   // Save current buffer for next diff
@@ -182,8 +197,9 @@ pub fn VNodeApp::render_with_overlays(
 
   // Generate output with diff if possible
   let output = match self.prev_buffer {
-    Some(prev) => buf.diff_to_ansi(prev)
-    None => @render.ansi_clear_screen() + buf.to_ansi()
+    Some(prev) => buf.diff_to_ansi(prev, color_mode=self.color_mode)
+    None =>
+      @render.ansi_clear_screen() + buf.to_ansi(color_mode=self.color_mode)
   }
 
   // Save current buffer for next diff
@@ -366,8 +382,9 @@ pub fn run_vnode_app(
   height : Int,
   render_fn : () -> TuiNode,
   output_fn : (String) -> Unit,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
 ) -> () -> Unit {
-  let app = VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height, color_mode~)
 
   // Initialize terminal
   output_fn(VNodeApp::init_terminal())
@@ -390,8 +407,9 @@ pub fn init_vnode_terminal(
   output_fn : (String) -> Unit,
   mouse? : Bool = false,
   raw_mode? : Bool = true,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
 ) -> (VNodeApp, () -> Unit) {
-  let app = VNodeApp::new(width, height)
+  let app = VNodeApp::new(width, height, color_mode~)
 
   // Initialize terminal
   output_fn(VNodeApp::init_terminal())
@@ -416,7 +434,12 @@ pub fn init_vnode_terminal(
 
 ///|
 /// Simple render function for one-shot rendering (no reactivity)
-pub fn render_vnode_once(width : Int, height : Int, root : TuiNode) -> String {
-  let app = VNodeApp::new(width, height)
+pub fn render_vnode_once(
+  width : Int,
+  height : Int,
+  root : TuiNode,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
+) -> String {
+  let app = VNodeApp::new(width, height, color_mode~)
   app.render(root)
 }

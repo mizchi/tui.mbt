@@ -84,6 +84,30 @@ pub fn ansi_bg_256(color_idx : Int) -> String {
 }
 
 ///|
+/// 24-bit true color foreground
+pub fn ansi_fg_rgb(r : Int, g : Int, b : Int) -> String {
+  "\u001b[38;2;" +
+  r.to_string() +
+  ";" +
+  g.to_string() +
+  ";" +
+  b.to_string() +
+  "m"
+}
+
+///|
+/// 24-bit true color background
+pub fn ansi_bg_rgb(r : Int, g : Int, b : Int) -> String {
+  "\u001b[48;2;" +
+  r.to_string() +
+  ";" +
+  g.to_string() +
+  ";" +
+  b.to_string() +
+  "m"
+}
+
+///|
 pub fn ansi_bg_reset() -> String {
   "\u001b[49m"
 }

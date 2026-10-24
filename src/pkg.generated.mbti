@@ -45,7 +45,7 @@ pub fn grid_item(column? : Int, row? : Int, column_span? : Int, row_span? : Int,
 
 pub fn hspace(Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool) -> (@vnode.VNodeApp, () -> Unit)
+pub fn init_vnode_terminal(Int, Int, (String) -> Unit, mouse? : Bool, raw_mode? : Bool, color_mode? : @render.ColorMode) -> (@vnode.VNodeApp, () -> Unit)
 
 pub fn input(String, id? : String, placeholder? : String, state? : @vnode.InputState, fg? : String, bg? : String, placeholder_fg? : String, focus_border_color? : String, edit_border_color? : String, disabled_fg? : String, disabled_bg? : String, width? : Double, min_width? : Double, padding_x? : Double, padding_y? : Double) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -61,17 +61,17 @@ pub fn print_raw(String) -> Unit
 
 pub async fn read_key() -> String
 
-pub fn render_once(Int, Int, @core.Component) -> String
+pub fn render_once(Int, Int, @core.Component, color_mode? : @render.ColorMode) -> String
 
-pub fn render_vnode_once(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
+pub fn render_vnode_once(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], color_mode? : @render.ColorMode) -> String
 
 pub fn resolve_button_state(String, String, focus? : @headless.FocusNav?, disabled? : Bool) -> @headless.ButtonState
 
 pub fn row(id? : String, gap? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, width? : Double, height? : Double, min_width? : Double, min_height? : Double, flex_grow? : Double, justify? : String, align? : String, border? : String, border_color? : String, bg? : String, role? : String, tab_index? : Int, on_click? : ((@vnode.TuiEvent) -> Unit)?, Array[@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]]) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool, on_hover? : ((String) -> Unit)?) -> Unit
+pub fn run(() -> @core.Component, (@events.InputEvent) -> Bool, mouse? : Bool, on_hover? : ((String) -> Unit)?, color_mode? : @render.ColorMode) -> Unit
 
-pub fn run_vnode_app(Int, Int, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], (String) -> Unit) -> () -> Unit
+pub fn run_vnode_app(Int, Int, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], (String) -> Unit, color_mode? : @render.ColorMode) -> () -> Unit
 
 pub fn spacer() -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
@@ -115,6 +115,8 @@ pub using @render {type CharBuffer}
 pub using @render {type CharCell}
 
 pub using @core {type Color}
+
+pub using @render {type ColorMode}
 
 pub using @core {type Component}
 

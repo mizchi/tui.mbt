@@ -92,6 +92,17 @@ Background: `\u001b[48;2;<r>;<g>;<b>m`
 
 Where r, g, b are 0-255.
 
+In this library, 24-bit output is opt-in:
+
+```moonbit
+let app = @vnode.VNodeApp::new(80, 24, color_mode=@render.ColorMode::TrueColor)
+@vnode.render_vnode_once(80, 24, node, color_mode=@render.ColorMode::TrueColor)
+@render.ColorMode::detect() // COLORTERM=truecolor / 24bit, TERM=*direct*
+```
+
+The default remains the 256-color palette, so output stays readable on
+terminals without 24-bit support.
+
 ## Mouse Support
 
 ### Enable/Disable Mouse Tracking

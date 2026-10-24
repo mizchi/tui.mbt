@@ -559,3 +559,19 @@ test "completion: typing after Backspace shows popup again" {
   assert_eq(state.input, "ap")
   assert_true(state.should_show_popup()) // Popup should reappear
 }
+
+///|
+test "VNodeApp: true color mode emits 24-bit SGR" {
+  let app = VNodeApp::new(10, 3, color_mode=@render.ColorMode::TrueColor)
+  let output = app.render(text("Hi", fg="rgb(255,128,0)"))
+  assert_true(output.contains("\u{1b}[38;2;255;128;0m"))
+  assert_false(output.contains("38;5;"))
+}
+
+///|
+test "VNodeApp: color mode can be switched after construction" {
+  let app = VNodeApp::new(10, 3)
+  app.set_color_mode(@render.ColorMode::TrueColor)
+  let output = app.render(text("Hi", fg="rgb(255,128,0)"))
+  assert_true(output.contains("\u{1b}[38;2;255;128;0m"))
+}
