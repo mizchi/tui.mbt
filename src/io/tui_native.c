@@ -186,8 +186,12 @@ static int translate_special_key(int code) {
     }
 }
 
-// Wait until a console input event exists in the buffer. Returns 1 when an
-// event is available, 0 on timeout/failure.
+// Wait until a console input event exists in the buffer, up to timeout_ms.
+// Returns 1 when an event is available, 0 on timeout/failure.
+//
+// The timeout matters: tui_read_byte()'s contract with the MoonBit side is
+// non-blocking (returns -1 when no input), and the async key loop polls it
+// every 10ms. Blocking here forever would stall the whole scheduler.
 static int wait_console_event(DWORD timeout_ms) {
     DWORD count = 0;
     if (!GetNumberOfConsoleInputEvents(tty_handle, &count)) {
@@ -207,7 +211,13 @@ static int fetch_key_event(void) {
     INPUT_RECORD record;
     DWORD read_count = 0;
     for (;;) {
-        wait_console_event(INFINITE);
+        // ReadConsoleInputW **blocks** when the buffer is empty (unlike
+        // POSIX read with VMIN=0), so only read when an event is known to
+        // exist. Without input this returns 0 -> tui_read_byte() -> -1,
+        // keeping the non-blocking contract.
+        if (!wait_console_event(10)) {
+            return 0;
+        }
         if (!ReadConsoleInputW(tty_handle, &record, 1, &read_count) ||
             read_count == 0) {
             return 0;
