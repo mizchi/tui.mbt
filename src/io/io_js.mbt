@@ -8,37 +8,76 @@ extern "js" fn js_read_key() -> @js_async.Promise[String] =
   #| async () => {
   #|   if (typeof process === 'undefined') return 'q';
   #|   const fs = await import('node:fs');
-  #|
-  #|   // Use /dev/tty if stdin is not a tty (piped input)
-  #|   let inputStream = process.stdin;
-  #|   let ttyFd = null;
-  #|
-  #|   if (!process.stdin.isTTY) {
-  #|     try {
-  #|       ttyFd = fs.openSync('/dev/tty', 'r');
-  #|       inputStream = fs.createReadStream(null, { fd: ttyFd, encoding: 'utf8' });
-  #|     } catch (e) {
-  #|       // /dev/tty not available, fall back to stdin
-  #|       inputStream = process.stdin;
+  #|   // 一次读会话状态：token 队列 / 未完成的转义序列残留 / 常驻的流监听。
+  #|   // node 的 'data' 事件给的是任意大小的 chunk（IME 一次提交的整串中文、
+  #|   // 混着按键的段落都是一个 chunk），而 MoonBit 侧 read_key 的契约是
+  #|   // 「每次一个字符或一个完整转义序列」（native 的 C 层逐字节读就是这样），
+  #|   // 所以在这里拆 token，不能把整个 chunk 当一个键 resolve。
+  #|   const S = globalThis.__piTuiInput ??= {
+  #|     queue: [], waiters: [], pending: '', attached: false,
+  #|   };
+  #|   function deliver(token) {
+  #|     if (S.waiters.length > 0) S.waiters.shift()(token);
+  #|     else S.queue.push(token);
+  #|   }
+  #|   function feed(chunk) {
+  #|     let buf = S.pending + chunk;
+  #|     S.pending = '';
+  #|     let i = 0;
+  #|     while (i < buf.length) {
+  #|       if (buf[i] !== '\x1b') {
+  #|         // 按 Unicode 码点拆，emoji 等占两个 UTF-16 单元。
+  #|         const size = buf.codePointAt(i) > 0xffff ? 2 : 1;
+  #|         deliver(buf.slice(i, i + size));
+  #|         i += size;
+  #|         continue;
+  #|       }
+  #|       // 转义序列：跨 chunk 截断的残留留在 pending，下一个 chunk 拼上。
+  #|       if (buf.length - i < 2) { S.pending = buf.slice(i); return; }
+  #|       const next = buf[i + 1];
+  #|       if (next === '[') {
+  #|         let j = i + 2, done = false;
+  #|         while (j < buf.length) {
+  #|           const code = buf.charCodeAt(j);
+  #|           if (code >= 0x40 && code <= 0x7e && code !== 0x5b) { j++; done = true; break; }
+  #|           j++;
+  #|         }
+  #|         if (!done) { S.pending = buf.slice(i); return; }
+  #|         deliver(buf.slice(i, j));
+  #|         i = j;
+  #|       } else if (next === 'O') {
+  #|         if (buf.length - i < 3) { S.pending = buf.slice(i); return; }
+  #|         deliver(buf.slice(i, i + 3));
+  #|         i += 3;
+  #|       } else {
+  #|         deliver(buf.slice(i, i + 2));
+  #|         i += 2;
+  #|       }
   #|     }
   #|   }
-  #|
-  #|   if (inputStream.isTTY && inputStream.setRawMode) {
-  #|     inputStream.setRawMode(true);
-  #|   }
-  #|   inputStream.resume();
-  #|   if (inputStream.setEncoding) inputStream.setEncoding('utf8');
-  #|
-  #|   return new Promise((resolve) => {
-  #|     const onData = (data) => {
-  #|       inputStream.removeListener('data', onData);
-  #|       if (ttyFd !== null) {
-  #|         try { fs.closeSync(ttyFd); } catch (e) {}
+  #|   if (!S.attached) {
+  #|     let inputStream = process.stdin;
+  #|     // Use /dev/tty if stdin is not a tty (piped input)
+  #|     if (!process.stdin.isTTY) {
+  #|       try {
+  #|         const ttyFd = fs.openSync('/dev/tty', 'r');
+  #|         inputStream = fs.createReadStream(null, { fd: ttyFd });
+  #|       } catch (e) {
+  #|         inputStream = process.stdin;
   #|       }
-  #|       resolve(data);
-  #|     };
-  #|     inputStream.on('data', onData);
-  #|   });
+  #|     }
+  #|     if (inputStream.isTTY && inputStream.setRawMode) {
+  #|       inputStream.setRawMode(true);
+  #|     }
+  #|     inputStream.resume();
+  #|     // setEncoding 用 StringDecoder：多字节字符跨 chunk 截断时不会乱码，
+  #|     // 半个字符会留到下一个 chunk。
+  #|     inputStream.setEncoding('utf8');
+  #|     inputStream.on('data', feed);
+  #|     S.attached = true;
+  #|   }
+  #|   if (S.queue.length > 0) return S.queue.shift();
+  #|   return new Promise((resolve) => S.waiters.push(resolve));
   #| }
 
 ///|
