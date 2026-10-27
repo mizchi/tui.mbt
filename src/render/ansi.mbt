@@ -218,11 +218,12 @@ priv struct AnsiStyleState {
   mut bg : String
   mut bold : Bool
   mut underline : Bool
+  mut reverse : Bool
 }
 
 ///|
 fn AnsiStyleState::new() -> AnsiStyleState {
-  { fg: "", bg: "", bold: false, underline: false }
+  { fg: "", bg: "", bold: false, underline: false, reverse: false }
 }
 
 ///|
@@ -232,13 +233,15 @@ fn AnsiStyleState::emit(
   cell : CharCell,
   color_mode : ColorMode,
 ) -> Unit {
-  if (self.bold && !cell.bold) || (self.underline && !cell.underline) {
+  if (self.bold && !cell.bold) || (self.underline && !cell.underline) ||
+    (self.reverse && !cell.reverse) {
     // SGR reset also clears colors, so forget them as well
     sb.write_string(ansi_reset())
     self.fg = ""
     self.bg = ""
     self.bold = false
     self.underline = false
+    self.reverse = false
   }
   if cell.bold && !self.bold {
     sb.write_string(ansi_bold())
@@ -247,6 +250,10 @@ fn AnsiStyleState::emit(
   if cell.underline && !self.underline {
     sb.write_string(ansi_underline())
     self.underline = true
+  }
+  if cell.reverse && !self.reverse {
+    sb.write_string(ansi_reverse())
+    self.reverse = true
   }
   let fg = if cell.fg.is_transparent() {
     ansi_fg_256(7)

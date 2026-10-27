@@ -41,6 +41,7 @@ test "to_ansi: true color mode emits 24-bit SGR per color change" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = buf.write_text(0, 0, "AB", style, 2)
   inspect(
@@ -57,6 +58,7 @@ test "to_ansi: default color mode keeps 256-color output" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = buf.write_text(0, 0, "A", style, 1)
   let ansi = buf.to_ansi()
@@ -72,6 +74,7 @@ test "to_ansi_offset: true color mode keeps the offset" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = buf.write_text(0, 0, "X", style, 1)
   let ansi = buf.to_ansi_offset(2, 3, color_mode=@render.ColorMode::TrueColor)
@@ -88,6 +91,7 @@ test "diff_to_ansi: true color mode emits 24-bit SGR for changed cells" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = current.write_text(0, 0, "A", style, 2)
   let diff = current.diff_to_ansi(prev, color_mode=@render.ColorMode::TrueColor)
@@ -104,6 +108,7 @@ test "diff_to_ansi_offset: true color mode keeps the offset" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = current.write_text(0, 0, "Z", style, 1)
   let diff = current.diff_to_ansi_offset(
@@ -114,4 +119,30 @@ test "diff_to_ansi_offset: true color mode keeps the offset" {
   )
   assert_true(diff.contains("\u{1b}[6;7H"))
   assert_true(diff.contains("\u{1b}[38;2;4;4;4m"))
+}
+
+///|
+test "to_ansi: reverse video turns on with SGR 7 and resets" {
+  let buf = @render.CharBuffer::new(2, 1)
+  let plain : @render.TextStyle = {
+    fg: @core.Color::rgb(1, 2, 3),
+    bg: @core.Color::transparent(),
+    bold: false,
+    underline: false,
+    reverse: false,
+  }
+  let reversed : @render.TextStyle = {
+    fg: @core.Color::rgb(1, 2, 3),
+    bg: @core.Color::transparent(),
+    bold: false,
+    underline: false,
+    reverse: true,
+  }
+  let _ = buf.write_text(0, 0, "A", plain, 1)
+  let _ = buf.write_text(1, 0, "B", reversed, 1)
+  let ansi = buf.to_ansi(color_mode=@render.ColorMode::TrueColor)
+  assert_true(ansi.contains("\u{1b}[7m"))
+  // "A" 写在反显格子之前，所以它的输出里不该有 SGR 7。
+  let offset = ansi.find("\u{1b}[7m").unwrap()
+  assert_false(ansi[:offset].contains("A\u{1b}[7m"))
 }

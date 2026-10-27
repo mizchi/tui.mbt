@@ -96,6 +96,7 @@ priv struct VisualStyle {
   mut bg : @core.Color?
   mut bold : Bool
   mut underline : Bool
+  mut reverse : Bool
   mut border : @core.BorderChars?
   mut border_color : @core.Color?
 }
@@ -107,6 +108,7 @@ fn VisualStyle::default() -> VisualStyle {
     bg: None,
     bold: false,
     underline: false,
+    reverse: false,
     border: None,
     border_color: None,
   }
@@ -247,12 +249,14 @@ fn convert_element(
     visual.bg is Some(_) ||
     visual.bold ||
     visual.underline ||
+    visual.reverse ||
     visual.border is Some(_) {
     ctx.styles[id] = {
       fg: visual.fg.unwrap_or(@core.Color::white()),
       bg: visual.bg.unwrap_or(@core.Color::transparent()),
       bold: visual.bold,
       underline: visual.underline,
+      reverse: visual.reverse,
       border: visual.border,
       border_fg: visual.border_color.unwrap_or(@core.Color::white()),
     }
@@ -392,6 +396,7 @@ fn apply_attr(
     TuiAttrValue::Bg(v) => visual.bg = Some(v.to_color())
     TuiAttrValue::Bold(v) => visual.bold = v
     TuiAttrValue::Underline(v) => visual.underline = v
+    TuiAttrValue::Reverse(v) => visual.reverse = v
     TuiAttrValue::Id(_) => ()
     // Accessibility: TabIndex is metadata, doesn't affect layout
     TuiAttrValue::TabIndex(_) => ()

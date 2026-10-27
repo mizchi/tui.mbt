@@ -8,6 +8,8 @@ pub(all) struct RenderStyle {
   bg : Color
   bold : Bool
   underline : Bool
+  /// Reverse video (SGR 7): swap fg / bg at paint time.
+  reverse : Bool
   border : BorderChars?
   border_fg : Color
 }
@@ -19,6 +21,7 @@ pub fn RenderStyle::default() -> RenderStyle {
     bg: Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
     border: None,
     border_fg: Color::white(),
   }

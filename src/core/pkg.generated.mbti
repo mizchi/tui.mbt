@@ -107,6 +107,7 @@ pub(all) struct RenderStyle {
   bg : Color
   bold : Bool
   underline : Bool
+  reverse : Bool
   border : BorderChars?
   border_fg : Color
 }

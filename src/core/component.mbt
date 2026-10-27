@@ -378,6 +378,7 @@ pub fn box(
     bg,
     bold: false,
     underline: false,
+    reverse: false,
     border,
     border_fg: border_color,
   })
@@ -409,6 +410,7 @@ pub fn text(
     bg,
     bold,
     underline,
+    reverse: false,
     border: None,
     border_fg: Color::white(),
   })
@@ -513,6 +515,7 @@ pub fn text_box(
     bg,
     bold,
     underline,
+    reverse: false,
     border,
     border_fg: border_color,
   })

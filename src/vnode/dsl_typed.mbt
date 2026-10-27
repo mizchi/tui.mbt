@@ -69,6 +69,7 @@ fn attr_key(attr : TuiAttrValue) -> String {
     TuiAttrValue::Bg(_) => "bg"
     TuiAttrValue::Bold(_) => "bold"
     TuiAttrValue::Underline(_) => "underline"
+    TuiAttrValue::Reverse(_) => "reverse"
     TuiAttrValue::Id(_) => "id"
     TuiAttrValue::TabIndex(_) => "tab_index"
     TuiAttrValue::Role(_) => "role"
@@ -723,9 +724,10 @@ pub fn text(
   fg? : String = "",
   bold? : Bool = false,
   underline? : Bool = false,
+  inverse? : Bool = false,
   role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold || underline || role.length() > 0 {
+  if fg.length() > 0 || bold || underline || inverse || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
@@ -735,6 +737,9 @@ pub fn text(
     }
     if underline {
       attrs.push(("underline", attr(TuiAttrValue::Underline(true))))
+    }
+    if inverse {
+      attrs.push(("reverse", attr(TuiAttrValue::Reverse(true))))
     }
     if role.length() > 0 {
       attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
@@ -752,9 +757,10 @@ pub fn text_dyn(
   fg? : String = "",
   bold? : Bool = false,
   underline? : Bool = false,
+  inverse? : Bool = false,
   role? : String = "",
 ) -> TuiNode {
-  if fg.length() > 0 || bold || underline || role.length() > 0 {
+  if fg.length() > 0 || bold || underline || inverse || role.length() > 0 {
     let attrs : Array[(String, TuiAttr)] = []
     if fg.length() > 0 {
       attrs.push(("fg", attr(TuiAttrValue::Fg(parse_color_value(fg)))))
@@ -764,6 +770,9 @@ pub fn text_dyn(
     }
     if underline {
       attrs.push(("underline", attr(TuiAttrValue::Underline(true))))
+    }
+    if inverse {
+      attrs.push(("reverse", attr(TuiAttrValue::Reverse(true))))
     }
     if role.length() > 0 {
       attrs.push(("role", attr(TuiAttrValue::Role(parse_role_value(role)))))
@@ -1045,6 +1054,7 @@ pub fn attr_to_string(attr : TuiAttrValue) -> (String, String) {
     TuiAttrValue::Bg(v) => color_to_string(v)
     TuiAttrValue::Bold(v) => if v { "true" } else { "false" }
     TuiAttrValue::Underline(v) => if v { "true" } else { "false" }
+    TuiAttrValue::Reverse(v) => if v { "true" } else { "false" }
     TuiAttrValue::Id(v) => v
     TuiAttrValue::TabIndex(v) => v.to_string()
     TuiAttrValue::Role(v) => role_to_string(v)

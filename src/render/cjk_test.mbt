@@ -6,6 +6,7 @@ test "CJK characters render correctly without spaces" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
 
   // Write Japanese text to buffer
@@ -49,6 +50,7 @@ test "CJK with background fill before text (simulates render_layout)" {
     bg: @core.Color::transparent(), // transparent, so uses existing bg
     bold: false,
     underline: false,
+    reverse: false,
   }
   let text = "日本語abc"
   let _ = buf.write_text_wrapped(0, 0, text, style, 20, 1)
@@ -84,6 +86,7 @@ test "CJK with parent fill_bg then child fill_bg (nested layout simulation)" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = buf.write_text_wrapped(0, 1, "日本語", style, 20, 1)
 
@@ -108,6 +111,7 @@ test "CJK diff rendering: ASCII to CJK transition" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = prev.write_text_wrapped(0, 0, "abc", style, 20, 1)
 
@@ -133,6 +137,7 @@ test "CJK diff rendering: CJK to ASCII transition" {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
   let _ = prev.write_text_wrapped(0, 0, "日本語", style, 20, 1)
 

@@ -175,6 +175,7 @@ pub(all) struct TextStyle {
   bg : @core.Color
   bold : Bool
   underline : Bool
+  reverse : Bool
 }
 pub fn TextStyle::default() -> Self
 

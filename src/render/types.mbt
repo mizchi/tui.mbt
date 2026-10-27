@@ -52,6 +52,7 @@ pub(all) struct TextStyle {
   bg : @core.Color
   bold : Bool
   underline : Bool
+  reverse : Bool
 }
 
 ///|
@@ -61,5 +62,6 @@ pub fn TextStyle::default() -> TextStyle {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
 }
