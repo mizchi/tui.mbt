@@ -17,12 +17,21 @@ pub(all) enum ButtonState {
 } derive(Debug, Eq)
 
 ///|
+pub extend ButtonState with @debug.Debug::{to_repr}
+
+///|
+pub extend ButtonState with Eq::{not_equal, equal}
+
+///|
 pub impl Show for ButtonState with fn output(
   self : ButtonState,
   logger : &Logger,
 ) -> Unit {
   Show::output(self.to_repr(), logger)
 }
+
+///|
+pub extend ButtonState with Show::{to_string, output}
 
 ///|
 /// Check if button is interactive

@@ -6,6 +6,12 @@ pub enum ImageFormat {
 } derive(Debug, Eq)
 
 ///|
+pub extend ImageFormat with @debug.Debug::{to_repr}
+
+///|
+pub extend ImageFormat with Eq::{not_equal, equal}
+
+///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
   Show::output(value.to_repr(), logger)
 }
@@ -19,6 +25,9 @@ pub impl Show for ImageFormat with fn output(
 }
 
 ///|
+pub extend ImageFormat with Show::{to_string, output}
+
+///|
 /// Base64 payload image with explicit dimensions.
 pub struct ImageAsset {
   width : Int
@@ -28,9 +37,15 @@ pub struct ImageAsset {
 } derive(Debug)
 
 ///|
+pub extend ImageAsset with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for ImageAsset with fn output(self : ImageAsset, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend ImageAsset with Show::{to_string, output}
 
 ///|
 /// Rectangle in pixels.
@@ -42,9 +57,18 @@ pub struct ImageRect {
 } derive(Debug, Eq)
 
 ///|
+pub extend ImageRect with @debug.Debug::{to_repr}
+
+///|
+pub extend ImageRect with Eq::{not_equal, equal}
+
+///|
 pub impl Show for ImageRect with fn output(self : ImageRect, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend ImageRect with Show::{to_string, output}
 
 ///|
 /// Construct a rectangle.

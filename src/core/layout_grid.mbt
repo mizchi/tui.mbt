@@ -11,9 +11,18 @@ pub struct GridRect {
 } derive(Eq, Debug)
 
 ///|
+pub extend GridRect with Eq::{not_equal, equal}
+
+///|
+pub extend GridRect with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for GridRect with fn output(self : GridRect, logger : &Logger) -> Unit {
   Show::output(self.to_repr(), logger)
 }
+
+///|
+pub extend GridRect with Show::{to_string, output}
 
 ///|
 /// Snap a floating-point coordinate to the nearest terminal cell.

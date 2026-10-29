@@ -15,6 +15,9 @@ pub(all) enum KeyModifier {
 } derive(Debug)
 
 ///|
+pub extend KeyModifier with @debug.Debug::{to_repr}
+
+///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
   Show::output(value.to_repr(), logger)
 }
@@ -26,6 +29,9 @@ pub impl Show for KeyModifier with fn output(
 ) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend KeyModifier with Show::{to_string, output}
 
 ///|
 /// Special keys
@@ -49,9 +55,15 @@ pub(all) enum SpecialKey {
 } derive(Debug)
 
 ///|
+pub extend SpecialKey with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for SpecialKey with fn output(self : SpecialKey, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend SpecialKey with Show::{to_string, output}
 
 ///|
 /// Keyboard event
@@ -61,9 +73,15 @@ pub(all) enum KeyEvent {
 } derive(Debug)
 
 ///|
+pub extend KeyEvent with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for KeyEvent with fn output(self : KeyEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend KeyEvent with Show::{to_string, output}
 
 ///|
 /// Mouse button
@@ -77,12 +95,18 @@ pub(all) enum MouseButton {
 } derive(Debug)
 
 ///|
+pub extend MouseButton with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for MouseButton with fn output(
   self : MouseButton,
   logger : &Logger,
 ) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend MouseButton with Show::{to_string, output}
 
 ///|
 /// Mouse event type
@@ -94,12 +118,18 @@ pub(all) enum MouseEventType {
 } derive(Debug)
 
 ///|
+pub extend MouseEventType with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for MouseEventType with fn output(
   self : MouseEventType,
   logger : &Logger,
 ) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend MouseEventType with Show::{to_string, output}
 
 ///|
 /// Mouse event
@@ -112,9 +142,15 @@ pub(all) struct MouseEvent {
 } derive(Debug)
 
 ///|
+pub extend MouseEvent with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for MouseEvent with fn output(self : MouseEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend MouseEvent with Show::{to_string, output}
 
 ///|
 /// Input event
@@ -126,9 +162,15 @@ pub(all) enum InputEvent {
 } derive(Debug)
 
 ///|
+pub extend InputEvent with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for InputEvent with fn output(self : InputEvent, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend InputEvent with Show::{to_string, output}
 
 ///|
 /// Hit test result

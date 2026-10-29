@@ -8,17 +8,17 @@ import {
 }
 
 // Values
-pub fn dump_layout(@crater-core.Layout, Int, Int, Int) -> String
+pub fn dump_layout(@crater-core.Layout, Int32, Int32, Int32) -> String
 
-pub fn find_layout_by_id(@crater-core.Layout, String, Int, Int) -> HitTestResult?
+pub fn find_layout_by_id(@crater-core.Layout, String, Int32, Int32) -> HitTestResult?
 
 pub fn find_layout_by_id_root(@crater-core.Layout, String) -> HitTestResult?
 
-pub fn handle_click(@crater-core.Layout, EventHandlers, Int, Int) -> Bool
+pub fn handle_click(@crater-core.Layout, EventHandlers, Int32, Int32) -> Bool
 
-pub fn hit_test(@crater-core.Layout, Int, Int, Int, Int) -> HitTestResult?
+pub fn hit_test(@crater-core.Layout, Int32, Int32, Int32, Int32) -> HitTestResult?
 
-pub fn hit_test_root(@crater-core.Layout, Int, Int) -> HitTestResult?
+pub fn hit_test_root(@crater-core.Layout, Int32, Int32) -> HitTestResult?
 
 pub fn layout_rects_root(@crater-core.Layout) -> Array[HitTestResult]
 
@@ -46,7 +46,7 @@ pub fn FocusManager::blur(Self) -> Unit
 pub fn FocusManager::focus(Self, String) -> Unit
 pub fn FocusManager::focus_next(Self) -> Unit
 pub fn FocusManager::focus_prev(Self) -> Unit
-pub fn FocusManager::focusable_count(Self) -> Int
+pub fn FocusManager::focusable_count(Self) -> Int32
 pub fn FocusManager::get_focused(Self) -> String?
 pub fn FocusManager::get_mode(Self) -> InputMode
 pub fn FocusManager::is_editing(Self) -> Bool
@@ -64,17 +64,17 @@ pub(all) enum FocusState {
 
 pub(all) struct HitTestResult {
   id : String
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
   role : @core.Role?
 }
 
 pub(all) enum InputEvent {
   Key(KeyEvent)
   Mouse(MouseEvent)
-  Resize(Int, Int)
+  Resize(Int32, Int32)
   Unknown(String)
 } derive(@debug.Debug)
 pub fn InputEvent::is_arrow(Self) -> SpecialKey?
@@ -90,6 +90,9 @@ pub fn InputEvent::is_right_click(Self) -> MouseEvent?
 pub fn InputEvent::is_scroll_down(Self) -> Bool
 pub fn InputEvent::is_scroll_up(Self) -> Bool
 pub fn InputEvent::is_tab(Self) -> Bool
+pub fn InputEvent::output(Self, &Logger) -> Unit
+pub fn InputEvent::to_repr(Self) -> @debug.Repr
+pub fn InputEvent::to_string(Self) -> String
 pub impl Show for InputEvent
 
 pub(all) enum InputMode {
@@ -105,6 +108,9 @@ pub fn KeyEvent::is_char(Self, Char) -> Bool
 pub fn KeyEvent::is_ctrl_c(Self) -> Bool
 pub fn KeyEvent::is_ctrl_q(Self) -> Bool
 pub fn KeyEvent::is_special(Self, SpecialKey) -> Bool
+pub fn KeyEvent::output(Self, &Logger) -> Unit
+pub fn KeyEvent::to_repr(Self) -> @debug.Repr
+pub fn KeyEvent::to_string(Self) -> String
 pub impl Show for KeyEvent
 
 pub(all) enum KeyModifier {
@@ -117,6 +123,9 @@ pub(all) enum KeyModifier {
   ShiftAlt
   CtrlShiftAlt
 } derive(@debug.Debug)
+pub fn KeyModifier::output(Self, &Logger) -> Unit
+pub fn KeyModifier::to_repr(Self) -> @debug.Repr
+pub fn KeyModifier::to_string(Self) -> String
 pub impl Show for KeyModifier
 
 pub(all) enum MouseButton {
@@ -127,15 +136,21 @@ pub(all) enum MouseButton {
   ScrollDown
   None
 } derive(@debug.Debug)
+pub fn MouseButton::output(Self, &Logger) -> Unit
+pub fn MouseButton::to_repr(Self) -> @debug.Repr
+pub fn MouseButton::to_string(Self) -> String
 pub impl Show for MouseButton
 
 pub(all) struct MouseEvent {
   button : MouseButton
   event_type : MouseEventType
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   modifier : KeyModifier
 } derive(@debug.Debug)
+pub fn MouseEvent::output(Self, &Logger) -> Unit
+pub fn MouseEvent::to_repr(Self) -> @debug.Repr
+pub fn MouseEvent::to_string(Self) -> String
 pub impl Show for MouseEvent
 
 pub(all) enum MouseEventType {
@@ -144,6 +159,9 @@ pub(all) enum MouseEventType {
   Move
   Drag
 } derive(@debug.Debug)
+pub fn MouseEventType::output(Self, &Logger) -> Unit
+pub fn MouseEventType::to_repr(Self) -> @debug.Repr
+pub fn MouseEventType::to_string(Self) -> String
 pub impl Show for MouseEventType
 
 pub(all) enum SpecialKey {
@@ -162,8 +180,11 @@ pub(all) enum SpecialKey {
   Backspace
   Enter
   Escape
-  F(Int)
+  F(Int32)
 } derive(@debug.Debug)
+pub fn SpecialKey::output(Self, &Logger) -> Unit
+pub fn SpecialKey::to_repr(Self) -> @debug.Repr
+pub fn SpecialKey::to_string(Self) -> String
 pub impl Show for SpecialKey
 
 // Type aliases

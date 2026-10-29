@@ -10,11 +10,12 @@ priv struct InlineStyle {
   bg : @core.Color?
   bold : Bool
   underline : Bool
+  inverse : Bool
 }
 
 ///|
 fn InlineStyle::default() -> InlineStyle {
-  { fg: None, bg: None, bold: false, underline: false, }
+  { fg: None, bg: None, bold: false, underline: false, inverse: false }
 }
 
 ///|
@@ -40,6 +41,9 @@ fn apply_inline_style(
   if style.underline {
     prefix = prefix + @render.ansi_underline()
   }
+  if style.inverse {
+    prefix = prefix + @render.ansi_reverse()
+  }
   match style.fg {
     Some(color) => prefix = prefix + @render.ansi_fg_color(color, color_mode~)
     None => ()
@@ -64,6 +68,7 @@ fn extract_inline_style(
   let mut bg : @core.Color? = None
   let mut bold = false
   let mut underline = false
+  let mut inverse = false
   for attr in el.attrs {
     let (_, value) = attr
     match value {
@@ -73,6 +78,7 @@ fn extract_inline_style(
           TuiAttrValue::Bg(v) => bg = Some(v.to_color())
           TuiAttrValue::Bold(v) => bold = v
           TuiAttrValue::Underline(v) => underline = v
+          TuiAttrValue::Reverse(v) => inverse = v
           _ => ()
         }
       @luna.Attr::VDynamic(getter) =>
@@ -81,12 +87,13 @@ fn extract_inline_style(
           TuiAttrValue::Bg(v) => bg = Some(v.to_color())
           TuiAttrValue::Bold(v) => bold = v
           TuiAttrValue::Underline(v) => underline = v
+          TuiAttrValue::Reverse(v) => inverse = v
           _ => ()
         }
       _ => ()
     }
   }
-  { fg, bg, bold, underline, }
+  { fg, bg, bold, underline, inverse }
 }
 
 ///|
@@ -130,6 +137,7 @@ fn render_inline_text(
         bg: merge_color(style.bg, parent_style.bg),
         bold: style.bold || parent_style.bold,
         underline: style.underline || parent_style.underline,
+        inverse: style.inverse || parent_style.inverse,
       }
       match el.tag {
         "text" => {
@@ -234,6 +242,7 @@ fn render_to_lines_with_style(
         bg: merge_color(style.bg, parent_style.bg),
         bold: style.bold || parent_style.bold,
         underline: style.underline || parent_style.underline,
+        inverse: style.inverse || parent_style.inverse,
       }
       match el.tag {
         "text" => {

@@ -254,9 +254,16 @@ fn AnsiStyleState::emit(
   if cell.reverse && !self.reverse {
     sb.write_string(ansi_reverse())
     self.reverse = true
+  } else if !cell.reverse && self.reverse {
+    // 显式 SGR 27 只关反色；老的 ansi_reset() 会连带清掉 fg/bg，
+    // 反色区紧邻正常文字时会闪一下默认色。
+    sb.write_string(@ansi.ansi_inverse_off())
+    self.reverse = false
   }
   let fg = if cell.fg.is_transparent() {
-    ansi_fg_256(7)
+    // 透明 = 终端默认前景（39）。之前的实现画成 256 色灰，浅色终端里
+    // 「默认前景」的文本会跟底色打架 —— 反色光标也靠这个分支跟随终端。
+    @ansi.ansi_fg_reset()
   } else {
     ansi_fg_color(cell.fg, color_mode~)
   }

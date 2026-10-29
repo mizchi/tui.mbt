@@ -11,17 +11,17 @@ import {
 // Values
 pub fn box(Array[Component], id? : String, width? : @values.Dimension, height? : @values.Dimension, min_width? : @values.Dimension, min_height? : @values.Dimension, max_width? : @values.Dimension, max_height? : @values.Dimension, flex_grow? : Double, flex_shrink? : Double, flex_basis? : @values.Dimension, flex_direction? : @values.FlexDirection, flex_wrap? : @values.FlexWrap, justify_content? : @values.Alignment, align_items? : @values.Alignment, align_content? : @values.Alignment, gap? : Double, padding? : Double, padding_x? : Double, padding_y? : Double, margin? : Double, margin_x? : Double, margin_y? : Double, position? : @values.Position, inset_top? : @values.Dimension, inset_right? : @values.Dimension, inset_bottom? : @values.Dimension, inset_left? : @values.Dimension, border? : BorderChars?, border_color? : Color, bg? : Color, fg? : Color, on_click? : (() -> Unit)?, role? : Role?) -> Component
 
-pub fn char_display_width(Char) -> Int
+pub fn char_display_width(Char) -> Int32
 
 pub fn normalize_grid_rect(Double, Double, Double, Double) -> GridRect
 
 pub fn normalize_grid_rect_with_inset(Double, Double, Double, Double, Double, Double, Double, Double) -> GridRect
 
-pub fn snap_to_grid(Double) -> Int
+pub fn snap_to_grid(Double) -> Int32
 
 pub fn spacer(flex_grow? : Double) -> Component
 
-pub fn string_display_width(String) -> Int
+pub fn string_display_width(String) -> Int32
 
 pub fn styled_text(String, fg? : Color, bg? : Color, bold? : Bool, underline? : Bool) -> Component
 
@@ -58,21 +58,23 @@ pub fn ClickHandlers::new() -> Self
 pub fn ClickHandlers::set(Self, String, ClickHandler) -> Unit
 
 pub(all) struct Color {
-  r : Int
-  g : Int
-  b : Int
+  r : Int32
+  g : Int32
+  b : Int32
   a : Double
 }
 pub fn Color::black() -> Self
 pub fn Color::blue() -> Self
 pub fn Color::cyan() -> Self
+pub fn Color::equal(Self, Self) -> Bool
 pub fn Color::from_crater(@values.Color) -> Self
 pub fn Color::green() -> Self
 pub fn Color::is_transparent(Self) -> Bool
 pub fn Color::magenta() -> Self
+pub fn Color::not_equal(Self, Self) -> Bool
 pub fn Color::red() -> Self
-pub fn Color::rgb(Int, Int, Int) -> Self
-pub fn Color::rgba(Int, Int, Int, Double) -> Self
+pub fn Color::rgb(Int32, Int32, Int32) -> Self
+pub fn Color::rgba(Int32, Int32, Int32, Double) -> Self
 pub fn Color::transparent() -> Self
 pub fn Color::white() -> Self
 pub fn Color::yellow() -> Self
@@ -95,11 +97,16 @@ pub fn Component::get_texts(Self) -> TextContentMap
 pub fn Component::id(Self) -> String
 
 pub struct GridRect {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
 } derive(Eq, @debug.Debug)
+pub fn GridRect::equal(Self, Self) -> Bool
+pub fn GridRect::not_equal(Self, Self) -> Bool
+pub fn GridRect::output(Self, &Logger) -> Unit
+pub fn GridRect::to_repr(Self) -> @debug.Repr
+pub fn GridRect::to_string(Self) -> String
 pub impl Show for GridRect
 
 pub(all) struct RenderStyle {
@@ -170,6 +177,11 @@ pub(all) enum Role {
   Dialog
   Custom(String)
 } derive(Eq, @debug.Debug)
+pub fn Role::equal(Self, Self) -> Bool
+pub fn Role::not_equal(Self, Self) -> Bool
+pub fn Role::output(Self, &Logger) -> Unit
+pub fn Role::to_repr(Self) -> @debug.Repr
+pub fn Role::to_string(Self) -> String
 pub impl Show for Role
 
 pub(all) struct RoleMap(Map[String, Role])

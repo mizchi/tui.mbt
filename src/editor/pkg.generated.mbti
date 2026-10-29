@@ -12,22 +12,22 @@ import {
 }
 
 // Values
-pub fn editor_cursor_position(EditorState, Int, Int, show_header? : Bool, show_footer? : Bool) -> (Int, Int)
+pub fn editor_cursor_position(EditorState, Int32, Int32, show_header? : Bool, show_footer? : Bool) -> (Int32, Int32)
 
-pub fn editor_position_for(EditorState, Int, Int, Int, Int, show_header? : Bool, show_footer? : Bool) -> (Int, Int)
+pub fn editor_position_for(EditorState, Int32, Int32, Int32, Int32, show_header? : Bool, show_footer? : Bool) -> (Int32, Int32)
 
 pub fn handle_key_event(EditorState, @events.KeyEvent) -> Unit
 
-pub fn render_editor(EditorState, Int, Int, show_header? : Bool, show_footer? : Bool, title? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
+pub fn render_editor(EditorState, Int32, Int32, show_header? : Bool, show_footer? : Bool, title? : String) -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 
-pub fn tooltip_position(EditorState, Int, Int, TooltipAnchor, Int, Int) -> TooltipRect
+pub fn tooltip_position(EditorState, Int32, Int32, TooltipAnchor, Int32, Int32) -> TooltipRect
 
 // Errors
 
 // Types and methods
 pub(all) struct CompletionAnchor {
-  line : Int
-  col : Int
+  line : Int32
+  col : Int32
 }
 
 pub(all) struct CompletionItem {
@@ -39,24 +39,24 @@ pub(all) struct CompletionItem {
 
 pub struct CompletionPopup {
   session : CompletionSession
-  max_items : Int
+  max_items : Int32
   style : @components.CompletionPopupStyle
   direction : @components.PopupDirection
 }
-pub fn CompletionPopup::calculate_rect(Self, Int, Int, Int, Int) -> @components.PopupRect?
-pub fn CompletionPopup::new(CompletionSession, max_items? : Int, style? : @components.CompletionPopupStyle, direction? : @components.PopupDirection) -> Self
-pub fn CompletionPopup::render(Self, EditorState, Int, Int) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], @components.PopupRect)?
-pub fn CompletionPopup::render_overlay(Self, EditorState, Int, Int) -> (String, @components.PopupRect)?
+pub fn CompletionPopup::calculate_rect(Self, Int32, Int32, Int32, Int32) -> @components.PopupRect?
+pub fn CompletionPopup::new(CompletionSession, max_items? : Int32, style? : @components.CompletionPopupStyle, direction? : @components.PopupDirection) -> Self
+pub fn CompletionPopup::render(Self, EditorState, Int32, Int32) -> (@ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], @components.PopupRect)?
+pub fn CompletionPopup::render_overlay(Self, EditorState, Int32, Int32) -> (String, @components.PopupRect)?
 
 pub(all) struct CompletionRange {
-  start_col : Int
-  end_col : Int
+  start_col : Int32
+  end_col : Int32
 }
 
 pub(all) struct CompletionRequest {
-  id : Int
-  line : Int
-  col : Int
+  id : Int32
+  line : Int32
+  col : Int32
   prefix : String
   line_text : String
   anchor : CompletionAnchor
@@ -64,7 +64,7 @@ pub(all) struct CompletionRequest {
 }
 
 pub(all) struct CompletionResponse {
-  id : Int
+  id : Int32
   items : Array[CompletionItem]
   is_incomplete : Bool
 }
@@ -74,14 +74,14 @@ pub struct CompletionSession {
   mut items : Array[CompletionItem]
   mut anchor : CompletionAnchor
   mut replace : CompletionRange
-  mut request_id : Int
+  mut request_id : Int32
 }
 pub fn CompletionSession::apply_response(Self, CompletionResponse) -> Bool
 pub fn CompletionSession::clear(Self) -> Unit
 pub fn CompletionSession::get_anchor(Self) -> CompletionAnchor
 pub fn CompletionSession::get_items(Self) -> Array[CompletionItem]
 pub fn CompletionSession::get_replace(Self) -> CompletionRange
-pub fn CompletionSession::get_selected_index(Self) -> Int
+pub fn CompletionSession::get_selected_index(Self) -> Int32
 pub fn CompletionSession::get_selected_item(Self) -> CompletionItem?
 pub fn CompletionSession::hide(Self) -> Unit
 pub fn CompletionSession::is_visible(Self) -> Bool
@@ -96,25 +96,25 @@ pub struct EditorState {
   mut doc : Document
   mut selection : Selection
   viewport : Viewport
-  mut preferred_col : Int
+  mut preferred_col : Int32
   highlight : HighlightState
   mut dirty : Bool
 }
-pub fn EditorState::caret_col(Self) -> Int
-pub fn EditorState::caret_line(Self) -> Int
-pub fn EditorState::completion_request(Self, Int) -> CompletionRequest
-pub fn EditorState::current_word_bounds(Self) -> (Int, Int)
+pub fn EditorState::caret_col(Self) -> Int32
+pub fn EditorState::caret_line(Self) -> Int32
+pub fn EditorState::completion_request(Self, Int32) -> CompletionRequest
+pub fn EditorState::current_word_bounds(Self) -> (Int32, Int32)
 pub fn EditorState::current_word_prefix(Self) -> String
 pub fn EditorState::get_text(Self) -> String
 pub fn EditorState::is_dirty(Self) -> Bool
 pub fn EditorState::mark_clean(Self) -> Unit
-pub fn EditorState::new(String, Int) -> Self
-pub fn EditorState::new_with_filename(String, Int, String) -> Self
-pub fn EditorState::new_with_kind(String, Int, HighlightKind) -> Self
+pub fn EditorState::new(String, Int32) -> Self
+pub fn EditorState::new_with_filename(String, Int32, String) -> Self
+pub fn EditorState::new_with_kind(String, Int32, HighlightKind) -> Self
 pub fn EditorState::replace_current_word(Self, String) -> Unit
 pub fn EditorState::replace_selection(Self, String) -> Unit
-pub fn EditorState::scroll_view(Self, Int) -> Unit
-pub fn EditorState::set_height(Self, Int) -> Unit
+pub fn EditorState::scroll_view(Self, Int32) -> Unit
+pub fn EditorState::set_height(Self, Int32) -> Unit
 pub fn EditorState::set_text(Self, String) -> Unit
 
 pub(all) enum HighlightKind {
@@ -148,6 +148,9 @@ pub struct HighlightState {
 }
 
 type Position derive(Eq, @debug.Debug)
+pub fn Position::equal(Self, Self) -> Bool
+pub fn Position::not_equal(Self, Self) -> Bool
+pub fn Position::to_repr(Self) -> @debug.Repr
 
 type Selection
 
@@ -157,8 +160,8 @@ pub(all) struct Tooltip {
 }
 
 pub(all) struct TooltipAnchor {
-  line : Int
-  col : Int
+  line : Int32
+  col : Int32
   prefer_below : Bool
 }
 
@@ -168,8 +171,8 @@ pub(all) enum TooltipContent {
 }
 
 pub(all) struct TooltipRect {
-  row : Int
-  col : Int
+  row : Int32
+  col : Int32
 }
 
 type Viewport

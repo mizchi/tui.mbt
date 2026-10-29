@@ -9,13 +9,13 @@ import {
 }
 
 // Values
-pub fn ansi_bg_256(Int) -> String
+pub fn ansi_bg_256(Int32) -> String
 
 pub fn ansi_bg_color(@core.Color, color_mode? : ColorMode) -> String
 
 pub fn ansi_bg_reset() -> String
 
-pub fn ansi_bg_rgb(Int, Int, Int) -> String
+pub fn ansi_bg_rgb(Int32, Int32, Int32) -> String
 
 pub fn ansi_bold() -> String
 
@@ -27,7 +27,7 @@ pub fn ansi_dim() -> String
 
 pub fn ansi_enter_alt_screen() -> String
 
-pub fn ansi_fg_256(Int) -> String
+pub fn ansi_fg_256(Int32) -> String
 
 pub fn ansi_fg_black() -> String
 
@@ -45,7 +45,7 @@ pub fn ansi_fg_magenta() -> String
 
 pub fn ansi_fg_red() -> String
 
-pub fn ansi_fg_rgb(Int, Int, Int) -> String
+pub fn ansi_fg_rgb(Int32, Int32, Int32) -> String
 
 pub fn ansi_fg_white() -> String
 
@@ -57,15 +57,15 @@ pub fn ansi_hide_cursor() -> String
 
 pub fn ansi_leave_alt_screen() -> String
 
-pub fn ansi_move_down(n? : Int) -> String
+pub fn ansi_move_down(n? : Int32) -> String
 
-pub fn ansi_move_left(n? : Int) -> String
+pub fn ansi_move_left(n? : Int32) -> String
 
-pub fn ansi_move_right(n? : Int) -> String
+pub fn ansi_move_right(n? : Int32) -> String
 
-pub fn ansi_move_to(Int, Int) -> String
+pub fn ansi_move_to(Int32, Int32) -> String
 
-pub fn ansi_move_up(n? : Int) -> String
+pub fn ansi_move_up(n? : Int32) -> String
 
 pub fn ansi_reset() -> String
 
@@ -77,11 +77,11 @@ pub fn ansi_show_cursor() -> String
 
 pub fn ansi_underline() -> String
 
-pub fn color_to_256(@core.Color) -> Int
+pub fn color_to_256(@core.Color) -> Int32
 
-pub fn compute_layout(@node.Node, Int, Int) -> @crater-core.Layout
+pub fn compute_layout(@node.Node, Int32, Int32) -> @crater-core.Layout
 
-pub fn compute_layout_max_content(@node.Node, Int, Int) -> @crater-core.Layout
+pub fn compute_layout_max_content(@node.Node, Int32, Int32) -> @crater-core.Layout
 
 pub fn disable_mouse() -> String
 
@@ -91,22 +91,22 @@ pub fn enable_mouse() -> String
 
 pub fn enable_mouse_all() -> String
 
-pub fn render_layout(CharBuffer, @crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> Unit
+pub fn render_layout(CharBuffer, @crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int32, Int32) -> Unit
 
-pub fn render_once(Int, Int, @core.Component, color_mode? : ColorMode) -> String
+pub fn render_once(Int32, Int32, @core.Component, color_mode? : ColorMode) -> String
 
-pub fn render_to_ansi(@crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int, Int) -> String
+pub fn render_to_ansi(@crater-core.Layout, @core.RenderStyleMap, @core.TextContentMap, Int32, Int32) -> String
 
-pub fn rgb_to_256(Int, Int, Int) -> Int
+pub fn rgb_to_256(Int32, Int32, Int32) -> Int32
 
-pub fn run_app(Int, Int, () -> @core.Component, (String) -> Unit, color_mode? : ColorMode) -> () -> Unit
+pub fn run_app(Int32, Int32, () -> @core.Component, (String) -> Unit, color_mode? : ColorMode) -> () -> Unit
 
 // Errors
 
 // Types and methods
 pub struct App {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   mut prev_buffer : CharBuffer?
   mut last_layout : @crater-core.Layout?
   mut color_mode : ColorMode
@@ -120,34 +120,34 @@ pub fn App::dispatch_click_with_result(Self, @events.MouseEvent) -> @events.HitT
 pub fn App::dispatch_hover(Self, @events.MouseEvent) -> String?
 pub fn App::find_by_id(Self, String) -> @events.HitTestResult?
 pub fn App::handle_mouse(Self, @events.MouseEvent) -> Bool
-pub fn App::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn App::hit_test(Self, Int32, Int32) -> @events.HitTestResult?
 pub fn App::init_terminal() -> String
-pub fn App::new(Int, Int, color_mode? : ColorMode) -> Self
+pub fn App::new(Int32, Int32, color_mode? : ColorMode) -> Self
 pub fn App::on_click(Self, String, () -> Unit) -> Unit
 pub fn App::render(Self, @core.Component) -> String
 pub fn App::render_frame(Self, @core.Component) -> String
-pub fn App::render_with_offset(Self, @core.Component, row_offset? : Int, col_offset? : Int) -> String
+pub fn App::render_with_offset(Self, @core.Component, row_offset? : Int32, col_offset? : Int32) -> String
 pub fn App::restore_terminal() -> String
 pub fn App::set_color_mode(Self, ColorMode) -> Unit
 
 pub struct CharBuffer {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   cells : Array[CharCell]
 }
 pub fn CharBuffer::clear(Self) -> Unit
 pub fn CharBuffer::clone(Self) -> Self
 pub fn CharBuffer::diff_to_ansi(Self, Self, color_mode? : ColorMode) -> String
-pub fn CharBuffer::diff_to_ansi_offset(Self, Self, Int, Int, color_mode? : ColorMode) -> String
-pub fn CharBuffer::fill_bg(Self, Int, Int, Int, Int, @core.Color) -> Unit
-pub fn CharBuffer::fill_rect(Self, Int, Int, Int, Int, CharCell) -> Unit
-pub fn CharBuffer::get_cell(Self, Int, Int) -> CharCell
-pub fn CharBuffer::new(Int, Int) -> Self
-pub fn CharBuffer::set_cell(Self, Int, Int, CharCell) -> Unit
+pub fn CharBuffer::diff_to_ansi_offset(Self, Self, Int32, Int32, color_mode? : ColorMode) -> String
+pub fn CharBuffer::fill_bg(Self, Int32, Int32, Int32, Int32, @core.Color) -> Unit
+pub fn CharBuffer::fill_rect(Self, Int32, Int32, Int32, Int32, CharCell) -> Unit
+pub fn CharBuffer::get_cell(Self, Int32, Int32) -> CharCell
+pub fn CharBuffer::new(Int32, Int32) -> Self
+pub fn CharBuffer::set_cell(Self, Int32, Int32, CharCell) -> Unit
 pub fn CharBuffer::to_ansi(Self, color_mode? : ColorMode) -> String
-pub fn CharBuffer::to_ansi_offset(Self, Int, Int, color_mode? : ColorMode) -> String
-pub fn CharBuffer::write_text(Self, Int, Int, String, TextStyle, Int) -> Int
-pub fn CharBuffer::write_text_wrapped(Self, Int, Int, String, TextStyle, Int, Int) -> Int
+pub fn CharBuffer::to_ansi_offset(Self, Int32, Int32, color_mode? : ColorMode) -> String
+pub fn CharBuffer::write_text(Self, Int32, Int32, String, TextStyle, Int32) -> Int32
+pub fn CharBuffer::write_text_wrapped(Self, Int32, Int32, String, TextStyle, Int32, Int32) -> Int32
 
 pub(all) struct CharCell {
   char : Char
@@ -158,7 +158,9 @@ pub(all) struct CharCell {
   reverse : Bool
 }
 pub fn CharCell::default() -> Self
+pub fn CharCell::equal(Self, Self) -> Bool
 pub fn CharCell::from_char(Char) -> Self
+pub fn CharCell::not_equal(Self, Self) -> Bool
 pub fn CharCell::styled(Char, @core.Color, @core.Color) -> Self
 pub impl Eq for CharCell
 

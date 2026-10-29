@@ -229,12 +229,13 @@ pub struct TextProps {
   fg : ColorValue?
   bold : Bool
   underline : Bool
+  inverse : Bool
   role : @core.Role?
 }
 
 ///|
 pub fn TextProps::default(content : String) -> TextProps {
-  { content, fg: None, bold: false, underline: false, role: None, }
+  { content, fg: None, bold: false, underline: false, inverse: false, role: None }
 }
 
 ///|
@@ -249,6 +250,9 @@ pub fn TextProps::to_attrs(self : TextProps) -> Array[TuiAttrValue] {
   }
   if self.underline {
     attrs.push(TuiAttrValue::Underline(true))
+  }
+  if self.inverse {
+    attrs.push(TuiAttrValue::Reverse(true))
   }
   match self.role {
     Some(v) => attrs.push(TuiAttrValue::Role(v))

@@ -20,9 +20,9 @@ pub fn get_args() -> Array[String]
 
 pub fn get_env(String) -> String
 
-pub fn get_terminal_size() -> (Int, Int)
+pub fn get_terminal_size() -> (Int32, Int32)
 
-pub fn get_time_ms() -> Int
+pub fn get_time_ms() -> Int32
 
 pub fn is_headless() -> Bool
 
@@ -30,7 +30,7 @@ pub fn is_raw_mode() -> Bool
 
 pub fn is_tty() -> Bool
 
-pub fn keep_alive_nonblocking(Int) -> Unit
+pub fn keep_alive_nonblocking(Int32) -> Unit
 
 pub fn poll_keypress() -> Bool
 
@@ -40,15 +40,15 @@ pub async fn read_key() -> String
 
 pub fn set_idle_handler(() -> Unit) -> Unit
 
-pub async fn sleep(Int) -> Unit
+pub async fn sleep(Int32) -> Unit
 
-pub fn start_inline_input(String, String, Int, Int, Int, Int, (InputResult) -> Unit) -> Unit
+pub fn start_inline_input(String, String, Int32, Int32, Int32, Int32, (InputResult) -> Unit) -> Unit
 
 pub fn start_inline_input_cooked(String, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Unit
 
-pub fn start_inplace_input(Int, Int, Int, Int, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int) -> Int)?, on_completion? : ((String, Int) -> String?)?) -> Unit
+pub fn start_inplace_input(Int32, Int32, Int32, Int32, Bool, String, (InputResult) -> Unit, confirm_on_shift_enter? : Bool, esc_cancels? : Bool, on_lines_change? : ((Int32) -> Int32)?, on_completion? : ((String, Int32) -> String?)?) -> Unit
 
-pub async fn start_input_session(Int, Int, String) -> InputResult
+pub async fn start_input_session(Int32, Int32, String) -> InputResult
 
 pub fn start_input_session_cb(String, (InputResult) -> Unit) -> Unit
 
@@ -56,13 +56,13 @@ pub fn start_input_session_promise(String) -> @js_async.Promise[InputResult]
 
 pub fn start_keypress_listener((String) -> Unit) -> Unit
 
-pub fn start_render_ticker(Int, () -> Unit) -> Int
+pub fn start_render_ticker(Int32, () -> Unit) -> Int32
 
-pub fn start_resize_listener((Int, Int) -> Unit) -> Unit
+pub fn start_resize_listener((Int32, Int32) -> Unit) -> Unit
 
 pub fn stop_keypress_listener() -> Unit
 
-pub fn stop_render_ticker(Int) -> Unit
+pub fn stop_render_ticker(Int32) -> Unit
 
 pub fn stop_resize_listener() -> Unit
 

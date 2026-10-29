@@ -252,7 +252,9 @@ fn convert_element(
     visual.reverse ||
     visual.border is Some(_) {
     ctx.styles[id] = {
-      fg: visual.fg.unwrap_or(@core.Color::white()),
+      // 无 fg 时存 transparent：渲染时输出 39（终端默认前景），不再假设纯白 ——
+      // 浅色终端里「默认白」的假设会让文字/光标隐形。
+      fg: visual.fg.unwrap_or(@core.Color::transparent()),
       bg: visual.bg.unwrap_or(@core.Color::transparent()),
       bold: visual.bold,
       underline: visual.underline,

@@ -206,7 +206,8 @@ pub fn box_to_crater(
   )
   if fg is Some(_) || bg is Some(_) || bold || underline || reverse || border is Some(_) {
     ctx.styles[id] = {
-      fg: fg.unwrap_or(@core.Color::white()),
+      // 无 fg 时存 transparent：渲染输出 39（终端默认前景），不假设纯白。
+      fg: fg.unwrap_or(@core.Color::transparent()),
       bg: bg.unwrap_or(@core.Color::transparent()),
       bold,
       underline,

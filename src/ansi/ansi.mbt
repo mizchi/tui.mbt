@@ -24,6 +24,16 @@ pub fn ansi_underline() -> String {
 }
 
 ///|
+pub fn ansi_inverse_off() -> String {
+  "\u001b[27m"
+}
+
+///|
+pub fn ansi_fg_reset() -> String {
+  "\u001b[39m"
+}
+
+///|
 pub fn ansi_reverse() -> String {
   "\u001b[7m"
 }

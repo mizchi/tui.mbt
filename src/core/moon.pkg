@@ -4,4 +4,5 @@ import {
   "mizchi/css/style",
   "mizchi/css/values",
   "mizchi/tui-terminal-buffer/buffer" @terminal_buffer,
+  "moonbitlang/core/debug",
 }

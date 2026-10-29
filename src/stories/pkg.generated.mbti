@@ -98,7 +98,7 @@ pub fn radio_stories() -> Array[VNodeStory]
 
 pub fn real_world_stories() -> Array[VNodeStory]
 
-pub fn render_overlay_plain(Int, Int, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Array[@vnode.OverlayEntry]) -> String
+pub fn render_overlay_plain(Int32, Int32, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], Array[@vnode.OverlayEntry]) -> String
 
 pub fn search_input_stories() -> Array[VNodeStory]
 
@@ -148,11 +148,11 @@ pub(all) struct LintViolation {
 pub(all) struct Story {
   category : String
   name : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   render : () -> @core.Component
 }
-pub fn Story::new(String, String, () -> @core.Component, width? : Int, height? : Int) -> Self
+pub fn Story::new(String, String, () -> @core.Component, width? : Int32, height? : Int32) -> Self
 pub fn Story::snapshot_filename(Self) -> String
 pub fn Story::to_ansi(Self) -> String
 pub fn Story::to_plain(Self) -> String
@@ -161,11 +161,11 @@ pub fn Story::to_snapshot(Self) -> String
 pub(all) struct VNodeStory {
   category : String
   name : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   render : () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]
 }
-pub fn VNodeStory::new(String, String, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], width? : Int, height? : Int) -> Self
+pub fn VNodeStory::new(String, String, () -> @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue], width? : Int32, height? : Int32) -> Self
 pub fn VNodeStory::snapshot_filename(Self) -> String
 pub fn VNodeStory::to_ansi(Self) -> String
 pub fn VNodeStory::to_plain(Self) -> String

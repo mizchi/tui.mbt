@@ -70,95 +70,95 @@ pub fn key_tab() -> String
 
 pub fn key_up() -> String
 
-pub fn mouse_click(Int, Int, button? : Int) -> String
+pub fn mouse_click(Int32, Int32, button? : Int32) -> String
 
-pub fn mouse_release(Int, Int, button? : Int) -> String
+pub fn mouse_release(Int32, Int32, button? : Int32) -> String
 
-pub fn scroll_down(Int, Int) -> String
+pub fn scroll_down(Int32, Int32) -> String
 
-pub fn scroll_up(Int, Int) -> String
+pub fn scroll_up(Int32, Int32) -> String
 
 pub fn split_lines_plain(String) -> Array[String]
 
 pub fn strip_ansi(String) -> String
 
-pub fn test_height() -> Int
+pub fn test_height() -> Int32
 
-pub fn test_width() -> Int
+pub fn test_width() -> Int32
 
-pub fn visible_length(String) -> Int
+pub fn visible_length(String) -> Int32
 
 // Errors
 
 // Types and methods
 pub(all) struct TestHarness {
   app : @render.App
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   frames : Array[String]
 }
 pub fn TestHarness::clear_frames(Self) -> Unit
 pub fn TestHarness::contains(Self, String) -> Bool
 pub fn TestHarness::find_by_id(Self, String) -> @events.HitTestResult?
-pub fn TestHarness::frame_count(Self) -> Int
-pub fn TestHarness::get_line(Self, Int) -> String
+pub fn TestHarness::frame_count(Self) -> Int32
+pub fn TestHarness::get_line(Self, Int32) -> String
 pub fn TestHarness::get_lines(Self) -> Array[String]
-pub fn TestHarness::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn TestHarness::hit_test(Self, Int32, Int32) -> @events.HitTestResult?
 pub fn TestHarness::last_frame(Self) -> String
 pub fn TestHarness::last_frame_plain(Self) -> String
-pub fn TestHarness::line_contains(Self, Int, String) -> Bool
-pub fn TestHarness::new(width? : Int, height? : Int) -> Self
+pub fn TestHarness::line_contains(Self, Int32, String) -> Bool
+pub fn TestHarness::new(width? : Int32, height? : Int32) -> Self
 pub fn TestHarness::parse_key(Self, String) -> @events.InputEvent
 pub fn TestHarness::render(Self, @core.Component) -> String
 
 pub(all) struct VNodeTestHarness {
   app : @vnode.VNodeApp
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   frames : Array[String]
 }
 pub fn VNodeTestHarness::clear_frames(Self) -> Unit
 pub fn VNodeTestHarness::contains(Self, String) -> Bool
 pub fn VNodeTestHarness::find_by_id(Self, String) -> @events.HitTestResult?
-pub fn VNodeTestHarness::frame_count(Self) -> Int
-pub fn VNodeTestHarness::get_line(Self, Int) -> String
+pub fn VNodeTestHarness::frame_count(Self) -> Int32
+pub fn VNodeTestHarness::get_line(Self, Int32) -> String
 pub fn VNodeTestHarness::get_lines(Self) -> Array[String]
-pub fn VNodeTestHarness::hit_test(Self, Int, Int) -> @events.HitTestResult?
+pub fn VNodeTestHarness::hit_test(Self, Int32, Int32) -> @events.HitTestResult?
 pub fn VNodeTestHarness::last_frame(Self) -> String
 pub fn VNodeTestHarness::last_frame_plain(Self) -> String
-pub fn VNodeTestHarness::line_contains(Self, Int, String) -> Bool
-pub fn VNodeTestHarness::new(width? : Int, height? : Int) -> Self
+pub fn VNodeTestHarness::line_contains(Self, Int32, String) -> Bool
+pub fn VNodeTestHarness::new(width? : Int32, height? : Int32) -> Self
 pub fn VNodeTestHarness::render(Self, @ui.Node[@vnode.TuiEvent, @vnode.TuiAttrValue]) -> String
 
 pub(all) struct VirtualTerminal {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   buffer : @render.CharBuffer
-  mut cursor_x : Int
-  mut cursor_y : Int
+  mut cursor_x : Int32
+  mut cursor_y : Int32
   mut current_fg : @core.Color
   mut current_bg : @core.Color
   mut current_bold : Bool
   mut current_underline : Bool
-  mut saved_cursor_x : Int
-  mut saved_cursor_y : Int
+  mut saved_cursor_x : Int32
+  mut saved_cursor_y : Int32
   input_queue : Array[String]
-  cursor_history : Array[(Int, Int)]
+  cursor_history : Array[(Int32, Int32)]
 }
 pub fn VirtualTerminal::clear(Self) -> Unit
 pub fn VirtualTerminal::contains(Self, String) -> Bool
 pub fn VirtualTerminal::get_buffer(Self) -> @render.CharBuffer
-pub fn VirtualTerminal::get_cell(Self, Int, Int) -> @render.CharCell
-pub fn VirtualTerminal::get_cursor(Self) -> (Int, Int)
-pub fn VirtualTerminal::get_line(Self, Int) -> String
-pub fn VirtualTerminal::get_line_trimmed(Self, Int) -> String
+pub fn VirtualTerminal::get_cell(Self, Int32, Int32) -> @render.CharCell
+pub fn VirtualTerminal::get_cursor(Self) -> (Int32, Int32)
+pub fn VirtualTerminal::get_line(Self, Int32) -> String
+pub fn VirtualTerminal::get_line_trimmed(Self, Int32) -> String
 pub fn VirtualTerminal::get_screen(Self) -> String
 pub fn VirtualTerminal::get_visible_lines(Self) -> Array[String]
 pub fn VirtualTerminal::has_input(Self) -> Bool
 pub fn VirtualTerminal::inject_input(Self, String) -> Unit
-pub fn VirtualTerminal::line_contains(Self, Int, String) -> Bool
+pub fn VirtualTerminal::line_contains(Self, Int32, String) -> Bool
 pub fn VirtualTerminal::matches(Self, String) -> Bool
-pub fn VirtualTerminal::new(Int, Int) -> Self
+pub fn VirtualTerminal::new(Int32, Int32) -> Self
 pub fn VirtualTerminal::read_input(Self) -> String?
 pub fn VirtualTerminal::write(Self, String) -> Unit
 
