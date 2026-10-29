@@ -114,7 +114,7 @@ pub fn CharBuffer::write_text(
       bg,
       bold: style.bold,
       underline: style.underline,
-      reverse: false,
+      reverse: style.reverse,
     }
     self.set_cell(cur_x, y, cell)
     if width == 2 && cur_x + 1 < end_x {
@@ -129,7 +129,7 @@ pub fn CharBuffer::write_text(
         bg: next_bg,
         bold: style.bold,
         underline: style.underline,
-        reverse: false,
+        reverse: style.reverse,
       }
       self.set_cell(cur_x + 1, y, placeholder)
     }
@@ -183,7 +183,7 @@ pub fn CharBuffer::write_text_wrapped(
       bg,
       bold: style.bold,
       underline: style.underline,
-      reverse: false,
+      reverse: style.reverse,
     }
     self.set_cell(cur_x, cur_y, cell)
     if width == 2 && cur_x + 1 < end_x {
@@ -198,7 +198,7 @@ pub fn CharBuffer::write_text_wrapped(
         bg: next_bg,
         bold: style.bold,
         underline: style.underline,
-        reverse: false,
+        reverse: style.reverse,
       }
       self.set_cell(cur_x + 1, cur_y, placeholder)
     }

@@ -9,18 +9,30 @@ pub struct App {
   height : Int
   mut prev_buffer : CharBuffer?
   mut last_layout : @ccore.Layout?
+  mut color_mode : ColorMode
   handlers : @events.EventHandlers
 }
 
 ///|
-pub fn App::new(width : Int, height : Int) -> App {
+pub fn App::new(
+  width : Int,
+  height : Int,
+  color_mode? : ColorMode = ColorMode::Ansi256,
+) -> App {
   {
     width,
     height,
     prev_buffer: None,
     last_layout: None,
+    color_mode,
     handlers: @events.EventHandlers::new(),
   }
+}
+
+///|
+/// Switch the color mode used for the next frames.
+pub fn App::set_color_mode(self : App, color_mode : ColorMode) -> Unit {
+  self.color_mode = color_mode
 }
 
 ///|
@@ -45,11 +57,11 @@ pub fn App::render(self : App, component : @core.Component) -> String {
 
   // Generate output with diff if possible
   let output = match self.prev_buffer {
-    Some(prev) => buf.diff_to_ansi(prev)
+    Some(prev) => buf.diff_to_ansi(prev, color_mode=self.color_mode)
     None =>
       // First render: clear screen and render full
       // to_ansi already handles cursor positioning, so no need for explicit move
-      ansi_clear_screen() + buf.to_ansi()
+      ansi_clear_screen() + buf.to_ansi(color_mode=self.color_mode)
   }
 
   // Save current buffer for next diff
@@ -77,8 +89,12 @@ pub fn App::render_with_offset(
     0,
   )
   let output = match self.prev_buffer {
-    Some(prev) => buf.diff_to_ansi_offset(prev, row_offset, col_offset)
-    None => buf.to_ansi_offset(row_offset, col_offset)
+    Some(prev) =>
+      buf.diff_to_ansi_offset(
+        prev, row_offset, col_offset, color_mode=self.color_mode,
+      )
+    None =>
+      buf.to_ansi_offset(row_offset, col_offset, color_mode=self.color_mode)
   }
   self.prev_buffer = Some(buf)
   output
@@ -124,8 +140,9 @@ pub fn run_app(
   height : Int,
   render_fn : () -> @core.Component,
   output_fn : (String) -> Unit,
+  color_mode? : ColorMode = ColorMode::Ansi256,
 ) -> () -> Unit {
-  let app = App::new(width, height)
+  let app = App::new(width, height, color_mode~)
 
   // Initialize terminal
   output_fn(App::init_terminal())
@@ -146,8 +163,9 @@ pub fn render_once(
   width : Int,
   height : Int,
   component : @core.Component,
+  color_mode? : ColorMode = ColorMode::Ansi256,
 ) -> String {
-  let app = App::new(width, height)
+  let app = App::new(width, height, color_mode~)
   app.render(component)
 }
 

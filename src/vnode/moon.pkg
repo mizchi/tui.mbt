@@ -11,6 +11,7 @@ import {
   "mizchi/tui/io",
   "mizchi/signals",
   "moonbitlang/core/string",
+  "moonbitlang/core/debug",
 }
 
 import {

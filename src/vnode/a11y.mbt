@@ -10,6 +10,9 @@ pub struct A11yRect {
 } derive(Debug)
 
 ///|
+pub extend A11yRect with @debug.Debug::{to_repr}
+
+///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
   Show::output(value.to_repr(), logger)
 }
@@ -18,6 +21,9 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 pub impl Show for A11yRect with fn output(self : A11yRect, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend A11yRect with Show::{to_string, output}
 
 ///|
 pub struct A11yNode {
@@ -29,9 +35,15 @@ pub struct A11yNode {
 } derive(Debug)
 
 ///|
+pub extend A11yNode with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for A11yNode with fn output(self : A11yNode, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend A11yNode with Show::{to_string, output}
 
 ///|
 priv struct A11yBuildResult {

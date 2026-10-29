@@ -5,6 +5,12 @@ struct Position {
 } derive(Debug, Eq)
 
 ///|
+pub extend Position with @debug.Debug::{to_repr}
+
+///|
+pub extend Position with Eq::{not_equal, equal}
+
+///|
 struct Document {
   lines : Array[String]
 }

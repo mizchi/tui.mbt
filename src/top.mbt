@@ -99,6 +99,7 @@ pub using @render {
   type CharBuffer,
   type CharCell,
   type TextStyle,
+  type ColorMode,
   render_once,
   enable_mouse,
   disable_mouse,
@@ -159,12 +160,13 @@ pub fn run(
   on_event : (@events.InputEvent) -> Bool,
   mouse? : Bool = true,
   on_hover? : ((String) -> Unit)? = None,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
 ) -> Unit {
   // Get terminal size
   let (cols, rows) = @io.get_terminal_size()
 
   // Create the app
-  let app = @render.App::new(cols, rows)
+  let app = @render.App::new(cols, rows, color_mode~)
 
   // Store last rendered component for click handling
   let last_component : Ref[@core.Component?] = { val: None, }

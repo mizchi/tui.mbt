@@ -14,13 +14,16 @@ pub fn interpret_key(@events.KeyEvent, TextInputConfig) -> EditAction
 // Types and methods
 pub(all) struct DisplayState {
   lines : Array[LineInfo]
-  cursor_line : Int
-  cursor_col : Int
-  scroll_offset : Int
+  cursor_line : Int32
+  cursor_col : Int32
+  scroll_offset : Int32
   has_more_above : Bool
   has_more_below : Bool
-  total_lines : Int
+  total_lines : Int32
 } derive(@debug.Debug)
+pub fn DisplayState::output(Self, &Logger) -> Unit
+pub fn DisplayState::to_repr(Self) -> @debug.Repr
+pub fn DisplayState::to_string(Self) -> String
 pub impl Show for DisplayState
 
 pub(all) enum EditAction {
@@ -43,37 +46,50 @@ pub(all) enum EditAction {
   NewLine
   None
 } derive(Eq, @debug.Debug)
+pub fn EditAction::equal(Self, Self) -> Bool
+pub fn EditAction::not_equal(Self, Self) -> Bool
+pub fn EditAction::output(Self, &Logger) -> Unit
+pub fn EditAction::to_repr(Self) -> @debug.Repr
+pub fn EditAction::to_string(Self) -> String
 pub impl Show for EditAction
 
 pub(all) struct LineInfo {
-  start_idx : Int
+  start_idx : Int32
   chars : Array[Char]
 } derive(Eq, @debug.Debug)
+pub fn LineInfo::equal(Self, Self) -> Bool
+pub fn LineInfo::not_equal(Self, Self) -> Bool
+pub fn LineInfo::output(Self, &Logger) -> Unit
+pub fn LineInfo::to_repr(Self) -> @debug.Repr
+pub fn LineInfo::to_string(Self) -> String
 pub impl Show for LineInfo
 
 pub(all) struct TextInputConfig {
-  mut width : Int
-  mut height : Int
+  mut width : Int32
+  mut height : Int32
   multiline : Bool
   confirm_on_shift_enter : Bool
   esc_cancels : Bool
 } derive(@debug.Debug)
-pub fn TextInputConfig::new(Int, Int, multiline? : Bool, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Self
+pub fn TextInputConfig::new(Int32, Int32, multiline? : Bool, confirm_on_shift_enter? : Bool, esc_cancels? : Bool) -> Self
+pub fn TextInputConfig::output(Self, &Logger) -> Unit
+pub fn TextInputConfig::to_repr(Self) -> @debug.Repr
+pub fn TextInputConfig::to_string(Self) -> String
 pub impl Show for TextInputConfig
 
 pub(all) struct TextInputController {
   mut buffer : Array[Char]
-  mut cursor_pos : Int
-  mut scroll_offset : Int
+  mut cursor_pos : Int32
+  mut scroll_offset : Int32
   mut config : TextInputConfig
 }
 pub fn TextInputController::apply_action(Self, EditAction) -> Bool
-pub fn TextInputController::get_cursor_pos(Self) -> Int
+pub fn TextInputController::get_cursor_pos(Self) -> Int32
 pub fn TextInputController::get_display_state(Self) -> DisplayState
 pub fn TextInputController::get_text(Self) -> String
 pub fn TextInputController::new(TextInputConfig, String) -> Self
-pub fn TextInputController::resize(Self, Int, Int) -> Unit
-pub fn TextInputController::set_cursor_pos(Self, Int) -> Unit
+pub fn TextInputController::resize(Self, Int32, Int32) -> Unit
+pub fn TextInputController::set_cursor_pos(Self, Int32) -> Unit
 pub fn TextInputController::set_text(Self, String) -> Unit
 
 // Type aliases

@@ -13,52 +13,52 @@ import {
 pub(all) struct AsyncCompletionManager {
   engine : CompletionEngine
   pending : @signals.Signal[PendingRequest?]
-  delay_ms : Int
+  delay_ms : Int32
   filter_fn : (String) -> Array[String]
-  time_fn : () -> Int
+  time_fn : () -> Int32
 }
 pub fn AsyncCompletionManager::check_pending(Self) -> Bool
 pub fn AsyncCompletionManager::clear_pending(Self) -> Unit
 pub fn AsyncCompletionManager::get_engine(Self) -> CompletionEngine
 pub fn AsyncCompletionManager::get_pending(Self) -> PendingRequest?
 pub fn AsyncCompletionManager::has_pending(Self) -> Bool
-pub fn AsyncCompletionManager::new(Int, (String) -> Array[String], () -> Int) -> Self
+pub fn AsyncCompletionManager::new(Int32, (String) -> Array[String], () -> Int32) -> Self
 pub fn AsyncCompletionManager::request(Self, String) -> Unit
 
 pub(all) struct CompletionEngine {
   input : @signals.Signal[String]
-  request_version : @signals.Signal[Int]
+  request_version : @signals.Signal[Int32]
   items : @signals.Signal[Array[String]]
   loading : @signals.Signal[Bool]
-  selected_idx : @signals.Signal[Int]
+  selected_idx : @signals.Signal[Int32]
   visible : @signals.Signal[Bool]
 }
 pub fn CompletionEngine::apply_result(Self, CompletionResult) -> Bool
 pub fn CompletionEngine::clear(Self) -> Unit
 pub fn CompletionEngine::get_input(Self) -> String
 pub fn CompletionEngine::get_items(Self) -> Array[String]
-pub fn CompletionEngine::get_selected_idx(Self) -> Int
+pub fn CompletionEngine::get_selected_idx(Self) -> Int32
 pub fn CompletionEngine::get_selected_item(Self) -> String?
-pub fn CompletionEngine::get_version(Self) -> Int
+pub fn CompletionEngine::get_version(Self) -> Int32
 pub fn CompletionEngine::hide(Self) -> Unit
 pub fn CompletionEngine::is_loading(Self) -> Bool
 pub fn CompletionEngine::is_visible(Self) -> Bool
 pub fn CompletionEngine::new() -> Self
 pub fn CompletionEngine::select_next(Self) -> Unit
 pub fn CompletionEngine::select_prev(Self) -> Unit
-pub fn CompletionEngine::set_input(Self, String) -> Int
+pub fn CompletionEngine::set_input(Self, String) -> Int32
 pub fn CompletionEngine::set_items(Self, Array[String]) -> Unit
 pub fn CompletionEngine::set_loading(Self, Bool) -> Unit
-pub fn CompletionEngine::set_selected_idx(Self, Int) -> Unit
+pub fn CompletionEngine::set_selected_idx(Self, Int32) -> Unit
 
 pub(all) struct CompletionResult {
   items : Array[String]
-  request_version : Int
+  request_version : Int32
 }
 
 pub(all) struct PendingRequest {
-  version : Int
-  target_time : Int
+  version : Int32
+  target_time : Int32
   query : String
 }
 

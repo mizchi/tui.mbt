@@ -8,41 +8,54 @@ import {
 // Values
 pub fn base64_encode(BytesView) -> String
 
-pub fn center_rect(Int, Int, Int, Int) -> ImageRect
+pub fn center_rect(Int32, Int32, Int32, Int32) -> ImageRect
 
-pub fn clamp_rect(Int, Int, ImageRect) -> ImageRect
+pub fn clamp_rect(Int32, Int32, ImageRect) -> ImageRect
 
-pub fn image_asset_png(Int, Int, BytesView) -> ImageAsset
+pub fn image_asset_png(Int32, Int32, BytesView) -> ImageAsset
 
-pub fn image_asset_rgb(Int, Int, BytesView) -> ImageAsset
+pub fn image_asset_rgb(Int32, Int32, BytesView) -> ImageAsset
 
-pub fn image_rect(Int, Int, Int, Int) -> ImageRect
+pub fn image_rect(Int32, Int32, Int32, Int32) -> ImageRect
 
-pub fn read_png_asset(String, Int, Int) -> ImageAsset?
+pub fn read_png_asset(String, Int32, Int32) -> ImageAsset?
 
 // Errors
 
 // Types and methods
 pub struct ImageAsset {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   format : ImageFormat
   payload_base64 : String
 } derive(@debug.Debug)
+pub fn ImageAsset::output(Self, &Logger) -> Unit
+pub fn ImageAsset::to_repr(Self) -> @debug.Repr
+pub fn ImageAsset::to_string(Self) -> String
 pub impl Show for ImageAsset
 
 pub enum ImageFormat {
   Png
   Rgb
 } derive(Eq, @debug.Debug)
+pub fn ImageFormat::equal(Self, Self) -> Bool
+pub fn ImageFormat::not_equal(Self, Self) -> Bool
+pub fn ImageFormat::output(Self, &Logger) -> Unit
+pub fn ImageFormat::to_repr(Self) -> @debug.Repr
+pub fn ImageFormat::to_string(Self) -> String
 pub impl Show for ImageFormat
 
 pub struct ImageRect {
-  x : Int
-  y : Int
-  w : Int
-  h : Int
+  x : Int32
+  y : Int32
+  w : Int32
+  h : Int32
 } derive(Eq, @debug.Debug)
+pub fn ImageRect::equal(Self, Self) -> Bool
+pub fn ImageRect::not_equal(Self, Self) -> Bool
+pub fn ImageRect::output(Self, &Logger) -> Unit
+pub fn ImageRect::to_repr(Self) -> @debug.Repr
+pub fn ImageRect::to_string(Self) -> String
 pub impl Show for ImageRect
 
 // Type aliases

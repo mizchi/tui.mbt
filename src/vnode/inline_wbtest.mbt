@@ -51,3 +51,31 @@ test "render_to_lines with nested structure" {
   inspect(lines[1].contains("Option 1"), content="true")
   inspect(lines[2].contains("Option 2"), content="true")
 }
+
+///|
+test "render_to_lines: true color mode emits 24-bit SGR" {
+  let node = text("Red", fg="rgb(255,0,0)")
+  let lines = render_to_lines(node, color_mode=@render.ColorMode::TrueColor)
+  inspect(lines.length(), content="1")
+  inspect(lines[0].contains("\u{1b}[38;2;255;0;0m"), content="true")
+}
+
+///|
+test "render_to_lines: default color mode stays on the 256-color palette" {
+  let node = text("Red", fg="rgb(255,0,0)")
+  let lines = render_to_lines(node)
+  inspect(lines[0].contains("\u{1b}[38;5;196m"), content="true")
+  inspect(lines[0].contains("38;2;"), content="false")
+}
+
+///|
+test "render_overlay_at: forwards the color mode" {
+  let node = text("Hi", fg="rgb(1,2,3)")
+  let overlay = render_overlay_at(
+    0,
+    0,
+    node,
+    color_mode=@render.ColorMode::TrueColor,
+  )
+  inspect(overlay.contains("\u{1b}[38;2;1;2;3m"), content="true")
+}

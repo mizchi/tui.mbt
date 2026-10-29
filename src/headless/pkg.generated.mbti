@@ -26,12 +26,17 @@ pub(all) enum ButtonState {
   Pressed
   Disabled
 } derive(Eq, @debug.Debug)
+pub fn ButtonState::equal(Self, Self) -> Bool
 pub fn ButtonState::is_interactive(Self) -> Bool
+pub fn ButtonState::not_equal(Self, Self) -> Bool
+pub fn ButtonState::output(Self, &Logger) -> Unit
+pub fn ButtonState::to_repr(Self) -> @debug.Repr
+pub fn ButtonState::to_string(Self) -> String
 pub impl Show for ButtonState
 
 pub(all) struct FocusNav {
   ids : Array[String]
-  current_index : Int
+  current_index : Int32
 }
 pub fn FocusNav::current(Self) -> String
 pub fn FocusNav::focus_id(Self, String) -> Self
@@ -41,16 +46,16 @@ pub fn FocusNav::next(Self) -> Self
 pub fn FocusNav::prev(Self) -> Self
 
 pub(all) struct GridSelectState {
-  columns : Int
-  selected : Int
-  total : Int
+  columns : Int32
+  selected : Int32
+  total : Int32
 }
 pub fn GridSelectState::move_down(Self) -> Self
 pub fn GridSelectState::move_left(Self) -> Self
 pub fn GridSelectState::move_right(Self) -> Self
 pub fn GridSelectState::move_up(Self) -> Self
-pub fn GridSelectState::new(Int, Int, selected? : Int) -> Self
-pub fn GridSelectState::position(Self) -> (Int, Int)
+pub fn GridSelectState::new(Int32, Int32, selected? : Int32) -> Self
+pub fn GridSelectState::position(Self) -> (Int32, Int32)
 
 pub(all) enum InputState {
   Idle

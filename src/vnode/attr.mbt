@@ -265,6 +265,7 @@ pub(all) enum TuiAttrValue {
   Bg(ColorValue)
   Bold(Bool)
   Underline(Bool)
+  Reverse(Bool)
   // Identity
   Id(String)
   // Accessibility

@@ -20,6 +20,7 @@ import {
   "mizchi/syntree/mdx" @syn_mdx,
   "mizchi/syntree/html" @syn_html,
   "mizchi/syntree/css" @syn_css,
+  "moonbitlang/core/debug",
 }
 
 supported_targets = "js+native"

@@ -91,6 +91,7 @@ fn apply_typed_attr(style : @style.Style, attr : TuiAttrValue) -> Unit {
     TuiAttrValue::Bg(_) => ()
     TuiAttrValue::Bold(_) => ()
     TuiAttrValue::Underline(_) => ()
+    TuiAttrValue::Reverse(_) => ()
     TuiAttrValue::Id(_) => ()
     // Accessibility attributes are handled separately
     TuiAttrValue::TabIndex(_) => ()
@@ -111,6 +112,7 @@ fn extract_render_style(
   @core.Color?, // bg
   Bool, // bold
   Bool, // underline
+  Bool, // reverse
   @core.BorderChars?, // border
   @core.Color?,
 ) { // border_color
@@ -118,6 +120,7 @@ fn extract_render_style(
   let mut bg : @core.Color? = None
   let mut bold = false
   let mut underline = false
+  let mut reverse = false
   let mut border : @core.BorderChars? = None
   let mut border_color : @core.Color? = None
   for attr in attrs {
@@ -126,12 +129,13 @@ fn extract_render_style(
       TuiAttrValue::Bg(v) => bg = Some(v.to_color())
       TuiAttrValue::Bold(v) => bold = v
       TuiAttrValue::Underline(v) => underline = v
+      TuiAttrValue::Reverse(v) => reverse = v
       TuiAttrValue::Border(v) => border = v.to_border_chars()
       TuiAttrValue::BorderColor(v) => border_color = Some(v.to_color())
       _ => ()
     }
   }
-  (fg, bg, bold, underline, border, border_color)
+  (fg, bg, bold, underline, reverse, border, border_color)
 }
 
 // extract_id is not used yet - will be needed when luna supports Attr[E, A]
@@ -197,15 +201,17 @@ pub fn box_to_crater(
     apply_typed_attr(style, attr)
   }
   // Extract visual style
-  let (fg, bg, bold, underline, border, border_color) = extract_render_style(
+  let (fg, bg, bold, underline, reverse, border, border_color) = extract_render_style(
     attrs,
   )
-  if fg is Some(_) || bg is Some(_) || bold || underline || border is Some(_) {
+  if fg is Some(_) || bg is Some(_) || bold || underline || reverse || border is Some(_) {
     ctx.styles[id] = {
-      fg: fg.unwrap_or(@core.Color::white()),
+      // 无 fg 时存 transparent：渲染输出 39（终端默认前景），不假设纯白。
+      fg: fg.unwrap_or(@core.Color::transparent()),
       bg: bg.unwrap_or(@core.Color::transparent()),
       bold,
       underline,
+      reverse,
       border,
       border_fg: border_color.unwrap_or(@core.Color::white()),
     }

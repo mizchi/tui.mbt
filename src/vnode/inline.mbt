@@ -10,11 +10,12 @@ priv struct InlineStyle {
   bg : @core.Color?
   bold : Bool
   underline : Bool
+  inverse : Bool
 }
 
 ///|
 fn InlineStyle::default() -> InlineStyle {
-  { fg: None, bg: None, bold: false, underline: false, }
+  { fg: None, bg: None, bold: false, underline: false, inverse: false }
 }
 
 ///|
@@ -28,7 +29,11 @@ fn merge_color(child : @core.Color?, parent : @core.Color?) -> @core.Color? {
 
 ///|
 /// Apply inline style to text, returning ANSI-escaped string
-fn apply_inline_style(text : String, style : InlineStyle) -> String {
+fn apply_inline_style(
+  text : String,
+  style : InlineStyle,
+  color_mode : @render.ColorMode,
+) -> String {
   let mut prefix = ""
   if style.bold {
     prefix = prefix + @render.ansi_bold()
@@ -36,12 +41,15 @@ fn apply_inline_style(text : String, style : InlineStyle) -> String {
   if style.underline {
     prefix = prefix + @render.ansi_underline()
   }
+  if style.inverse {
+    prefix = prefix + @render.ansi_reverse()
+  }
   match style.fg {
-    Some(color) => prefix = prefix + @render.ansi_fg_color(color)
+    Some(color) => prefix = prefix + @render.ansi_fg_color(color, color_mode~)
     None => ()
   }
   match style.bg {
-    Some(color) => prefix = prefix + @render.ansi_bg_color(color)
+    Some(color) => prefix = prefix + @render.ansi_bg_color(color, color_mode~)
     None => ()
   }
   if prefix.length() > 0 {
@@ -60,6 +68,7 @@ fn extract_inline_style(
   let mut bg : @core.Color? = None
   let mut bold = false
   let mut underline = false
+  let mut inverse = false
   for attr in el.attrs {
     let (_, value) = attr
     match value {
@@ -69,6 +78,7 @@ fn extract_inline_style(
           TuiAttrValue::Bg(v) => bg = Some(v.to_color())
           TuiAttrValue::Bold(v) => bold = v
           TuiAttrValue::Underline(v) => underline = v
+          TuiAttrValue::Reverse(v) => inverse = v
           _ => ()
         }
       @luna.Attr::VDynamic(getter) =>
@@ -77,12 +87,13 @@ fn extract_inline_style(
           TuiAttrValue::Bg(v) => bg = Some(v.to_color())
           TuiAttrValue::Bold(v) => bold = v
           TuiAttrValue::Underline(v) => underline = v
+          TuiAttrValue::Reverse(v) => inverse = v
           _ => ()
         }
       _ => ()
     }
   }
-  { fg, bg, bold, underline, }
+  { fg, bg, bold, underline, inverse }
 }
 
 ///|
@@ -108,11 +119,16 @@ fn is_row(el : @luna.VElement[TuiEvent, TuiAttrValue]) -> Bool {
 
 ///|
 /// Render a TuiNode to a single string (for horizontal concatenation)
-fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
+fn render_inline_text(
+  node : TuiNode,
+  parent_style : InlineStyle,
+  color_mode : @render.ColorMode,
+) -> String {
   match node {
-    @luna.Node::Text(content) => apply_inline_style(content, parent_style)
+    @luna.Node::Text(content) =>
+      apply_inline_style(content, parent_style, color_mode)
     @luna.Node::DynamicText(getter) =>
-      apply_inline_style(getter(), parent_style)
+      apply_inline_style(getter(), parent_style, color_mode)
     @luna.Node::Element(el) => {
       let style = extract_inline_style(el)
       // Merge with parent style (child overrides)
@@ -121,6 +137,7 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
         bg: merge_color(style.bg, parent_style.bg),
         bold: style.bold || parent_style.bold,
         underline: style.underline || parent_style.underline,
+        inverse: style.inverse || parent_style.inverse,
       }
       match el.tag {
         "text" => {
@@ -133,7 +150,7 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
               _ => ()
             }
           }
-          apply_inline_style(text_content, merged)
+          apply_inline_style(text_content, merged, color_mode)
         }
         "spacer" => " "
         "hspace" => " "
@@ -141,7 +158,7 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
           // Container - concatenate children
           let parts : Array[String] = []
           for child in el.children {
-            parts.push(render_inline_text(child, merged))
+            parts.push(render_inline_text(child, merged, color_mode))
           }
           parts.join("")
         }
@@ -150,13 +167,13 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
     @luna.Node::Fragment(children) => {
       let parts : Array[String] = []
       for child in children {
-        parts.push(render_inline_text(child, parent_style))
+        parts.push(render_inline_text(child, parent_style, color_mode))
       }
       parts.join("")
     }
     @luna.Node::Show(condition~, child~) =>
       if condition() {
-        render_inline_text(child(), parent_style)
+        render_inline_text(child(), parent_style, color_mode)
       } else {
         ""
       }
@@ -164,11 +181,12 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
       let items = render()
       let parts : Array[String] = []
       for item in items {
-        parts.push(render_inline_text(item, parent_style))
+        parts.push(render_inline_text(item, parent_style, color_mode))
       }
       parts.join("")
     }
-    @luna.Node::Component(render~) => render_inline_text(render(), parent_style)
+    @luna.Node::Component(render~) =>
+      render_inline_text(render(), parent_style, color_mode)
     _ => ""
   }
 }
@@ -176,16 +194,24 @@ fn render_inline_text(node : TuiNode, parent_style : InlineStyle) -> String {
 ///|
 /// Render a TuiNode to an array of lines
 /// Each line is a complete string with ANSI escape codes
-pub fn render_to_lines(node : TuiNode) -> Array[String] {
-  render_to_lines_with_style(node, InlineStyle::default())
+pub fn render_to_lines(
+  node : TuiNode,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
+) -> Array[String] {
+  render_to_lines_with_style(node, InlineStyle::default(), color_mode)
 }
 
 ///|
 /// Render a TuiNode as an overlay at specified position
 /// Returns ANSI string with cursor positioning commands
 /// Each line of the node is rendered at (x + i, y) for i-th line
-pub fn render_overlay_at(x : Int, y : Int, node : TuiNode) -> String {
-  let lines = render_to_lines(node)
+pub fn render_overlay_at(
+  x : Int,
+  y : Int,
+  node : TuiNode,
+  color_mode? : @render.ColorMode = @render.ColorMode::Ansi256,
+) -> String {
+  let lines = render_to_lines(node, color_mode~)
   let buf = StringBuilder()
   for i, line in lines {
     // Move cursor to position (row, col) - ANSI uses 1-indexed coordinates
@@ -200,11 +226,15 @@ pub fn render_overlay_at(x : Int, y : Int, node : TuiNode) -> String {
 fn render_to_lines_with_style(
   node : TuiNode,
   parent_style : InlineStyle,
+  color_mode : @render.ColorMode,
 ) -> Array[String] {
   match node {
-    @luna.Node::Text(content) => [apply_inline_style(content, parent_style)]
-    @luna.Node::DynamicText(getter) =>
-      [apply_inline_style(getter(), parent_style)]
+    @luna.Node::Text(content) => [
+      apply_inline_style(content, parent_style, color_mode),
+    ]
+    @luna.Node::DynamicText(getter) => [
+      apply_inline_style(getter(), parent_style, color_mode),
+    ]
     @luna.Node::Element(el) => {
       let style = extract_inline_style(el)
       let merged : InlineStyle = {
@@ -212,6 +242,7 @@ fn render_to_lines_with_style(
         bg: merge_color(style.bg, parent_style.bg),
         bold: style.bold || parent_style.bold,
         underline: style.underline || parent_style.underline,
+        inverse: style.inverse || parent_style.inverse,
       }
       match el.tag {
         "text" => {
@@ -223,7 +254,7 @@ fn render_to_lines_with_style(
               _ => ()
             }
           }
-          [apply_inline_style(text_content, merged)]
+          [apply_inline_style(text_content, merged, color_mode)]
         }
         "spacer" => [""]
         "hspace" => [""]
@@ -233,14 +264,16 @@ fn render_to_lines_with_style(
             // Row: concatenate children horizontally into one line
             let parts : Array[String] = []
             for child in el.children {
-              parts.push(render_inline_text(child, merged))
+              parts.push(render_inline_text(child, merged, color_mode))
             }
             [parts.join("")]
           } else {
             // Column: each child becomes one or more lines
             let lines : Array[String] = []
             for child in el.children {
-              let child_lines = render_to_lines_with_style(child, merged)
+              let child_lines = render_to_lines_with_style(
+                child, merged, color_mode,
+              )
               for line in child_lines {
                 lines.push(line)
               }
@@ -252,7 +285,9 @@ fn render_to_lines_with_style(
     @luna.Node::Fragment(children) => {
       let lines : Array[String] = []
       for child in children {
-        let child_lines = render_to_lines_with_style(child, parent_style)
+        let child_lines = render_to_lines_with_style(
+          child, parent_style, color_mode,
+        )
         for line in child_lines {
           lines.push(line)
         }
@@ -261,7 +296,7 @@ fn render_to_lines_with_style(
     }
     @luna.Node::Show(condition~, child~) =>
       if condition() {
-        render_to_lines_with_style(child(), parent_style)
+        render_to_lines_with_style(child(), parent_style, color_mode)
       } else {
         []
       }
@@ -269,7 +304,9 @@ fn render_to_lines_with_style(
       let items = render()
       let lines : Array[String] = []
       for item in items {
-        let item_lines = render_to_lines_with_style(item, parent_style)
+        let item_lines = render_to_lines_with_style(
+          item, parent_style, color_mode,
+        )
         for line in item_lines {
           lines.push(line)
         }
@@ -277,7 +314,7 @@ fn render_to_lines_with_style(
       lines
     }
     @luna.Node::Component(render~) =>
-      render_to_lines_with_style(render(), parent_style)
+      render_to_lines_with_style(render(), parent_style, color_mode)
     _ => []
   }
 }

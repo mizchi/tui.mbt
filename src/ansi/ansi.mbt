@@ -24,6 +24,16 @@ pub fn ansi_underline() -> String {
 }
 
 ///|
+pub fn ansi_inverse_off() -> String {
+  "\u001b[27m"
+}
+
+///|
+pub fn ansi_fg_reset() -> String {
+  "\u001b[39m"
+}
+
+///|
 pub fn ansi_reverse() -> String {
   "\u001b[7m"
 }
@@ -81,6 +91,30 @@ pub fn ansi_fg_256(color_idx : Int) -> String {
 ///|
 pub fn ansi_bg_256(color_idx : Int) -> String {
   "\u001b[48;5;" + color_idx.to_string() + "m"
+}
+
+///|
+/// 24-bit true color foreground
+pub fn ansi_fg_rgb(r : Int, g : Int, b : Int) -> String {
+  "\u001b[38;2;" +
+  r.to_string() +
+  ";" +
+  g.to_string() +
+  ";" +
+  b.to_string() +
+  "m"
+}
+
+///|
+/// 24-bit true color background
+pub fn ansi_bg_rgb(r : Int, g : Int, b : Int) -> String {
+  "\u001b[48;2;" +
+  r.to_string() +
+  ";" +
+  g.to_string() +
+  ";" +
+  b.to_string() +
+  "m"
 }
 
 ///|

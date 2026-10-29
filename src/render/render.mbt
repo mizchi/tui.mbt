@@ -77,6 +77,7 @@ fn render_layout_f(
           bg: @core.Color::transparent(),
           bold: style.bold,
           underline: style.underline,
+          reverse: style.reverse,
         }
         let _ = buf.write_text_wrapped(
           content_x, content_y, text, text_style, content_w, content_h,

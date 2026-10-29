@@ -27,6 +27,9 @@ pub impl Show for DiffOp with fn output(self, logger) {
 }
 
 ///|
+pub extend DiffOp with Show::{to_string, output}
+
+///|
 /// Compute line-level diff between old and new text using Myers algorithm.
 /// Returns an array of DiffOp indicating equal, inserted, and deleted lines.
 pub fn diff_lines(

@@ -46,12 +46,16 @@ pub impl Eq for CharCell with fn equal(self, other) {
 }
 
 ///|
+pub extend CharCell with Eq::{not_equal, equal}
+
+///|
 /// Text style for writing text
 pub(all) struct TextStyle {
   fg : @core.Color
   bg : @core.Color
   bold : Bool
   underline : Bool
+  reverse : Bool
 }
 
 ///|
@@ -61,5 +65,6 @@ pub fn TextStyle::default() -> TextStyle {
     bg: @core.Color::transparent(),
     bold: false,
     underline: false,
+    reverse: false,
   }
 }

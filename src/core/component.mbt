@@ -66,6 +66,12 @@ pub(all) enum Role {
 } derive(Debug, Eq)
 
 ///|
+pub extend Role with @debug.Debug::{to_repr}
+
+///|
+pub extend Role with Eq::{not_equal, equal}
+
+///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
   Show::output(value.to_repr(), logger)
 }
@@ -74,6 +80,9 @@ fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
 pub impl Show for Role with fn output(self : Role, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend Role with Show::{to_string, output}
 
 ///|
 /// Role map (component ID -> role)
@@ -378,6 +387,7 @@ pub fn box(
     bg,
     bold: false,
     underline: false,
+    reverse: false,
     border,
     border_fg: border_color,
   })
@@ -409,6 +419,7 @@ pub fn text(
     bg,
     bold,
     underline,
+    reverse: false,
     border: None,
     border_fg: Color::white(),
   })
@@ -513,6 +524,7 @@ pub fn text_box(
     bg,
     bold,
     underline,
+    reverse: false,
     border,
     border_fg: border_color,
   })

@@ -8,7 +8,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#include <conio.h>
 #include <io.h>
 #else
 #include <unistd.h>
@@ -33,6 +32,48 @@ static int tty_handle_opened = 0; // 1 if we opened CONIN$ ourselves
 static unsigned char pending_bytes[8];
 static int pending_len = 0;
 static int pending_pos = 0;
+
+// UTF-8 bytes of the character from the current KEY_EVENT (ReadConsoleInputW
+// delivers UTF-16; one unit encodes to at most 3 UTF-8 bytes here, and a
+// surrogate pair arrives as two events joined by the MoonBit side). These
+// drain one byte at a time before new events are fetched.
+static unsigned char pending_chars[3];
+static int pending_chars_len = 0;
+static int pending_chars_pos = 0;
+
+static void reset_pending_chars(void) {
+    pending_chars_len = 0;
+    pending_chars_pos = 0;
+}
+
+static int pop_pending_char_byte(void) {
+    if (pending_chars_pos >= pending_chars_len) {
+        reset_pending_chars();
+        return -1;
+    }
+    int byte = pending_chars[pending_chars_pos++];
+    if (pending_chars_pos >= pending_chars_len) {
+        reset_pending_chars();
+    }
+    return byte;
+}
+
+static void queue_utf16(WCHAR ch) {
+    if (ch < 0x80) {
+        pending_chars[0] = (unsigned char)ch;
+        pending_chars_len = 1;
+    } else if (ch < 0x800) {
+        pending_chars[0] = (unsigned char)(0xC0 | (ch >> 6));
+        pending_chars[1] = (unsigned char)(0x80 | (ch & 0x3F));
+        pending_chars_len = 2;
+    } else {
+        pending_chars[0] = (unsigned char)(0xE0 | (ch >> 12));
+        pending_chars[1] = (unsigned char)(0x80 | ((ch >> 6) & 0x3F));
+        pending_chars[2] = (unsigned char)(0x80 | (ch & 0x3F));
+        pending_chars_len = 3;
+    }
+    pending_chars_pos = 0;
+}
 
 static void reset_pending_bytes(void) {
     pending_len = 0;
@@ -145,24 +186,87 @@ static int translate_special_key(int code) {
     }
 }
 
+// Wait until a console input event exists in the buffer, up to timeout_ms.
+// Returns 1 when an event is available, 0 on timeout/failure.
+//
+// The timeout matters: tui_read_byte()'s contract with the MoonBit side is
+// non-blocking (returns -1 when no input), and the async key loop polls it
+// every 10ms. Blocking here forever would stall the whole scheduler.
+static int wait_console_event(DWORD timeout_ms) {
+    DWORD count = 0;
+    if (!GetNumberOfConsoleInputEvents(tty_handle, &count)) {
+        return 0;
+    }
+    if (count > 0) {
+        return 1;
+    }
+    // The console handle is signalled when input events are queued.
+    return WaitForSingleObject(tty_handle, timeout_ms) == WAIT_OBJECT_0 ? 1 : 0;
+}
+
+// Fetch the next key event and queue its character (UTF-8) or the ANSI
+// sequence of a translated special key. Blocking. Returns 1 when something
+// was queued, 0 when the read failed.
+static int fetch_key_event(void) {
+    INPUT_RECORD record;
+    DWORD read_count = 0;
+    for (;;) {
+        // ReadConsoleInputW **blocks** when the buffer is empty (unlike
+        // POSIX read with VMIN=0), so only read when an event is known to
+        // exist. Without input this returns 0 -> tui_read_byte() -> -1,
+        // keeping the non-blocking contract.
+        if (!wait_console_event(10)) {
+            return 0;
+        }
+        if (!ReadConsoleInputW(tty_handle, &record, 1, &read_count) ||
+            read_count == 0) {
+            return 0;
+        }
+        if (record.EventType != KEY_EVENT) {
+            continue; // mouse / focus / menu events are not keyboard input
+        }
+        KEY_EVENT_RECORD *key = &record.Event.KeyEvent;
+        if (!key->bKeyDown) {
+            continue; // key-up would double every keystroke
+        }
+        WCHAR ch = key->uChar.UnicodeChar;
+        if (ch == 0) {
+            // No character: arrows, F-keys, etc. Translate to the ANSI
+            // sequence a POSIX terminal would deliver for the same key.
+            int translated = translate_special_key(key->wVirtualKeyCode);
+            if (translated < 0) {
+                continue; // modifier-only or unhandled key
+            }
+            return 1; // first byte returned; the rest drains via pending_bytes
+        }
+        queue_utf16(ch);
+        return 1;
+    }
+}
+
 static int read_console_byte(void) {
     int pending = pop_pending_byte();
     if (pending >= 0) {
         return pending;
     }
-
-    if (!_kbhit()) {
+    int pending_char = pop_pending_char_byte();
+    if (pending_char >= 0) {
+        return pending_char;
+    }
+    if (!fetch_key_event()) {
         return -1;
     }
-
-    int ch = _getch();
-    if (ch == 0 || ch == 0xE0) {
-        return translate_special_key(_getch());
+    // fetch_key_event queued either pending_bytes (special key) or
+    // pending_chars (character); drain the first byte of whichever.
+    pending = pop_pending_byte();
+    if (pending >= 0) {
+        return pending;
     }
-    if (ch == 8) {
-        return 127; // Normalize backspace to DEL like POSIX terminals
+    pending_char = pop_pending_char_byte();
+    if (pending_char >= 0) {
+        return pending_char;
     }
-    return ch;
+    return -1;
 }
 
 // Enable raw mode for character-by-character input

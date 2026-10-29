@@ -1,0 +1,8 @@
+import {
+  "mizchi/tui/render",
+  "mizchi/tui/vnode",
+}
+
+supported_targets = "js+native"
+
+pkgtype(kind: "executable")

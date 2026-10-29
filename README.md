@@ -7,6 +7,7 @@ Supported targets: `js`, `native`
 ## Features
 
 - Virtual DOM with diff-based ANSI rendering
+- 256-color palette by default, opt-in 24-bit true color
 - Flexbox and CSS Grid layout (powered by mizchi/crater)
 - Reactive signals integration (mizchi/signals)
 - Styled UI components (@components)
@@ -56,6 +57,39 @@ fn main {
   println(output)
 }
 ```
+
+## True Color (24-bit)
+
+Colors are emitted through the 256-color palette by default. Pass
+`color_mode=@render.ColorMode::TrueColor` to emit 24-bit SGR sequences
+(`38;2;r;g;bm` for foreground, `48;2;r;g;bm` for background) instead:
+
+```moonbit
+// One-shot render
+@vnode.render_vnode_once(80, 24, node, color_mode=@render.ColorMode::TrueColor)
+
+// Long-lived app
+let app = @vnode.VNodeApp::new(80, 24, color_mode=@render.ColorMode::TrueColor)
+app.set_color_mode(@render.ColorMode::TrueColor) // switch later
+
+// Inline / overlay helpers
+@vnode.render_to_lines(node, color_mode=@render.ColorMode::TrueColor)
+```
+
+`ColorMode::detect()` picks a mode from `COLORTERM` / `TERM`, falling back to
+the 256-color palette when 24-bit support is not advertised:
+
+```moonbit
+let app = @vnode.VNodeApp::new(80, 24, color_mode=@render.ColorMode::detect())
+```
+
+`App`, `run_app`, `render_once`, `VNodeApp`, `run_vnode_app`,
+`init_vnode_terminal`, `render_vnode_once`, `render_to_lines` and
+`render_overlay_at` accept the same `color_mode` argument. The default stays on
+the 256-color palette, so existing output and snapshots are unchanged.
+
+Run `moon run examples/true-color --target js` to compare both modes side by
+side.
 
 ## Layout Primitives (@vnode)
 
@@ -163,6 +197,7 @@ moon run examples/grid-area --target js
 moon run examples/grid-layout --target js
 moon run examples/kitty-graphics --target js
 moon run examples/roguelike --target js
+moon run examples/true-color --target js
 moon run examples/wizard --target js
 ```
 

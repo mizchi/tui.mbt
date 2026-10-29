@@ -25,6 +25,12 @@ pub(all) enum EditAction {
 } derive(Debug, Eq)
 
 ///|
+pub extend EditAction with @debug.Debug::{to_repr}
+
+///|
+pub extend EditAction with Eq::{not_equal, equal}
+
+///|
 fn[T : Debug] show_debug(value : T, logger : &Logger) -> Unit {
   Show::output(value.to_repr(), logger)
 }
@@ -35,6 +41,9 @@ pub impl Show for EditAction with fn output(self : EditAction, logger : &Logger)
 }
 
 ///|
+pub extend EditAction with Show::{to_string, output}
+
+///|
 /// Line info for text wrapping and rendering
 pub(all) struct LineInfo {
   start_idx : Int
@@ -42,9 +51,18 @@ pub(all) struct LineInfo {
 } derive(Debug, Eq)
 
 ///|
+pub extend LineInfo with @debug.Debug::{to_repr}
+
+///|
+pub extend LineInfo with Eq::{not_equal, equal}
+
+///|
 pub impl Show for LineInfo with fn output(self : LineInfo, logger : &Logger) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend LineInfo with Show::{to_string, output}
 
 ///|
 /// Display state for rendering
@@ -59,12 +77,18 @@ pub(all) struct DisplayState {
 } derive(Debug)
 
 ///|
+pub extend DisplayState with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for DisplayState with fn output(
   self : DisplayState,
   logger : &Logger,
 ) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend DisplayState with Show::{to_string, output}
 
 ///|
 /// Configuration for text input
@@ -77,12 +101,18 @@ pub(all) struct TextInputConfig {
 } derive(Debug)
 
 ///|
+pub extend TextInputConfig with @debug.Debug::{to_repr}
+
+///|
 pub impl Show for TextInputConfig with fn output(
   self : TextInputConfig,
   logger : &Logger,
 ) -> Unit {
   show_debug(self, logger)
 }
+
+///|
+pub extend TextInputConfig with Show::{to_string, output}
 
 ///|
 /// Create default config

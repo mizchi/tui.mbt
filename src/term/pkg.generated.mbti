@@ -11,7 +11,7 @@ pub fn cleanup_stdin() -> Unit
 
 pub fn enable_raw_mode() -> Unit
 
-pub fn get_terminal_size() -> (Int, Int)
+pub fn get_terminal_size() -> (Int32, Int32)
 
 pub fn parse_input(String) -> @events.InputEvent
 
